@@ -30,8 +30,8 @@ export default function QuestionnaireDashboard() {
   const stepDetails = [
     {
       id: 1,
-      title: "מידע אישי",
-      description: "מלא את הפרטים האישיים הבסיסיים שלך",
+      title: "תכונות ועוגני קריירה",
+      description: "בחר את התכונות המאפיינות אותך וענה על שאלון הקריירה",
     },
     {
       id: 2,
@@ -161,7 +161,7 @@ export default function QuestionnaireDashboard() {
               <ChevronLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-3xl font-bold text-gray-900 mt-6">
                 שאלון הערכה מקצועית
               </h1>
               <p className="text-gray-600 mt-1">

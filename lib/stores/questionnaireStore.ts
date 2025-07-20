@@ -29,6 +29,7 @@ interface QuestionnaireStore extends QuestionnaireState {
   validateStep: (step: number) => ValidationResult
   validateCurrentStep: () => ValidationResult
   getProgress: () => QuestionnaireProgress
+  updateProgress: () => void
   isStepValid: (step: number) => boolean
   
   // Form actions
@@ -69,7 +70,7 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
   setCurrentStep: (step: number) => {
     if (get().canNavigate(step)) {
       set({ currentStep: step })
-      get().getProgress()
+      get().updateProgress()
     }
   },
 
@@ -77,7 +78,7 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
     const { currentStep, validateCurrentStep } = get()
     if (currentStep < TOTAL_STEPS && validateCurrentStep().isValid) {
       set({ currentStep: currentStep + 1 })
-      get().getProgress()
+      get().updateProgress()
     }
   },
 
@@ -85,7 +86,7 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
     const { currentStep } = get()
     if (currentStep > 1) {
       set({ currentStep: currentStep - 1 })
-      get().getProgress()
+      get().updateProgress()
     }
   },
 
@@ -117,9 +118,12 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
       
       if (!questionnaireId) {
         // Create new questionnaire
+        // Get current user's UID
+        const { data: { user } } = await supabase.auth.getUser();
         const { data: questionnaire, error } = await supabase
           .from('questionnaires')
           .insert({
+            user_id: user?.id,
             step_data: newStepData,
             status: 'draft'
           })
@@ -142,7 +146,7 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
       }
 
       set({ stepData: newStepData })
-      get().getProgress()
+      get().updateProgress()
     } catch (error) {
       set({ error: error as Error })
     } finally {
@@ -151,6 +155,7 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
   },
 
   setAnswer: async (key: string, value: any) => {
+    console.log("[setAnswer]", { key, value });
     const answer: QuestionnaireAnswer = {
       value,
       isValid: true, // Will be validated by validateStep
@@ -173,6 +178,7 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
     return get().validateStep(step).isValid
   },
 
+  // Pure getter: does NOT update state
   getProgress: () => {
     const { currentStep, stepData } = get()
     let completedSteps = 0
@@ -203,14 +209,18 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
       total: TOTAL_STEPS
     }
 
-    const isValid = completedSteps === TOTAL_STEPS
-    
-    set({ 
+    return progress
+  },
+
+  // Updates progress, isValid, isComplete in store
+  updateProgress: () => {
+    const progress = get().getProgress()
+    const isValid = progress.completedSteps === progress.totalSteps
+    set({
       progress,
       isValid,
       isComplete: isValid
     })
-    return progress
   },
 
   // Form actions
@@ -284,7 +294,7 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
           stepData: questionnaire.step_data as StepData,
           currentStep: 1
         })
-        get().getProgress()
+        get().updateProgress()
       }
     } catch (error) {
       set({ error: error as Error })

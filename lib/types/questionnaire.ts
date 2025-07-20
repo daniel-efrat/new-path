@@ -1,5 +1,5 @@
 export interface QuestionnaireAnswer {
-  value: string | number | boolean
+  value: string | number | boolean | string[] | number[]
   isValid?: boolean
   errors?: string[]
 }

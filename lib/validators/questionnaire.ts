@@ -36,14 +36,27 @@ const validateNumber = (value: number, min?: number, max?: number): string[] => 
 export const validateStep1 = (data: StepData): ValidationResult => {
   const errors: string[] = []
   
-  // Required fields
-  errors.push(...validateRequired(data.name, 'Name'))
-  errors.push(...validateRequired(data.email, 'Email'))
-  
-  // Email validation
-  if (data.email?.value) {
-    errors.push(...validateEmail(data.email.value as string))
+  // Validate traits selection (should have at least 1, max 10)
+  const traits = Array.isArray(data.traits?.value) ? (data.traits.value as string[]) : []
+  if (traits.length === 0) {
+    errors.push('At least one trait must be selected')
   }
+  if (traits.length > 10) {
+    errors.push('Maximum 10 traits can be selected')
+  }
+  
+  // Validate anchors (should have all 18 questions answered)
+  const anchors = Array.isArray(data.anchors?.value) ? (data.anchors.value as number[]) : []
+  if (anchors.length !== 18) {
+    errors.push('All 18 career anchor questions must be answered')
+  }
+  
+  // Validate anchor values are in range 0-10
+  anchors.forEach((anchor, index) => {
+    if (typeof anchor === 'number' && (anchor < 0 || anchor > 10)) {
+      errors.push(`Career anchor question ${index + 1} must be between 0 and 10`)
+    }
+  })
 
   return createValidationResult(errors.length === 0, errors)
 }

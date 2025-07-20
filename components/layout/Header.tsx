@@ -45,7 +45,7 @@ export default function Header() {
     router.push('/signin');
   };
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background shadow-md py-4">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/60 backdrop-blur-md shadow-md py-4 border-b border-white/40">
       <div className="container mx-auto px-4 flex justify-between items-center">
         <Link href="/" className="flex items-center">
           <Image

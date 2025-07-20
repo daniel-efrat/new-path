@@ -92,26 +92,20 @@ const ANCHOR_QUESTIONS: string[] = [
   "משמעות עבורי להרוויח פחות כסף אם אני מרגיש/ה שאני עושה משהו משמעותי שעוזר לאנשים",
 ]
 
-interface QuestionnaireAnswers {
-  traits?: string[]
-  anchors?: number[]
-}
-
 export default function PreMeetingQuestionnaire() {
-  const { answers, setAnswer } = useQuestionnaireStore()
+  const { stepData, setAnswer } = useQuestionnaireStore()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [focusedTrait, setFocusedTrait] = useState<number>(-1)
   const [mounted, setMounted] = useState(false)
-  const typedAnswers = answers as QuestionnaireAnswers
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  // Get stored values or use defaults
-  const selectedTraits = typedAnswers.traits || []
-  const anchors = typedAnswers.anchors || Array(ANCHOR_QUESTIONS.length).fill(5)
+  // Get stored values or use defaults with proper type checking
+  const selectedTraits = Array.isArray(stepData.traits?.value) ? (stepData.traits.value as string[]) : []
+  const anchors = Array.isArray(stepData.anchors?.value) ? (stepData.anchors.value as number[]) : Array(ANCHOR_QUESTIONS.length).fill(5)
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -185,9 +179,6 @@ export default function PreMeetingQuestionnaire() {
     }
   }
 
-  if (!mounted) {
-    return <div className="min-h-screen animate-pulse bg-gray-100" />
-  }
 
   if (error) {
     return (
