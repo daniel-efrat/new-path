@@ -4,15 +4,15 @@ import { STORAGE_KEYS } from "@/lib/constants/questionnaire";
 import { validateQuestionnaireData } from "@/lib/utils/format-questionnaire";
 
 export function useQuestionnairePersistence() {
-  const { answers, setAnswer, resetAnswers } = useQuestionnaireStore();
+  const { stepData, setAnswer, resetQuestionnaire } = useQuestionnaireStore();
 
   // Load saved data on mount
   useEffect(() => {
     const loadSavedData = async () => {
       try {
-        const savedAnswers = localStorage.getItem(STORAGE_KEYS.ANSWERS);
-        if (savedAnswers) {
-          const parsed = JSON.parse(savedAnswers);
+        const savedStepData = localStorage.getItem(STORAGE_KEYS.ANSWERS);
+        if (savedStepData) {
+          const parsed = JSON.parse(savedStepData);
           const validation = validateQuestionnaireData(parsed);
           
           if (validation.isValid) {
@@ -37,16 +37,16 @@ export function useQuestionnairePersistence() {
   useEffect(() => {
     const saveData = async () => {
       try {
-        localStorage.setItem(STORAGE_KEYS.ANSWERS, JSON.stringify(answers));
+        localStorage.setItem(STORAGE_KEYS.ANSWERS, JSON.stringify(stepData));
       } catch (error) {
         console.error("Error saving questionnaire data:", error);
       }
     };
 
-    if (Object.keys(answers).length > 0) {
+    if (Object.keys(stepData).length > 0) {
       saveData();
     }
-  }, [answers]);
+  }, [stepData]);
 
   // Clear saved data
   const clearSavedData = useCallback(async () => {
@@ -54,18 +54,18 @@ export function useQuestionnairePersistence() {
       localStorage.removeItem(STORAGE_KEYS.ANSWERS);
       localStorage.removeItem(STORAGE_KEYS.PROGRESS);
       localStorage.removeItem(STORAGE_KEYS.STEP);
-      resetAnswers();
+      resetQuestionnaire();
     } catch (error) {
       console.error("Error clearing saved data:", error);
       throw error;
     }
-  }, [resetAnswers]);
+  }, [resetQuestionnaire]);
 
   // Export saved data
   const exportData = useCallback(() => {
     try {
       const data = {
-        answers,
+        answers: stepData,
         timestamp: new Date().toISOString(),
         version: "1.0",
       };
@@ -86,7 +86,7 @@ export function useQuestionnairePersistence() {
       console.error("Error exporting data:", error);
       throw error;
     }
-  }, [answers]);
+  }, [stepData]);
 
   // Import saved data
   const importData = useCallback(async (file: File) => {

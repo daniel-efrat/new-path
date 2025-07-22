@@ -10,7 +10,7 @@ interface AnalyticsEvent {
 }
 
 export function useQuestionnaireAnalytics() {
-  const { answers, currentStep } = useQuestionnaireStore();
+  const { stepData, currentStep } = useQuestionnaireStore();
 
   // Track step changes
   useEffect(() => {
@@ -24,7 +24,8 @@ export function useQuestionnaireAnalytics() {
 
   // Track trait selections
   useEffect(() => {
-    const traitsCount = answers.traits?.length ?? 0;
+    const traits = stepData.traits?.value as string[] | undefined;
+    const traitsCount = Array.isArray(traits) ? traits.length : 0;
     if (traitsCount > 0) {
       trackEvent({
         category: "Questionnaire",
@@ -33,11 +34,12 @@ export function useQuestionnaireAnalytics() {
         value: traitsCount,
       });
     }
-  }, [answers.traits]);
+  }, [stepData.traits?.value]);
 
   // Track anchor responses
   useEffect(() => {
-    const anchorsCompleted = answers.anchors?.filter(Boolean).length ?? 0;
+    const anchors = stepData.anchors?.value as (number | undefined)[] | undefined;
+    const anchorsCompleted = Array.isArray(anchors) ? anchors.filter(Boolean).length : 0;
     if (anchorsCompleted > 0) {
       trackEvent({
         category: "Questionnaire",
@@ -46,7 +48,7 @@ export function useQuestionnaireAnalytics() {
         value: anchorsCompleted,
       });
     }
-  }, [answers.anchors]);
+  }, [stepData.anchors?.value]);
 
   // Helper functions
   const trackEvent = (event: AnalyticsEvent) => {

@@ -26,73 +26,7 @@ export default defineConfig({
   ],
 
   theme: {
-    extend: {
-      /**
-       * Map each CSS variable → a Tailwind colour so
-       *   bg-primary / text-muted-foreground / ring-border / … all work.
-       *
-       * Use OKLCH because Tailwind v4’s colour utilities output oklch().
-       * If you ever switch your tokens back to HSL, change “oklch(…)"
-       * to “hsl(…)” here and you’re done.
-       */
-      colors: {
-        /* core palette */
-        background: "oklch(var(--color-background) / <alpha-value>)",
-        foreground: "oklch(var(--color-foreground) / <alpha-value>)",
-
-        card: "oklch(var(--color-card) / <alpha-value>)",
-        "card-foreground":
-          "oklch(var(--color-card-foreground) / <alpha-value>)",
-
-        popover: "oklch(var(--color-popover) / <alpha-value>)",
-        "popover-foreground":
-          "oklch(var(--color-popover-foreground) / <alpha-value>)",
-
-        primary: "oklch(var(--color-primary) / <alpha-value>)",
-        "primary-foreground":
-          "oklch(var(--color-primary-foreground) / <alpha-value>)",
-
-        secondary: "oklch(var(--color-secondary) / <alpha-value>)",
-        "secondary-foreground":
-          "oklch(var(--color-secondary-foreground) / <alpha-value>)",
-
-        muted: "oklch(var(--color-muted) / <alpha-value>)",
-        "muted-foreground":
-          "oklch(var(--color-muted-foreground) / <alpha-value>)",
-
-        accent: "oklch(var(--color-accent) / <alpha-value>)",
-        "accent-foreground":
-          "oklch(var(--color-accent-foreground) / <alpha-value>)",
-
-        destructive: "oklch(var(--color-destructive) / <alpha-value>)",
-        "destructive-foreground":
-          "oklch(var(--color-destructive-foreground) / <alpha-value>)",
-
-        border: "oklch(var(--color-border) / <alpha-value>)",
-        input: "oklch(var(--color-input) / <alpha-value>)",
-        ring: "oklch(var(--color-ring) / <alpha-value>)",
-
-        /* data‑viz + sidebar tokens (optional but handy) */
-        "chart-1": "oklch(var(--color-chart-1) / <alpha-value>)",
-        "chart-2": "oklch(var(--color-chart-2) / <alpha-value>)",
-        "chart-3": "oklch(var(--color-chart-3) / <alpha-value>)",
-        "chart-4": "oklch(var(--color-chart-4) / <alpha-value>)",
-        "chart-5": "oklch(var(--color-chart-5) / <alpha-value>)",
-
-        sidebar: "oklch(var(--color-sidebar) / <alpha-value>)",
-        "sidebar-foreground":
-          "oklch(var(--color-sidebar-foreground) / <alpha-value>)",
-        "sidebar-primary":
-          "oklch(var(--color-sidebar-primary) / <alpha-value>)",
-        "sidebar-primary-foreground":
-          "oklch(var(--color-sidebar-primary-foreground) / <alpha-value>)",
-        "sidebar-accent": "oklch(var(--color-sidebar-accent) / <alpha-value>)",
-        "sidebar-accent-foreground":
-          "oklch(var(--color-sidebar-accent-foreground) / <alpha-value>)",
-        "sidebar-border": "oklch(var(--color-sidebar-border) / <alpha-value>)",
-        "sidebar-ring": "oklch(var(--color-sidebar-ring) / <alpha-value>)",
-      },
-    },
+    extend: {},
   },
 
   plugins: [animate],

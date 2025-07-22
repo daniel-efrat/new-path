@@ -2,10 +2,10 @@ import * as React from 'react';
 import { SVGProps, Ref, forwardRef } from 'react';
 
 /**
- * Inline‑SVG logo.
- * – All SVG attributes have been camel‑cased for JSX.
+ * Inline-SVG logo.
+ * – All SVG attributes have been camel-cased for JSX.
  * – `...props` lets you override size, className, style, onClick, etc.
- * – Wrapped in `forwardRef` so refs work out‑of‑the‑box.
+ * – Wrapped in `forwardRef` so refs work out-of-the-box.
  */
 const LogoIcon = (
   props: SVGProps<SVGSVGElement>,

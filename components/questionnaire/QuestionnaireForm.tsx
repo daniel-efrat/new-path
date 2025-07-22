@@ -5,7 +5,15 @@ import { useQuestionnaireStore } from '../../lib/stores/questionnaireStore';
 import { trackEvent } from '../../lib/analytics';
 
 // Define the questions for our questionnaire
-const QUESTIONS = [
+type QuestionType = 'select' | 'multiselect';
+
+const QUESTIONS: {
+  id: string;
+  question: string;
+  type: QuestionType;
+  options: string[];
+  maxSelections?: number;
+}[] = [
   {
     id: 'interests',
     question: 'אילו תחומים או נושאים מעניינים אותך ביותר?',
@@ -107,8 +115,10 @@ export default function QuestionnaireForm() {
   const [error, setError] = useState<string | null>(null);
   const [gdprConsent, setGdprConsent] = useState(false);
   const router = useRouter();
+
   
-  const { answers, setAnswer } = useQuestionnaireStore();
+  
+  const { stepData, setAnswer } = useQuestionnaireStore();
   
   // Track questionnaire start when component mounts
   useState(() => {
@@ -131,10 +141,14 @@ export default function QuestionnaireForm() {
     e.preventDefault();
     
     // Validate that all questions are answered
-    const unansweredQuestions = QUESTIONS.filter(q => 
-      !answers[q.id] || 
-      (Array.isArray(answers[q.id]) && answers[q.id].length === 0)
-    );
+    const unansweredQuestions = QUESTIONS.filter(q => {
+      const answer = stepData[q.id]?.value;
+      return (
+        answer === undefined ||
+        (Array.isArray(answer) && answer.length === 0) ||
+        (typeof answer === 'string' && answer.trim() === '')
+      );
+    });
     
     if (unansweredQuestions.length > 0) {
       setError('נא לענות על כל השאלות לפני ההגשה.');
@@ -159,7 +173,7 @@ export default function QuestionnaireForm() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ answers }),
+        body: JSON.stringify({ answers: stepData }),
       });
       
       if (!response.ok) {
@@ -193,7 +207,17 @@ export default function QuestionnaireForm() {
       {/* Current question */}
       <QuestionnaireStep
         question={currentQuestion}
-        value={answers[currentQuestion.id] || (currentQuestion.type === 'multiselect' ? [] : '')}
+        value={
+          currentQuestion.type === 'multiselect'
+            ? Array.isArray(stepData[currentQuestion.id]?.value)
+              ? (stepData[currentQuestion.id]?.value as string[])
+              : []
+            : typeof stepData[currentQuestion.id]?.value === 'string'
+              ? (stepData[currentQuestion.id]?.value as string)
+              : stepData[currentQuestion.id]?.value !== undefined
+                ? String(stepData[currentQuestion.id]?.value)
+                : ''
+        }
         onChange={(value: string | string[]) => setAnswer(currentQuestion.id, value)}
       />
       

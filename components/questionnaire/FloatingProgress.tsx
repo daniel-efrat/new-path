@@ -10,8 +10,8 @@ interface QuestionnaireAnswers {
 
 export default function FloatingProgress() {
   const [isExpanded, setIsExpanded] = useState(true);
-  const { answers } = useQuestionnaireStore();
-  const typedAnswers = answers as QuestionnaireAnswers;
+  const { stepData } = useQuestionnaireStore();
+  const typedAnswers = stepData as QuestionnaireAnswers;
   
   const traitsProgress = Math.min((typedAnswers.traits?.length ?? 0) * 10, 100);
   const anchorsProgress = 

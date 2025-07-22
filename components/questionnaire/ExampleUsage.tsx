@@ -8,14 +8,17 @@ import { QuestionnaireError } from '@/lib/errors/questionnaire'
 
 // Example 1: Using the hook in a functional component
 function FunctionalExample() {
-  const { errorBoundaryRef, withErrorHandling } = useQuestionnaireErrorBoundary()
+  const { errorBoundaryRef } = useQuestionnaireErrorBoundary()
   const submitQuestionnaire = useQuestionnaireStore(state => state.submitQuestionnaire)
 
   const handleSubmit = React.useCallback(async () => {
-    await withErrorHandling(async () => {
+    try {
       await submitQuestionnaire()
-    })
-  }, [withErrorHandling, submitQuestionnaire])
+    } catch (error) {
+      // Optionally handle error here or let the boundary catch it
+      throw error
+    }
+  }, [submitQuestionnaire])
 
   return (
     <QuestionnaireErrorBoundary ref={errorBoundaryRef}>
@@ -61,19 +64,22 @@ function DirectExample() {
 
 // Example 4: Using with async operations
 function AsyncExample() {
-  const { errorBoundaryRef, withErrorHandling } = useQuestionnaireErrorBoundary()
+  const { errorBoundaryRef } = useQuestionnaireErrorBoundary()
   const updateStepData = useQuestionnaireStore(state => state.updateStepData)
 
   const handleSave = React.useCallback(async () => {
-    await withErrorHandling(async () => {
+    try {
       await updateStepData({
         stepKey: {
           value: 'example',
           isValid: true
         }
       })
-    })
-  }, [withErrorHandling, updateStepData])
+    } catch (error) {
+      // Optionally handle error here or let the boundary catch it
+      throw error
+    }
+  }, [updateStepData])
 
   return (
     <QuestionnaireErrorBoundary ref={errorBoundaryRef}>
@@ -84,17 +90,20 @@ function AsyncExample() {
 
 // Example 5: Composing with other components
 function ComposedExample() {
-  const { errorBoundaryRef, withErrorHandling } = useQuestionnaireErrorBoundary()
+  const { errorBoundaryRef } = useQuestionnaireErrorBoundary()
   const { stepData, currentStep } = useQuestionnaireStore()
 
   const handleOperation = React.useCallback(async () => {
-    await withErrorHandling(async () => {
+    try {
       // Complex operation that might fail
       await Promise.all([
         // Multiple async operations
       ])
-    })
-  }, [withErrorHandling])
+    } catch (error) {
+      // Optionally handle error here or let the boundary catch it
+      throw error
+    }
+  }, [])
 
   return (
     <QuestionnaireErrorBoundary 
