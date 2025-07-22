@@ -48,7 +48,7 @@ export default function AuthForm() {
   
   return (
     <div className="w-full max-w-md mx-auto">
-      <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md">
+      <div className="bg-white p-8 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold mb-6 text-center">התחברות / הרשמה</h2>
         
         <form onSubmit={handleSubmit} className="space-y-6">

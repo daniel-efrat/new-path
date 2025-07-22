@@ -1,22 +1,22 @@
 "use client"
 
 import Step1 from "@/components/questionnaire/steps/Step1"
+import Step2 from "@/components/questionnaire/steps/Step2"
+import QuestionnaireProgress from "@/components/ui/QuestionnaireProgress"
 import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore"
+import { useStepStore } from "@/lib/stores/stepStore"
 import { useEffect, useState } from "react"
 import KeyboardShortcuts from "@/components/questionnaire/KeyboardShortcuts"
 
 export default function QuestionnairePage() {
   const { setAnswer, getProgress, validateStep, currentStep, initializeQuestionnaire, isLoading } = useQuestionnaireStore()
+  const { steps } = useStepStore()
   const [mounted, setMounted] = useState(false)
 
-  // Get progress for the loading state - with fallback
-  let progress
-  try {
-    progress = getProgress()
-  } catch (error) {
-    console.error("Error getting progress:", error)
-    progress = { percentage: 0, completed: 0, total: 5, currentStep: 1, totalSteps: 5, completedSteps: 0, stepProgress: {} }
-  }
+  // Progress calculation based on step store (shared with dashboard)
+  const completedSteps = steps.filter((step: any) => step.isCompleted).length
+  const totalSteps = steps.length || 5
+  const progressPercentage = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0
 
   useEffect(() => {
     const init = async () => {
@@ -43,12 +43,16 @@ export default function QuestionnairePage() {
             <div className="h-2  bg-gray-200 rounded">
               <div 
                 className="h-full bg-blue-500 rounded animate-pulse" 
-                style={{ width: `${progress.percentage}%` }}
+                style={{ width: `${progressPercentage}%` }}
               />
             </div>
             <div className="flex justify-between mt-2 text-sm text-gray-500">
-              <div className="h-4 w-20 bg-gray-200 rounded animate-pulse" />
-              <div className="h-4 w-20 bg-gray-200 rounded animate-pulse" />
+              <span>
+                {completedSteps} מתוך {totalSteps} שלבים הושלמו
+              </span>
+              <span>
+                {Math.round(progressPercentage)}%
+              </span>
             </div>
           </div>
           
@@ -73,26 +77,11 @@ export default function QuestionnairePage() {
       <div className="container mx-auto py-8 px-4 min-h-screen pt-24">
         {/* Progress bar */}
         <div className="max-w-4xl mx-auto mb-8">
-          <div 
-            className="h-2 bg-gray-200 rounded overflow-hidden mt-4"
-            role="progressbar"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={progress.percentage}
-          >
-            <div 
-              className="h-full bg-blue-500 transition-all duration-500" 
-              style={{ width: `${progress.percentage}%` }}
-            />
-          </div>
-          <div className="flex justify-between mt-2">
-            <span className="text-sm text-gray-500">
-              {progress.completed} מתוך {progress.total} פריטים הושלמו
-            </span>
-            <span className="text-sm font-medium" aria-live="polite">
-              {progress.percentage}%
-            </span>
-          </div>
+          <QuestionnaireProgress
+            value={progressPercentage}
+            completed={completedSteps}
+            total={totalSteps}
+          />
         </div>
 
         {/* Current step */}
@@ -119,9 +108,25 @@ export default function QuestionnairePage() {
             />
           )}
           {currentStep === 2 && (
-            <div className="text-center py-20 text-2xl font-bold">
-              שלב 2: (placeholder) השלב הבא בטופס
-            </div>
+            <Step2
+              onNext={async () => {
+                const validation = validateStep(currentStep)
+                if (validation.isValid) {
+                  try {
+                    const { useStepStore } = await import("@/lib/stores/stepStore");
+                    useStepStore.getState().setStepCompletion(currentStep, true);
+                  } catch (e) {
+                    console.error("Failed to mark step as completed in dashboard:", e);
+                  }
+                  useQuestionnaireStore.getState().setCurrentStep(currentStep + 1)
+                } else {
+                  console.error("Validation errors:", validation.errors)
+                }
+              }}
+              onPrevious={() => {
+                useQuestionnaireStore.getState().setCurrentStep(currentStep - 1)
+              }}
+            />
           )}
           {/* Add Step3, Step4, etc. here as needed */}
         </div>

@@ -188,23 +188,23 @@ export default function LoginPage() {
                 <div className="grid gap-3">
                   <div className="flex items-center">
                     <Label htmlFor="password">סיסמה</Label>
-                    <a
-                      href="#"
-                      className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                    >
-                      שכחת את הסיסמה?
-                    </a>
                   </div>
-                  <Input 
-                    id="password" 
-                    name="password" 
-                    type="password" 
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
                     autoComplete="current-password"
-                    required 
+                    required
                   />
+                  <a
+                    href="#"
+                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                  >
+                    שכחת את הסיסמה?
+                  </a>
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? 'מתחבר...' : 'התחבר'}
+                  {isLoading ? "מתחבר..." : "התחבר"}
                 </Button>
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
@@ -216,14 +216,14 @@ export default function LoginPage() {
                     </span>
                   </div>
                 </div>
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   className="w-full"
                   onClick={handleGoogleLogin}
                   disabled={isGoogleLoading}
                 >
-                  {isGoogleLoading ? 'מתחבר...' : 'התחבר עם Google'}
+                  {isGoogleLoading ? "מתחבר..." : "התחבר עם Google"}
                 </Button>
               </div>
               <div className="mt-4 text-center text-sm">

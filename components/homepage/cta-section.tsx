@@ -32,7 +32,7 @@ export function CTASection() {
           </p>
         </div>
 
-        <div className="flex justify-center items-center space-x-8 space-x-reverse pt-8">
+        <div className="flex justify-center items-center gap-8 pt-8">
           <div className="text-center">
             <div className="text-2xl font-bold text-white">10,000+</div>
             <div className="text-sm text-emerald-100">הערכות הושלמו</div>

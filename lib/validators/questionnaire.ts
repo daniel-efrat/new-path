@@ -62,18 +62,8 @@ export const validateStep1 = (data: StepData): ValidationResult => {
 }
 
 export const validateStep2 = (data: StepData): ValidationResult => {
-  const errors: string[] = []
-  
-  // Required fields
-  errors.push(...validateRequired(data.companySize, 'Company size'))
-  errors.push(...validateRequired(data.industry, 'Industry'))
-  
-  // Number validation
-  if (data.companySize?.value) {
-    errors.push(...validateNumber(Number(data.companySize.value), 1, 1000000))
-  }
-
-  return createValidationResult(errors.length === 0, errors)
+  // No required fields for Step2 (career anchors)
+  return createValidationResult(true, [])
 }
 
 export const validateStep3 = (data: StepData): ValidationResult => {

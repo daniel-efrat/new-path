@@ -40,7 +40,7 @@ export function RetryDialog({
     if (isOpen) {
       lastActiveElement.current = document.activeElement as HTMLElement
       dialogRef.current?.focus()
-      
+
       // Prevent body scroll
       document.body.style.overflow = "hidden"
     } else {
@@ -70,7 +70,9 @@ export function RetryDialog({
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
         )
         const firstFocusable = focusableElements[0] as HTMLElement
-        const lastFocusable = focusableElements[focusableElements.length - 1] as HTMLElement
+        const lastFocusable = focusableElements[
+          focusableElements.length - 1
+        ] as HTMLElement
 
         if (e.shiftKey && document.activeElement === firstFocusable) {
           e.preventDefault()
@@ -88,12 +90,18 @@ export function RetryDialog({
 
   if (!isOpen) return null
 
-  const overlayClasses = `fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50
+  const overlayClasses =
+    `fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50
     ${animate ? "animate-in fade-in duration-${ANIMATION_DURATIONS.FADE}" : ""}
     ${overlayClassName}`.trim()
 
-  const dialogClasses = `bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 space-y-4
-    ${animate ? "animate-in zoom-in-95 duration-${ANIMATION_DURATIONS.TRANSITION}" : ""}
+  const dialogClasses =
+    `bg-white  rounded-lg shadow-xl max-w-md w-full p-6 space-y-4
+    ${
+      animate
+        ? "animate-in zoom-in-95 duration-${ANIMATION_DURATIONS.TRANSITION}"
+        : ""
+    }
     ${dialogClassName}`.trim()
 
   return (
@@ -111,21 +119,24 @@ export function RetryDialog({
         onClick={(e) => e.stopPropagation()}
         tabIndex={-1}
       >
-        <h2 id="retry-dialog-title" className="text-xl font-semibold text-right">
+        <h2
+          id="retry-dialog-title"
+          className="text-xl font-semibold text-right"
+        >
           שגיאה
         </h2>
 
         <div className="space-y-2">
-          <p 
-            id="retry-dialog-description" 
-            className="text-gray-600 dark:text-gray-300 text-right"
+          <p
+            id="retry-dialog-description"
+            className="text-gray-600  text-right"
           >
             {message}
           </p>
-          
+
           {/* Attempt counter */}
-          <div 
-            className="text-sm text-gray-500 dark:text-gray-400 text-right"
+          <div
+            className="text-sm text-gray-500 text-right"
             role="status"
             aria-live="polite"
           >
@@ -134,8 +145,8 @@ export function RetryDialog({
 
           {/* Error details in development */}
           {process.env.NODE_ENV === "development" && error && (
-            <pre 
-              className="text-xs text-red-500 bg-red-50 dark:bg-red-900/20 p-2 rounded mt-2 overflow-auto max-h-32 text-right"
+            <pre
+              className="text-xs text-red-500 bg-red-50 p-2 rounded mt-2 overflow-auto max-h-32 text-right"
               role="alert"
             >
               {error.message}

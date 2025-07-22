@@ -21,7 +21,7 @@ export default function FloatingProgress() {
 
   return (
     <div 
-      className={`fixed bottom-4 left-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 transition-all duration-300 ${
+      className={`fixed bottom-4 left-4 bg-white rounded-lg shadow-lg border border-gray-200 transition-all duration-300 ${
         isExpanded ? 'p-4' : 'p-2'
       }`}
     >

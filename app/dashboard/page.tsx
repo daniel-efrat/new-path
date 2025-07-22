@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
+import QuestionnaireProgress from "@/components/ui/QuestionnaireProgress"
 import { Check, ChevronLeft, Play, Lock } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -22,7 +23,7 @@ interface Step {
 
 export default function QuestionnaireDashboard() {
   const { steps, setStepCompletion, initializeSteps, resetFromStep, resetSteps } = useStepStore()
-  const { resetAnswers, setCurrentStep } = useQuestionnaireStore()
+  const { setCurrentStep } = useQuestionnaireStore()
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
   const [user, setUser] = useState<any>(null)
   const router = useRouter()
@@ -35,18 +36,18 @@ export default function QuestionnaireDashboard() {
     },
     {
       id: 2,
-      title: "רקע מקצועי",
-      description: "ספר לנו על הניסיון והכישורים המקצועיים שלך",
+      title: "תרגיל ערכים ועבודה",
+      description: "סמן את הערכים שיתווספו לתעודת הזהות שלך",
     },
     {
       id: 3,
-      title: "העדפות עבודה",
-      description: "בחר את סוג העבודה והסביבה המועדפים עליך",
+      title: "משפטי ייעוד מקצועיים",
+      description: "ספר לנו על הניסיון והכישורים המקצועיים שלך",
     },
     {
       id: 4,
-      title: "מטרות קריירה",
-      description: "הגדר את המטרות והשאיפות המקצועיות שלך",
+      title: "תעודת זהות תעסוקתית",
+      description: "סיכום הנתונים שלך עד כה",
     },
     {
       id: 5,
@@ -171,27 +172,12 @@ export default function QuestionnaireDashboard() {
           </div>
 
           {/* Progress Overview */}
-          <div className="bg-white rounded-lg p-6 shadow-sm border animate-in slide-in-from-left duration-600 delay-300">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900">
-                  התקדמות כללית
-                </h2>
-                <p className="text-sm text-gray-600">
-                  {completedSteps} מתוך {steps.length} שלבים הושלמו
-                </p>
-              </div>
-              <Badge
-                variant={
-                  completedSteps === steps.length ? "default" : "secondary"
-                }
-                className="text-sm"
-              >
-                {Math.round(progressPercentage)}% הושלם
-              </Badge>
-            </div>
-            <Progress value={progressPercentage} className="h-3" />
-          </div>
+          <QuestionnaireProgress
+            value={progressPercentage}
+            completed={completedSteps}
+            total={steps.length}
+            className="animate-in slide-in-from-left duration-600 delay-300"
+          />
         </div>
 
         {/* Steps */}
@@ -349,7 +335,6 @@ export default function QuestionnaireDashboard() {
               onClick={() => {
                 if (window.confirm('האם אתה בטוח שברצונך לאפס את כל ההתקדמות?')) {
                   resetSteps();
-                  resetAnswers();
                 }
               }}
             >

@@ -34,7 +34,7 @@ const TRAITS: string[] = [
   "טכנולוגי",
   "יעילות",
   '"מתקתק" דברים',
-  "אינטלגנ' רגשית",
+  "אינטליגנציה רגשית",
   "אינטלקט מפותח",
   "חברותי",
   "סקרנות",
@@ -98,14 +98,20 @@ export default function PreMeetingQuestionnaire() {
   const [error, setError] = useState<string | null>(null)
   const [focusedTrait, setFocusedTrait] = useState<number>(-1)
   const [mounted, setMounted] = useState(false)
+  // Step: 0 = Traits, 1 = Anchors
+  const [step, setStep] = useState(0)
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
   // Get stored values or use defaults with proper type checking
-  const selectedTraits = Array.isArray(stepData.traits?.value) ? (stepData.traits.value as string[]) : []
-  const anchors = Array.isArray(stepData.anchors?.value) ? (stepData.anchors.value as number[]) : Array(ANCHOR_QUESTIONS.length).fill(5)
+  const selectedTraits = Array.isArray(stepData.traits?.value)
+    ? (stepData.traits.value as string[])
+    : []
+  const anchors = Array.isArray(stepData.anchors?.value)
+    ? (stepData.anchors.value as number[])
+    : Array(ANCHOR_QUESTIONS.length).fill(5)
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -179,7 +185,6 @@ export default function PreMeetingQuestionnaire() {
     }
   }
 
-
   if (error) {
     return (
       <div
@@ -200,123 +205,133 @@ export default function PreMeetingQuestionnaire() {
 
   return (
     <section className="space-y-10" dir="rtl">
-      {/* --- תכונות --- */}
-      <div className="space-y-4" role="region" aria-label="בחירת תכונות">
-        <h2 className="text-xl font-semibold text-right">
-          בחר/י עד 10 תכונות המתארות אותך
-        </h2>
-        <p className="text-sm text-gray-500 text-right" aria-live="polite">
-          נבחרו {selectedTraits.length} מתוך 10 תכונות אפשריות
-        </p>
-        <div className="text-xs text-gray-500 mb-2">
-          לחץ על החץ למעלה/למטה לניווט, SPACE לבחירה
-        </div>
-        <div
-          className={cn(
-            "grid gap-4 transition-opacity duration-200",
-            isLoading && "opacity-50"
-          )}
-          style={{
-            gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-          }}
-        >
-          {TRAITS.map((trait, index) => (
-            <Card
-              key={trait}
-              className={cn(
-                "cursor-pointer transition-all duration-200",
-                selectedTraits.includes(trait)
-                  ? "ring-2 ring-primary bg-primary/5"
-                  : "hover:shadow-md hover:scale-[1.02]",
-                focusedTrait === index && "ring-2 ring-blue-500",
-                !mounted && "opacity-0"
-              )}
-              onClick={() => toggleTrait(trait)}
-              onFocus={() => setFocusedTrait(index)}
-              onBlur={() => setFocusedTrait(-1)}
-              tabIndex={0}
-              role="checkbox"
-              aria-checked={selectedTraits.includes(trait)}
+      {step === 0 && (
+        <div className="space-y-4" role="region" aria-label="בחירת תכונות">
+          <h2 className="text-xl font-semibold text-right">
+            בחר/י עד 10 תכונות המתארות אותך
+          </h2>
+          <p className="text-sm text-gray-500 text-right" aria-live="polite">
+            נבחרו {selectedTraits.length} מתוך 10 תכונות אפשריות
+          </p>
+          <div className="text-xs text-gray-500 mb-2">
+            לחץ על החץ למעלה/למטה לניווט, SPACE לבחירה
+          </div>
+          <div
+            className={cn(
+              "grid gap-4 transition-opacity duration-200",
+              isLoading && "opacity-50"
+            )}
+            style={{
+              gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+            }}
+          >
+            {TRAITS.map((trait, index) => (
+              <Card
+                key={trait}
+                className={cn(
+                  "cursor-pointer transition-all duration-200",
+                  selectedTraits.includes(trait)
+                    ? "ring-2 ring-primary bg-primary/5"
+                    : "hover:shadow-md hover:scale-[1.02]",
+                  focusedTrait === index && "ring-2 ring-blue-500",
+                  !mounted && "opacity-0"
+                )}
+                onClick={() => toggleTrait(trait)}
+                onFocus={() => setFocusedTrait(index)}
+                onBlur={() => setFocusedTrait(-1)}
+                tabIndex={0}
+                role="checkbox"
+                aria-checked={selectedTraits.includes(trait)}
+              >
+                <CardHeader className="flex items-center justify-between p-4">
+                  <span>{trait}</span>
+                  <Checkbox
+                    checked={selectedTraits.includes(trait)}
+                    onCheckedChange={() => toggleTrait(trait)}
+                    disabled={isLoading}
+                  />
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
+          <div className="flex justify-end mt-4">
+            <button
+              type="button"
+              className="px-4 py-2 bg-primary text-white rounded disabled:opacity-50"
+              onClick={() => setStep(1)}
+              disabled={selectedTraits.length === 0}
             >
-              <CardHeader className="flex items-center justify-between p-4">
-                <span>{trait}</span>
-                <Checkbox
-                  checked={selectedTraits.includes(trait)}
-                  onCheckedChange={() => toggleTrait(trait)}
-                  disabled={isLoading}
-                />
-              </CardHeader>
-            </Card>
-          ))}
+              הבא
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* --- עוגני קריירה --- */}
-      <div className="space-y-6" role="region" aria-label="שאלון עוגני קריירה">
-        <h2 className="text-xl font-semibold text-right">
-          שאלון "עוגני קריירה"
-        </h2>
-        <div className="text-xs text-gray-500 mb-2">
-          השתמש במקשי מספרים 0-9 לקביעת ערך
-        </div>
-        <div
-          className={cn(
-            "space-y-6 transition-opacity duration-200",
-            isLoading && "opacity-50"
-          )}
-        >
-          {ANCHOR_QUESTIONS.map((q, idx) => (
-            <Card
-              key={idx}
-              className={cn(
-                "p-4 space-y-4 transition-all duration-200 hover:shadow-md",
-                !mounted && "opacity-0"
-              )}
+      {step === 1 && (
+        <div className="space-y-6" role="region" aria-label="שאלון עוגני קריירה">
+          <h2 className="text-xl font-semibold text-right">
+            שאלון "עוגני קריירה"
+          </h2>
+          <div className="text-xs text-gray-500 mb-2">
+            השתמש במקשי מספרים 0-9 לקביעת ערך
+          </div>
+          <div
+            className={cn(
+              "space-y-6 transition-opacity duration-200",
+              isLoading && "opacity-50"
+            )}
+          >
+            {ANCHOR_QUESTIONS.map((q, idx) => (
+              <Card
+                key={idx}
+                className={cn(
+                  "p-4 transition-all duration-200 hover:shadow-md",
+                  !mounted && "opacity-0"
+                )}
+              >
+                <CardHeader className="flex justify-between items-start">
+                  <p className="font-medium leading-relaxed text-right">{q}</p>
+                </CardHeader>
+                <CardContent>
+                  <Slider
+                    min={0}
+                    max={10}
+                    step={1}
+                    value={[anchors[idx]]}
+                    onValueChange={(val: number[]) => updateAnchor(idx, val)}
+                    disabled={isLoading}
+                    aria-label={q}
+                  />
+                  <ul
+                    className="flex justify-between text-[10px] mt-1 rtl:space-x-reverse"
+                    dir="ltr"
+                  >
+                    {Array.from({ length: 11 }, (_, i) => (
+                      <li key={i} className="w-4 text-center">
+                        {i}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="flex justify-between text-xs mt-1 rtl:space-x-reverse">
+                    <span>לא מסכים בכלל</span>
+                    <span>מסכים מאוד</span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <div className="flex justify-between mt-4">
+            <button
+              type="button"
+              className="px-4 py-2 bg-gray-200 rounded"
+              onClick={() => setStep(0)}
             >
-              <CardHeader className="flex justify-between items-start">
-                <p className="font-medium leading-relaxed text-right">{q}</p>
-                <span
-                  className={cn(
-                    "text-sm font-semibold shrink-0 w-10 text-center transition-colors",
-                    anchors[idx] > 7
-                      ? "text-green-600"
-                      : anchors[idx] < 3
-                      ? "text-red-600"
-                      : "text-gray-600"
-                  )}
-                >
-                  {anchors[idx]}
-                </span>
-              </CardHeader>
-              <CardContent>
-                <Slider
-                  min={0}
-                  max={10}
-                  step={1}
-                  value={[anchors[idx]]}
-                  onValueChange={(val: number[]) => updateAnchor(idx, val)}
-                  disabled={isLoading}
-                  aria-label={q}
-                />
-                <ul
-                  className="flex justify-between text-[10px] mt-1 rtl:space-x-reverse"
-                  dir="ltr"
-                >
-                  {Array.from({ length: 11 }, (_, i) => (
-                    <li key={i} className="w-4 text-center">
-                      {i}
-                    </li>
-                  ))}
-                </ul>
-                <div className="flex justify-between text-xs mt-1 rtl:space-x-reverse">
-                  <span>לא מסכים בכלל</span>
-                  <span>מסכים מאוד</span>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+              חזור
+            </button>
+            {/* You can add a "סיום" (Finish) button here if needed */}
+          </div>
         </div>
-      </div>
+      )}
     </section>
   )
 }

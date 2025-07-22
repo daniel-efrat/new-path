@@ -1,10 +1,10 @@
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Check } from "lucide-react";
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Check } from "lucide-react"
 
 interface Step5Props {
-  onPrevious: () => void;
-  onComplete: () => void;
+  onPrevious: () => void
+  onComplete: () => void
 }
 
 export default function Step5({ onPrevious, onComplete }: Step5Props) {
@@ -17,14 +17,13 @@ export default function Step5({ onPrevious, onComplete }: Step5Props) {
         סקור את כל המידע ואשר את השלמת השאלון
       </p>
 
-      <Card className="max-w-3xl mx-auto bg-white dark:bg-gray-800 p-6">
+      <Card className="max-w-3xl mx-auto bg-white  p-6">
         <div className="text-center p-8">
-          <p className="text-gray-500 mb-8">שלב זה בפיתוח. תכנים יתווספו בקרוב.</p>
+          <p className="text-gray-500 mb-8">
+            שלב זה בפיתוח. תכנים יתווספו בקרוב.
+          </p>
           <div className="flex justify-between">
-            <Button
-              variant="outline"
-              onClick={onPrevious}
-            >
+            <Button variant="outline" onClick={onPrevious}>
               חזור לשלב הקודם
             </Button>
             <Button
@@ -38,5 +37,5 @@ export default function Step5({ onPrevious, onComplete }: Step5Props) {
         </div>
       </Card>
     </div>
-  );
+  )
 }

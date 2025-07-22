@@ -289,11 +289,11 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
       if (error && error.code !== 'PGRST116') throw error // PGRST116 = no rows returned
 
       if (questionnaire) {
-        set({
+        set((state: any) => ({
           questionnaireId: questionnaire.id,
           stepData: questionnaire.step_data as StepData,
-          currentStep: 1
-        })
+          currentStep: state.currentStep > 1 ? state.currentStep : 1
+        }))
         get().updateProgress()
       }
     } catch (error) {

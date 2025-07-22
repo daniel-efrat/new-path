@@ -54,7 +54,7 @@ export default function KeyboardShortcuts() {
       onClick={() => setIsVisible(false)}
     >
       <div
-        className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-md animate-in zoom-in-95"
+        className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md animate-in zoom-in-95"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-4">
@@ -75,10 +75,8 @@ export default function KeyboardShortcuts() {
               key={key}
               className="flex justify-between items-center py-2 border-b last:border-0"
             >
-              <span className="text-sm text-gray-600 dark:text-gray-300">
-                {description}
-              </span>
-              <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-sm">
+              <span className="text-sm text-gray-600 ">{description}</span>
+              <kbd className="px-2 py-1 bg-gray-100 rounded text-sm">
                 {key}
               </kbd>
             </div>

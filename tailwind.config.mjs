@@ -1,88 +1,99 @@
-/** @type {import('tailwindcss').Config} */
-export default {
+import { defineConfig } from "tailwindcss"
+import animate from "tailwindcss-animate"
+
+export default defineConfig({
+  darkMode: "class", // because the dark tokens live under `.dark`
+
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+
+  safelist: [
+    "animate-in",
+    "animate-out",
+    "fade-in",
+    "fade-out",
+    "slide-in",
+    "slide-out",
+    "slide-in-up",
+    "slide-out-down",
+    "zoom-in",
+    "zoom-out",
+    "scale-in",
+    "scale-out",
+  ],
+
   theme: {
     extend: {
-      animation: {
-        "fade-in": "fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-        "fade-out": "fade-out 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-        "slide-in": "slide-in 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-        "slide-out": "slide-out 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-        "zoom-in": "zoom-in 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-        "zoom-out": "zoom-out 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-        "slide-in-up": "slide-in-up 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-        "slide-out-down": "slide-out-down 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-        "scale-in": "scale-in 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-        "scale-out": "scale-out 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-      },
-      keyframes: {
-        "fade-in": {
-          "0%": { opacity: "0" },
-          "100%": { opacity: "1" },
-        },
-        "fade-out": {
-          "0%": { opacity: "1" },
-          "100%": { opacity: "0" },
-        },
-        "slide-in": {
-          "0%": { transform: "translateY(-10%)", opacity: "0" },
-          "100%": { transform: "translateY(0)", opacity: "1" },
-        },
-        "slide-out": {
-          "0%": { transform: "translateY(0)", opacity: "1" },
-          "100%": { transform: "translateY(-10%)", opacity: "0" },
-        },
-        "zoom-in": {
-          "0%": { transform: "scale(0.95)", opacity: "0" },
-          "100%": { transform: "scale(1)", opacity: "1" },
-        },
-        "zoom-out": {
-          "0%": { transform: "scale(1)", opacity: "1" },
-          "100%": { transform: "scale(0.95)", opacity: "0" },
-        },
-        "slide-in-up": {
-          "0%": { transform: "translateY(10%)", opacity: "0" },
-          "100%": { transform: "translateY(0)", opacity: "1" },
-        },
-        "slide-out-down": {
-          "0%": { transform: "translateY(0)", opacity: "1" },
-          "100%": { transform: "translateY(10%)", opacity: "0" },
-        },
-        "scale-in": {
-          "0%": { transform: "scale(0)" },
-          "80%": { transform: "scale(1.1)" },
-          "100%": { transform: "scale(1)" },
-        },
-        "scale-out": {
-          "0%": { transform: "scale(1)" },
-          "20%": { transform: "scale(1.1)" },
-          "100%": { transform: "scale(0)" },
-        },
-      },
-      transitionTimingFunction: {
-        "spring": "cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-        "bounce": "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
-        "smooth": "cubic-bezier(0.4, 0, 0.2, 1)",
-        "sharp": "cubic-bezier(0.4, 0, 0.6, 1)",
-        "snappy": "cubic-bezier(0.25, 0.1, 0.25, 1)",
-      },
-      transitionDuration: {
-        50: "50ms",
-        150: "150ms",
-        250: "250ms",
-        350: "350ms",
-        450: "450ms",
-      },
-      backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+      /**
+       * Map each CSS variable → a Tailwind colour so
+       *   bg-primary / text-muted-foreground / ring-border / … all work.
+       *
+       * Use OKLCH because Tailwind v4’s colour utilities output oklch().
+       * If you ever switch your tokens back to HSL, change “oklch(…)"
+       * to “hsl(…)” here and you’re done.
+       */
+      colors: {
+        /* core palette */
+        background: "oklch(var(--color-background) / <alpha-value>)",
+        foreground: "oklch(var(--color-foreground) / <alpha-value>)",
+
+        card: "oklch(var(--color-card) / <alpha-value>)",
+        "card-foreground":
+          "oklch(var(--color-card-foreground) / <alpha-value>)",
+
+        popover: "oklch(var(--color-popover) / <alpha-value>)",
+        "popover-foreground":
+          "oklch(var(--color-popover-foreground) / <alpha-value>)",
+
+        primary: "oklch(var(--color-primary) / <alpha-value>)",
+        "primary-foreground":
+          "oklch(var(--color-primary-foreground) / <alpha-value>)",
+
+        secondary: "oklch(var(--color-secondary) / <alpha-value>)",
+        "secondary-foreground":
+          "oklch(var(--color-secondary-foreground) / <alpha-value>)",
+
+        muted: "oklch(var(--color-muted) / <alpha-value>)",
+        "muted-foreground":
+          "oklch(var(--color-muted-foreground) / <alpha-value>)",
+
+        accent: "oklch(var(--color-accent) / <alpha-value>)",
+        "accent-foreground":
+          "oklch(var(--color-accent-foreground) / <alpha-value>)",
+
+        destructive: "oklch(var(--color-destructive) / <alpha-value>)",
+        "destructive-foreground":
+          "oklch(var(--color-destructive-foreground) / <alpha-value>)",
+
+        border: "oklch(var(--color-border) / <alpha-value>)",
+        input: "oklch(var(--color-input) / <alpha-value>)",
+        ring: "oklch(var(--color-ring) / <alpha-value>)",
+
+        /* data‑viz + sidebar tokens (optional but handy) */
+        "chart-1": "oklch(var(--color-chart-1) / <alpha-value>)",
+        "chart-2": "oklch(var(--color-chart-2) / <alpha-value>)",
+        "chart-3": "oklch(var(--color-chart-3) / <alpha-value>)",
+        "chart-4": "oklch(var(--color-chart-4) / <alpha-value>)",
+        "chart-5": "oklch(var(--color-chart-5) / <alpha-value>)",
+
+        sidebar: "oklch(var(--color-sidebar) / <alpha-value>)",
+        "sidebar-foreground":
+          "oklch(var(--color-sidebar-foreground) / <alpha-value>)",
+        "sidebar-primary":
+          "oklch(var(--color-sidebar-primary) / <alpha-value>)",
+        "sidebar-primary-foreground":
+          "oklch(var(--color-sidebar-primary-foreground) / <alpha-value>)",
+        "sidebar-accent": "oklch(var(--color-sidebar-accent) / <alpha-value>)",
+        "sidebar-accent-foreground":
+          "oklch(var(--color-sidebar-accent-foreground) / <alpha-value>)",
+        "sidebar-border": "oklch(var(--color-sidebar-border) / <alpha-value>)",
+        "sidebar-ring": "oklch(var(--color-sidebar-ring) / <alpha-value>)",
       },
     },
   },
-  plugins: [],
-}
+
+  plugins: [animate],
+})

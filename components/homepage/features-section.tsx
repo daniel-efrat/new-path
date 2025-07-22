@@ -12,7 +12,7 @@ export function FeaturesSection() {
     {
       icon: Users,
       title: "מותאם לישראלים",
-      description: "פותח במיוחד עבור צעירים אחרי השירות הצבאי",
+      description: "פותח במיוחד עבור צעירים בישראל",
       color: "text-indigo-600",
     },
     {
