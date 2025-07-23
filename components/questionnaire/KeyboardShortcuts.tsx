@@ -84,7 +84,7 @@ export default function KeyboardShortcuts() {
         </div>
 
         <div className="mt-6 text-sm text-center text-gray-500">
-          לחץ על Ctrl+? בכל עת להצגת קיצורי המקלדת
+          ניתן ללחוץ על Ctrl+? בכל עת להצגת קיצורי המקלדת
         </div>
       </div>
     </div>

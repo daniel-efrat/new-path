@@ -9,14 +9,22 @@ import { useEffect, useState } from "react"
 import KeyboardShortcuts from "@/components/questionnaire/KeyboardShortcuts"
 
 export default function QuestionnairePage() {
-  const { setAnswer, getProgress, validateStep, currentStep, initializeQuestionnaire, isLoading } = useQuestionnaireStore()
+  const {
+    setAnswer,
+    getProgress,
+    validateStep,
+    currentStep,
+    initializeQuestionnaire,
+    isLoading,
+  } = useQuestionnaireStore()
   const { steps } = useStepStore()
   const [mounted, setMounted] = useState(false)
 
   // Progress calculation based on step store (shared with dashboard)
   const completedSteps = steps.filter((step: any) => step.isCompleted).length
   const totalSteps = steps.length || 5
-  const progressPercentage = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0
+  const progressPercentage =
+    totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0
 
   useEffect(() => {
     const init = async () => {
@@ -24,7 +32,10 @@ export default function QuestionnairePage() {
         // Try to initialize questionnaire, but don't block on database errors
         await initializeQuestionnaire()
       } catch (error) {
-        console.warn("Failed to initialize questionnaire from database, continuing with local state:", error)
+        console.warn(
+          "Failed to initialize questionnaire from database, continuing with local state:",
+          error
+        )
         // Continue anyway - the store will work with local state
       } finally {
         setMounted(true)
@@ -41,8 +52,8 @@ export default function QuestionnairePage() {
           {/* Progress bar skeleton */}
           <div className="mb-8">
             <div className="h-2  bg-gray-200 rounded">
-              <div 
-                className="h-full bg-blue-500 rounded animate-pulse" 
+              <div
+                className="h-full bg-blue-500 rounded animate-pulse"
                 style={{ width: `${progressPercentage}%` }}
               />
             </div>
@@ -50,12 +61,10 @@ export default function QuestionnairePage() {
               <span>
                 {completedSteps} מתוך {totalSteps} שלבים הושלמו
               </span>
-              <span>
-                {Math.round(progressPercentage)}%
-              </span>
+              <span>{Math.round(progressPercentage)}%</span>
             </div>
           </div>
-          
+
           {/* Content skeleton */}
           <div className="space-y-8">
             <div className="h-8 bg-gray-200 rounded w-1/3 animate-pulse" />
@@ -95,12 +104,19 @@ export default function QuestionnairePage() {
                   // and advance to the next step
                   try {
                     // Dynamically import to avoid circular dependency
-                    const { useStepStore } = await import("@/lib/stores/stepStore");
-                    useStepStore.getState().setStepCompletion(currentStep, true);
+                    const { useStepStore } = await import(
+                      "@/lib/stores/stepStore"
+                    )
+                    useStepStore.getState().setStepCompletion(currentStep, true)
                   } catch (e) {
-                    console.error("Failed to mark step as completed in dashboard:", e);
+                    console.error(
+                      "Failed to mark step as completed in dashboard:",
+                      e
+                    )
                   }
-                  useQuestionnaireStore.getState().setCurrentStep(currentStep + 1)
+                  useQuestionnaireStore
+                    .getState()
+                    .setCurrentStep(currentStep + 1)
                 } else {
                   console.error("Validation errors:", validation.errors)
                 }
@@ -113,12 +129,19 @@ export default function QuestionnairePage() {
                 const validation = validateStep(currentStep)
                 if (validation.isValid) {
                   try {
-                    const { useStepStore } = await import("@/lib/stores/stepStore");
-                    useStepStore.getState().setStepCompletion(currentStep, true);
+                    const { useStepStore } = await import(
+                      "@/lib/stores/stepStore"
+                    )
+                    useStepStore.getState().setStepCompletion(currentStep, true)
                   } catch (e) {
-                    console.error("Failed to mark step as completed in dashboard:", e);
+                    console.error(
+                      "Failed to mark step as completed in dashboard:",
+                      e
+                    )
                   }
-                  useQuestionnaireStore.getState().setCurrentStep(currentStep + 1)
+                  useQuestionnaireStore
+                    .getState()
+                    .setCurrentStep(currentStep + 1)
                 } else {
                   console.error("Validation errors:", validation.errors)
                 }
@@ -136,11 +159,11 @@ export default function QuestionnairePage() {
       <KeyboardShortcuts />
 
       {/* Mobile instruction text */}
-      <div 
+      <div
         className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-sm border-t text-center text-sm text-gray-500"
-        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 1rem)' }}
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 1rem)" }}
       >
-        ניתן להשתמש במקשי המספרים לבחירת ערכים בסולם 0-10
+        ניתן לניתן להשתמש במקשי המספרים לבחירת ערכים בסולם 0-10
       </div>
     </div>
   )

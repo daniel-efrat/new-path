@@ -200,7 +200,7 @@ export default function QuestionnaireDashboard() {
               <Card
                 key={details.id}
                 className={cn(
-                  "transition-all duration-300 hover:shadow-md cursor-pointer border-2 animate-in slide-in-from-bottom duration-500",
+                  "transition-all hover:shadow-md cursor-pointer border-2 animate-in slide-in-from-bottom duration-500",
                   step.isCompleted
                     ? "border-green-200 bg-green-50/50"
                     : step.isLocked
@@ -213,10 +213,10 @@ export default function QuestionnaireDashboard() {
                 }}
                 onClick={() => handleStepClick(details.id)}
               >
-                <CardContent className="p-6">
+                <CardContent className="p-4">
                   <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                     {/* Step Icon */}
-                 <div className="flex gap-4">
+                    <div className="flex gap-4">
                       <div
                         className={cn(
                           "flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 animate-in zoom-in",
@@ -239,7 +239,7 @@ export default function QuestionnaireDashboard() {
                           <Play className="h-5 w-5" />
                         )}
                       </div>
-  
+
                       {/* Step Content */}
                       <div
                         className="flex-1 animate-in slide-in-from-right duration-400"
@@ -249,7 +249,11 @@ export default function QuestionnaireDashboard() {
                         }}
                       >
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-xl font-semibold text-foreground">
+                          <h3
+                            className="text-lg sm:text-xl
+                          
+                          font-semibold text-foreground"
+                          >
                             שלב {details.id}: {details.title}
                           </h3>
                           {step.isCompleted && (
@@ -277,8 +281,7 @@ export default function QuestionnaireDashboard() {
                           {details.description}
                         </p>
                       </div>
-  
-                 </div>
+                    </div>
                     {/* Action Button */}
                     <div
                       className="flex flex-col gap-2 animate-in fade-in duration-400"
@@ -287,12 +290,11 @@ export default function QuestionnaireDashboard() {
                         animationFillMode: "both",
                       }}
                     >
-                      
-                    <div className="flex sm:flex-col justify-start gap-2">
+                      <div className="flex sm:flex-col justify-start gap-2">
                         <Button
                           variant={
                             step.isCompleted
-                              ? "outline"
+                              ? "default"
                               : step.isLocked
                               ? "ghost"
                               : "default"
@@ -310,11 +312,11 @@ export default function QuestionnaireDashboard() {
                             ? "נעול"
                             : "התחל"}
                         </Button>
-  
+
                         {/* Demo toggle button */}
                         {!step.isLocked && (
                           <Button
-                            variant="ghost"
+                            variant="secondary"
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation()
@@ -325,8 +327,7 @@ export default function QuestionnaireDashboard() {
                             {step.isCompleted ? "בטל השלמה" : "סמן כהושלם"}
                           </Button>
                         )}
-                    </div>
-
+                      </div>
                     </div>
                   </div>
                 </CardContent>

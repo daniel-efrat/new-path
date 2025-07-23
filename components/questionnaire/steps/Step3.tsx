@@ -10,10 +10,14 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
   return (
     <div>
       <h1 className="text-3xl font-bold mb-6 text-center">
-        שלב 3: העדפות עבודה
+        שלב 3: מבחן שפה - אנגלית
       </h1>
       <p className="text-lg mb-8 text-center max-w-2xl mx-auto">
-        בחר את סוג העבודה והסביבה המועדפים עליך
+        בשלב זה תתבקש/י לענות על 20 שאלות באנגלית
+        <br />
+        <br />
+        אנא קרא/י את השאלות בעיון וענה/י בהתאם להבנתך. עליך לבחור את התשובה
+        הנכונה מתוך 4 בתוך 40 שניות.
       </p>
 
       <Card className="max-w-3xl mx-auto bg-white  p-6">
