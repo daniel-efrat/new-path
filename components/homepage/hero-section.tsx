@@ -1,8 +1,8 @@
-import { Button } from "../../components/ui/button";
-import { Card } from "../../components/ui/card";
-import { Badge } from "../../components/ui/badge";
-import { ArrowLeft, Sparkles, Shield, Clock } from "lucide-react";
-import Link from "next/link";
+import { Button } from "../../components/ui/button"
+import { Card } from "../../components/ui/card"
+import { Badge } from "../../components/ui/badge"
+import { ArrowLeft, Sparkles, Shield, Clock } from "lucide-react"
+import Link from "next/link"
 
 export function HeroSection() {
   return (
@@ -16,18 +16,18 @@ export function HeroSection() {
             מופעל בעזרת בינה מלאכותית
           </Badge>
 
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight">
+          <h1 className="text-4xl md:text-6xl font-bold text-foreground leading-tight">
             מה הדרך שלך?
           </h1>
 
-          <p className="text-xl md:text-2xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             גלה את המקצוע המושלם עבורך עם אבחון חכם בתוך דקות
           </p>
         </div>
 
         <Card className="max-w-md mx-auto p-6 shadow-lg border-0 bg-white/80 backdrop-blur-sm">
           <div className="space-y-4">
-            <div className="flex items-center justify-center space-x-4 space-x-reverse text-sm text-gray-600">
+            <div className="flex items-center justify-center space-x-4 space-x-reverse text-sm text-muted-foreground">
               {/* <div className="flex items-center">
                 <Clock className="w-4 h-4 ml-1" />5 דקות
               </div>
@@ -58,8 +58,8 @@ export function HeroSection() {
             <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto">
               <span className="text-2xl">🎯</span>
             </div>
-            <h3 className="font-semibold text-gray-900">התאמה מדויקת</h3>
-            <p className="text-sm text-gray-600">
+            <h3 className="font-semibold text-foreground">התאמה מדויקת</h3>
+            <p className="text-sm text-muted-foreground">
               אלגוריתם חכם שמתאים לך מקצועות
             </p>
           </div>
@@ -68,8 +68,8 @@ export function HeroSection() {
             <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mx-auto">
               <span className="text-2xl">🎓</span>
             </div>
-            <h3 className="font-semibold text-gray-900">מכללות שותפות</h3>
-            <p className="text-sm text-gray-600">
+            <h3 className="font-semibold text-foreground">מכללות שותפות</h3>
+            <p className="text-sm text-muted-foreground">
               חיבור ישיר למוסדות לימוד מובילים
             </p>
           </div>
@@ -78,13 +78,13 @@ export function HeroSection() {
             <div className="w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center mx-auto">
               <span className="text-2xl">💰</span>
             </div>
-            <h3 className="font-semibold text-gray-900">נתוני שכר</h3>
-            <p className="text-sm text-gray-600">
+            <h3 className="font-semibold text-foreground">נתוני שכר</h3>
+            <p className="text-sm text-muted-foreground">
               מידע עדכני על שכר צפוי בתחום
             </p>
           </div>
         </div>
       </div>
     </section>
-  );
+  )
 }

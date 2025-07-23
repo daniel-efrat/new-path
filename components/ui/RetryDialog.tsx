@@ -129,7 +129,7 @@ export function RetryDialog({
         <div className="space-y-2">
           <p
             id="retry-dialog-description"
-            className="text-gray-600  text-right"
+            className="text-muted-foreground  text-right"
           >
             {message}
           </p>
@@ -146,7 +146,7 @@ export function RetryDialog({
           {/* Error details in development */}
           {process.env.NODE_ENV === "development" && error && (
             <pre
-              className="text-xs text-red-500 bg-red-50 p-2 rounded mt-2 overflow-auto max-h-32 text-right"
+              className="text-xs text-destructive bg-red-50 p-2 rounded mt-2 overflow-auto max-h-32 text-right"
               role="alert"
             >
               {error.message}

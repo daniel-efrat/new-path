@@ -16,14 +16,18 @@ export default function QuestionnaireError({
   }, [error])
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" dir="rtl">
+    <div
+      className="min-h-screen flex items-center justify-center p-4"
+      dir="rtl"
+    >
       <div className="max-w-md w-full space-y-6">
         <div className="bg-red-50 p-6 rounded-lg text-center">
           <h2 className="text-xl font-semibold text-red-700 mb-4">
             אירעה שגיאה בטעינת השאלון
           </h2>
           <p className="text-red-600 mb-6">
-            לא הצלחנו לטעון את השאלון כראוי. אנא נסה שוב או צור קשר עם התמיכה אם הבעיה נמשכת.
+            לא הצלחנו לטעון את השאלון כראוי. אנא נסה שוב או צור קשר עם התמיכה אם
+            הבעיה נמשכת.
           </p>
           <div className="space-x-3 rtl:space-x-reverse">
             <Button
@@ -34,7 +38,7 @@ export default function QuestionnaireError({
               נסה שנית
             </Button>
             <Button
-              onClick={() => window.location.href = "/"}
+              onClick={() => (window.location.href = "/")}
               variant="outline"
               className="min-w-[120px]"
             >
@@ -46,7 +50,7 @@ export default function QuestionnaireError({
         {/* Show error details in development */}
         {process.env.NODE_ENV === "development" && (
           <div className="text-left bg-gray-100 p-4 rounded-lg">
-            <p className="text-sm font-medium text-gray-900 mb-2">
+            <p className="text-sm font-medium text-foreground mb-2">
               Error details:
             </p>
             <pre className="text-xs text-red-800 overflow-auto max-h-48">
@@ -60,7 +64,7 @@ export default function QuestionnaireError({
         {/* Support contact */}
         <div className="text-center text-sm text-gray-500">
           <p>צריך עזרה?</p>
-          <a 
+          <a
             href="mailto:support@example.com"
             className="text-blue-600 hover:text-blue-700 underline"
           >

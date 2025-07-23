@@ -75,10 +75,10 @@ export default function KeyboardShortcuts() {
               key={key}
               className="flex justify-between items-center py-2 border-b last:border-0"
             >
-              <span className="text-sm text-gray-600 ">{description}</span>
-              <kbd className="px-2 py-1 bg-gray-100 rounded text-sm">
-                {key}
-              </kbd>
+              <span className="text-sm text-muted-foreground ">
+                {description}
+              </span>
+              <kbd className="px-2 py-1 bg-gray-100 rounded text-sm">{key}</kbd>
             </div>
           ))}
         </div>
