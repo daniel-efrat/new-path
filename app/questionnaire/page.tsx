@@ -2,6 +2,7 @@
 
 import Step1 from "@/components/questionnaire/steps/Step1"
 import Step2 from "@/components/questionnaire/steps/Step2"
+import Step3 from "@/components/questionnaire/steps/Step3"
 import QuestionnaireProgress from "@/components/ui/QuestionnaireProgress"
 import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore"
 import { useStepStore } from "@/lib/stores/stepStore"
@@ -14,7 +15,8 @@ export default function QuestionnairePage() {
     getProgress,
     validateStep,
     currentStep,
-    initializeQuestionnaire,
+    initialize,
+    reset,
     isLoading,
   } = useQuestionnaireStore()
   const { steps } = useStepStore()
@@ -30,7 +32,7 @@ export default function QuestionnairePage() {
     const init = async () => {
       try {
         // Try to initialize questionnaire, but don't block on database errors
-        await initializeQuestionnaire()
+        await initialize()
       } catch (error) {
         console.warn(
           "Failed to initialize questionnaire from database, continuing with local state:",
@@ -42,7 +44,7 @@ export default function QuestionnairePage() {
       }
     }
     init()
-  }, [initializeQuestionnaire])
+  }, [initialize])
 
   // Show loading skeleton
   if (!mounted) {
@@ -151,19 +153,42 @@ export default function QuestionnairePage() {
               }}
             />
           )}
-          {/* Add Step3, Step4, etc. here as needed */}
+          {currentStep === 3 && (
+            <Step3
+              onNext={async () => {
+                const validation = validateStep(currentStep)
+                if (validation.isValid) {
+                  try {
+                    const { useStepStore } = await import(
+                      "@/lib/stores/stepStore"
+                    )
+                    useStepStore.getState().setStepCompletion(currentStep, true)
+                  } catch (e) {
+                    console.error(
+                      "Failed to mark step as completed in dashboard:",
+                      e
+                    )
+                  }
+                  useQuestionnaireStore
+                    .getState()
+                    .setCurrentStep(currentStep + 1)
+                } else {
+                  console.error("Validation errors:", validation.errors)
+                }
+              }}
+              onPrevious={() => {
+                useQuestionnaireStore.getState().setCurrentStep(currentStep - 1)
+              }}
+            />
+          )}
+          {/* Add Step4, Step5, etc. here as needed */}
         </div>
       </div>
 
       {/* Keyboard shortcuts */}
-      <KeyboardShortcuts />
-
-      {/* Mobile instruction text */}
-      <div
-        className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-sm border-t text-center text-sm text-gray-500"
-        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 1rem)" }}
-      >
-        ניתן לניתן להשתמש במקשי המספרים לבחירת ערכים בסולם 0-10
+      <div className="hidden sm:fixed bottom-4 right-4 z-50">
+       
+        <KeyboardShortcuts />
       </div>
     </div>
   )

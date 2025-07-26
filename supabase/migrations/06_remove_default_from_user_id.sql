@@ -1,0 +1,1 @@
+ALTER TABLE public.answers ALTER COLUMN user_id DROP DEFAULT;

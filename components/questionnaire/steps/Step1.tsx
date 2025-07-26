@@ -1,33 +1,104 @@
+import React, { useState, useEffect, useMemo } from "react"
 import { Button } from "@/components/ui/button"
+import { Card, CardHeader } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore"
+import { STEP1_QUESTIONS } from "@/lib/constants/questions"
+import { fetchStep1Answers } from "@/lib/utils/answerFetcher"
 import { cn } from "@/lib/utils"
-import PreMeetingQuestionnaire from "../PreMeetingQuestionnaire"
+import type { AnswerState } from "@/lib/types/questionnaire"
+
+// Define props for the selector to receive state and actions
+interface TraitsSelectorProps {
+  questions: { id: string; text: string }[];
+  selectedTraitIds: string[];
+  toggleTrait: (questionId: string) => Promise<void>;
+  isLoading: boolean;
+}
 
 interface Step1Props {
   onNext: () => void
 }
 
 export default function Step1({ onNext }: Step1Props) {
-  const { stepData } = useQuestionnaireStore()
+  const { setAnswer, isLoading: storeLoading } = useQuestionnaireStore();
+  const [stepAnswers, setStepAnswers] = useState<Record<string, AnswerState>>({});
+  const [isLoadingAnswers, setIsLoadingAnswers] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  // Extract traits and anchors from stepData with proper type checking
-  const traits = Array.isArray(stepData.traits?.value)
-    ? (stepData.traits.value as string[])
-    : []
-  const anchors = Array.isArray(stepData.anchors?.value)
-    ? (stepData.anchors.value as number[])
-    : []
+  // Fetch answers directly from Supabase on component mount
+  useEffect(() => {
+    const loadStepAnswers = async () => {
+      setIsLoadingAnswers(true);
+      try {
+        const questionIds = STEP1_QUESTIONS.map(q => q.id);
+        const fetchedAnswers = await fetchStep1Answers(questionIds);
+        setStepAnswers(fetchedAnswers);
+      } catch (error) {
+        console.error('Error loading Step 1 answers:', error);
+        setError('שגיאה בטעינת התשובות הקודמות');
+      } finally {
+        setIsLoadingAnswers(false);
+      }
+    };
 
-  const traitsCount = traits.length
-  const anchorsCount = anchors.filter(
-    (val) => val !== undefined && val !== null
-  ).length
+    loadStepAnswers();
+  }, []);
 
-  const totalProgress = Math.round(
-    ((traitsCount / 10 + anchorsCount / 18) / 2) * 100
-  )
+  const selectedTraitIds = useMemo(() => {
+    const selected = STEP1_QUESTIONS.filter(q => {
+      const answer = stepAnswers[q.id];
+      if (!answer) return false;
+      
+      // Handle both string 'true' and boolean true values
+      const value = answer.value;
+      return value === 'true' || value === true;
+    }).map(q => q.id);
+    
+    // Debug logging
+    console.log('Step1 - stepAnswers:', stepAnswers);
+    console.log('Step1 - selectedTraitIds:', selected);
+    
+    return selected;
+  }, [stepAnswers]);
 
-  const canContinue = traitsCount > 0 && anchorsCount === 18
+  const traitsCount = selectedTraitIds.length
+  const totalProgress = Math.min(Math.round((traitsCount / 10) * 100), 100)
+  const canContinue = traitsCount > 0 && traitsCount <= 10 && !storeLoading && !isUpdating && !isLoadingAnswers
+
+  // Centralized function to handle trait toggling
+  const toggleTrait = async (questionId: string) => {
+    if (isUpdating) return;
+
+    try {
+      setIsUpdating(true);
+      setError(null);
+
+      const isCurrentlySelected = selectedTraitIds.includes(questionId);
+
+      if (selectedTraitIds.length >= 10 && !isCurrentlySelected) {
+        setError("ניתן לבחור עד 10 תכונות בלבד");
+        return;
+      }
+
+      // The new value will be the opposite of the current selection state.
+      const newValue = !isCurrentlySelected;
+      await setAnswer(questionId, String(newValue));
+      
+      // Update local state immediately for better UX
+      setStepAnswers(prev => ({
+        ...prev,
+        [questionId]: { value: String(newValue), timestamp: new Date() }
+      }));
+
+    } catch (err) {
+      setError("שגיאה בשמירת הבחירה. נסה שנית.");
+      console.error(`Error toggling trait for ID ${questionId}:`, JSON.stringify(err, Object.getOwnPropertyNames(err)));
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   return (
     <div className="relative">
@@ -46,23 +117,25 @@ export default function Step1({ onNext }: Step1Props) {
       </div>
 
       <div className="max-w-4xl mx-auto bg-[color:var(--card)] rounded-lg shadow-lg p-6">
-        <PreMeetingQuestionnaire />
+        <TraitsSelector
+          questions={STEP1_QUESTIONS}
+          selectedTraitIds={selectedTraitIds}
+          toggleTrait={toggleTrait}
+          isLoading={isUpdating}
+        />
 
         <div className="mt-8 border-t pt-6">
           <div className="flex justify-between items-center">
             <div className="text-right">
-              {!canContinue && (
+              {error && (
+                <p className="text-[color:var(--destructive)] text-sm">{error}</p>
+              )}
+              {!canContinue && !error && (
                 <ul className="text-[color:var(--destructive)] text-sm list-disc list-inside">
                   {traitsCount === 0 && <li>יש לבחור לפחות תכונה אחת</li>}
-                  {anchorsCount < 18 && (
-                    <li>
-                      יש להשלים את כל שאלון עוגני הקריירה ({18 - anchorsCount}{" "}
-                      שאלות נותרו)
-                    </li>
-                  )}
                 </ul>
               )}
-              {canContinue && (
+              {canContinue && !error && (
                 <p className="text-[color:var(--primary)] text-sm">
                   ✓ כל הנתונים הוזנו בהצלחה
                 </p>
@@ -71,10 +144,7 @@ export default function Step1({ onNext }: Step1Props) {
             <Button
               onClick={onNext}
               disabled={!canContinue}
-              className={cn(
-                "mr-4 transition-all duration-300",
-                canContinue && "animate-pulse"
-              )}
+              className={cn("mr-4 transition-all duration-300")}
               aria-label={
                 canContinue
                   ? "המשך לשלב הבא"
@@ -87,5 +157,152 @@ export default function Step1({ onNext }: Step1Props) {
         </div>
       </div>
     </div>
+  )
+}
+
+const TRAITS: string[] = [
+  "חשיבה יצירתית",
+  "יכולת הנהגה",
+  "סדר ודיוק",
+  "עבודה בצוות",
+  "קבלת החלטות",
+  "למידה מהירה",
+  "הובלת תהליכים",
+  "יחסי אנוש מצוינים",
+  "מחויבות",
+  "גישה שירותית",
+  "רגישות",
+  "חריצות",
+  "מודעות עצמית",
+  "יזמות",
+  "כאריזמה",
+  "מנהיגות",
+  "לקיחת אחריות",
+  "אומץ",
+  "נחישות",
+  "משפחתי",
+  "ידיים טובות",
+  "טכנולוגי",
+  "יעילות",
+  '"מתקתק" דברים',
+  "אינטליגנציה רגשית",
+  "אינטלקט מפותח",
+  "חברותי",
+  "סקרנות",
+  "זריזות מחשבתית",
+  "חמימות",
+  "יכולת הקשבה",
+  "כשרון אומנותי",
+  "בטחון עצמי",
+  "צניעות",
+  "מראה אסתטי",
+  "אסרטיבי",
+  "אמינות",
+  "פתיחות",
+  "נאמנות",
+  "מקוריות",
+  "אופטימיות",
+  "יצירתיות",
+  "אהבה לבעלי חיים",
+  "חוש הומור",
+  "אופנתיות וסטייל",
+  "רוחניות",
+  "שאפתנות",
+  "אותנטיות",
+  "משיכה לטבע",
+  "הורות טובה",
+  "כח פיזי",
+  "חיבור לשפע",
+  "ביצועיסט",
+  "נמרצות אנרגטיות",
+  "חשיבה אנליטית",
+  "ייצוגיות",
+  "חדות",
+  "חושניות",
+]
+
+function TraitsSelector({ questions, selectedTraitIds, toggleTrait, isLoading }: TraitsSelectorProps) {
+  const [mounted, setMounted] = useState(false)
+  const [focusedTrait, setFocusedTrait] = useState<number>(-1)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (isLoading) return
+
+      if ((e.key === " " || e.key === "Enter") && focusedTrait !== -1) {
+        e.preventDefault();
+        toggleTrait(questions[focusedTrait].id);
+      }
+
+      if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+        e.preventDefault();
+        setFocusedTrait((prev) => Math.min(prev + 1, questions.length - 1));
+      }
+      if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+        e.preventDefault()
+        setFocusedTrait((prev) => Math.max(prev - 1, 0))
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyPress)
+    return () => window.removeEventListener("keydown", handleKeyPress)
+  }, [focusedTrait, isLoading, toggleTrait])
+
+  return (
+    <section className="space-y-10" dir="rtl">
+      <div className="space-y-4" role="region" aria-label="בחירת תכונות">
+        <h2 className="text-xl font-semibold text-right">
+          בחר/י עד 10 תכונות המתארות אותך
+        </h2>
+        <p className="text-sm text-gray-500 text-right" aria-live="polite">
+          נבחרו {selectedTraitIds.length} מתוך 10 תכונות אפשריות
+        </p>
+        <div className="text-xs text-gray-500 mb-2">
+          ניתן ללחוץ על החץ למעלה/למטה לניווט, SPACE לבחירה
+        </div>
+        <div
+          className={cn(
+            "grid gap-4 transition-opacity duration-200",
+            isLoading && "opacity-50"
+          )}
+          style={{
+            gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+          }}
+        >
+          {questions.map((question, index) => (
+            <Card
+              key={question.id}
+              className={cn(
+                "cursor-pointer transition-all duration-200",
+                selectedTraitIds.includes(question.id)
+                  ? "ring-2 ring-primary bg-primary/5"
+                  : "hover:shadow-md hover:scale-[1.02]",
+                focusedTrait === index && "ring-2 ring-primary",
+                !mounted && "opacity-0"
+              )}
+              onClick={() => toggleTrait(question.id)}
+              onFocus={() => setFocusedTrait(index)}
+              onBlur={() => setFocusedTrait(-1)}
+              tabIndex={0}
+              role="checkbox"
+              aria-checked={selectedTraitIds.includes(question.id)}
+            >
+              <CardHeader className="flex items-center justify-between p-4">
+                <span>{question.text}</span>
+                <Checkbox
+                  checked={selectedTraitIds.includes(question.id)}
+                  onCheckedChange={() => toggleTrait(question.id)}
+                  disabled={isLoading}
+                />
+              </CardHeader>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
   )
 }

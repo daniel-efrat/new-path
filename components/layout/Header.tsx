@@ -4,35 +4,47 @@ import React, { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { supabase } from "@/lib/supabase"
+import supabase from "@/lib/supabase"
+import { Session } from "@supabase/supabase-js"
 import LogoIcon from "@/components/layout/logo"
 
 export default function Header() {
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<Session['user'] | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
   useEffect(() => {
+    if (!supabase?.auth) {
+      console.error('Supabase auth client not initialized')
+      setLoading(false)
+      return
+    }
+
     // Get initial session
     const getSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-      setUser(session?.user ?? null)
-      setLoading(false)
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
+        if (error) throw error
+        setUser(session?.user ?? null)
+      } catch (error) {
+        console.error('Error getting session:', error)
+      } finally {
+        setLoading(false)
+      }
     }
 
     getSession()
 
     // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event: any, session: any) => {
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event: string, session: Session | null) => {
+        setUser(session?.user ?? null)
+      }
+    )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      if (subscription) subscription.unsubscribe()
+    }
   }, [])
 
   const handleSignOut = async () => {

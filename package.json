@@ -9,7 +9,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:seed": "node scripts/seed.js"
   },
   "dependencies": {
     "@next/font": "^14.2.15",
@@ -25,14 +26,17 @@
     "@types/node": "20.4.5",
     "@types/react": "18.2.18",
     "@types/react-dom": "18.2.7",
+    "@types/uuid": "^10.0.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "lucide-react": "^0.263.1",
     "next": "^15.4.2",
     "react": "^19.1.0",
+    "react-canvas-confetti": "^2.0.7",
     "react-dom": "^19.1.0",
     "tailwind-merge": "^1.14.0",
     "typescript": "5.1.6",
+    "uuid": "^11.1.0",
     "zod": "^3.21.4",
     "zustand": "^5.0.6"
   },
@@ -44,6 +48,7 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/react-hooks": "^8.0.1",
     "@testing-library/user-event": "^14.4.3",
+    "@types/dotenv": "^6.1.1",
     "@types/jest": "^29.5.14",
     "@types/node": "^20.5.6",
     "@types/react": "^18.2.21",

@@ -1,309 +1,269 @@
-import { create } from 'zustand'
-import { supabase } from '@/lib/supabase'
-import { validateStep, stepValidators } from '@/lib/validators/questionnaire'
+import { create } from 'zustand';
+import supabase from '@/lib/supabase';
+import { validateStep, stepValidators } from '@/lib/validators/questionnaire';
+import { STEP1_QUESTIONS, STEP2_QUESTIONS, STEP3_QUESTIONS } from '@/lib/constants/questions';
 import type {
+  AnswerState,
+  InsertAnswer,
   StepData,
-  QuestionnaireAnswer,
-  QuestionnaireProgress,
-  QuestionnaireState,
-  ValidationResult
-} from '@/lib/types/questionnaire'
+  ValidationResult,
+} from '@/lib/types/questionnaire';
 
-interface QuestionnaireStore extends QuestionnaireState {
-  questionnaireId: string | null
-  isSubmitting: boolean
-  isLoading: boolean
-  error: Error | null
-  
-  // Navigation
-  setCurrentStep: (step: number) => void
-  nextStep: () => void
-  previousStep: () => void
-  canNavigate: (targetStep: number) => boolean
-  
-  // Data management
-  updateStepData: (data: Partial<StepData>) => Promise<void>
-  setAnswer: (key: string, value: any) => Promise<void>
-  
-  // Validation & Progress
-  validateStep: (step: number) => ValidationResult
-  validateCurrentStep: () => ValidationResult
-  getProgress: () => QuestionnaireProgress
-  updateProgress: () => void
-  isStepValid: (step: number) => boolean
-  
-  // Form actions
-  submitQuestionnaire: () => Promise<void>
-  resetQuestionnaire: () => void
-  initializeQuestionnaire: () => Promise<void>
-  
-  // Loading states
-  setIsLoading: (loading: boolean) => void
-  setError: (error: Error | null) => void
+// Define the state structure
+interface QuestionnaireState {
+  submissionId: string | null;
+  currentStep: number;
+  answers: Record<string, AnswerState>;
+  isSubmitting: boolean;
+  isLoading: boolean;
+  error: Error | null;
+  isComplete: boolean;
+  progress: number;
 }
 
-const TOTAL_STEPS = Object.keys(stepValidators).length
+// Define the store's actions
+interface QuestionnaireStore extends QuestionnaireState {
+  createSubmission: () => Promise<string | null>;
+  setCurrentStep: (step: number) => void;
+  nextStep: () => void;
+  prevStep: () => void;
+  canNavigate: (targetStep: number) => boolean;
+  setAnswer: (questionId: string, value: any) => Promise<void>;
+  validateStep: (step: number) => ValidationResult;
+  validateCurrentStep: () => ValidationResult;
+  getStepData: (step: number) => StepData;
+  updateProgress: () => void;
+  initialize: () => Promise<void>;
+  reset: () => void;
+  loadSubmission: () => Promise<void>;
+  submit: () => Promise<void>;
+}
 
-const createInitialProgress = (): QuestionnaireProgress => ({
-  currentStep: 1,
-  totalSteps: TOTAL_STEPS,
-  completedSteps: 0,
-  stepProgress: {},
-  percentage: 0,
-  completed: 0,
-  total: TOTAL_STEPS
-})
+const TOTAL_STEPS = Object.keys(stepValidators).length;
+const QUESTIONNAIRE_ID = 'fbbee5e5-33c0-4b73-8514-0407633e05a2'; // Main questionnaire ID
 
-export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
-  // State
+// Define the initial state
+const initialState: QuestionnaireState = {
+  submissionId: null,
   currentStep: 1,
-  stepData: {},
-  questionnaireId: null,
+  answers: {},
   isSubmitting: false,
   isLoading: false,
   error: null,
-  isValid: false,
   isComplete: false,
-  progress: createInitialProgress(),
+  progress: 0,
+};
+
+export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
+  ...initialState,
+
+  createSubmission: async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      set({ error: new Error('User not authenticated for submission.') });
+      return null;
+    }
+
+    const { data, error } = await supabase
+      .from('questionnaire_submissions')
+      .insert({ user_id: user.id, questionnaire_id: QUESTIONNAIRE_ID })
+      .select('id')
+      .single();
+
+    if (error) {
+      set({ error });
+      return null;
+    }
+
+    set({ submissionId: data.id });
+    return data.id;
+  },
 
   // Navigation
   setCurrentStep: (step: number) => {
-    if (get().canNavigate(step)) {
-      set({ currentStep: step })
-      get().updateProgress()
+    if (step > 0 && step <= TOTAL_STEPS) {
+      set({ currentStep: step });
     }
   },
 
   nextStep: () => {
-    const { currentStep, validateCurrentStep } = get()
-    if (currentStep < TOTAL_STEPS && validateCurrentStep().isValid) {
-      set({ currentStep: currentStep + 1 })
-      get().updateProgress()
+    const { currentStep } = get();
+    if (currentStep < TOTAL_STEPS) {
+      get().setCurrentStep(currentStep + 1);
     }
   },
 
-  previousStep: () => {
-    const { currentStep } = get()
+  prevStep: () => {
+    const { currentStep } = get();
     if (currentStep > 1) {
-      set({ currentStep: currentStep - 1 })
-      get().updateProgress()
+      get().setCurrentStep(currentStep - 1);
     }
   },
 
   canNavigate: (targetStep: number) => {
-    const { stepData, currentStep } = get()
-    // Can always go back
-    if (targetStep < currentStep) return true
-    
-    // Check if all previous steps are valid
+    const { currentStep } = get();
+    if (targetStep === currentStep) return true;
+    if (targetStep < 1 || targetStep > TOTAL_STEPS) return false;
+    if (targetStep < currentStep) return true;
+
     for (let step = 1; step < targetStep; step++) {
-      if (!get().isStepValid(step)) return false
+      if (!get().validateStep(step).isValid) return false;
     }
-    return true
+    return true;
   },
 
-  // Data management
-  updateStepData: async (data: Partial<StepData>) => {
+  // Data Management
+  setAnswer: async (questionId: string, value: any) => {
     try {
-      set({ isLoading: true, error: null })
-      const { questionnaireId, stepData } = get()
-      
-      // Merge new data with existing data, ensuring no undefined values
-      const newStepData = Object.entries(data).reduce<StepData>((acc, [key, value]) => {
-        if (value !== undefined) {
-          acc[key] = value
-        }
-        return acc
-      }, { ...stepData })
-      
-      if (!questionnaireId) {
-        // Create new questionnaire
-        // Get current user's UID
-        const { data: { user } } = await supabase.auth.getUser();
-        const { data: questionnaire, error } = await supabase
-          .from('questionnaires')
-          .insert({
-            user_id: user?.id,
-            step_data: newStepData,
-            status: 'draft'
-          })
-          .select()
-          .single()
+      set({ isLoading: true, error: null });
+      let { submissionId } = get();
 
-        if (error) throw error
-        set({ questionnaireId: questionnaire.id })
-      } else {
-        // Update existing questionnaire
-        const { error } = await supabase
-          .from('questionnaires')
-          .update({
-            step_data: newStepData,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', questionnaireId)
-
-        if (error) throw error
+      if (!submissionId) {
+        submissionId = await get().createSubmission();
+        if (!submissionId) throw new Error('Failed to create a submission.');
       }
 
-      set({ stepData: newStepData })
-      get().updateProgress()
-    } catch (error) {
-      set({ error: error as Error })
-    } finally {
-      set({ isLoading: false })
-    }
-  },
+      const dbValue = typeof value === 'string' ? value : JSON.stringify(value);
 
-  setAnswer: async (key: string, value: any) => {
-    console.log("[setAnswer]", { key, value });
-    const answer: QuestionnaireAnswer = {
-      value,
-      isValid: true, // Will be validated by validateStep
+      set((state) => ({
+        answers: {
+          ...state.answers,
+          [questionId]: { value: dbValue, timestamp: new Date() },
+        },
+      }));
+
+      const { error } = await supabase.from('answers').upsert(
+        {
+          submission_id: submissionId,
+          question_id: questionId,
+          answer_value: dbValue,
+        } as InsertAnswer,
+        { onConflict: 'submission_id, question_id' }
+      );
+
+      if (error) throw error;
+      get().updateProgress();
+    } catch (error) {
+      set({ error: error as Error });
+      throw error;
+    } finally {
+      set({ isLoading: false });
     }
-    
-    const update: StepData = { [key]: answer }
-    await get().updateStepData(update)
   },
 
   // Validation & Progress
   validateStep: (step: number) => {
-    return validateStep(step, get().stepData)
+    const stepData = get().getStepData(step);
+    return validateStep(step, stepData);
   },
 
   validateCurrentStep: () => {
-    return get().validateStep(get().currentStep)
+    return get().validateStep(get().currentStep);
   },
 
-  isStepValid: (step: number) => {
-    return get().validateStep(step).isValid
+  getStepData: (step: number): StepData => {
+    const stepQuestionIds = new Set(
+      step === 1
+        ? STEP1_QUESTIONS.map((q) => q.id)
+        : step === 2
+        ? STEP2_QUESTIONS.map((q) => q.id)
+        : step === 3
+        ? STEP3_QUESTIONS.map((q) => q.id)
+        : []
+    );
+
+    return Object.entries(get().answers).reduce<StepData>(
+      (acc, [questionId, answer]) => {
+        if (stepQuestionIds.has(questionId)) {
+          acc[questionId] = { value: answer.value };
+        }
+        return acc;
+      },
+      {}
+    );
   },
 
-  // Pure getter: does NOT update state
-  getProgress: () => {
-    const { currentStep, stepData } = get()
-    let completedSteps = 0
-    const stepProgress: QuestionnaireProgress['stepProgress'] = {}
-
-    // Calculate progress for each step
-    for (let step = 1; step <= TOTAL_STEPS; step++) {
-      const validation = get().validateStep(step)
-      const hasAnswers = Object.keys(stepData).some(key => key.startsWith(`step${step}`))
-      
-      stepProgress[step] = {
-        completed: hasAnswers,
-        valid: validation.isValid
-      }
-
-      if (hasAnswers && validation.isValid) {
-        completedSteps++
-      }
-    }
-
-    const progress: QuestionnaireProgress = {
-      currentStep,
-      totalSteps: TOTAL_STEPS,
-      completedSteps,
-      stepProgress,
-      percentage: Math.round((completedSteps / TOTAL_STEPS) * 100),
-      completed: completedSteps,
-      total: TOTAL_STEPS
-    }
-
-    return progress
-  },
-
-  // Updates progress, isValid, isComplete in store
   updateProgress: () => {
-    const progress = get().getProgress()
-    const isValid = progress.completedSteps === progress.totalSteps
-    set({
-      progress,
-      isValid,
-      isComplete: isValid
-    })
+    const totalQuestions = 50; // Placeholder
+    const answeredCount = Object.keys(get().answers).length;
+    const progress = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;
+    set({ progress: Math.min(100, progress) });
   },
 
-  // Form actions
-  submitQuestionnaire: async () => {
+  // Lifecycle
+  initialize: async () => {
+    await get().loadSubmission();
+  },
+
+  reset: () => {
+    set(initialState);
+  },
+
+  loadSubmission: async () => {
     try {
-      // Validate all steps before submission
+      set({ isLoading: true, error: null });
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: submissionData, error: submissionError } = await supabase
+        .from('questionnaire_submissions')
+        .select('id, answers(question_id, answer_value, created_at)')
+        .eq('user_id', user.id)
+        .eq('questionnaire_id', QUESTIONNAIRE_ID)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (submissionError && submissionError.code !== 'PGRST116') {
+        throw submissionError;
+      }
+
+      if (submissionData) {
+        const { id: submissionId, answers } = submissionData;
+        const answerMap = (answers as any[]).reduce<Record<string, AnswerState>>((acc, dbAnswer) => {
+          let parsedValue: any;
+          try {
+            parsedValue = JSON.parse(dbAnswer.answer_value);
+          } catch (e) {
+            parsedValue = dbAnswer.answer_value;
+          }
+          acc[dbAnswer.question_id] = { value: parsedValue, timestamp: new Date(dbAnswer.created_at) };
+          return acc;
+        }, {});
+        set({ submissionId, answers: answerMap });
+        get().updateProgress();
+      }
+    } catch (error) {
+      set({ error: error as Error });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  submit: async () => {
+    set({ isSubmitting: true, error: null });
+    try {
+      const { submissionId } = get();
+      if (!submissionId) throw new Error('No submission to submit.');
+
       for (let step = 1; step <= TOTAL_STEPS; step++) {
-        const validation = get().validateStep(step)
+        const validation = get().validateStep(step);
         if (!validation.isValid) {
-          throw new Error(`Step ${step} is invalid: ${validation.errors.join(", ")}`)
+          throw new Error(`Step ${step} is invalid: ${validation.errors.join(', ')}`);
         }
       }
 
-      set({ isSubmitting: true, error: null })
-      const { questionnaireId, stepData } = get()
-
-      if (!questionnaireId) throw new Error('No questionnaire to submit')
-
       const { error } = await supabase
-        .from('questionnaires')
-        .update({
-          status: 'submitted',
-          submitted_at: new Date().toISOString(),
-          step_data: stepData
-        })
-        .eq('id', questionnaireId)
+        .from('questionnaire_submissions')
+        .update({ status: 'completed' })
+        .eq('id', submissionId);
 
-      if (error) throw error
+      if (error) throw error;
 
-      // Reset store after successful submission
-      get().resetQuestionnaire()
+      console.log('Questionnaire submitted successfully with answers:', get().answers);
+      set({ isSubmitting: false, isComplete: true });
     } catch (error) {
-      set({ error: error as Error })
-    } finally {
-      set({ isSubmitting: false })
+      set({ isSubmitting: false, error: error as Error });
     }
   },
-
-  resetQuestionnaire: () => {
-    set({
-      currentStep: 1,
-      stepData: {},
-      questionnaireId: null,
-      error: null,
-      isSubmitting: false,
-      isLoading: false,
-      isValid: false,
-      isComplete: false,
-      progress: createInitialProgress()
-    })
-  },
-
-  initializeQuestionnaire: async () => {
-    try {
-      set({ isLoading: true, error: null })
-
-      // Check for existing draft questionnaire
-      const { data: questionnaire, error } = await supabase
-        .from('questionnaires')
-        .select()
-        .eq('status', 'draft')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single()
-
-      if (error && error.code !== 'PGRST116') throw error // PGRST116 = no rows returned
-
-      if (questionnaire) {
-        set((state: any) => ({
-          questionnaireId: questionnaire.id,
-          stepData: questionnaire.step_data as StepData,
-          currentStep: state.currentStep > 1 ? state.currentStep : 1
-        }))
-        get().updateProgress()
-      }
-    } catch (error) {
-      set({ error: error as Error })
-    } finally {
-      set({ isLoading: false })
-    }
-  },
-
-  // Loading states
-  setIsLoading: (loading: boolean) => set({ isLoading: loading }),
-  setError: (error: Error | null) => set({ error })
-}))
+}));

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { useStepStore } from "@/lib/stores/stepStore"
 import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore"
-import { supabase } from "@/lib/supabase"
+import supabase from "@/lib/supabase"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -37,28 +37,69 @@ export default function QuestionnaireDashboard() {
   const stepDetails = [
     {
       id: 1,
-      title: "תכונות ועוגני קריירה",
-      description: "בחר את התכונות המאפיינות אותך וענה על שאלון הקריירה",
+      title: "תכונות ליבה",
+      description: "סמנ/י 8 חוזקות אישיות מובילות",
+      time: "לא מוגבל בזמן",
     },
     {
       id: 2,
-      title: "תרגיל ערכים ועבודה",
-      description: "סמן את הערכים שיתווספו לתעודת הזהות שלך",
+      title: "מבחן שפה - עברית",
+      description: "10 שאלות - מבחן אמריקאי",
+      time: "20 שניות לשאלה",
     },
     {
       id: 3,
-      title: "משפטי ייעוד מקצועיים",
-      description: "ספר לנו על הניסיון והכישורים המקצועיים שלך",
+      title: "מבחן שפה - אנגלית",
+      description: "10 שאלות - מבחן אמריקאי",
+      time: "40 שניות לשאלה",
     },
     {
       id: 4,
-      title: "תעודת זהות תעסוקתית",
-      description: "סיכום הנתונים שלך עד כה",
+      title: "עוגני קריירה",
+      description: "24 שאלות",
+      time: "לא מוגבל בזמן",
     },
     {
       id: 5,
-      title: "סיכום ואישור",
-      description: "סקור את כל המידע ואשר את השלמת השאלון",
+      title: "מבחן לוגיקה ומתמטיקה",
+      description: "20 שאלות",
+      time: "90 שניות לשאלה",
+    },
+    {
+      id: 6,
+      title: "מבחן צורות חזותי",
+      description: "15 שאלות",
+      time: "45 שניות לשאלה",
+    },
+    {
+      id: 7,
+      title: "מבחן ידע בסיסי במחשב",
+      description: "15 שאלות",
+      time: "45 שניות לשאלה",
+    },
+    {
+      id: 8,
+      title: "מבדק קשב, סינון מידע וזיכרון",
+      description: "15 שאלות",
+      time: "20 שניות לשאלה",
+    },
+    {
+      id: 9,
+      title: "מבחני אישיות",
+      description: "",
+      time: "לא מוגבל בזמן",
+    },
+    {
+      id: 10,
+      title: "שאלון",
+      description: "20 שאלות",
+      time: "לא מוגבל בזמן",
+    },
+    {
+      id: 11,
+      title: "נטיות לב",
+      description: "תנ/י ציונים לתחומים מקצועיים כלליים (סמן/י עד 5 תחומים כלליים בעדיפות)",
+      time: "90 שניות לשאלה",
     },
   ]
 
@@ -112,12 +153,14 @@ export default function QuestionnaireDashboard() {
     return () => subscription.unsubscribe()
   }, [router])
 
+  const [forceReinit, setForceReinit] = useState(0);
+
   // Initialize steps if none exist
   useEffect(() => {
-    if (steps.length === 0 && isAuthenticated) {
-      initializeSteps()
+    if (isAuthenticated && steps.length === 0) {
+      initializeSteps();
     }
-  }, [steps.length, initializeSteps, isAuthenticated])
+  }, [isAuthenticated, initializeSteps]); // Only run when auth status changes
 
   const completedSteps = steps.filter((step: any) => step.isCompleted).length
   const progressPercentage = (completedSteps / steps.length) * 100
@@ -214,7 +257,7 @@ export default function QuestionnaireDashboard() {
                 onClick={() => handleStepClick(details.id)}
               >
                 <CardContent className="p-4">
-                  <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                  <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                     {/* Step Icon */}
                     <div className="flex gap-4">
                       <div
@@ -300,11 +343,7 @@ export default function QuestionnaireDashboard() {
                               : "default"
                           }
                           disabled={step.isLocked}
-                          className={cn(
-                            "transition-all duration-200",
-                            step.isCompleted &&
-                              "border-green-500 text-green-700 hover:bg-green-50"
-                          )}
+                          size="sm"
                         >
                           {step.isCompleted
                             ? "עריכה"
@@ -322,7 +361,6 @@ export default function QuestionnaireDashboard() {
                               e.stopPropagation()
                               toggleStepCompletion(details.id)
                             }}
-                            className="text-xs"
                           >
                             {step.isCompleted ? "בטל השלמה" : "סמן כהושלם"}
                           </Button>
