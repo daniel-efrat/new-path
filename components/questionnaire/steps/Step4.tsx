@@ -38,14 +38,14 @@ const ANCHOR_QUESTIONS: string[] = [
 ]
 
 export default function Step4({ onNext, onPrevious }: Step4Props) {
-  const { stepData, setAnswer } = useQuestionnaireStore()
+  const { answers, setAnswer } = useQuestionnaireStore()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
 
   // Get stored values or use defaults with proper type checking
-  const anchors = Array.isArray(stepData.anchors?.value)
-    ? (stepData.anchors.value as number[])
+  const anchors = answers.anchors && Array.isArray(JSON.parse(answers.anchors.value))
+    ? JSON.parse(answers.anchors.value) as number[]
     : Array(ANCHOR_QUESTIONS.length).fill(5)
 
   useEffect(() => {

@@ -12,7 +12,6 @@ import KeyboardShortcuts from "@/components/questionnaire/KeyboardShortcuts"
 export default function QuestionnairePage() {
   const {
     setAnswer,
-    getProgress,
     validateStep,
     currentStep,
     initialize,

@@ -32,7 +32,7 @@ export async function GET() {
 
     const { data, error } = await supabase.from('questions').upsert(formattedQuestions, {
       onConflict: 'id',
-    });
+    }).select();
 
     if (error) {
       console.error('API Seeding Error:', error);

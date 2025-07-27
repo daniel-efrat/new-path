@@ -44,7 +44,7 @@ async function seedQuestions() {
 
   const { data, error } = await supabase.from('questions').upsert(formattedQuestions, {
     onConflict: 'id',
-  });
+  }).select();
 
   if (error) {
     console.error('Error seeding questions:', error.message);

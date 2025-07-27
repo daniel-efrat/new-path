@@ -126,16 +126,17 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
 
     const question = QUESTIONS[current];
     const questionId = question.id;
-    const isCorrect = option === question.answer;
+    const optionIndex = question.options.indexOf(option);
+    const isCorrect = optionIndex === question.correct_option;
 
     setSelected(option);
     setFeedback(isCorrect);
-    setAnswers((prev) => ({ ...prev, [questionId]: option }));
+    setAnswers((prev) => ({ ...prev, [questionId]: optionIndex.toString() }));
 
     if (isCorrect) setScore((prev) => prev + 1);
 
     try {
-      await setAnswer(questionId, option);
+      await setAnswer(questionId, optionIndex.toString());
     } catch (error) {
       console.error(`Failed to save answer for question ${questionId}:`, error);
     }
@@ -196,7 +197,7 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
             <tbody>
               {QUESTIONS.map((q, index) => {
                 const userAnswer = answers[q.id];
-                const isCorrect = userAnswer === q.answer;
+                const isCorrect = Number(userAnswer) === q.correct_option;
                 return (
                   <tr
                     key={q.id}
@@ -209,7 +210,7 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
                         <span className="italic text-gray-500">לא נענה</span>
                       )}
                     </td>
-                    <td className="p-2 border">{q.answer}</td>
+                    <td className="p-2 border">{q.options[q.correct_option]}</td>
                     <td className="p-2 border text-center">
                       {isCorrect ? (
                         <span
@@ -272,7 +273,7 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
               key={opt}
               className={`w-full text-left justify-start p-4 h-auto whitespace-normal ${
                 selected !== null
-                  ? opt === q.answer
+                  ? q.options.indexOf(opt) === q.correct_option
                     ? "bg-green-200 hover:bg-green-200"
                     : opt === selected && !feedback
                     ? "bg-red-200 hover:bg-red-200"
