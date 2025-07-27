@@ -3,6 +3,7 @@
 import { Assistant } from "next/font/google"
 import "./globals.css"
 import Header from "@/components/layout/Header"
+import AuthHandler from "@/components/auth/AuthHandler"
 
 const assistant = Assistant({ subsets: ["hebrew", "latin"] })
 
@@ -18,6 +19,7 @@ export default function RootLayout({
       </head>
       <body className={`${assistant.className} bg-background text-foreground`}>
         <Header />
+        <AuthHandler />
         <main className="min-h-screen">
           {children}
         </main>
