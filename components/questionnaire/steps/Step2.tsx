@@ -284,7 +284,7 @@ export default function Step2({ onNext, onPrevious }: Step2Props) {
       </div>
       <Card className="max-w-xl mx-auto p-6 mb-6">
         <div className="flex justify-between items-center mb-2">
-          <span className="text-sm text-gray-500">רמה: {q.level}</span>
+          <span className="text-sm text-gray-500">{q.level}</span>
           <span
             className={`font-mono text-lg ${
               timer <= 10 ? "text-red-500" : "text-gray-700"

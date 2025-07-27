@@ -26,9 +26,21 @@ const validateNumber = (value: number, min: number, max: number): string[] => {
 export const validateStep1 = (data: StepData): ValidationResult => {
   const errors: string[] = [];
   
-  // Check if traits are selected
-  if (!data.traits || !Array.isArray(data.traits.value) || data.traits.value.length === 0) {
+  // Count selected traits (questions with 'true' values)
+  const selectedTraits = Object.entries(data).filter(([questionId, answer]) => {
+    if (!answer || !answer.value) return false;
+    const value = answer.value;
+    return value === 'true' || value === true;
+  });
+  
+  // Check if at least one trait is selected
+  if (selectedTraits.length === 0) {
     errors.push('At least one trait must be selected');
+  }
+  
+  // Check if not more than 10 traits are selected
+  if (selectedTraits.length > 10) {
+    errors.push('Maximum 10 traits can be selected');
   }
   
   return createValidationResult(errors.length === 0, errors);
@@ -38,14 +50,17 @@ export const validateStep1 = (data: StepData): ValidationResult => {
 export const validateStep2 = (data: StepData): ValidationResult => {
   const errors: string[] = [];
   
-  // Check if anchors are provided
-  if (!data.anchors || !Array.isArray(data.anchors.value)) {
+  // Count answered questions (questions with numeric values)
+  const answeredQuestions = Object.entries(data).filter(([questionId, answer]) => {
+    if (!answer || answer.value === undefined || answer.value === null) return false;
+    const value = typeof answer.value === 'string' ? parseInt(answer.value) : 
+                  typeof answer.value === 'number' ? answer.value : NaN;
+    return !isNaN(value) && value >= 0;
+  });
+  
+  // Check if at least one question is answered
+  if (answeredQuestions.length === 0) {
     errors.push('Career anchor responses are required');
-  } else {
-    const anchors = data.anchors.value as number[];
-    if (anchors.length === 0) {
-      errors.push('At least one career anchor response is required');
-    }
   }
   
   return createValidationResult(errors.length === 0, errors);

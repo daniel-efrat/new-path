@@ -3,6 +3,7 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore"
+import { STEP4_QUESTIONS } from "@/lib/constants/questions"
 import { cn } from "@/lib/utils"
 
 interface Step4Props {
@@ -10,60 +11,86 @@ interface Step4Props {
   onPrevious: () => void
 }
 
-const ANCHOR_QUESTIONS: string[] = [
-  "אני פורח כשיש לי אתגר קשה במיוחד ועלי האחריות לפצח ולפתור אותו.",
-  "השאיפה שלי היא להקדיש זמן וקודם כל להפוך למומחה בתחום מסויים ולהעמיק בו באופן מתמיד גם אם זה על חשבון ניהול וקידום.",
-  "אני לא רוצה שהעבודה תשתלט על חיי- אני שואף לאיזון אמיתי.",
-  "לפני כמה אני מרוויח, קודם כל חשוב לי שתהיה לי שליטה על מה, איך ומתי אני עושה את העבודה שלי.",
-  "גם אם אצטרך לוותר על ניהול או עבודה יצירתית, אתן עדיפות לרוגע ו-ודאות לטווח הארוך.",
-  "מרגש אותי הרעיון של להקים משהו מאפס ולראות אותו גדל.",
-  "אני מעדיף לעבוד לבד או בצוות כשניתן לי מרחב ויכולת לקבוע לעצמי את סדרי העבודה.",
-  "לפני שכר או קידום אבדוק אם בעבודה שלי יש לעשייה שלי משמעות ערכית.",
-  "מרתק אותי להתבונן על מערכות שלמות מלמעלה ולפעול לשפר אותן.",
-  "חשוב לי להתחרות גם בעצמי וגם באחרים- ולנצח כל אתגר.",
-  "חשוב לי לבנות שם של מומחה ולהיות האדם שפונים אליו כשיש בעיה מקצועית בתחום מסויים.",
-  "אני מלא ברעיונות וחושב על דרכים להפוך אותם לממשיים.",
-  "חשוב לי שהעבודה שלי תתרום לחיים על הפלנטה, תועיל לחברה, לאנשים, לסביבה, לטבע וכו'.",
-  "אני אוהב לקחת אחריות כוללת, גם אם איני מומחה בכל נושא ספציפי.",
-  "אני אבחר מקום עבודה לפני שאר השיקולים- קודם כל לפי עד כמה הוא מתאים לצרכים האישיים והמשפחתיים שלי.",
-  "אני שואף להגיע לתפקידי ניהול בכירים ולהוביל צוותים.",
-  "אני רוצה ליזום, לקבוע את החוקים, לנהל פרוייקט באופן עצמאי.",
-  "אני מעדיף לעבוד במקום קבוע וברור, גם אם השכר אינו גבוה במיוחד.",
-  "אני פחות אוהב שמכתיבים לי- אני מרגיש שאני חייב חופש כדי לעבוד טוב יותר ולהיות במיטבי.",
-  "דבר ראשון לפני מה אני עושה, חשוב לי לדעת שיש גיבוי, ביטוחים, חוזה מסודר ויציבות לאורך זמן.",
-  "אני משתעמם מהר ממשימות שגרתיות או קלות מדי.",
-  "חשוב לי להיות ממוקד בתחום אחד, להעשיר את עצמי בתחום ולהגיע בו לשליטה מקצועית מלאה.",
-  "אני חייב לחוש תחושת שליחות ומשמעות בעשייה שלי.",
-  "עבודה שמונעת ממני לטפח את חיי הפרט או המשפחה או התחביבים שלי מבחינת הזמן והאנרגיה שאני צריך לכך - לא מתאימה לי.",
-]
+
 
 export default function Step4({ onNext, onPrevious }: Step4Props) {
   const { answers, setAnswer } = useQuestionnaireStore()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
-
-  // Get stored values or use defaults with proper type checking
-  const anchors = answers.anchors && Array.isArray(JSON.parse(answers.anchors.value))
-    ? JSON.parse(answers.anchors.value) as number[]
-    : Array(ANCHOR_QUESTIONS.length).fill(5)
+  
+  // Local state for anchors - start with stored values or defaults
+  const [localAnchors, setLocalAnchors] = useState<number[]>(() => {
+    // Initialize with stored values from individual question IDs or defaults
+    return STEP4_QUESTIONS.map((question) => {
+      const storedAnswer = answers[question.id]
+      if (storedAnswer && storedAnswer.value !== undefined) {
+        const value = typeof storedAnswer.value === 'string' ? parseInt(storedAnswer.value) : storedAnswer.value
+        return isNaN(value) ? 5 : value
+      }
+      return 5 // Default value
+    })
+  })
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  const updateAnchor = async (index: number, value: number[]) => {
-    if (isLoading) return
+  // Update local state only (no DB save)
+  const updateAnchor = (index: number, value: number[]) => {
+    const newAnchors = [...localAnchors]
+    newAnchors[index] = value[0]
+    setLocalAnchors(newAnchors)
+  }
+  
+  // Save all answers to DB when Next Step is clicked
+  const handleNext = async () => {
     try {
       setIsLoading(true)
       setError(null)
-
-      const newAnchors = [...anchors]
-      newAnchors[index] = value[0]
-      await setAnswer("anchors", newAnchors)
+      
+      console.log('Step4: Starting save process...')
+      console.log('Step4: Local anchors to save:', localAnchors)
+      console.log('Step4: STEP4_QUESTIONS length:', STEP4_QUESTIONS.length)
+      console.log('Step4: First few question IDs:', STEP4_QUESTIONS.slice(0, 3).map(q => q.id))
+      
+      // Save each anchor value as individual question ID
+      for (let i = 0; i < STEP4_QUESTIONS.length; i++) {
+        const questionId = STEP4_QUESTIONS[i].id
+        const value = localAnchors[i]
+        
+        console.log(`Step4: Saving question ${i + 1}/${STEP4_QUESTIONS.length}: ${questionId} = ${value}`)
+        
+        try {
+          await setAnswer(questionId, String(value))
+          console.log(`Step4: Successfully saved ${questionId}`)
+        } catch (saveError) {
+          console.error(`Step4: Failed to save ${questionId}:`, {
+            error: saveError,
+            message: saveError instanceof Error ? saveError.message : 'Unknown save error',
+            stack: saveError instanceof Error ? saveError.stack : undefined
+          })
+          throw saveError // Re-throw to be caught by outer catch
+        }
+      }
+      
+      console.log('Step4: All anchor answers saved successfully!')
+      
+      // Call the original onNext function
+      onNext()
     } catch (err) {
-      setError("שגיאה בשמירת הערך. נסה שנית.")
-      console.error("Error updating anchor:", err)
+      console.error('Step4: Error details:', {
+        message: err instanceof Error ? err.message : 'Unknown error',
+        stack: err instanceof Error ? err.stack : undefined,
+        error: err,
+        errorType: typeof err,
+        errorConstructor: err?.constructor?.name,
+        localAnchors: localAnchors,
+        stringifiedError: JSON.stringify(err, Object.getOwnPropertyNames(err))
+      })
+      
+      const errorMessage = err instanceof Error ? err.message : 'שגיאה לא ידועה'
+      setError(`שגיאה בשמירת התשובות: ${errorMessage}. נסה שנית.`)
     } finally {
       setIsLoading(false)
     }
@@ -103,7 +130,7 @@ export default function Step4({ onNext, onPrevious }: Step4Props) {
             isLoading && "opacity-50"
           )}
         >
-          {ANCHOR_QUESTIONS.map((q, idx) => (
+          {STEP4_QUESTIONS.map((q, idx) => (
             <Card
               key={idx}
               className={cn(
@@ -112,17 +139,17 @@ export default function Step4({ onNext, onPrevious }: Step4Props) {
               )}
             >
               <CardHeader className="flex justify-between items-start">
-                <p className="font-medium leading-relaxed text-right">{q}</p>
+                <p className="font-medium leading-relaxed text-right">{q.text}</p>
               </CardHeader>
               <CardContent>
                 <Slider
                   min={0}
                   max={10}
                   step={1}
-                  value={[anchors[idx]]}
+                  value={[localAnchors[idx]]}
                   onValueChange={(val: number[]) => updateAnchor(idx, val)}
                   disabled={isLoading}
-                  aria-label={q}
+                  aria-label={q.text}
                 />
                 <ul
                   className="flex justify-between text-[10px] mt-1 rtl:space-x-reverse"
@@ -146,7 +173,9 @@ export default function Step4({ onNext, onPrevious }: Step4Props) {
           <Button variant="outline" onClick={onPrevious}>
             חזור לשלב הקודם
           </Button>
-          <Button onClick={onNext}>המשך לשלב הבא</Button>
+          <Button onClick={handleNext} disabled={isLoading}>
+            {isLoading ? "שומר..." : "המשך לשלב הבא"}
+          </Button>
         </div>
       </Card>
     </div>

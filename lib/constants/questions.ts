@@ -15,6 +15,7 @@ export interface Question {
   question: string;
   options: string[];
   correct_option: number;
+  type?: "question";
 }
 
 export const STEP1_QUESTIONS: Trait[] = [
@@ -734,14 +735,56 @@ export const STEP3_QUESTIONS: Question[] = [
   },
 ];
 
-export const ALL_QUESTIONS: (Trait | Question)[] = [
+export interface AnchorQuestion {
+  id: string;
+  text: string;
+  type: "anchor";
+}
+
+export const STEP4_QUESTIONS: AnchorQuestion[] = [
+  { id: '12345678-1234-5678-9abc-124456789001', text: 'אתגר טכני ופתרון בעיות מורכבות', type: 'anchor' },
+  { id: '12345678-1234-5678-9abc-124456789002', text: 'ניהול וארגון של אנשים ופרויקטים', type: 'anchor' },
+  { id: '12345678-1234-5678-9abc-124456789003', text: 'עצמאות ויכולת לקבל החלטות באופן עצמאי', type: 'anchor' },
+  { id: '12345678-1234-5678-9abc-124456789004', text: 'ביטחון תעסוקתי ויציבות בעבודה', type: 'anchor' },
+  { id: '12345678-1234-5678-9abc-124456789005', text: 'יזמות ויצירת עסק או פרויקט חדש', type: 'anchor' },
+  { id: '12345678-1234-5678-9abc-124456789006', text: 'שירות וחזון - תרומה לחברה ולקהילה', type: 'anchor' },
+  { id: '12345678-1234-5678-9abc-124456789007', text: 'אתגר טהור - התמודדות עם משימות קשות', type: 'anchor' },
+  { id: '12345678-1234-5678-9abc-124456789008', text: 'איזון בין עבודה לחיים - סגנון חיים איכותי', type: 'anchor' },
+  { id: '12345678-1234-5678-9abc-124456789009', text: 'התמחות מקצועית עמוקה בתחום ספציפי', type: 'anchor' },
+  { id: '12345678-1234-5678-9abc-124456789010', text: 'יכולת השפעה וכוח בארגון', type: 'anchor' },
+  { id: '12345678-1234-5678-9abc-124456789011', text: 'יצירתיות וחדשנות בעבודה', type: 'anchor' },
+  { id: '12345678-1234-5678-9abc-124456789012', text: 'עבודה עם אנשים ובניית קשרים', type: 'anchor' },
+  { id: '12345678-1234-5678-9abc-124456789013', text: 'הכרה ומעמד מקצועי', type: 'anchor' },
+  { id: '12345678-1234-5678-9abc-124456789014', text: 'גמישות ויכולת הסתגלות לשינויים', type: 'anchor' },
+  { id: '12345678-1234-5678-9abc-124456789015', text: 'למידה מתמשכת והתפתחות מקצועית', type: 'anchor' },
+  { id: '12345678-1234-5678-9abc-124456789016', text: 'תחרותיות והצלחה מדידה', type: 'anchor' },
+  { id: '12345678-1234-5678-9abc-124456789017', text: 'עבודה בצוות ושיתוף פעולה', type: 'anchor' },
+  { id: '12345678-1234-5678-9abc-124456789018', text: 'מגוון ושינוי במשימות העבודה', type: 'anchor' },
+  { id: '12345678-1234-5678-9abc-124456789019', text: 'אחריות חברתית וערכים מוסריים', type: 'anchor' },
+  { id: '12345678-1234-5678-9abc-124456789020', text: 'הובלה וחזון ארגוני', type: 'anchor' },
+  { id: '12345678-1234-5678-9abc-124456789021', text: 'פתרון בעיות יצירתי ומחשבה מחוץ לקופסה', type: 'anchor' },
+  { id: '12345678-1234-5678-9abc-124456789022', text: 'עבודה עצמאית ללא פיקוח צמוד', type: 'anchor' },
+  { id: '12345678-1234-5678-9abc-124456789023', text: 'השפעה על קהילה או חברה', type: 'anchor' },
+  { id: '12345678-1234-5678-9abc-124456789024', text: 'הזדמנויות קידום וצמיחה מקצועית', type: 'anchor' }
+];
+
+export const ALL_QUESTIONS: (Trait | Question | AnchorQuestion)[] = [
   ...STEP1_QUESTIONS,
   ...STEP2_QUESTIONS,
   ...STEP3_QUESTIONS,
+  ...STEP4_QUESTIONS,
 ];
 
-function isTrait(question: Trait | Question): question is Trait {
-  return "text" in question;
+function isTrait(question: Trait | Question | AnchorQuestion): question is Trait {
+  return "text" in question && (question as any).type === "trait";
+}
+
+function isAnchorQuestion(question: Trait | Question | AnchorQuestion): question is AnchorQuestion {
+  return "text" in question && (question as any).type === "anchor";
+}
+
+function isQuestion(question: Trait | Question | AnchorQuestion): question is Question {
+  return "question" in question;
 }
 
 export const getQuestionText = (id: string): string | undefined => {
@@ -750,7 +793,7 @@ export const getQuestionText = (id: string): string | undefined => {
     return undefined;
   }
 
-  if (isTrait(question)) {
+  if (isTrait(question) || isAnchorQuestion(question)) {
     return question.text;
   } else {
     return question.question;

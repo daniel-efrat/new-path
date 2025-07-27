@@ -132,6 +132,12 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
         },
       }));
 
+      console.log('setAnswer: About to upsert to database:', {
+        submission_id: submissionId,
+        question_id: questionId,
+        answer_value: dbValue
+      });
+
       const { error } = await supabase.from('answers').upsert(
         {
           submission_id: submissionId,
@@ -141,7 +147,18 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
         { onConflict: 'submission_id, question_id' }
       );
 
-      if (error) throw error;
+      console.log('setAnswer: Database response:', { error });
+
+      if (error) {
+        console.error('setAnswer: Database error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          error: error
+        });
+        throw error;
+      }
       get().updateProgress();
     } catch (error) {
       set({ error: error as Error });

@@ -3,6 +3,7 @@
 import Step1 from "@/components/questionnaire/steps/Step1"
 import Step2 from "@/components/questionnaire/steps/Step2"
 import Step3 from "@/components/questionnaire/steps/Step3"
+import Step4 from "@/components/questionnaire/steps/Step4"
 import QuestionnaireProgress from "@/components/ui/QuestionnaireProgress"
 import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore"
 import { useStepStore } from "@/lib/stores/stepStore"
@@ -180,7 +181,35 @@ export default function QuestionnairePage() {
               }}
             />
           )}
-          {/* Add Step4, Step5, etc. here as needed */}
+          {currentStep === 4 && (
+            <Step4
+              onNext={async () => {
+                const validation = validateStep(currentStep)
+                if (validation.isValid) {
+                  try {
+                    const { useStepStore } = await import(
+                      "@/lib/stores/stepStore"
+                    )
+                    useStepStore.getState().setStepCompletion(currentStep, true)
+                  } catch (e) {
+                    console.error(
+                      "Failed to mark step as completed in dashboard:",
+                      e
+                    )
+                  }
+                  useQuestionnaireStore
+                    .getState()
+                    .setCurrentStep(currentStep + 1)
+                } else {
+                  console.error("Validation errors:", validation.errors)
+                }
+              }}
+              onPrevious={() => {
+                useQuestionnaireStore.getState().setCurrentStep(currentStep - 1)
+              }}
+            />
+          )}
+          {/* Add Step5, etc. here as needed */}
         </div>
       </div>
 
