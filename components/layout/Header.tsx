@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import supabase from "@/lib/supabase"
 import { Session } from "@supabase/supabase-js"
 import LogoIcon from "@/components/layout/logo"
+import { LogIn, LogOut } from "lucide-react"
 
 export default function Header() {
   const [user, setUser] = useState<Session['user'] | null>(null)
@@ -84,20 +85,7 @@ export default function Header() {
                 aria-label="התנתק"
                 title="התנתק"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6 text-red-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1"
-                  />
-                </svg>
+                <LogOut className="h-6 w-6 text-red-600" />
               </button>
               {/* <span className="text-muted-foreground text-sm">
                 {user.email}
@@ -110,20 +98,7 @@ export default function Header() {
               aria-label="התחבר"
               title="התחבר"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 text-blue-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 8V7a2 2 0 012-2h4a2 2 0 012 2v1m-6 8v1a2 2 0 002 2h4a2 2 0 002-2v-1m-6-4h8"
-                />
-              </svg>
+              <LogIn className="h-6 w-6 text-blue-600" />
             </button>
           )}
         </nav>
