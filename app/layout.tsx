@@ -20,7 +20,7 @@ export default function RootLayout({
       <body className={`${assistant.className} bg-background text-foreground`}>
         <Header />
         <AuthHandler />
-        <main className="min-h-screen">
+        <main className="min-h-screen pt-24">
           {children}
         </main>
       </body>

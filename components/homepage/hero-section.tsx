@@ -3,6 +3,7 @@ import { Card } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { ArrowLeft, Sparkles, Shield, Clock } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export function HeroSection() {
   return (
@@ -55,8 +56,14 @@ export function HeroSection() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto mt-12">
           <div className="text-center space-y-2">
-            <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto">
-              <span className="text-2xl">🎯</span>
+            <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto">
+              <Image
+                src="/target-icon.png"
+                alt="Target icon"
+                className="ml-3 -mt-2"
+                width={80}
+                height={80}
+              />
             </div>
             <h3 className="font-semibold text-foreground">התאמה מדויקת</h3>
             <p className="text-sm text-muted-foreground">
@@ -65,8 +72,13 @@ export function HeroSection() {
           </div>
 
           <div className="text-center space-y-2">
-            <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mx-auto">
-              <span className="text-2xl">🎓</span>
+            <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto">
+              <Image
+                src="/cap-icon.png"
+                alt="Graduation cap icon"
+                width={80}
+                height={80}
+              />
             </div>
             <h3 className="font-semibold text-foreground">מכללות שותפות</h3>
             <p className="text-sm text-muted-foreground">
@@ -75,8 +87,13 @@ export function HeroSection() {
           </div>
 
           <div className="text-center space-y-2">
-            <div className="w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center mx-auto">
-              <span className="text-2xl">💰</span>
+            <div className="w-20 h-20 bg-rose-100 rounded-full flex items-center justify-center mx-auto">
+              <Image
+                src="/money-icon.png"
+                alt="Money icon"
+                width={84}
+                height={84}
+              />
             </div>
             <h3 className="font-semibold text-foreground">נתוני שכר</h3>
             <p className="text-sm text-muted-foreground">
