@@ -1,14 +1,14 @@
-import { Metadata } from "next"
-import { HeroSection } from "@/components/homepage/hero-section"
-import { FeaturesSection } from "@/components/homepage/features-section"
-import { CTASection } from "@/components/homepage/cta-section"
-import AuthHandler from "@/components/auth/AuthHandler"
+import { Metadata } from "next";
+import { HeroSection } from "@/components/homepage/hero-section";
+import { FeaturesSection } from "@/components/homepage/features-section";
+import { CTASection } from "@/components/homepage/cta-section";
+import AuthHandler from "@/components/auth/AuthHandler";
 
 export const metadata: Metadata = {
   title: "אבחון קריירה - מצא את המסלול המקצועי האידיאלי שלך",
   description:
     "השלם את השאלון שלנו כדי לקבל המלצות קריירה ומכללות מותאמות אישית",
-}
+};
 
 export default function Home() {
   return (
@@ -20,9 +20,9 @@ export default function Home() {
       <footer className="py-8 bg-gray-100 text-center">
         <div className="container mx-auto">
           <p className="text-muted-foreground text-sm">
-            © {new Date().getFullYear()} אבחון קריירה | כל הזכויות שמורות
+            © {new Date().getFullYear()} דרך חדשה | כל הזכויות שמורות
           </p>
-          <div className="mt-4 flex justify-center space-x-4 space-x-reverse">
+          <div className="mt-4 flex justify-center gap-4 space-x-reverse">
             <a
               href="/privacy"
               className="text-sm text-muted-foreground hover:text-foreground"
@@ -45,5 +45,5 @@ export default function Home() {
         </div>
       </footer>
     </div>
-  )
+  );
 }

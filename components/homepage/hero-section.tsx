@@ -7,8 +7,8 @@ import Image from "next/image";
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-indigo-50 px-4">
-      <div className="absolute inset-0 bg-[url('/placeholder.svg?height=800&width=1200')] opacity-5 bg-cover bg-center" />
+    <section className="relative flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-indigo-50 p-4">
+      <div className="absolute inset-0 bg-[url('/hero-bg.jpg?height=800&width=1200')] opacity-7 bg-cover bg-center" />
 
       <div className="relative z-10 max-w-4xl mx-auto text-center space-y-8">
         <div className="space-y-4">
@@ -56,11 +56,11 @@ export function HeroSection() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto mt-12">
           <div className="text-center space-y-2">
-            <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto">
+            <div className="w-20 h-20 bg-emerald-200 rounded-full flex items-center justify-center mx-auto">
               <Image
-                src="/target-icon.png"
+                src="/icons/target.png"
+                className="-mt-2"
                 alt="Target icon"
-                className="ml-3 -mt-2"
                 width={80}
                 height={80}
               />
@@ -72,9 +72,9 @@ export function HeroSection() {
           </div>
 
           <div className="text-center space-y-2">
-            <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto">
+            <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto">
               <Image
-                src="/cap-icon.png"
+                src="/icons/cap.png"
                 alt="Graduation cap icon"
                 width={80}
                 height={80}
@@ -89,7 +89,7 @@ export function HeroSection() {
           <div className="text-center space-y-2">
             <div className="w-20 h-20 bg-rose-100 rounded-full flex items-center justify-center mx-auto">
               <Image
-                src="/money-icon.png"
+                src="/icons/money.png"
                 alt="Money icon"
                 width={84}
                 height={84}

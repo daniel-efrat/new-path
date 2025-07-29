@@ -1,33 +1,33 @@
-import { Card, CardContent } from "../../components/ui/card"
-import { CheckCircle, Users, TrendingUp, Award } from "lucide-react"
+import { Card, CardContent } from "../../components/ui/card";
+import Image from "next/image";
 
 export function FeaturesSection() {
   const features = [
     {
-      icon: CheckCircle,
+      icon: "/icons/checkmark.png",
       title: "הערכה מקיפה",
       description: "7 שאלות חכמות שחושפות את הפוטנציאל שלך",
       color: "text-emerald-600",
     },
     {
-      icon: Users,
+      icon: "/icons/group.png",
       title: "מותאם לישראלים",
       description: "פותח במיוחד עבור צעירים בישראל",
       color: "text-indigo-600",
     },
     {
-      icon: TrendingUp,
+      icon: "/icons/growth.png",
       title: "נתונים עדכניים",
       description: "מידע רלוונטי על שוק העבודה הישראלי",
       color: "text-rose-600",
     },
     {
-      icon: Award,
+      icon: "/icons/medal.png",
       title: "מכללות מובילות",
       description: "שותפות עם המוסדות הטובים ביותר בארץ",
       color: "text-amber-600",
     },
-  ]
+  ];
 
   return (
     <section className="py-20 px-4 bg-gray-50">
@@ -49,9 +49,14 @@ export function FeaturesSection() {
             >
               <CardContent className="p-6 text-center space-y-4">
                 <div
-                  className={`w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto ${feature.color}`}
+                  className={`w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto ${feature.color}`}
                 >
-                  <feature.icon className="w-6 h-6" />
+                  <Image
+                    src={feature.icon}
+                    alt={`${feature.title} icon`}
+                    width={84}
+                    height={84}
+                  />
                 </div>
                 <h3 className="font-semibold text-foreground">
                   {feature.title}
@@ -65,5 +70,5 @@ export function FeaturesSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }

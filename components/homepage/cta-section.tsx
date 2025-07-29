@@ -27,7 +27,7 @@ export function CTASection() {
             </Button>
           </Link>
 
-          <p className="text-sm text-emerald-100">
+          <p className="text-sm text-emerald-100 mt-4">
             ללא עלות • ללא התחייבות • תוצאות מיידיות
           </p>
         </div>

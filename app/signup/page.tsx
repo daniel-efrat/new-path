@@ -27,11 +27,24 @@ export default function SignupPage() {
     setIsLoading(true)
     setError(null)
     
+    // Determine the correct redirect URL based on environment
+    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const redirectUrl = isDevelopment 
+      ? `${window.location.origin}/auth/callback`
+      : `${window.location.origin}/auth/callback`;
+    
+    console.log('Initiating Google OAuth signup with redirect to:', redirectUrl);
+    console.log('Environment:', isDevelopment ? 'development' : 'production');
+    
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: redirectUrl,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         }
       })
       

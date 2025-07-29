@@ -43,6 +43,22 @@ export default function Step2({ onNext, onPrevious }: Step2Props) {
 
   const passed = score / QUESTIONS.length >= 0.7;
 
+  // Development restart function
+  const handleRestart = () => {
+    setCurrent(0);
+    setSelected(null);
+    setFeedback(null);
+    setScore(0);
+    setTimer(40);
+    setShowResult(false);
+    setAnswers(Array(QUESTIONS.length).fill(null));
+    setStepAnswers({});
+    // Clear stored answers from the store as well
+    QUESTIONS.forEach(q => {
+      setAnswer(q.id, { value: null, isCorrect: false });
+    });
+  };
+
   // Fetch answers directly from Supabase on component mount
   useEffect(() => {
     const loadStepAnswers = async () => {
@@ -99,7 +115,7 @@ export default function Step2({ onNext, onPrevious }: Step2Props) {
   }, [timer, showResult]);
 
   useEffect(() => {
-    setTimer(40);
+    setTimer(10);
     // Check if current question already has an answer
     const currentAnswer = answers[current];
     if (currentAnswer !== null) {
@@ -265,14 +281,27 @@ export default function Step2({ onNext, onPrevious }: Step2Props) {
             </tbody>
           </table>
         </div>
-        <Button className="mt-8" onClick={handleContinue}>
-          המשך לשלב הבא
-        </Button>
+        <div className="flex justify-center gap-4 mt-8">
+          <Button 
+            variant="destructive" 
+            size="lg" 
+            onClick={handleRestart}
+            className="text-lg bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-4"
+          >
+            🔄 RESTART QUIZ - DEV BUTTON
+          </Button>
+          <Button onClick={handleContinue}>
+            המשך לשלב הבא
+          </Button>
+        </div>
       </div>
     );
   }
 
   const q = QUESTIONS[current];
+
+  // Check if current question is 16-20 (reading comprehension)
+  const isReadingComprehension = q.number && q.number >= 16 && q.number <= 20;
 
   return (
     <div dir="rtl">
@@ -282,6 +311,22 @@ export default function Step2({ onNext, onPrevious }: Step2Props) {
           שאלה {q.number} / {QUESTIONS.length}
         </span>
       </div>
+
+      {/* Reading passage section for questions 16-20 */}
+      {isReadingComprehension && (
+        <Card className="max-w-xl mx-auto p-6 mb-6 bg-blue-50 border-blue-200">
+          <div className="text-center mb-4">
+            <h3 className="text-lg font-semibold text-blue-800 mb-3">
+              קרא את הקטע הקצר והשב על השאלות:
+            </h3>
+            <div className="text-right leading-relaxed text-gray-800 bg-white p-4 rounded border">
+              כל יום בטרם הזריחה יוצא דני מביתו אל התחנה, מחכה לאוטובוס ומקשיב
+              לציפורים המצייצות. הוא אוהב את הרגעים השקטים שלפני שהעיר מתעוררת,
+              ורואה בכך זמן של שלווה.
+            </div>
+          </div>
+        </Card>
+      )}
       <Card className="max-w-xl mx-auto p-6 mb-6">
         <div className="flex justify-between items-center mb-2">
           <span className="text-sm text-gray-500">{q.level}</span>
@@ -329,7 +374,17 @@ export default function Step2({ onNext, onPrevious }: Step2Props) {
         <Button variant="outline" onClick={onPrevious}>
           שלב קודם
         </Button>
-        <span className="text-gray-500">ניקוד: {score}</span>
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="destructive" 
+            size="sm" 
+            onClick={handleRestart}
+            className="text-xs"
+          >
+            🔄 Restart Quiz (Dev)
+          </Button>
+          <span className="text-gray-500">ניקוד: {score}</span>
+        </div>
       </div>
     </div>
   );

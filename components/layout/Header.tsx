@@ -1,71 +1,84 @@
-"use client"
+"use client";
 
-import React, { useState, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import supabase from "@/lib/supabase"
-import { Session } from "@supabase/supabase-js"
-import LogoIcon from "@/components/layout/logo"
-import { LogIn, LogOut } from "lucide-react"
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import supabase from "@/lib/supabase";
+import { Session } from "@supabase/supabase-js";
+import LogoIcon from "@/components/layout/logo";
+import { LogIn, LogOut } from "lucide-react";
 
 export default function Header() {
-  const [user, setUser] = useState<Session['user'] | null>(null)
-  const [loading, setLoading] = useState(true)
-  const router = useRouter()
+  const [user, setUser] = useState<Session["user"] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     if (!supabase?.auth) {
-      console.error('Supabase auth client not initialized')
-      setLoading(false)
-      return
+      console.error("Supabase auth client not initialized");
+      setLoading(false);
+      return;
     }
 
     // Get initial session
     const getSession = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession()
-        if (error) throw error
-        setUser(session?.user ?? null)
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+        if (error) throw error;
+        setUser(session?.user ?? null);
       } catch (error) {
-        console.error('Error getting session:', error)
+        console.error("Error getting session:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    getSession()
+    getSession();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(
       (event: string, session: Session | null) => {
-        setUser(session?.user ?? null)
+        setUser(session?.user ?? null);
       }
-    )
+    );
 
     return () => {
-      if (subscription) subscription.unsubscribe()
-    }
-  }, [])
+      if (subscription) subscription.unsubscribe();
+    };
+  }, []);
 
   const handleSignOut = async () => {
     try {
-      await supabase.auth.signOut()
-      router.push("/")
+      await supabase.auth.signOut();
+      router.push("/");
     } catch (error) {
-      console.error("Error signing out:", error)
+      console.error("Error signing out:", error);
     }
-  }
+  };
 
   const handleSignIn = () => {
-    router.push("/signin")
-  }
+    router.push("/signin");
+  };
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/60 backdrop-blur-md shadow-md py-4 border-b border-white/40">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-primary backdrop-blur-md shadow-md py-4 border-b border-white/40">
       <div className="container mx-auto px-4 flex justify-between items-center">
         <Link href="/" className="flex items-center">
-          <Image
+          {/* <Image
             src="/logo2.png"
+            alt="Career Diagnosis Logo"
+            width={220}
+            height={60}
+            className="h-16 w-auto"
+            priority
+          /> */}
+          <Image
+            src="/logo1.svg"
             alt="Career Diagnosis Logo"
             width={220}
             height={60}
@@ -78,49 +91,21 @@ export default function Header() {
           {loading ? (
             <div className="text-gray-500">טוען...</div>
           ) : user ? (
-            <div className="flex flex-col items-center space-x-4">
-              <button
-                onClick={handleSignOut}
-                className="p-2 rounded-full hover:bg-red-100 transition-colors"
-                aria-label="התנתק"
-                title="התנתק"
-              >
-                <LogOut className="h-6 w-6 text-red-600" />
-              </button>
-              {/* <span className="text-muted-foreground text-sm">
+            <div className="flex items-center gap-4">
+              <span className="hidden sm:block text-white text-sm">
                 {user.email}
-              </span> */}
+              </span>
+              <button onClick={handleSignOut} aria-label="התנתק" title="התנתק">
+                <LogOut className="h-6 w-6 cursor-pointer text-white" />
+              </button>
             </div>
           ) : (
-            <button
-              onClick={handleSignIn}
-              className="p-2 rounded-full hover:bg-blue-100 transition-colors"
-              aria-label="התחבר"
-              title="התחבר"
-            >
-              <LogIn className="h-6 w-6 text-blue-600" />
+            <button onClick={handleSignIn} aria-label="התחבר" title="התחבר">
+              <LogIn className="h-6 w-6 cursor-pointer text-white" />
             </button>
           )}
         </nav>
-        {/* <div className="md:hidden">
-          <button className="text-gray-700 hover:text-primary">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
-        </div> */}
       </div>
     </header>
-  )
+  );
 }
