@@ -9,11 +9,12 @@ import type { AnswerState } from "@/lib/types/questionnaire";
 import type { LogicalQuestion } from "@/lib/constants/questions";
 
 interface Step5Props {
-  onNext: () => void;
+  onNext?: () => void;
   onPrevious: () => void;
+  onComplete: () => Promise<void>;
 }
 
-export default function Step5({ onNext, onPrevious }: Step5Props) {
+export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
   const QUESTIONS: LogicalQuestion[] = STEP5_QUESTIONS;
 
   const { setAnswer } = useQuestionnaireStore();
@@ -121,7 +122,9 @@ export default function Step5({ onNext, onPrevious }: Step5Props) {
   }, [current, answers]);
 
   const handleContinue = () => {
-    onNext();
+    if (onNext) {
+      onNext();
+    }
   };
 
   const handleSelect = (idx: number) => {
