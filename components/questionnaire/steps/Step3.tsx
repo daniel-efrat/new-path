@@ -15,7 +15,12 @@ interface Step3Props {
 }
 
 export default function Step3({ onNext, onPrevious }: Step3Props) {
-  const { setAnswer, answers: allAnswers, submit, isSubmitting: storeIsSubmitting } = useQuestionnaireStore();
+  const {
+    setAnswer,
+    answers: allAnswers,
+    submit,
+    isSubmitting: storeIsSubmitting,
+  } = useQuestionnaireStore();
 
   // Use questions in their original order (no shuffling)
   const QUESTIONS = STEP3_QUESTIONS;
@@ -38,31 +43,31 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
   useEffect(() => {
     const loadAnswers = async () => {
       try {
-        const questionIds = STEP3_QUESTIONS.map(q => q.id);
+        const questionIds = STEP3_QUESTIONS.map((q) => q.id);
         const fetchedAnswers = await fetchStepAnswers(questionIds);
-        
-        console.log('Fetched Step 3 answers:', fetchedAnswers);
-        
+
+        console.log("Fetched Step 3 answers:", fetchedAnswers);
+
         // Convert fetched answers to local state format
         const localAnswers: Record<string, string | null> = {};
         let currentScore = 0;
-        
-        STEP3_QUESTIONS.forEach(question => {
+
+        STEP3_QUESTIONS.forEach((question) => {
           const fetchedAnswer = fetchedAnswers[question.id];
           if (fetchedAnswer) {
             const answerValue = fetchedAnswer.value;
             localAnswers[question.id] = answerValue;
-            
+
             // Calculate score for correct answers
             if (answerValue === question.options[question.correct_option]) {
               currentScore++;
             }
           }
         });
-        
+
         setAnswers(localAnswers);
         setScore(currentScore);
-        
+
         // If all questions are answered, show completion screen
         const answeredCount = Object.keys(localAnswers).length;
         if (answeredCount === STEP3_QUESTIONS.length) {
@@ -71,12 +76,11 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
           // Resume from where user left off
           setCurrent(answeredCount);
         }
-        
       } catch (error) {
-        console.error('Error fetching Step 3 answers:', error);
+        console.error("Error fetching Step 3 answers:", error);
       }
     };
-    
+
     loadAnswers();
   }, []);
 
@@ -184,7 +188,7 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
           {passed ? "עברת!" : "לא עברת"}
         </p>
         <div className="w-full max-w-4xl overflow-auto">
-          <table className="w-full text-sm text-left">
+          <table dir="ltr" className="w-full text-sm text-left">
             <thead className="bg-gray-100">
               <tr>
                 <th className="p-2 border">#</th>
@@ -210,7 +214,9 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
                         <span className="italic text-gray-500">לא נענה</span>
                       )}
                     </td>
-                    <td className="p-2 border">{q.options[q.correct_option]}</td>
+                    <td className="p-2 border">
+                      {q.options[q.correct_option]}
+                    </td>
                     <td className="p-2 border text-center">
                       {isCorrect ? (
                         <span
