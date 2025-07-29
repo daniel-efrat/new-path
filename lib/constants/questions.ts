@@ -864,12 +864,12 @@ export const STEP4_QUESTIONS: AnchorQuestion[] = [
   },
 ];
 export interface LogicalQuestion {
-  id: string
-  number: number
-  level: string
-  question: string
-  options: string[]
-  correct_option: number // zero-based index
+  id: string;
+  number: number;
+  level: string;
+  question: string;
+  options: string[];
+  correct_option: number; // zero-based index
 }
 export const STEP5_QUESTIONS: LogicalQuestion[] = [
   {
@@ -990,7 +990,7 @@ export const STEP5_QUESTIONS: LogicalQuestion[] = [
     options: [
       "כל בעלי הכובע האדום לובשים כחול",
       "יש מי שלובש כחול וכובע אדום",
-      "כל שלובשי הכחול חובשים כובע אדום",
+      "כל לובשי הכחול חובשים כובע אדום",
       "אין חניכים בלי כובע אדום",
     ],
     correct_option: 1,
@@ -1082,7 +1082,7 @@ export const STEP5_QUESTIONS: LogicalQuestion[] = [
     question: "איזו הצמדה שקולה לטענה 'אם ורק אם X אז Y'?",
     options: [
       '"אם X אז Y" ו"אם Y אז X"',
-      '"אם X אז Y" ו"רק אם X אז Y"',
+      '"רק אם X אז Y" בלבד',
       '"רק אם Y אז X" בלבד',
       '"אם לא X אז לא Y" בלבד',
     ],
@@ -1095,7 +1095,7 @@ export const STEP5_QUESTIONS: LogicalQuestion[] = [
     question:
       "נתון: רק אם שרון עברה את הראיון – היא תוזמן לחתימת חוזה. מה נכון?",
     options: [
-      "הזמנה לחוזה היא תנאי מספיק לראיון",
+      "הזמנה לחוזה היא תנאי הכרחי למעבר הראיון",
       "מעבר ראיון הוא תנאי הכרחי להזמנה לחוזה",
       "מעבר ראיון הוא תנאי מספיק להזמנה לחוזה",
       "אין יחסי תנאי בין המשפטים",
