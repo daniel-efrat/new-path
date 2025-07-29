@@ -54,7 +54,7 @@ export default function Step2({ onNext, onPrevious }: Step2Props) {
     setAnswers(Array(QUESTIONS.length).fill(null));
     setStepAnswers({});
     // Clear stored answers from the store as well
-    QUESTIONS.forEach(q => {
+    QUESTIONS.forEach((q) => {
       setAnswer(q.id, { value: null, isCorrect: false });
     });
   };
@@ -115,7 +115,7 @@ export default function Step2({ onNext, onPrevious }: Step2Props) {
   }, [timer, showResult]);
 
   useEffect(() => {
-    setTimer(10);
+    setTimer(40);
     // Check if current question already has an answer
     const currentAnswer = answers[current];
     if (currentAnswer !== null) {
@@ -282,17 +282,15 @@ export default function Step2({ onNext, onPrevious }: Step2Props) {
           </table>
         </div>
         <div className="flex justify-center gap-4 mt-8">
-          <Button 
-            variant="destructive" 
-            size="lg" 
+          <Button
+            variant="destructive"
+            size="lg"
             onClick={handleRestart}
             className="text-lg bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-4"
           >
             🔄 RESTART QUIZ - DEV BUTTON
           </Button>
-          <Button onClick={handleContinue}>
-            המשך לשלב הבא
-          </Button>
+          <Button onClick={handleContinue}>המשך לשלב הבא</Button>
         </div>
       </div>
     );
@@ -375,9 +373,9 @@ export default function Step2({ onNext, onPrevious }: Step2Props) {
           שלב קודם
         </Button>
         <div className="flex items-center gap-4">
-          <Button 
-            variant="destructive" 
-            size="sm" 
+          <Button
+            variant="destructive"
+            size="sm"
             onClick={handleRestart}
             className="text-xs"
           >
