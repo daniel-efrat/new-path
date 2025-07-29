@@ -211,7 +211,7 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
                     <td className="p-2 border">{q.question}</td>
                     <td className="p-2 border">
                       {userAnswer ?? (
-                        <span className="italic text-gray-500">לא נענה</span>
+                        <span className="italic text-gray-500">דילגת</span>
                       )}
                     </td>
                     <td className="p-2 border">
