@@ -101,3 +101,12 @@ export async function fetchStep1Answers(step1QuestionIds: string[]): Promise<Rec
 export async function fetchStep2Answers(step2QuestionIds: string[]): Promise<Record<string, AnswerState>> {
   return fetchStepAnswers(step2QuestionIds);
 }
+
+/**
+ * Fetches answers for Step 5 (logical reasoning questions)
+ * @param step5QuestionIds Array of Step 5 question IDs
+ * @returns Record of question_id -> AnswerState
+ */
+export async function fetchStep5Answers(step5QuestionIds: string[]): Promise<Record<string, AnswerState>> {
+  return fetchStepAnswers(step5QuestionIds);
+}

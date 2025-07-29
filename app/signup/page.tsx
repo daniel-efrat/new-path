@@ -30,7 +30,7 @@ export default function SignupPage() {
     // Determine the correct redirect URL based on environment
     const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     const redirectUrl = isDevelopment 
-      ? `${window.location.origin}/auth/callback`
+      ? 'http://localhost:3000/auth/callback'
       : `${window.location.origin}/auth/callback`;
     
     console.log('Initiating Google OAuth signup with redirect to:', redirectUrl);
