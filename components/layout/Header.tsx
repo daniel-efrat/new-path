@@ -69,23 +69,14 @@ export default function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-primary backdrop-blur-md shadow-md py-4 border-b border-white/40">
       <div className="container mx-auto px-4 flex justify-between items-center">
         <Link href="/" className="flex items-center">
-          {/* <Image
-            src="/logo2.png"
-            alt="Career Diagnosis Logo"
-            width={220}
-            height={60}
-            className="h-16 w-auto"
-            priority
-          /> */}
           <Image
-            src="/logo1.svg"
+            src="/logo-white.png"
             alt="Career Diagnosis Logo"
             width={220}
             height={60}
             className="h-16 w-auto"
             priority
           />
-          {/* <LogoIcon className="h-22 w-auto" /> */}
         </Link>
         <nav className="flex space-x-8 items-center">
           {loading ? (
