@@ -1,24 +1,24 @@
-"use client"
+"use client";
 
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
-import { useStepStore } from "@/lib/stores/stepStore"
-import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore"
-import supabase from "@/lib/supabase"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import QuestionnaireProgress from "@/components/ui/QuestionnaireProgress"
-import { Check, ChevronLeft, Play, Lock } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useStepStore } from "@/lib/stores/stepStore";
+import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore";
+import supabase from "@/lib/supabase";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import QuestionnaireProgress from "@/components/ui/QuestionnaireProgress";
+import { Check, ChevronLeft, Play, Lock } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Step {
-  id: number
-  title: string
-  description: string
-  isCompleted: boolean
-  isLocked: boolean
+  id: number;
+  title: string;
+  description: string;
+  isCompleted: boolean;
+  isLocked: boolean;
 }
 
 export default function QuestionnaireDashboard() {
@@ -28,11 +28,11 @@ export default function QuestionnaireDashboard() {
     initializeSteps,
     resetFromStep,
     resetSteps,
-  } = useStepStore()
-  const { setCurrentStep } = useQuestionnaireStore()
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
-  const [user, setUser] = useState<any>(null)
-  const router = useRouter()
+  } = useStepStore();
+  const { setCurrentStep } = useQuestionnaireStore();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const router = useRouter();
 
   const stepDetails = [
     {
@@ -98,10 +98,11 @@ export default function QuestionnaireDashboard() {
     {
       id: 11,
       title: "נטיות לב",
-      description: "תנ/י ציונים לתחומים מקצועיים כלליים (סמן/י עד 5 תחומים כלליים בעדיפות)",
+      description:
+        "תנ/י ציונים לתחומים מקצועיים כלליים (סמן/י עד 5 תחומים כלליים בעדיפות)",
       time: "90 שניות לשאלה",
     },
-  ]
+  ];
 
   // Check authentication status
   useEffect(() => {
@@ -110,48 +111,48 @@ export default function QuestionnaireDashboard() {
         const {
           data: { session },
           error,
-        } = await supabase.auth.getSession()
+        } = await supabase.auth.getSession();
 
         if (error) {
-          console.error("Auth error:", error)
-          setIsAuthenticated(false)
-          router.push("/signin")
-          return
+          console.error("Auth error:", error);
+          setIsAuthenticated(false);
+          router.push("/signin");
+          return;
         }
 
         if (!session) {
-          setIsAuthenticated(false)
-          router.push("/signin")
-          return
+          setIsAuthenticated(false);
+          router.push("/signin");
+          return;
         }
 
-        setUser(session.user)
-        setIsAuthenticated(true)
+        setUser(session.user);
+        setIsAuthenticated(true);
       } catch (error) {
-        console.error("Auth check error:", error)
-        setIsAuthenticated(false)
-        router.push("/signin")
+        console.error("Auth check error:", error);
+        setIsAuthenticated(false);
+        router.push("/signin");
       }
-    }
+    };
 
-    checkAuth()
+    checkAuth();
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event: any, session: any) => {
       if (event === "SIGNED_OUT" || !session) {
-        setIsAuthenticated(false)
-        setUser(null)
-        router.push("/signin")
+        setIsAuthenticated(false);
+        setUser(null);
+        router.push("/signin");
       } else if (session) {
-        setUser(session.user)
-        setIsAuthenticated(true)
+        setUser(session.user);
+        setIsAuthenticated(true);
       }
-    })
+    });
 
-    return () => subscription.unsubscribe()
-  }, [router])
+    return () => subscription.unsubscribe();
+  }, [router]);
 
   const [forceReinit, setForceReinit] = useState(0);
 
@@ -162,27 +163,27 @@ export default function QuestionnaireDashboard() {
     }
   }, [isAuthenticated, initializeSteps]); // Only run when auth status changes
 
-  const completedSteps = steps.filter((step: any) => step.isCompleted).length
-  const progressPercentage = (completedSteps / steps.length) * 100
+  const completedSteps = steps.filter((step: any) => step.isCompleted).length;
+  const progressPercentage = (completedSteps / steps.length) * 100;
 
   const handleStepClick = (stepId: number) => {
-    const step = steps.find((s: any) => s.id === stepId)
+    const step = steps.find((s: any) => s.id === stepId);
     if (step && !step.isLocked) {
       if (step.isCompleted) {
         // Reset this step and all following steps when editing
-        resetFromStep(stepId)
+        resetFromStep(stepId);
       }
-      setCurrentStep(stepId)
-      router.push(`/questionnaire`)
+      setCurrentStep(stepId);
+      router.push(`/questionnaire`);
     }
-  }
+  };
 
   const toggleStepCompletion = (stepId: number) => {
-    const step = steps.find((s: any) => s.id === stepId)
+    const step = steps.find((s: any) => s.id === stepId);
     if (step && !step.isLocked) {
-      setStepCompletion(stepId, !step.isCompleted)
+      setStepCompletion(stepId, !step.isCompleted);
     }
-  }
+  };
 
   // Show loading while checking authentication
   if (isAuthenticated === null) {
@@ -193,12 +194,12 @@ export default function QuestionnaireDashboard() {
           <p className="text-muted-foreground">בודק הרשאות...</p>
         </div>
       </div>
-    )
+    );
   }
 
   // Don't render dashboard if not authenticated (will redirect)
   if (!isAuthenticated) {
-    return null
+    return null;
   }
 
   return (
@@ -238,7 +239,7 @@ export default function QuestionnaireDashboard() {
             const step = steps.find((s: any) => s.id === details.id) || {
               isCompleted: false,
               isLocked: true,
-            }
+            };
             return (
               <Card
                 key={details.id}
@@ -267,7 +268,7 @@ export default function QuestionnaireDashboard() {
                             ? "bg-secondary text-white"
                             : step.isLocked
                             ? "bg-gray-300 text-gray-500"
-                            : "bg-blue-500 text-white"
+                            : "bg-primary text-white"
                         )}
                         style={{
                           animationDelay: `${700 + index * 150}ms`,
@@ -358,8 +359,8 @@ export default function QuestionnaireDashboard() {
                             variant="secondary"
                             size="sm"
                             onClick={(e) => {
-                              e.stopPropagation()
-                              toggleStepCompletion(details.id)
+                              e.stopPropagation();
+                              toggleStepCompletion(details.id);
                             }}
                           >
                             {step.isCompleted ? "בטל השלמה" : "סמן כהושלם"}
@@ -370,7 +371,7 @@ export default function QuestionnaireDashboard() {
                   </div>
                 </CardContent>
               </Card>
-            )
+            );
           })}
         </div>
 
@@ -393,7 +394,7 @@ export default function QuestionnaireDashboard() {
                 if (
                   window.confirm("האם אתה בטוח שברצונך לאפס את כל ההתקדמות?")
                 ) {
-                  resetSteps()
+                  resetSteps();
                 }
               }}
             >
@@ -410,5 +411,5 @@ export default function QuestionnaireDashboard() {
         </div>
       </div>
     </div>
-  )
+  );
 }

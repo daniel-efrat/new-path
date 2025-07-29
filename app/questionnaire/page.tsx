@@ -1,50 +1,44 @@
-"use client"
+"use client";
 
-import Step1 from "@/components/questionnaire/steps/Step1"
-import Step2 from "@/components/questionnaire/steps/Step2"
-import Step3 from "@/components/questionnaire/steps/Step3"
-import Step4 from "@/components/questionnaire/steps/Step4"
-import QuestionnaireProgress from "@/components/ui/QuestionnaireProgress"
-import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore"
-import { useStepStore } from "@/lib/stores/stepStore"
-import { useEffect, useState } from "react"
-import KeyboardShortcuts from "@/components/questionnaire/KeyboardShortcuts"
+import Step1 from "@/components/questionnaire/steps/Step1";
+import Step2 from "@/components/questionnaire/steps/Step2";
+import Step3 from "@/components/questionnaire/steps/Step3";
+import Step4 from "@/components/questionnaire/steps/Step4";
+import QuestionnaireProgress from "@/components/ui/QuestionnaireProgress";
+import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore";
+import { useStepStore } from "@/lib/stores/stepStore";
+import { useEffect, useState } from "react";
+import KeyboardShortcuts from "@/components/questionnaire/KeyboardShortcuts";
 
 export default function QuestionnairePage() {
-  const {
-    setAnswer,
-    validateStep,
-    currentStep,
-    initialize,
-    reset,
-    isLoading,
-  } = useQuestionnaireStore()
-  const { steps } = useStepStore()
-  const [mounted, setMounted] = useState(false)
+  const { setAnswer, validateStep, currentStep, initialize, reset, isLoading } =
+    useQuestionnaireStore();
+  const { steps } = useStepStore();
+  const [mounted, setMounted] = useState(false);
 
   // Progress calculation based on step store (shared with dashboard)
-  const completedSteps = steps.filter((step: any) => step.isCompleted).length
-  const totalSteps = steps.length || 5
+  const completedSteps = steps.filter((step: any) => step.isCompleted).length;
+  const totalSteps = steps.length || 5;
   const progressPercentage =
-    totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0
+    totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0;
 
   useEffect(() => {
     const init = async () => {
       try {
         // Try to initialize questionnaire, but don't block on database errors
-        await initialize()
+        await initialize();
       } catch (error) {
         console.warn(
           "Failed to initialize questionnaire from database, continuing with local state:",
           error
-        )
+        );
         // Continue anyway - the store will work with local state
       } finally {
-        setMounted(true)
+        setMounted(true);
       }
-    }
-    init()
-  }, [initialize])
+    };
+    init();
+  }, [initialize]);
 
   // Show loading skeleton
   if (!mounted) {
@@ -55,7 +49,7 @@ export default function QuestionnairePage() {
           <div className="mb-8">
             <div className="h-2  bg-gray-200 rounded">
               <div
-                className="h-full bg-blue-500 rounded animate-pulse"
+                className="h-full bg-primary rounded animate-pulse"
                 style={{ width: `${progressPercentage}%` }}
               />
             </div>
@@ -79,7 +73,7 @@ export default function QuestionnairePage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -100,7 +94,7 @@ export default function QuestionnairePage() {
           {currentStep === 1 && (
             <Step1
               onNext={async () => {
-                const validation = validateStep(currentStep)
+                const validation = validateStep(currentStep);
                 if (validation.isValid) {
                   // Mark this step as completed in the dashboard store
                   // and advance to the next step
@@ -108,19 +102,21 @@ export default function QuestionnairePage() {
                     // Dynamically import to avoid circular dependency
                     const { useStepStore } = await import(
                       "@/lib/stores/stepStore"
-                    )
-                    useStepStore.getState().setStepCompletion(currentStep, true)
+                    );
+                    useStepStore
+                      .getState()
+                      .setStepCompletion(currentStep, true);
                   } catch (e) {
                     console.error(
                       "Failed to mark step as completed in dashboard:",
                       e
-                    )
+                    );
                   }
                   useQuestionnaireStore
                     .getState()
-                    .setCurrentStep(currentStep + 1)
+                    .setCurrentStep(currentStep + 1);
                 } else {
-                  console.error("Validation errors:", validation.errors)
+                  console.error("Validation errors:", validation.errors);
                 }
               }}
             />
@@ -128,84 +124,96 @@ export default function QuestionnairePage() {
           {currentStep === 2 && (
             <Step2
               onNext={async () => {
-                const validation = validateStep(currentStep)
+                const validation = validateStep(currentStep);
                 if (validation.isValid) {
                   try {
                     const { useStepStore } = await import(
                       "@/lib/stores/stepStore"
-                    )
-                    useStepStore.getState().setStepCompletion(currentStep, true)
+                    );
+                    useStepStore
+                      .getState()
+                      .setStepCompletion(currentStep, true);
                   } catch (e) {
                     console.error(
                       "Failed to mark step as completed in dashboard:",
                       e
-                    )
+                    );
                   }
                   useQuestionnaireStore
                     .getState()
-                    .setCurrentStep(currentStep + 1)
+                    .setCurrentStep(currentStep + 1);
                 } else {
-                  console.error("Validation errors:", validation.errors)
+                  console.error("Validation errors:", validation.errors);
                 }
               }}
               onPrevious={() => {
-                useQuestionnaireStore.getState().setCurrentStep(currentStep - 1)
+                useQuestionnaireStore
+                  .getState()
+                  .setCurrentStep(currentStep - 1);
               }}
             />
           )}
           {currentStep === 3 && (
             <Step3
               onNext={async () => {
-                const validation = validateStep(currentStep)
+                const validation = validateStep(currentStep);
                 if (validation.isValid) {
                   try {
                     const { useStepStore } = await import(
                       "@/lib/stores/stepStore"
-                    )
-                    useStepStore.getState().setStepCompletion(currentStep, true)
+                    );
+                    useStepStore
+                      .getState()
+                      .setStepCompletion(currentStep, true);
                   } catch (e) {
                     console.error(
                       "Failed to mark step as completed in dashboard:",
                       e
-                    )
+                    );
                   }
                   useQuestionnaireStore
                     .getState()
-                    .setCurrentStep(currentStep + 1)
+                    .setCurrentStep(currentStep + 1);
                 } else {
-                  console.error("Validation errors:", validation.errors)
+                  console.error("Validation errors:", validation.errors);
                 }
               }}
               onPrevious={() => {
-                useQuestionnaireStore.getState().setCurrentStep(currentStep - 1)
+                useQuestionnaireStore
+                  .getState()
+                  .setCurrentStep(currentStep - 1);
               }}
             />
           )}
           {currentStep === 4 && (
             <Step4
               onNext={async () => {
-                const validation = validateStep(currentStep)
+                const validation = validateStep(currentStep);
                 if (validation.isValid) {
                   try {
                     const { useStepStore } = await import(
                       "@/lib/stores/stepStore"
-                    )
-                    useStepStore.getState().setStepCompletion(currentStep, true)
+                    );
+                    useStepStore
+                      .getState()
+                      .setStepCompletion(currentStep, true);
                   } catch (e) {
                     console.error(
                       "Failed to mark step as completed in dashboard:",
                       e
-                    )
+                    );
                   }
                   useQuestionnaireStore
                     .getState()
-                    .setCurrentStep(currentStep + 1)
+                    .setCurrentStep(currentStep + 1);
                 } else {
-                  console.error("Validation errors:", validation.errors)
+                  console.error("Validation errors:", validation.errors);
                 }
               }}
               onPrevious={() => {
-                useQuestionnaireStore.getState().setCurrentStep(currentStep - 1)
+                useQuestionnaireStore
+                  .getState()
+                  .setCurrentStep(currentStep - 1);
               }}
             />
           )}
@@ -215,9 +223,8 @@ export default function QuestionnairePage() {
 
       {/* Keyboard shortcuts */}
       <div className="hidden sm:fixed bottom-4 right-4 z-50">
-       
         <KeyboardShortcuts />
       </div>
     </div>
-  )
+  );
 }
