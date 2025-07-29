@@ -1089,7 +1089,7 @@ export const STEP5_QUESTIONS: LogicalQuestion[] = [
     correct_option: 0,
   },
   {
-    id: "192bdc84-45f5-4c75-a44a-25g7869a0111",
+    id: "192bdc84-45f5-4c75-a44a-25f7869a0111",
     number: 17,
     level: "לוגיקה – 'רק אם' (הכרחי)",
     question:
@@ -1103,7 +1103,7 @@ export const STEP5_QUESTIONS: LogicalQuestion[] = [
     correct_option: 1,
   },
   {
-    id: "2a3ced95-56f6-4d86-b55b-36h897ab0122",
+    id: "2a3ced95-56f6-4d86-b55b-36f897ab0122",
     number: 18,
     level: "לוגיקה – יחס בין קבוצות",
     question:
@@ -1117,7 +1117,7 @@ export const STEP5_QUESTIONS: LogicalQuestion[] = [
     correct_option: 1,
   },
   {
-    id: "3b4dfea6-67g7-4e97-c66c-47i9a1bc0133",
+    id: "3b4dfea6-67f7-4e97-c66c-47f9a1bc0133",
     number: 19,
     level: "לוגיקה – מסקנה שאינה מתחייבת",
     question:
@@ -1131,7 +1131,7 @@ export const STEP5_QUESTIONS: LogicalQuestion[] = [
     correct_option: 2,
   },
   {
-    id: "4c5e10b7-78h8-4fa8-d77d-58j0b2cd0144",
+    id: "4c5e10b7-78f8-4fa8-d77d-58f0b2cd0144",
     number: 20,
     level: "לוגיקה – היסק חלקי",
     question:
