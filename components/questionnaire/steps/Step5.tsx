@@ -194,19 +194,21 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
   if (showResult) {
     return (
       <div dir="rtl" className="text-center">
-        <Fireworks onInit={({ conductor }) => setFireworksConductor(conductor)} />
-        <h1 className="text-3xl font-bold mb-6">
+        <Fireworks
+          onInit={({ conductor }) => setFireworksConductor(conductor)}
+        />
+        {/* <h1 className="text-3xl font-bold mb-6">
           {passed ? "🎉 כל הכבוד!" : "😔 לא עברת"}
-        </h1>
+        </h1> */}
         <div className="text-xl mb-8">
           הניקוד שלך: {score} מתוך {QUESTIONS.length} (
           {Math.round((score / QUESTIONS.length) * 100)}%)
         </div>
-        <div className="mb-8">
+        {/* <div className="mb-8">
           {passed
             ? "עברת בהצלחה את מבחן הלוגיקה!"
             : "נדרש ציון של 70% לפחות כדי לעבור."}
-        </div>
+        </div> */}
 
         <div className="max-w-4xl mx-auto mb-8">
           <h3 className="text-lg font-semibold mb-4">סיכום תשובות:</h3>
@@ -224,7 +226,10 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
                 const userAnswer = answers[idx];
                 const isCorrect = userAnswer === q.correct_option;
                 return (
-                  <tr key={q.id} className={isCorrect ? "bg-green-50" : "bg-red-50"}>
+                  <tr
+                    key={q.id}
+                    className={isCorrect ? "bg-green-50" : "bg-red-50"}
+                  >
                     <td className="border border-gray-300 p-2 font-medium">
                       {q.number}
                     </td>
@@ -234,18 +239,23 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
                     <td className="border border-gray-300 p-2">
                       {q.options[q.correct_option]}
                     </td>
-                    <td className="border border-gray-300 p-2">
-                      <span className={isCorrect ? "text-green-600" : "text-red-600"}>
-                        {isCorrect ? (
-                          <svg className="w-5 h-5 inline" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        ) : (
-                          <svg className="w-5 h-5 inline" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </span>
+                    <td className="border border-gray-300 p-2"></td>
+                    <td className="p-2 text-center">
+                      {isCorrect ? (
+                        <span
+                          title="Correct"
+                          style={{ color: "#16a34a", fontSize: "1.2em" }}
+                        >
+                          ✓
+                        </span>
+                      ) : (
+                        <span
+                          title="Incorrect"
+                          style={{ color: "#dc2626", fontSize: "1.2em" }}
+                        >
+                          ✗
+                        </span>
+                      )}
                     </td>
                   </tr>
                 );
@@ -273,13 +283,16 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
   return (
     <div dir="rtl">
       <h1 className="text-2xl font-bold mb-4 text-center">מבחן לוגיקה</h1>
-      
+
       {/* Instructions */}
       <Card className="max-w-4xl mx-auto p-6 mb-6 bg-blue-50 border-blue-200">
         <div className="text-center mb-4">
           <h3 className="text-lg font-semibold text-blue-800 mb-3">הוראות:</h3>
           <div className="text-right leading-relaxed text-gray-800 bg-white p-4 rounded border">
-            ענו לפי המידע שמופיע בכל שאלה בלבד. אל תניחו עובדות שלא ניתנו. זכרו: מטענה כללית ("כל…") אי‑אפשר להסיק קיום פרטים; מטענת קיום ("יש…") לא מסיקים כלל על כולם. הבחינו בין "אם… אז…" (תנאי מספיק), "רק אם…" (תנאי הכרחי), ו"אם ורק אם…".
+            ענו לפי המידע שמופיע בכל שאלה בלבד. אל תניחו עובדות שלא ניתנו. זכרו:
+            מטענה כללית ("כל…") אי‑אפשר להסיק קיום פרטים; מטענת קיום ("יש…") לא
+            מסיקים כלל על כולם. הבחינו בין "אם… אז…" (תנאי מספיק), "רק אם…"
+            (תנאי הכרחי), ו"אם ורק אם…".
           </div>
         </div>
       </Card>

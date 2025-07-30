@@ -244,34 +244,14 @@ export default function Step2({ onNext, onPrevious }: Step2Props) {
                           title="Correct"
                           style={{ color: "#16a34a", fontSize: "1.2em" }}
                         >
-                          <svg
-                            width="20"
-                            height="20"
-                            viewBox="0 0 20 20"
-                            style={{ display: "inline" }}
-                          >
-                            <path
-                              fill="currentColor"
-                              d="M7.629 15.314a1 1 0 0 1-1.415 0l-3.536-3.536a1 1 0 1 1 1.415-1.415l2.828 2.829 7.778-7.778a1 1 0 1 1 1.415 1.414l-8.485 8.486Z"
-                            />
-                          </svg>
+                          ✓
                         </span>
                       ) : (
                         <span
                           title="Incorrect"
                           style={{ color: "#dc2626", fontSize: "1.2em" }}
                         >
-                          <svg
-                            width="20"
-                            height="20"
-                            viewBox="0 0 20 20"
-                            style={{ display: "inline" }}
-                          >
-                            <path
-                              fill="currentColor"
-                              d="M10 8.586 15.657 2.93a1 1 0 1 1 1.415 1.415L11.414 10l5.657 5.657a1 1 0 0 1-1.415 1.415L10 11.414l-5.657 5.657a1 1 0 0 1-1.415-1.415L8.586 10 2.929 4.343A1 1 0 1 1 4.343 2.93L10 8.586Z"
-                            />
-                          </svg>
+                          ✗
                         </span>
                       )}
                     </td>

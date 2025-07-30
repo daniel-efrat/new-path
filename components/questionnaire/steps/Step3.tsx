@@ -180,13 +180,13 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
         <p className="mb-2">
           הציון שלך: {score} מתוך {QUESTIONS.length}
         </p>
-        <p
+        {/* <p
           className={`font-bold mb-4 ${
             passed ? "text-green-600" : "text-red-600"
           }`}
         >
           {passed ? "עברת!" : "לא עברת"}
-        </p>
+        </p> */}
         <div className="w-full max-w-4xl overflow-auto">
           <table dir="ltr" className="w-full text-sm text-left">
             <thead className="bg-gray-100">

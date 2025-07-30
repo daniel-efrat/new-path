@@ -38,7 +38,7 @@ export default function QuestionnaireDashboard() {
     {
       id: 1,
       title: "תכונות ליבה",
-      description: "סמנ/י 8 חוזקות אישיות מובילות",
+      description: "סמן/י 8 חוזקות אישיוּת מובילות",
       time: "לא מוגבל בזמן",
     },
     {
@@ -207,13 +207,10 @@ export default function QuestionnaireDashboard() {
       className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 pt-24"
       dir="rtl"
     >
-      <div className="max-w-4xl mx-auto">
+      <div className="w-full flex -mt-24 flex-col items-center max-w-4xl mx-auto">
         {/* Header */}
-        <div className="mb-8 animate-in slide-in-from-top duration-700">
+        <div className="mb-8 w-full max-w-4xl animate-in slide-in-from-top duration-700">
           <div className="flex items-center gap-4 mb-6 animate-in slide-in-from-right duration-500 delay-200">
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
             <div>
               <h1 className="text-3xl font-bold text-foreground mt-6">
                 שאלון הערכה מקצועית
@@ -234,7 +231,7 @@ export default function QuestionnaireDashboard() {
         </div>
 
         {/* Steps */}
-        <div className="space-y-4">
+        <div className="space-y-4 max-w-4xl w-full">
           {stepDetails.map((details, index) => {
             const step = steps.find((s: any) => s.id === details.id) || {
               isCompleted: false,
