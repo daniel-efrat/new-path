@@ -1159,7 +1159,7 @@ export const STEP5_QUESTIONS: LogicalQuestion[] = [
 
 export const STEP6_QUESTIONS: ShapeQuestion[] = [
   {
-    id: "step6_shape_question_1",
+    id: "c1d2e3f4-a5b6-7890-1234-56789abcdef2",
     number: 1,
     level: "זיהוי דפוסים – צורות גיאומטריות",
     question: "/shapes/1.png",
@@ -1169,11 +1169,11 @@ export const STEP6_QUESTIONS: ShapeQuestion[] = [
       "/shapes/1.3.png",
       "/shapes/1.4.png",
     ],
-    correct_option: 0, // Adjust based on correct answer
+    correct_option: 3, // Adjust based on correct answer
     type: "shape",
   },
   {
-    id: "step6_shape_question_2",
+    id: "d2e3f4a5-b6c7-8901-2345-6789abcdef23",
     number: 2,
     level: "זיהוי דפוסים – צורות גיאומטריות",
     question: "/shapes/2.png",
@@ -1183,11 +1183,11 @@ export const STEP6_QUESTIONS: ShapeQuestion[] = [
       "/shapes/2.3.png",
       "/shapes/2.4.png",
     ],
-    correct_option: 0, // Adjust based on correct answer
+    correct_option: 1, // Adjust based on correct answer
     type: "shape",
   },
   {
-    id: "step6_shape_question_3",
+    id: "e3f4a5b6-c7d8-9012-3456-789abcdef234",
     number: 3,
     level: "זיהוי דפוסים – צורות גיאומטריות",
     question: "/shapes/3.png",
@@ -1196,6 +1196,48 @@ export const STEP6_QUESTIONS: ShapeQuestion[] = [
       "/shapes/3.2.png",
       "/shapes/3.3.png",
       "/shapes/3.4.png",
+    ],
+    correct_option: 3, // Adjust based on correct answer
+    type: "shape",
+  },
+  {
+    id: "f4a5b6c7-d8e9-0123-4567-89abcdef2345",
+    number: 4,
+    level: "זיהוי דפוסים – צורות גיאומטריות",
+    question: "/shapes/4.png",
+    options: [
+      "/shapes/4.1.png",
+      "/shapes/4.2.png",
+      "/shapes/4.3.png",
+      "/shapes/4.4.png",
+    ],
+    correct_option: 0, // Adjust based on correct answer
+    type: "shape",
+  },
+  {
+    id: "a5b6c7d8-e9f0-1234-5678-9abcdef23456",
+    number: 5,
+    level: "זיהוי דפוסים – צורות גיאומטריות",
+    question: "/shapes/5.png",
+    options: [
+      "/shapes/5.1.png",
+      "/shapes/5.2.png",
+      "/shapes/5.3.png",
+      "/shapes/5.4.png",
+    ],
+    correct_option: 1, // Adjust based on correct answer
+    type: "shape",
+  },
+  {
+    id: "b6c7d8e9-f0a1-2345-6789-abcdef234567",
+    number: 6,
+    level: "זיהוי דפוסים – צורות גיאומטריות",
+    question: "/shapes/6.png",
+    options: [
+      "/shapes/6.1.png",
+      "/shapes/6.2.png",
+      "/shapes/6.3.png",
+      "/shapes/6.4.png",
     ],
     correct_option: 0, // Adjust based on correct answer
     type: "shape",

@@ -27,6 +27,26 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
 
   const currentQ = STEP6_QUESTIONS[currentQuestion];
 
+  // Development restart function
+  const handleRestart = () => {
+    setCurrentQuestion(0);
+    setSelectedShape(null);
+    setShowFeedback(false);
+    setIsCorrect(false);
+    setScore(0);
+    setTimer(45);
+    setShowResults(false);
+    setAnswers(Array(STEP6_QUESTIONS.length).fill(null));
+    // Clear stored answers from the store as well
+    STEP6_QUESTIONS.forEach((q) => {
+      try {
+        setAnswer(q.id, null);
+      } catch (error) {
+        console.warn("Failed to clear answer for question:", q.id);
+      }
+    });
+  };
+
   // Timer effect - auto advance when timer reaches 0
   useEffect(() => {
     if (showResults || showFeedback) return;
@@ -60,36 +80,46 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
 
   const handleShapeSelect = (shapeId: number) => {
     if (showFeedback) return; // Prevent selection after feedback is shown
-    
+
     setSelectedShape(shapeId);
     const correct = shapeId === currentQ.correct_option;
     setIsCorrect(correct);
     setShowFeedback(true);
-    
+
     // Update answers array
     const newAnswers = [...answers];
     newAnswers[currentQuestion] = shapeId;
     setAnswers(newAnswers);
-    
+
     // Update score
     if (correct && answers[currentQuestion] === null) {
-      setScore(prev => prev + 1);
+      setScore((prev) => prev + 1);
     }
-    
-    // Store the answer
-    setAnswer(currentQ.id, {
-      value: shapeId,
-      isCorrect: correct,
-    });
+
+    // Store the answer (only store the selected shape ID)
+    try {
+      setAnswer(currentQ.id, shapeId);
+    } catch (error) {
+      console.warn("Failed to save Step6 answer to database:", error);
+      // Continue without database storage - answers are still tracked locally
+    }
+
+    // Auto-advance to next question after 1.5 seconds
+    setTimeout(() => {
+      handleNextQuestion();
+    }, 1500);
   };
 
   const handleNextQuestion = () => {
     if (currentQuestion < STEP6_QUESTIONS.length - 1) {
-      setCurrentQuestion(prev => prev + 1);
+      setCurrentQuestion((prev) => prev + 1);
       setSelectedShape(answers[currentQuestion + 1]);
       setShowFeedback(answers[currentQuestion + 1] !== null);
       if (answers[currentQuestion + 1] !== null) {
-        setIsCorrect(answers[currentQuestion + 1] === STEP6_QUESTIONS[currentQuestion + 1].correct_option);
+        setIsCorrect(
+          answers[currentQuestion + 1] ===
+            STEP6_QUESTIONS[currentQuestion + 1].correct_option
+        );
       }
     } else {
       // All questions completed
@@ -99,11 +129,14 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
 
   const handlePreviousQuestion = () => {
     if (currentQuestion > 0) {
-      setCurrentQuestion(prev => prev - 1);
+      setCurrentQuestion((prev) => prev - 1);
       setSelectedShape(answers[currentQuestion - 1]);
       setShowFeedback(answers[currentQuestion - 1] !== null);
       if (answers[currentQuestion - 1] !== null) {
-        setIsCorrect(answers[currentQuestion - 1] === STEP6_QUESTIONS[currentQuestion - 1].correct_option);
+        setIsCorrect(
+          answers[currentQuestion - 1] ===
+            STEP6_QUESTIONS[currentQuestion - 1].correct_option
+        );
       }
     }
   };
@@ -122,11 +155,10 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
           {score === STEP6_QUESTIONS.length ? "🎉 כל הכבוד!" : "תוצאות המבחן"}
         </h1>
         <div className="text-xl mb-8">
-          הניקוד שלך: {score} מתוך {STEP6_QUESTIONS.length} ({
-            Math.round((score / STEP6_QUESTIONS.length) * 100)
-          }%)
+          הניקוד שלך: {score} מתוך {STEP6_QUESTIONS.length} (
+          {Math.round((score / STEP6_QUESTIONS.length) * 100)}%)
         </div>
-        
+
         {/* Results summary */}
         <Card className="p-6 mb-8">
           <h3 className="text-lg font-semibold mb-4">סיכום תשובות:</h3>
@@ -135,7 +167,10 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
               const userAnswer = answers[idx];
               const isCorrect = userAnswer === q.correct_option;
               return (
-                <div key={q.id} className="flex items-center justify-between p-3 border rounded">
+                <div
+                  key={q.id}
+                  className="flex items-center justify-between p-3 border rounded"
+                >
                   <span>שאלה {q.number}</span>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-600">
@@ -152,12 +187,24 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
             })}
           </div>
         </Card>
-        
+
         <div className="flex justify-between">
-          <Button variant="outline" onClick={onPrevious}>
-            שלב קודם
-          </Button>
-          <Button onClick={handleComplete} className="bg-blue-600 hover:bg-blue-700">
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onPrevious}>
+              שלב קודם
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleRestart}
+              className="text-xs"
+            >
+              🔄 Restart Quiz (Dev)
+            </Button>
+          </div>
+          <Button
+            onClick={handleComplete}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
             המשך לשלב הבא
           </Button>
         </div>
@@ -168,20 +215,21 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
   return (
     <div dir="rtl" className="max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-6 text-center">זיהוי דפוסים</h1>
-      
+
       {/* Progress indicator */}
       <div className="flex justify-center mb-6">
         <span className="text-lg font-semibold">
           שאלה {currentQuestion + 1} מתוך {STEP6_QUESTIONS.length}
         </span>
       </div>
-      
+
       {/* Instructions */}
       <Card className="p-6 mb-6 bg-blue-50 border-blue-200">
         <div className="text-center mb-4">
           <h3 className="text-lg font-semibold text-blue-800 mb-3">הוראות:</h3>
           <div className="text-right leading-relaxed text-gray-800 bg-white p-4 rounded border">
-            התבוננו בדפוס המורכב למעלה ובחרו איזה מהצורות הפשוטות למטה מופיעה בתוכו.
+            התבוננו בדפוס המורכב למעלה ובחרו איזה מהצורות הפשוטות למטה מופיעה
+            בתוכו.
           </div>
         </div>
       </Card>
@@ -219,15 +267,18 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
         <div className="text-center mb-4">
           <h3 className="text-lg font-semibold mb-4">בחרו את הצורה הנכונה:</h3>
         </div>
-        
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
+
+        <div
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto"
+          dir="ltr"
+        >
           {currentQ.options.map((optionSrc, idx) => (
             <button
               key={idx}
               onClick={() => handleShapeSelect(idx)}
               disabled={showFeedback}
               className={`
-                relative p-4 border-2 rounded-lg transition-all duration-200 bg-white
+                relative p-4 border-2 rounded-lg transition-all duration-200 cursor-pointer bg-white
                 ${
                   selectedShape === idx
                     ? showFeedback
@@ -238,7 +289,9 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
                     : "border-gray-300 hover:border-gray-400 hover:shadow-md"
                 }
                 ${
-                  showFeedback && idx === currentQ.correct_option && selectedShape !== currentQ.correct_option
+                  showFeedback &&
+                  idx === currentQ.correct_option &&
+                  selectedShape !== currentQ.correct_option
                     ? "border-green-500 bg-green-50"
                     : ""
                 }
@@ -249,55 +302,85 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
                 <Image
                   src={optionSrc}
                   alt={`Shape option ${idx + 1}`}
-                  width={80}
-                  height={80}
+                  width={currentQ.number === 4 ? 20 : 80}
+                  height={currentQ.number === 4 ? 20 : 80}
                   className="mb-2"
                 />
                 <span className="text-sm font-medium text-gray-700">
                   {idx + 1}
                 </span>
               </div>
-              
+
               {/* Feedback indicators */}
               {showFeedback && selectedShape === idx && (
                 <div className="absolute -top-2 -right-2">
                   {isCorrect ? (
                     <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      <svg
+                        className="w-4 h-4 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
                       </svg>
                     </div>
                   ) : (
                     <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
-                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      <svg
+                        className="w-4 h-4 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
                       </svg>
                     </div>
                   )}
                 </div>
               )}
-              
+
               {/* Show correct answer indicator */}
-              {showFeedback && idx === currentQ.correct_option && selectedShape !== currentQ.correct_option && (
-                <div className="absolute -top-2 -right-2">
-                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
+              {showFeedback &&
+                idx === currentQ.correct_option &&
+                selectedShape !== currentQ.correct_option && (
+                  <div className="absolute -top-2 -right-2">
+                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                      <svg
+                        className="w-4 h-4 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </button>
           ))}
         </div>
-        
+
         {/* Feedback message */}
         {showFeedback && (
           <div className="mt-6 text-center">
-            <div className={`text-lg font-semibold ${
-              isCorrect ? "text-green-600" : "text-red-600"
-            }`}>
-              {isCorrect ? "כל הכבוד! בחרתם נכון." : "לא נכון. הצורה הנכונה מסומנת."}
+            <div
+              className={`text-lg font-semibold ${
+                isCorrect ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {isCorrect
+                ? "כל הכבוד! בחרתם נכון."
+                : "לא נכון. הצורה הנכונה מסומנת."}
             </div>
           </div>
         )}
@@ -314,11 +397,19 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
               שאלה קודמת
             </Button>
           )}
+          <Button variant="outline" onClick={handleRestart} className="text-xs">
+            🔄 Restart Quiz (Dev)
+          </Button>
         </div>
-        
+
         {showFeedback && (
-          <Button onClick={handleNextQuestion} className="bg-blue-600 hover:bg-blue-700">
-            {currentQuestion < STEP6_QUESTIONS.length - 1 ? "שאלה הבאה" : "סיום המבחן"}
+          <Button
+            onClick={handleNextQuestion}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            {currentQuestion < STEP6_QUESTIONS.length - 1
+              ? "שאלה הבאה"
+              : "סיום המבחן"}
           </Button>
         )}
       </div>
