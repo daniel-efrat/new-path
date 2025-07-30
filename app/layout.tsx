@@ -29,6 +29,7 @@ export default function RootLayout({
     <html lang="he" dir="rtl">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="apple-mobile-web-app-title" content="דרך חדשה" />
       </head>
       <body className={`${assistant.className} bg-background text-foreground`}>
         <Header />
