@@ -102,6 +102,19 @@ export const validateStep5 = (data: StepData): ValidationResult => {
   return createValidationResult(errors.length === 0, errors);
 };
 
+// Step 6 validation (shape selection)
+export const validateStep6 = (data: StepData): ValidationResult => {
+  const errors: string[] = [];
+  
+  // Check if shape selection answer exists
+  const shapeAnswer = data.step6_shape_selection;
+  if (!shapeAnswer || shapeAnswer.value === undefined || shapeAnswer.value === null) {
+    errors.push('Shape selection is required');
+  }
+  
+  return createValidationResult(errors.length === 0, errors);
+};
+
 // Main validation function
 export const validateStep = (step: number, data: StepData): ValidationResult => {
   switch (step) {
@@ -115,6 +128,8 @@ export const validateStep = (step: number, data: StepData): ValidationResult => 
       return validateStep4(data);
     case 5:
       return validateStep5(data);
+    case 6:
+      return validateStep6(data);
     default:
       return createValidationResult(false, [`Invalid step: ${step}`]);
   }
@@ -127,4 +142,5 @@ export const stepValidators: Record<number, (data: StepData) => ValidationResult
   3: validateStep3,
   4: validateStep4,
   5: validateStep5,
+  6: validateStep6,
 };

@@ -871,6 +871,17 @@ export interface LogicalQuestion {
   options: string[];
   correct_option: number; // zero-based index
 }
+
+export interface ShapeQuestion {
+  id: string;
+  number: number;
+  level: string;
+  question: string; // Path to main pattern image
+  options: string[]; // Paths to option images
+  correct_option: number;
+  type: "shape";
+}
+
 export const STEP5_QUESTIONS: LogicalQuestion[] = [
   {
     id: "7a1be7a4-2f08-4a5b-9d16-9f2c9b8d0101",
@@ -1143,6 +1154,51 @@ export const STEP5_QUESTIONS: LogicalQuestion[] = [
       "אי-אפשר להסיק דבר על איחורים של מתעמלים",
     ],
     correct_option: 3,
+  },
+];
+
+export const STEP6_QUESTIONS: ShapeQuestion[] = [
+  {
+    id: "step6_shape_question_1",
+    number: 1,
+    level: "זיהוי דפוסים – צורות גיאומטריות",
+    question: "/shapes/1.png",
+    options: [
+      "/shapes/1.1.png",
+      "/shapes/1.2.png",
+      "/shapes/1.3.png",
+      "/shapes/1.4.png",
+    ],
+    correct_option: 0, // Adjust based on correct answer
+    type: "shape",
+  },
+  {
+    id: "step6_shape_question_2",
+    number: 2,
+    level: "זיהוי דפוסים – צורות גיאומטריות",
+    question: "/shapes/2.png",
+    options: [
+      "/shapes/2.1.png",
+      "/shapes/2.2.png",
+      "/shapes/2.3.png",
+      "/shapes/2.4.png",
+    ],
+    correct_option: 0, // Adjust based on correct answer
+    type: "shape",
+  },
+  {
+    id: "step6_shape_question_3",
+    number: 3,
+    level: "זיהוי דפוסים – צורות גיאומטריות",
+    question: "/shapes/3.png",
+    options: [
+      "/shapes/3.1.png",
+      "/shapes/3.2.png",
+      "/shapes/3.3.png",
+      "/shapes/3.4.png",
+    ],
+    correct_option: 0, // Adjust based on correct answer
+    type: "shape",
   },
 ];
 

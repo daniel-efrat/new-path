@@ -122,8 +122,13 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
   }, [current, answers]);
 
   const handleContinue = () => {
+    console.log("handleContinue called in Step5");
+    console.log("onNext prop exists:", !!onNext);
     if (onNext) {
+      console.log("Calling onNext from Step5");
       onNext();
+    } else {
+      console.log("onNext prop is not available");
     }
   };
 
