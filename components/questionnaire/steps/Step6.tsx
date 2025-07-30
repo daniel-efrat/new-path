@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import type { ShapeQuestion } from "@/lib/constants/questions";
+import { fetchStepAnswers } from "@/lib/utils/answerFetcher";
+import type { AnswerState } from "@/lib/types/questionnaire";
 
 interface Step6Props {
   onNext?: () => void;
@@ -24,6 +26,7 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
   const [score, setScore] = useState(0);
   const [showResults, setShowResults] = useState(false);
   const [timer, setTimer] = useState(45);
+  const [isLoadingAnswers, setIsLoadingAnswers] = useState(true);
 
   const currentQ = STEP6_QUESTIONS[currentQuestion];
 
@@ -46,6 +49,53 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
       }
     });
   };
+
+  // Load answers on component mount
+  useEffect(() => {
+    const loadStepAnswers = async () => {
+      setIsLoadingAnswers(true);
+      try {
+        const questionIds = STEP6_QUESTIONS.map((q) => q.id);
+        const fetchedAnswers = await fetchStepAnswers(questionIds);
+
+        // Convert fetched answers to local format and calculate score
+        const newAnswers = STEP6_QUESTIONS.map((q) => {
+          const storedAnswer = fetchedAnswers[q.id];
+          if (storedAnswer && storedAnswer.value !== undefined) {
+            const value =
+              typeof storedAnswer.value === "string"
+                ? parseInt(storedAnswer.value)
+                : storedAnswer.value;
+            return isNaN(value) ? null : value;
+          }
+          return null;
+        });
+
+        setAnswers(newAnswers);
+
+        // Calculate score based on fetched answers
+        const newScore = newAnswers.reduce((acc, answer, index) => {
+          if (answer !== null && answer === STEP6_QUESTIONS[index].correct_option) {
+            return acc + 1;
+          }
+          return acc;
+        }, 0);
+        setScore(newScore);
+        
+        // If all questions are answered, show results view
+        const answeredCount = newAnswers.filter(answer => answer !== null).length;
+        if (answeredCount === STEP6_QUESTIONS.length) {
+          setShowResults(true);
+        }
+      } catch (error) {
+        console.error("Error loading Step 6 answers:", error);
+      } finally {
+        setIsLoadingAnswers(false);
+      }
+    };
+
+    loadStepAnswers();
+  }, []);
 
   // Timer effect - auto advance when timer reaches 0
   useEffect(() => {

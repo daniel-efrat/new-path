@@ -84,6 +84,12 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
           return acc;
         }, 0);
         setScore(newScore);
+        
+        // If all questions are answered, show results view
+        const answeredCount = newAnswers.filter(answer => answer !== null).length;
+        if (answeredCount === QUESTIONS.length) {
+          setShowResult(true);
+        }
       } catch (error) {
         console.error("Error loading Step 5 answers:", error);
       } finally {

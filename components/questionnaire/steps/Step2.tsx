@@ -91,6 +91,12 @@ export default function Step2({ onNext, onPrevious }: Step2Props) {
           return acc;
         }, 0);
         setScore(newScore);
+        
+        // If all questions are answered, show results view
+        const answeredCount = newAnswers.filter(answer => answer !== null).length;
+        if (answeredCount === QUESTIONS.length) {
+          setShowResult(true);
+        }
       } catch (error) {
         console.error("Error loading Step 2 answers:", error);
       } finally {

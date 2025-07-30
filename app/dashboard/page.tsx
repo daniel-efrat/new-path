@@ -342,9 +342,20 @@ export default function QuestionnaireDashboard() {
                           }
                           disabled={step.isLocked}
                           size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (step.isCompleted) {
+                              // Navigate to questionnaire page to view results
+                              setCurrentStep(details.id);
+                              router.push('/questionnaire');
+                            } else if (!step.isLocked) {
+                              // Start the step
+                              handleStepClick(details.id);
+                            }
+                          }}
                         >
                           {step.isCompleted
-                            ? "עריכה"
+                            ? "תוצאות"
                             : step.isLocked
                             ? "נעול"
                             : "התחל"}
