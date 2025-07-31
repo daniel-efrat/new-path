@@ -1256,6 +1256,20 @@ export const STEP6_QUESTIONS: ShapeQuestion[] = [
     correct_option: 0, // Adjust based on correct answer
     type: "shape",
   },
+  {
+    id: "8f8e1d2c-3b4a-5678-9012-3456789abcde",
+    number: 8,
+    level: "זיהוי דפוסים – צורות גיאומטריות",
+    question: "/shapes/8.png",
+    options: [
+      "/shapes/8.1.png",
+      "/shapes/8.2.png",
+      "/shapes/8.3.png",
+      "/shapes/8.4.png",
+    ],
+    correct_option: 2, // Adjust based on correct answer
+    type: "shape",
+  },
 ];
 
 export const ALL_QUESTIONS: (Trait | Question | AnchorQuestion)[] = [
@@ -1263,6 +1277,8 @@ export const ALL_QUESTIONS: (Trait | Question | AnchorQuestion)[] = [
   ...STEP2_QUESTIONS,
   ...STEP3_QUESTIONS,
   ...STEP4_QUESTIONS,
+  ...STEP5_QUESTIONS,
+  ...STEP6_QUESTIONS,
 ];
 
 function isTrait(
