@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { STEP5_QUESTIONS } from "@/lib/constants/questions";
 import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore";
 import { fetchStep5Answers } from "@/lib/utils/answerFetcher";
@@ -18,9 +19,6 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
   const QUESTIONS: LogicalQuestion[] = STEP5_QUESTIONS;
 
   const { setAnswer } = useQuestionnaireStore();
-  const [stepAnswers, setStepAnswers] = useState<Record<string, AnswerState>>(
-    {}
-  );
   const [isLoadingAnswers, setIsLoadingAnswers] = useState(true);
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -31,12 +29,11 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
   const [answers, setAnswers] = useState<(number | null)[]>(() =>
     Array(QUESTIONS.length).fill(null)
   );
-
+  const [animationKey, setAnimationKey] = useState(0);
   const [fireworksConductor, setFireworksConductor] = useState<any>(null);
 
   const passed = score / QUESTIONS.length >= 0.7;
 
-  // Development restart function
   const handleRestart = () => {
     setCurrent(0);
     setSelected(null);
@@ -45,23 +42,17 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
     setTimer(90);
     setShowResult(false);
     setAnswers(Array(QUESTIONS.length).fill(null));
-    setStepAnswers({});
-    // Clear stored answers from the store as well
     QUESTIONS.forEach((q) => {
       setAnswer(q.id, { value: null, isCorrect: false });
     });
   };
 
-  // Fetch answers directly from Supabase on component mount
   useEffect(() => {
     const loadStepAnswers = async () => {
       setIsLoadingAnswers(true);
       try {
         const questionIds = QUESTIONS.map((q) => q.id);
         const fetchedAnswers = await fetchStep5Answers(questionIds);
-        setStepAnswers(fetchedAnswers);
-
-        // Convert fetched answers to local format and calculate score
         const newAnswers = QUESTIONS.map((q) => {
           const storedAnswer = fetchedAnswers[q.id];
           if (storedAnswer && storedAnswer.value !== undefined) {
@@ -73,10 +64,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
           }
           return null;
         });
-
         setAnswers(newAnswers);
-
-        // Calculate score based on fetched answers
         const newScore = newAnswers.reduce((acc, answer, index) => {
           if (answer !== null && answer === QUESTIONS[index].correct_option) {
             return acc + 1;
@@ -84,9 +72,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
           return acc;
         }, 0);
         setScore(newScore);
-        
-        // If all questions are answered, show results view
-        const answeredCount = newAnswers.filter(answer => answer !== null).length;
+        const answeredCount = newAnswers.filter((a) => a !== null).length;
         if (answeredCount === QUESTIONS.length) {
           setShowResult(true);
         }
@@ -96,10 +82,8 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
         setIsLoadingAnswers(false);
       }
     };
-
     loadStepAnswers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // run once on mount; QUESTIONS are static
+  }, []);
 
   useEffect(() => {
     if (showResult) return;
@@ -107,267 +91,191 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
       handleNext(true);
       return;
     }
-    const interval = setInterval(() => {
-      setTimer((t) => (t > 0 ? t - 1 : 0));
-    }, 1000);
+    const interval = setInterval(() => setTimer((t) => (t > 0 ? t - 1 : 0)), 1000);
     return () => clearInterval(interval);
   }, [timer, showResult]);
 
   useEffect(() => {
     setTimer(90);
-    // Check if current question already has an answer
-    const currentAnswer = answers[current];
-    if (currentAnswer !== null) {
-      setSelected(currentAnswer);
-      const isCorrect = QUESTIONS[current].correct_option === currentAnswer;
-      setFeedback(isCorrect);
-    } else {
-      setSelected(null);
-      setFeedback(null);
-    }
-  }, [current, answers]);
+    setSelected(null);
+    setFeedback(null);
+    setAnimationKey((prev) => prev + 1);
+  }, [current]);
 
-  const handleContinue = () => {
-    console.log("handleContinue called in Step5");
-    console.log("onNext prop exists:", !!onNext);
-    if (onNext) {
-      console.log("Calling onNext from Step5");
-      onNext();
-    } else {
-      console.log("onNext prop is not available");
+  const handleContinue = async () => {
+    try {
+      await onComplete();
+      if (onNext) onNext();
+    } catch (error) {
+      console.error("Error completing step 5:", error);
     }
   };
 
   const handleSelect = (idx: number) => {
     if (selected !== null) return;
-
+    const isCorrect = idx === QUESTIONS[current].correct_option;
     setSelected(idx);
-    const isCorrect = QUESTIONS[current].correct_option === idx;
     setFeedback(isCorrect);
-
-    // Update answers array
+    if (isCorrect) setScore((s) => s + 1);
+    setAnswer(QUESTIONS[current].id, { value: idx, isCorrect });
     const newAnswers = [...answers];
     newAnswers[current] = idx;
     setAnswers(newAnswers);
-
-    // Update score
-    if (isCorrect) {
-      setScore((prev) => prev + 1);
-    }
-
-    // Store answer in the store
-    setAnswer(QUESTIONS[current].id, {
-      value: idx,
-      isCorrect: isCorrect,
-    });
-
-    // Auto-advance after 2 seconds
-    setTimeout(() => {
-      handleNext(false);
-    }, 2000);
+    setTimeout(() => handleNext(false), 1200);
   };
 
   const handleNext = (skipped: boolean) => {
-    if (skipped && selected === null) {
-      // Store null answer for skipped question
-      setAnswer(QUESTIONS[current].id, {
-        value: null,
-        isCorrect: false,
-      });
+    if (skipped) {
+      const newAnswers = [...answers];
+      newAnswers[current] = null;
+      setAnswers(newAnswers);
+      setAnswer(QUESTIONS[current].id, { value: null, isCorrect: false });
     }
-
     if (current < QUESTIONS.length - 1) {
       setCurrent(current + 1);
     } else {
       setShowResult(true);
-      if (passed && fireworksConductor) {
-        fireworksConductor();
-      }
     }
   };
 
   if (isLoadingAnswers) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">טוען תשובות קודמות...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (showResult) {
-    return (
-      <div dir="rtl" className="text-center">
-        <Fireworks
-          onInit={({ conductor }) => setFireworksConductor(conductor)}
-        />
-        {/* <h1 className="text-3xl font-bold mb-6">
-          {passed ? "🎉 כל הכבוד!" : "😔 לא עברת"}
-        </h1> */}
-        <div className="text-xl mb-8">
-          הניקוד שלך: {score} מתוך {QUESTIONS.length} (
-          {Math.round((score / QUESTIONS.length) * 100)}%)
-        </div>
-        {/* <div className="mb-8">
-          {passed
-            ? "עברת בהצלחה את מבחן הלוגיקה!"
-            : "נדרש ציון של 70% לפחות כדי לעבור."}
-        </div> */}
-
-        <div className="max-w-4xl mx-auto mb-8">
-          <h3 className="text-lg font-semibold mb-4">סיכום תשובות:</h3>
-          <table className="w-full border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border border-gray-300 p-2">שאלה</th>
-                <th className="border border-gray-300 p-2">התשובה שלך</th>
-                <th className="border border-gray-300 p-2">תשובה נכונה</th>
-                <th className="border border-gray-300 p-2">תוצאה</th>
-              </tr>
-            </thead>
-            <tbody>
-              {QUESTIONS.map((q, idx) => {
-                const userAnswer = answers[idx];
-                const isCorrect = userAnswer === q.correct_option;
-                return (
-                  <tr
-                    key={q.id}
-                    className={isCorrect ? "bg-green-50" : "bg-red-50"}
-                  >
-                    <td className="border border-gray-300 p-2 font-medium">
-                      {q.number}
-                    </td>
-                    <td className="border border-gray-300 p-2">
-                      {userAnswer !== null ? q.options[userAnswer] : "לא נענה"}
-                    </td>
-                    <td className="border border-gray-300 p-2">
-                      {q.options[q.correct_option]}
-                    </td>
-                    <td className="border border-gray-300 p-2"></td>
-                    <td className="p-2 text-center">
-                      {isCorrect ? (
-                        <span
-                          title="Correct"
-                          style={{ color: "#16a34a", fontSize: "1.2em" }}
-                        >
-                          ✓
-                        </span>
-                      ) : (
-                        <span
-                          title="Incorrect"
-                          style={{ color: "#dc2626", fontSize: "1.2em" }}
-                        >
-                          ✗
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        <div className="flex justify-center gap-4 mt-8">
-          <Button
-            variant="destructive"
-            size="lg"
-            onClick={handleRestart}
-            className="text-lg bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-4"
-          >
-            🔄 RESTART QUIZ - DEV BUTTON
-          </Button>
-          <Button onClick={handleContinue}>המשך לשלב הבא</Button>
-        </div>
-      </div>
-    );
+    return <div className="text-center p-8">טוען שאלות...</div>;
   }
 
   const q = QUESTIONS[current];
 
   return (
-    <div dir="rtl">
-      <h1 className="text-2xl font-bold mb-4 text-center">מבחן לוגיקה</h1>
-
-      {/* Instructions */}
-      <Card className="max-w-4xl mx-auto p-6 mb-6 bg-blue-50 border-blue-200">
-        <div className="text-center mb-4">
-          <h3 className="text-lg font-semibold text-blue-800 mb-3">הוראות:</h3>
-          <div className="text-right leading-relaxed text-gray-800 bg-white p-4 rounded border">
-            ענו לפי המידע שמופיע בכל שאלה בלבד. אל תניחו עובדות שלא ניתנו. זכרו:
-            מטענה כללית ("כל…") אי‑אפשר להסיק קיום פרטים; מטענת קיום ("יש…") לא
-            מסיקים כלל על כולם. הבחינו בין "אם… אז…" (תנאי מספיק), "רק אם…"
-            (תנאי הכרחי), ו"אם ורק אם…".
+    <AnimatePresence mode="wait">
+      {showResult ? (
+        <motion.div
+          key="result"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.5 }}
+          className="min-h-[600px] flex flex-col items-center justify-center relative"
+          dir="rtl"
+        >
+          <Fireworks
+            onInit={({ conductor }) => setFireworksConductor(conductor)}
+            style={{ zIndex: 1000, position: "fixed", top: 0, left: 0 }}
+          />
+          <h2 className="text-3xl font-bold mb-4">
+            {passed ? "כל הכבוד, עברת את המבחן!" : "לא נורא, אפשר לנסות שוב"}
+          </h2>
+          <p className="text-xl mb-6">
+            השגת ציון של {score} מתוך {QUESTIONS.length}
+          </p>
+          <div className="max-w-2xl mx-auto bg-white p-4 rounded-lg shadow-md">
+            <table className="w-full text-right">
+              <thead>
+                <tr className="border-b">
+                  <th className="p-2">שאלה</th>
+                  <th className="p-2">תשובה</th>
+                  <th className="p-2">סטטוס</th>
+                </tr>
+              </thead>
+              <tbody>
+                {QUESTIONS.map((q, idx) => {
+                  const userAnswerIndex = answers[idx];
+                  const isCorrect = userAnswerIndex === q.correct_option;
+                  const userAnswer =
+                    userAnswerIndex !== null
+                      ? q.options[userAnswerIndex]
+                      : "לא נענה";
+                  return (
+                    <tr key={idx} className="border-b">
+                      <td className="p-2">{q.question}</td>
+                      <td className="p-2">{userAnswer}</td>
+                      <td className="p-2 text-center">
+                        {isCorrect ? (
+                          <span role="img" aria-label="Correct" className="text-green-500">✓</span>
+                        ) : (
+                          <span role="img" aria-label="Incorrect" className="text-red-500">✗</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-        </div>
-      </Card>
-
-      <div className="flex justify-center mb-4">
-        <span className="text-lg font-semibold">
-          שאלה {q.number} / {QUESTIONS.length}
-        </span>
-      </div>
-
-      <Card className="max-w-xl mx-auto p-6 mb-6">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-sm text-gray-500">{q.level}</span>
-          <span
-            className={`font-mono text-lg ${
-              timer <= 15 ? "text-red-500" : "text-gray-700"
-            }`}
-          >
-            {timer}ש
-          </span>
-        </div>
-        <div className="mb-4 font-medium text-lg text-right">{q.question}</div>
-        <div className="space-y-2">
-          {q.options.map((opt, idx) => (
-            <Button
-              key={idx}
-              className={`w-full text-right justify-start p-4 h-auto text-base ${
-                selected !== null
-                  ? idx === q.correct_option
-                    ? "bg-green-100 hover:bg-green-200 border-green-400"
-                    : idx === selected && !feedback
-                    ? "bg-red-100 hover:bg-red-200 border-red-400"
-                    : "bg-gray-50"
-                  : "hover:bg-gray-100"
-              }`}
-              variant="outline"
-              disabled={selected !== null}
-              onClick={() => handleSelect(idx)}
-            >
-              {opt}
+          <div className="flex justify-center gap-4 mt-8">
+            <Button variant="destructive" size="lg" onClick={handleRestart} className="text-lg bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-4">
+              🔄 RESTART QUIZ - DEV BUTTON
             </Button>
-          ))}
-        </div>
-        {selected !== null && (
-          <div
-            className={`mt-4 text-center font-semibold ${
-              feedback ? "text-green-600" : "text-red-600"
-            }`}
-          >
-            {feedback ? "נכון!" : "לא נכון"}
+            <Button onClick={handleContinue}>המשך לשלב הבא</Button>
           </div>
-        )}
-      </Card>
-      <div className="flex justify-between mt-4">
-        <Button variant="outline" onClick={onPrevious}>
-          שלב קודם
-        </Button>
-        <div className="flex items-center gap-4">
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={handleRestart}
-            className="text-xs"
-          >
-            🔄 Restart Quiz (Dev)
-          </Button>
-          <span className="text-gray-500">ניקוד: {score}</span>
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      ) : (
+        <motion.div
+          key={animationKey}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          dir="rtl"
+        >
+          <motion.h1 initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.4 }} className="text-2xl font-bold mb-4 text-center">
+            מבחן לוגיקה
+          </motion.h1>
+          <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2, duration: 0.5 }}>
+            <Card className="max-w-4xl mx-auto p-6 mb-6 bg-blue-50 border-blue-200">
+              <div className="text-center mb-4">
+                <h3 className="text-lg font-semibold text-blue-800 mb-3">הוראות:</h3>
+                <div className="text-right leading-relaxed text-gray-800 bg-white p-4 rounded border">
+                  ענו לפי המידע שמופיע בכל שאלה בלבד. אל תניחו עובדות שלא ניתנו. זכרו: מטענה כללית ("כל…") אי‑אפשר להסיק קיום פרטים; מטענת קיום ("יש…") לא מסיקים כלל על כולם. הבחינו בין "אם… אז…" (תנאי מספיק), "רק אם…" (תנאי הכרחי), ו"אם ורק אם…" .
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.4 }} className="flex justify-center mb-4">
+            <span className="text-lg font-semibold">שאלה {q.number} / {QUESTIONS.length}</span>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4, duration: 0.4 }}>
+            <Card className="max-w-xl mx-auto p-6 mb-6">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm text-gray-500">{q.level}</span>
+                <span className={`font-mono text-lg ${timer <= 15 ? "text-red-500" : "text-gray-700"}`}>{timer}ש</span>
+              </div>
+              <div className="mb-4 font-medium text-lg text-right">{q.question}</div>
+              <div className="space-y-2">
+                {q.options.map((opt, idx) => (
+                  <Button
+                    key={idx}
+                    className={`w-full text-right justify-start p-4 h-auto text-base ${
+                      selected !== null
+                        ? idx === q.correct_option
+                          ? "bg-green-100 hover:bg-green-200 border-green-400"
+                          : idx === selected && !feedback
+                          ? "bg-red-100 hover:bg-red-200 border-red-400"
+                          : "bg-gray-50"
+                        : "hover:bg-gray-100"
+                    }`}
+                    variant="outline"
+                    disabled={selected !== null}
+                    onClick={() => handleSelect(idx)}
+                  >
+                    {opt}
+                  </Button>
+                ))}
+              </div>
+              {selected !== null && (
+                <div className={`mt-4 text-center font-semibold ${feedback ? "text-green-600" : "text-red-600"}`}>
+                  {feedback ? "נכון!" : "לא נכון"}
+                </div>
+              )}
+            </Card>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.4 }} className="flex justify-between mt-4">
+            <Button variant="outline" onClick={onPrevious}>שלב קודם</Button>
+            <div className="flex items-center gap-4">
+              <Button variant="destructive" size="sm" onClick={handleRestart} className="text-xs">🔄 Restart Quiz (Dev)</Button>
+              <span className="text-gray-500">ניקוד: {score}</span>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

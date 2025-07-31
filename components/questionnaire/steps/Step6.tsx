@@ -7,6 +7,7 @@ import Image from "next/image";
 import type { ShapeQuestion } from "@/lib/constants/questions";
 import { fetchStepAnswers } from "@/lib/utils/answerFetcher";
 import type { AnswerState } from "@/lib/types/questionnaire";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Step6Props {
   onNext?: () => void;
@@ -27,6 +28,7 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
   const [showResults, setShowResults] = useState(false);
   const [timer, setTimer] = useState(45);
   const [isLoadingAnswers, setIsLoadingAnswers] = useState(true);
+  const [animationKey, setAnimationKey] = useState(0);
 
   const currentQ = STEP6_QUESTIONS[currentQuestion];
 
@@ -171,6 +173,8 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
             STEP6_QUESTIONS[currentQuestion + 1].correct_option
         );
       }
+      setTimer(45); // Reset timer for new question
+      setAnimationKey(prev => prev + 1); // Trigger animation reset
     } else {
       // All questions completed
       setShowResults(true);
@@ -197,7 +201,6 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
     }
   };
 
-  // Show results screen after all questions are completed
   if (showResults) {
     return (
       <div dir="rtl" className="max-w-4xl mx-auto text-center">
@@ -264,205 +267,262 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
 
   return (
     <div dir="rtl" className="max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6 text-center">זיהוי דפוסים</h1>
-
-      {/* Progress indicator */}
-      <div className="flex justify-center mb-6">
-        <span className="text-lg font-semibold">
-          שאלה {currentQuestion + 1} מתוך {STEP6_QUESTIONS.length}
-        </span>
-      </div>
-
-      {/* Instructions */}
-      <Card className="p-6 mb-6 bg-blue-50 border-blue-200">
-        <div className="text-center mb-4">
-          <h3 className="text-lg font-semibold text-blue-800 mb-3">הוראות:</h3>
-          <div className="text-right leading-relaxed text-gray-800 bg-white p-4 rounded border">
-            התבוננו בדפוס המורכב למעלה ובחרו איזה מהצורות הפשוטות למטה מופיעה
-            בתוכו.
-          </div>
-        </div>
-      </Card>
-
-      {/* Main pattern image */}
-      <Card className="p-6 mb-6">
-        <div className="flex justify-between items-center mb-4">
-          <span className="text-sm text-gray-500">{currentQ.level}</span>
-          <span
-            className={`font-mono text-lg ${
-              timer <= 10 ? "text-red-500" : "text-gray-700"
-            }`}
-          >
-            {timer}ש
-          </span>
-        </div>
-        <div className="text-center mb-4">
-          <div className="flex justify-center">
-            <div className="border-2 border-gray-300 rounded-lg p-4 bg-white">
-              <Image
-                src={currentQ.question}
-                alt={`Pattern ${currentQuestion + 1} to analyze`}
-                width={400}
-                height={300}
-                className="max-w-full h-auto"
-                priority
-              />
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      {/* Shape options */}
-      <Card className="p-6 mb-6">
-        <div className="text-center mb-4">
-          <h3 className="text-lg font-semibold mb-4">בחרו את הצורה הנכונה:</h3>
-        </div>
-
-        <div
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto"
-          dir="ltr"
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={animationKey} // Use animationKey to trigger re-animation
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.5 }}
+          className="w-full"
         >
-          {currentQ.options.map((optionSrc, idx) => (
-            <button
-              key={idx}
-              onClick={() => handleShapeSelect(idx)}
-              disabled={showFeedback}
-              className={`
-                relative p-4 border-2 rounded-lg transition-all duration-200 cursor-pointer bg-white
-                ${
-                  selectedShape === idx
-                    ? showFeedback
-                      ? isCorrect
-                        ? "border-green-500 bg-green-50 shadow-lg"
-                        : "border-red-500 bg-red-50 shadow-lg"
-                      : "border-blue-500 bg-blue-50 shadow-lg"
-                    : "border-gray-300 hover:border-gray-400 hover:shadow-md"
-                }
-                ${
-                  showFeedback &&
-                  idx === currentQ.correct_option &&
-                  selectedShape !== currentQ.correct_option
-                    ? "border-green-500 bg-green-50"
-                    : ""
-                }
-                disabled:cursor-not-allowed
-              `}
-            >
-              <div className="flex flex-col items-center">
-                <Image
-                  src={optionSrc}
-                  alt={`Shape option ${idx + 1}`}
-                  width={currentQ.number === 4 ? 20 : 80}
-                  height={currentQ.number === 4 ? 20 : 80}
-                  className="mb-2"
-                />
-                <span className="text-sm font-medium text-gray-700">
-                  {idx + 1}
-                </span>
-              </div>
+          <motion.h1
+            className="text-2xl font-bold mb-6 text-center"
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.7, delay: 0 }}
+          >
+            זיהוי דפוסים
+          </motion.h1>
 
-              {/* Feedback indicators */}
-              {showFeedback && selectedShape === idx && (
-                <div className="absolute -top-2 -right-2">
-                  {isCorrect ? (
-                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                      <svg
-                        className="w-4 h-4 text-white"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                  ) : (
-                    <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
-                      <svg
-                        className="w-4 h-4 text-white"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
+          {/* Progress indicator */}
+          <motion.div
+            className="flex justify-center mb-6"
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <span className="text-lg font-semibold">
+              שאלה {currentQuestion + 1} מתוך {STEP6_QUESTIONS.length}
+            </span>
+          </motion.div>
+
+          {/* Instructions */}
+          <motion.div
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <Card className="p-6 mb-6 bg-blue-50 border-blue-200">
+              <div className="text-center mb-4">
+                <h3 className="text-lg font-semibold text-blue-800 mb-3">הוראות:</h3>
+                <div className="text-right leading-relaxed text-gray-800 bg-white p-4 rounded border">
+                  התבוננו בדפוס המורכב למעלה ובחרו איזה מהצורות הפשוטות למטה מופיעה
+                  בתוכו.
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+
+          {/* Main pattern image */}
+          <motion.div
+            initial={{ x: 20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
+            <Card className="p-6 mb-6">
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-sm text-gray-500">{currentQ.level}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-500">
+                    זמן נותר: {timer}
+                  </span>
+                  <Button
+                    onClick={handleRestart}
+                    variant="outline"
+                    size="sm"
+                    className="text-xs"
+                  >
+                    התחל מחדש (dev)
+                  </Button>
+                </div>
+              </div>
+              <div className="flex justify-center">
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.5 }}
+                >
+                  <Image
+                    src={currentQ.question}
+                    alt="דפוס לזיהוי"
+                    width={300}
+                    height={300}
+                    className="rounded border"
+                  />
+                </motion.div>
+              </div>
+            </Card>
+          </motion.div>
+
+          {/* Shape options */}
+          <Card className="p-6 mb-6">
+            <motion.h3 
+              className="text-lg font-semibold mb-4 text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.6 }}
+            >
+              בחרו את הצורה הנכונה:
+            </motion.h3>
+
+            <div
+              className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto"
+              dir="ltr"
+            >
+              {currentQ.options.map((optionSrc, idx) => (
+                <motion.button
+                  key={idx}
+                  onClick={() => handleShapeSelect(idx)}
+                  disabled={showFeedback}
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{
+                    duration: 0.5,
+                    delay: 0.7 + idx * 0.1,
+                  }}
+                  className={`
+                    relative p-4 border-2 rounded-lg cursor-pointer bg-white
+                    ${
+                      selectedShape === idx
+                        ? showFeedback
+                          ? isCorrect
+                            ? "border-green-500 bg-green-50 shadow-lg"
+                            : "border-red-500 bg-red-50 shadow-lg"
+                          : "border-blue-500 bg-blue-50 shadow-lg"
+                        : "border-gray-300 hover:border-gray-400 hover:shadow-md"
+                    }
+                    ${
+                      showFeedback &&
+                      idx === currentQ.correct_option &&
+                      !isCorrect &&
+                      "border-green-500 bg-green-50 shadow-md"
+                    }
+                    ${
+                      showFeedback &&
+                      selectedShape === idx &&
+                      !isCorrect &&
+                      "opacity-50"
+                    }
+                  `}
+                >
+                  <Image
+                    src={optionSrc}
+                    alt={`Shape option ${idx + 1}`}
+                    width={100}
+                    height={100}
+                    className="mx-auto"
+                  />
+
+                  {/* Selection indicator */}
+                  {selectedShape === idx && (
+                    <div className="absolute -top-2 -left-2 w-5 h-5 bg-blue-500 rounded-full border-2 border-white"></div>
+                  )}
+
+                  {/* Feedback indicators */}
+                  {showFeedback && selectedShape === idx && (
+                    <div className="absolute -top-2 -right-2">
+                      {isCorrect ? (
+                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                          <svg
+                            className="w-4 h-4 text-white"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                      ) : (
+                        <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
+                          <svg
+                            className="w-4 h-4 text-white"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                      )}
                     </div>
                   )}
-                </div>
-              )}
 
-              {/* Show correct answer indicator */}
-              {showFeedback &&
-                idx === currentQ.correct_option &&
-                selectedShape !== currentQ.correct_option && (
-                  <div className="absolute -top-2 -right-2">
-                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                      <svg
-                        className="w-4 h-4 text-white"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                )}
-            </button>
-          ))}
-        </div>
-
-        {/* Feedback message */}
-        {showFeedback && (
-          <div className="mt-6 text-center">
-            <div
-              className={`text-lg font-semibold ${
-                isCorrect ? "text-green-600" : "text-red-600"
-              }`}
-            >
-              {isCorrect
-                ? "כל הכבוד! בחרתם נכון."
-                : "לא נכון. הצורה הנכונה מסומנת."}
+                  {/* Show correct answer indicator */}
+                  {showFeedback &&
+                    idx === currentQ.correct_option &&
+                    selectedShape !== currentQ.correct_option && (
+                      <div className="absolute -top-2 -right-2">
+                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                          <svg
+                            className="w-4 h-4 text-white"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
+                </motion.button>
+              ))}
             </div>
+
+            {/* Feedback message */}
+            {showFeedback && (
+              <div className="mt-6 text-center">
+                <div
+                  className={`text-lg font-semibold ${
+                    isCorrect ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {isCorrect
+                    ? "כל הכבוד! בחרתם נכון."
+                    : "לא נכון. הצורה הנכונה מסומנת."}
+                </div>
+              </div>
+            )}
+          </Card>
+
+          {/* Navigation buttons */}
+          <div className="flex justify-between mt-8">
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={onPrevious}>
+                שלב קודם
+              </Button>
+              {currentQuestion > 0 && (
+                <Button variant="outline" onClick={handlePreviousQuestion}>
+                  שאלה קודמת
+                </Button>
+              )}
+              <Button variant="outline" onClick={handleRestart} className="text-xs">
+                🔄 Restart Quiz (Dev)
+              </Button>
+            </div>
+
+            {showFeedback && (
+              <Button
+                onClick={handleNextQuestion}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                {currentQuestion < STEP6_QUESTIONS.length - 1
+                  ? "שאלה הבאה"
+                  : "סיום המבחן"}
+              </Button>
+            )}
           </div>
-        )}
-      </Card>
-
-      {/* Navigation buttons */}
-      <div className="flex justify-between mt-8">
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={onPrevious}>
-            שלב קודם
-          </Button>
-          {currentQuestion > 0 && (
-            <Button variant="outline" onClick={handlePreviousQuestion}>
-              שאלה קודמת
-            </Button>
-          )}
-          <Button variant="outline" onClick={handleRestart} className="text-xs">
-            🔄 Restart Quiz (Dev)
-          </Button>
-        </div>
-
-        {showFeedback && (
-          <Button
-            onClick={handleNextQuestion}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            {currentQuestion < STEP6_QUESTIONS.length - 1
-              ? "שאלה הבאה"
-              : "סיום המבחן"}
-          </Button>
-        )}
-      </div>
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }

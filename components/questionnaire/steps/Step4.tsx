@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -110,10 +111,13 @@ export default function Step4({ onNext, onPrevious }: Step4Props) {
 
   if (error) {
     return (
-      <div
+      <motion.div
         role="alert"
-        className="p-4 bg-red-50 text-red-700 rounded-md animate-in slide-in-from-top duration-300"
+        className="p-4 bg-red-50 text-red-700 rounded-md"
         aria-live="polite"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
       >
         <p>{error}</p>
         <button
@@ -122,16 +126,26 @@ export default function Step4({ onNext, onPrevious }: Step4Props) {
         >
           נסה שנית
         </button>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6 text-center">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+      <motion.h1
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1, duration: 0.5 }}
+        className="text-3xl font-bold mb-6 text-center"
+      >
         שלב 4: עוגני קריירה
-      </h1>
-      <div className="text-lg mb-8 text-center max-w-2xl mx-auto space-y-4">
+      </motion.h1>
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.5 }}
+        className="text-lg mb-8 text-center max-w-2xl mx-auto space-y-4"
+      >
         <p>לפניכם שאלון. ענו עליו בכנות.</p>
         <p>
           השתדלו לא להיות "גיבורי על", אלא התחברו למה שמושך אתכם באופן טבעי
@@ -151,7 +165,7 @@ export default function Step4({ onNext, onPrevious }: Step4Props) {
           בשלב זה עליכם להתעלם מהמספר בסוגריים שמופיע בצד שמאל של המשפט (הוא
           ישמש בהמשך לחישוב ציונים).
         </p>
-      </div>
+      </motion.div>
       <Card className="max-w-3xl mx-auto bg-white p-6">
         <div
           className={cn(
@@ -160,13 +174,17 @@ export default function Step4({ onNext, onPrevious }: Step4Props) {
           )}
         >
           {STEP4_QUESTIONS.map((q, idx) => (
-            <Card
+            <motion.div
               key={idx}
-              className={cn(
-                "p-4 transition-all duration-200 hover:shadow-md",
-                !mounted && "opacity-0"
-              )}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 + idx * 0.05, duration: 0.5 }}
             >
+              <Card
+                className={cn(
+                  "p-4 transition-all duration-200 hover:shadow-md"
+                )}
+              >
               <CardHeader className="flex justify-between items-start">
                 <p className="font-medium leading-relaxed text-right">
                   {q.text}
@@ -197,18 +215,24 @@ export default function Step4({ onNext, onPrevious }: Step4Props) {
                   <span>לא נכון בכלל</span>
                 </div>
               </CardContent>
-            </Card>
+              </Card>
+            </motion.div>
           ))}
         </div>
-        <div className="flex justify-between mt-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 + STEP4_QUESTIONS.length * 0.05, duration: 0.5 }}
+          className="flex justify-between mt-8"
+        >
           <Button variant="outline" onClick={onPrevious}>
             חזור לשלב הקודם
           </Button>
           <Button onClick={handleNext} disabled={isLoading}>
             {isLoading ? "שומר..." : "המשך לשלב הבא"}
           </Button>
-        </div>
+        </motion.div>
       </Card>
-    </div>
+    </motion.div>
   );
 }

@@ -20,12 +20,15 @@ interface Step1Props {
   onNext: () => void
 }
 
+import { motion, AnimatePresence } from "framer-motion"
+
 export default function Step1({ onNext }: Step1Props) {
   const { setAnswer, isLoading: storeLoading } = useQuestionnaireStore();
   const [stepAnswers, setStepAnswers] = useState<Record<string, AnswerState>>({});
   const [isLoadingAnswers, setIsLoadingAnswers] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [animationKey, setAnimationKey] = useState(0);
 
   // Fetch answers directly from Supabase on component mount
   useEffect(() => {
@@ -101,62 +104,81 @@ export default function Step1({ onNext }: Step1Props) {
   };
 
   return (
-    <div className="relative">
-      <div className="mb-8 animate-in slide-in-from-top duration-700">
-        <h1 className="text-3xl font-bold mb-4 text-center">
-          שלב 1: הערכה מקצועית
-        </h1>
-        <p className="text-lg text-center max-w-2xl mx-auto text-[color:var(--muted-foreground)]">
-          בחר את התכונות המאפיינות אותך וענה על שאלון הקריירה
-        </p>
-        {totalProgress > 0 && (
-          <div className="mt-4 text-sm text-center text-[color:var(--muted-foreground)]">
-            {totalProgress}% מהשאלון הושלם
-          </div>
-        )}
-      </div>
-
-      <div className="max-w-4xl mx-auto bg-[color:var(--card)] rounded-lg shadow-lg p-6">
-        <TraitsSelector
-          questions={STEP1_QUESTIONS}
-          selectedTraitIds={selectedTraitIds}
-          toggleTrait={toggleTrait}
-          isLoading={isUpdating}
-        />
-
-        <div className="mt-8 border-t pt-6">
-          <div className="flex justify-between items-center">
-            <div className="text-right">
-              {error && (
-                <p className="text-[color:var(--destructive)] text-sm">{error}</p>
-              )}
-              {!canContinue && !error && (
-                <ul className="text-[color:var(--destructive)] text-sm list-disc list-inside">
-                  {traitsCount === 0 && <li>יש לבחור לפחות תכונה אחת</li>}
-                </ul>
-              )}
-              {canContinue && !error && (
-                <p className="text-[color:var(--primary)] text-sm">
-                  ✓ כל הנתונים הוזנו בהצלחה
-                </p>
-              )}
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={animationKey}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.5 }}
+        className="relative"
+      >
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="mb-8"
+        >
+          <h1 className="text-3xl font-bold mb-4 text-center">
+            שלב 1: הערכה מקצועית
+          </h1>
+          <p className="text-lg text-center max-w-2xl mx-auto text-[color:var(--muted-foreground)]">
+            בחר את התכונות המאפיינות אותך וענה על שאלון הקריירה
+          </p>
+          {totalProgress > 0 && (
+            <div className="mt-4 text-sm text-center text-[color:var(--muted-foreground)]">
+              {totalProgress}% מהשאלון הושלם
             </div>
-            <Button
-              onClick={onNext}
-              disabled={!canContinue}
-              className={cn("mr-4 transition-all duration-300")}
-              aria-label={
-                canContinue
-                  ? "המשך לשלב הבא"
-                  : "יש להשלים את כל השדות לפני המעבר לשלב הבא"
-              }
-            >
-              המשך לשלב הבא
-            </Button>
+          )}
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
+          className="max-w-4xl mx-auto bg-[color:var(--card)] rounded-lg shadow-lg p-6"
+        >
+          <TraitsSelector
+            questions={STEP1_QUESTIONS}
+            selectedTraitIds={selectedTraitIds}
+            toggleTrait={toggleTrait}
+            isLoading={isUpdating}
+          />
+
+          <div className="mt-8 border-t pt-6">
+            <div className="flex justify-between items-center">
+              <div className="text-right">
+                {error && (
+                  <p className="text-[color:var(--destructive)] text-sm">{error}</p>
+                )}
+                {!canContinue && !error && (
+                  <ul className="text-[color:var(--destructive)] text-sm list-disc list-inside">
+                    {traitsCount === 0 && <li>יש לבחור לפחות תכונה אחת</li>}
+                  </ul>
+                )}
+                {canContinue && !error && (
+                  <p className="text-[color:var(--primary)] text-sm">
+                    ✓ כל הנתונים הוזנו בהצלחה
+                  </p>
+                )}
+              </div>
+              <Button
+                onClick={onNext}
+                disabled={!canContinue}
+                className={cn("mr-4 transition-all duration-300")}
+                aria-label={
+                  canContinue
+                    ? "המשך לשלב הבא"
+                    : "יש להשלים את כל השדות לפני המעבר לשלב הבא"
+                }
+              >
+                המשך לשלב הבא
+              </Button>
+            </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   )
 }
 
