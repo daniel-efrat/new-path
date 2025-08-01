@@ -131,7 +131,11 @@ export default function Step4({ onNext, onPrevious }: Step4Props) {
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -161,10 +165,6 @@ export default function Step4({ onNext, onPrevious }: Step4Props) {
         <p>
           <strong>10 = נכון מאוד</strong>
         </p>
-        <p>
-          בשלב זה עליכם להתעלם מהמספר בסוגריים שמופיע בצד שמאל של המשפט (הוא
-          ישמש בהמשך לחישוב ציונים).
-        </p>
       </motion.div>
       <Card className="max-w-3xl mx-auto bg-white p-6">
         <div
@@ -185,36 +185,36 @@ export default function Step4({ onNext, onPrevious }: Step4Props) {
                   "p-4 transition-all duration-200 hover:shadow-md"
                 )}
               >
-              <CardHeader className="flex justify-between items-start">
-                <p className="font-medium leading-relaxed text-right">
-                  {q.text}
-                </p>
-              </CardHeader>
-              <CardContent>
-                <Slider
-                  min={0}
-                  max={10}
-                  step={1}
-                  value={[localAnchors[idx]]}
-                  onValueChange={(val: number[]) => updateAnchor(idx, val)}
-                  disabled={isLoading}
-                  aria-label={q.text}
-                />
-                <ul
-                  className="flex justify-between text-[10px] mt-1 rtl:space-x-reverse"
-                  dir="ltr"
-                >
-                  {Array.from({ length: 11 }, (_, i) => (
-                    <li key={i} className="w-4 text-center">
-                      {i}
-                    </li>
-                  ))}
-                </ul>
-                <div className="flex justify-between text-xs mt-1 rtl:space-x-reverse">
-                  <span>נכון מאוד</span>
-                  <span>לא נכון בכלל</span>
-                </div>
-              </CardContent>
+                <CardHeader className="flex justify-between items-start">
+                  <p className="font-medium leading-relaxed text-right">
+                    {q.text}
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <Slider
+                    min={0}
+                    max={10}
+                    step={1}
+                    value={[localAnchors[idx]]}
+                    onValueChange={(val: number[]) => updateAnchor(idx, val)}
+                    disabled={isLoading}
+                    aria-label={q.text}
+                  />
+                  <ul
+                    className="flex justify-between text-[10px] mt-1 rtl:space-x-reverse"
+                    dir="ltr"
+                  >
+                    {Array.from({ length: 11 }, (_, i) => (
+                      <li key={i} className="w-4 text-center">
+                        {i}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="flex justify-between text-xs mt-1 rtl:space-x-reverse">
+                    <span>נכון מאוד</span>
+                    <span>לא נכון בכלל</span>
+                  </div>
+                </CardContent>
               </Card>
             </motion.div>
           ))}
@@ -222,7 +222,10 @@ export default function Step4({ onNext, onPrevious }: Step4Props) {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 + STEP4_QUESTIONS.length * 0.05, duration: 0.5 }}
+          transition={{
+            delay: 0.5 + STEP4_QUESTIONS.length * 0.05,
+            duration: 0.5,
+          }}
           className="flex justify-between mt-8"
         >
           <Button variant="outline" onClick={onPrevious}>

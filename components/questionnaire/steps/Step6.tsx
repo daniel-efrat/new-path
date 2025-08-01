@@ -77,15 +77,20 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
 
         // Calculate score based on fetched answers
         const newScore = newAnswers.reduce((acc, answer, index) => {
-          if (answer !== null && answer === STEP6_QUESTIONS[index].correct_option) {
+          if (
+            answer !== null &&
+            answer === STEP6_QUESTIONS[index].correct_option
+          ) {
             return acc + 1;
           }
           return acc;
         }, 0);
         setScore(newScore);
-        
+
         // If all questions are answered, show results view
-        const answeredCount = newAnswers.filter(answer => answer !== null).length;
+        const answeredCount = newAnswers.filter(
+          (answer) => answer !== null
+        ).length;
         if (answeredCount === STEP6_QUESTIONS.length) {
           setShowResults(true);
         }
@@ -174,7 +179,7 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
         );
       }
       setTimer(45); // Reset timer for new question
-      setAnimationKey(prev => prev + 1); // Trigger animation reset
+      setAnimationKey((prev) => prev + 1); // Trigger animation reset
     } else {
       // All questions completed
       setShowResults(true);
@@ -204,9 +209,7 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
   if (showResults) {
     return (
       <div dir="rtl" className="max-w-4xl mx-auto text-center">
-        <h1 className="text-3xl font-bold mb-6">
-          {score === STEP6_QUESTIONS.length ? "🎉 כל הכבוד!" : "תוצאות המבחן"}
-        </h1>
+        <h1 className="text-3xl font-bold mb-6">תוצאות המבחן</h1>
         <div className="text-xl mb-8">
           הניקוד שלך: {score} מתוך {STEP6_QUESTIONS.length} (
           {Math.round((score / STEP6_QUESTIONS.length) * 100)}%)
@@ -305,10 +308,12 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
           >
             <Card className="p-6 mb-6 bg-blue-50 border-blue-200">
               <div className="text-center mb-4">
-                <h3 className="text-lg font-semibold text-blue-800 mb-3">הוראות:</h3>
+                <h3 className="text-lg font-semibold text-blue-800 mb-3">
+                  הוראות:
+                </h3>
                 <div className="text-right leading-relaxed text-gray-800 bg-white p-4 rounded border">
-                  התבוננו בדפוס המורכב למעלה ובחרו איזה מהצורות הפשוטות למטה מופיעה
-                  בתוכו.
+                  התבוננו בדפוס המורכב למעלה ובחרו איזה מהצורות הפשוטות למטה
+                  מופיעה בתוכו.
                 </div>
               </div>
             </Card>
@@ -357,7 +362,7 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
 
           {/* Shape options */}
           <Card className="p-6 mb-6">
-            <motion.h3 
+            <motion.h3
               className="text-lg font-semibold mb-4 text-center"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -486,9 +491,7 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
                     isCorrect ? "text-green-600" : "text-red-600"
                   }`}
                 >
-                  {isCorrect
-                    ? "כל הכבוד! בחרתם נכון."
-                    : "לא נכון. הצורה הנכונה מסומנת."}
+                  {isCorrect ? "נכון." : "לא נכון. הצורה הנכונה מסומנת."}
                 </div>
               </div>
             )}
@@ -505,7 +508,11 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
                   שאלה קודמת
                 </Button>
               )}
-              <Button variant="outline" onClick={handleRestart} className="text-xs">
+              <Button
+                variant="outline"
+                onClick={handleRestart}
+                className="text-xs"
+              >
                 🔄 Restart Quiz (Dev)
               </Button>
             </div>

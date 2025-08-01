@@ -1270,6 +1270,66 @@ export const STEP6_QUESTIONS: ShapeQuestion[] = [
     correct_option: 2, // Adjust based on correct answer
     type: "shape",
   },
+  {
+    id: "9a9b8c7d-6e5f-4321-fedc-ba9876543210",
+    number: 9,
+    level: "זיהוי דפוסים – צורות גיאומטריות",
+    question: "/shapes/9.png",
+    options: [
+      "/shapes/9.1.png",
+      "/shapes/9.2.png",
+      "/shapes/9.3.png",
+      "/shapes/9.4.png",
+      "/shapes/9.5.png",
+    ],
+    correct_option: 0, // Adjust based on correct answer
+    type: "shape",
+  },
+  {
+    id: "a1b2c3d4-e5f6-7890-1234-56789abcdefa",
+    number: 10,
+    level: "זיהוי דפוסים – צורות גיאומטריות",
+    question: "/shapes/10.png",
+    options: [
+      "/shapes/10.1.png",
+      "/shapes/10.2.png",
+      "/shapes/10.3.png",
+      "/shapes/10.4.png",
+      "/shapes/10.5.png",
+    ],
+    correct_option: 0, // Adjust based on correct answer
+    type: "shape",
+  },
+  {
+    id: "b2c3d4e5-f6a7-8901-2345-6789abcdefab",
+    number: 11,
+    level: "זיהוי דפוסים – צורות גיאומטריות",
+    question: "/shapes/11.png",
+    options: [
+      "/shapes/11.1.png",
+      "/shapes/11.2.png",
+      "/shapes/11.3.png",
+      "/shapes/11.4.png",
+      "/shapes/11.5.png",
+    ],
+    correct_option: 0, // Adjust based on correct answer
+    type: "shape",
+  },
+  {
+    id: "c3d4e5f6-a7b8-9012-3456-789abcdefac",
+    number: 12,
+    level: "זיהוי דפוסים – צורות גיאומטריות",
+    question: "/shapes/12.png",
+    options: [
+      "/shapes/12.1.png",
+      "/shapes/12.2.png",
+      "/shapes/12.3.png",
+      "/shapes/12.4.png",
+      "/shapes/12.5.png",
+    ],
+    correct_option: 4, // Adjust based on correct answer
+    type: "shape",
+  },
 ];
 
 export const ALL_QUESTIONS: (Trait | Question | AnchorQuestion)[] = [

@@ -182,7 +182,8 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
                 <tbody>
                   {QUESTIONS.map((q, index) => {
                     const userAnswer = answers[q.id];
-                                        const isCorrect = userAnswer === q.options[q.correct_option];
+                    const isCorrect =
+                      userAnswer === q.options[q.correct_option];
                     return (
                       <tr
                         key={q.id}
@@ -275,8 +276,10 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
                   {timer}s
                 </span>
               </div>
-              <div className="mb-4 font-medium">{q.question}</div>
-              <div className="space-y-2">
+              <div dir="ltr" className="mb-4 font-medium">
+                {q.question}
+              </div>
+              <div dir="ltr" className="space-y-2">
                 {q.options.map((opt) => (
                   <Button
                     key={opt}
@@ -299,6 +302,7 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
               </div>
               {selected !== null && (
                 <div
+                  dir="ltr"
                   className={`mt-4 text-center font-semibold ${
                     feedback ? "text-green-600" : "text-red-600"
                   }`}
@@ -317,7 +321,6 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
             <Button variant="outline" onClick={onPrevious}>
               Previous Step
             </Button>
-            <span className="text-gray-500">Score: {score}</span>
           </motion.div>
         </motion.div>
       )}
