@@ -1,7 +1,15 @@
 import { create } from 'zustand';
 import supabase from '@/lib/supabase';
 import { validateStep, stepValidators } from '@/lib/validators/questionnaire';
-import { STEP1_QUESTIONS, STEP2_QUESTIONS, STEP3_QUESTIONS } from '@/lib/constants/questions';
+import {
+  STEP1_QUESTIONS,
+  STEP2_QUESTIONS,
+  STEP3_QUESTIONS,
+  STEP4_QUESTIONS,
+  STEP5_QUESTIONS,
+  STEP6_QUESTIONS,
+  STEP7_QUESTIONS,
+} from '@/lib/constants/questions';
 import type {
   AnswerState,
   InsertAnswer,
@@ -115,7 +123,6 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
   // Data Management
   setAnswer: async (questionId: string, value: any) => {
     try {
-      set({ isLoading: true, error: null });
       let { submissionId } = get();
 
       if (!submissionId) {
@@ -150,21 +157,17 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
       console.log('setAnswer: Database response:', { error });
 
       if (error) {
-        console.error('setAnswer: Database error details:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code,
-          error: error
-        });
-        throw error;
+        // The original error from Supabase might not be an Error instance
+        const dbError = new Error(`Database error on upsert: ${JSON.stringify(error)}`);
+        console.error('setAnswer: Database error:', dbError);
+        throw dbError;
       }
       get().updateProgress();
     } catch (error) {
-      set({ error: error as Error });
-      throw error;
-    } finally {
-      set({ isLoading: false });
+      const newError = error instanceof Error ? error : new Error(`An unexpected error occurred: ${JSON.stringify(error)}`);
+      set({ error: newError });
+      // Re-throw the error so the calling component knows about it
+      throw newError;
     }
   },
 
@@ -181,11 +184,19 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
   getStepData: (step: number): StepData => {
     const stepQuestionIds = new Set(
       step === 1
-        ? STEP1_QUESTIONS.map((q) => q.id)
+        ? STEP1_QUESTIONS.map((q: any) => q.id)
         : step === 2
-        ? STEP2_QUESTIONS.map((q) => q.id)
+        ? STEP2_QUESTIONS.map((q: any) => q.id)
         : step === 3
-        ? STEP3_QUESTIONS.map((q) => q.id)
+        ? STEP3_QUESTIONS.map((q: any) => q.id)
+        : step === 4
+        ? STEP4_QUESTIONS.map((q: any) => q.id)
+        : step === 5
+        ? STEP5_QUESTIONS.map((q: any) => q.id)
+        : step === 6
+        ? STEP6_QUESTIONS.map((q: any) => q.id)
+        : step === 7
+        ? STEP7_QUESTIONS.map((q: any) => q.id)
         : []
     );
 

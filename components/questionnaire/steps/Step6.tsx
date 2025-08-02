@@ -5,14 +5,14 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import type { ShapeQuestion } from "@/lib/constants/questions";
-import { fetchStepAnswers } from "@/lib/utils/answerFetcher";
+import { fetchStep6Answers } from "@/lib/utils/answerFetcher";
 import type { AnswerState } from "@/lib/types/questionnaire";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Step6Props {
   onNext?: () => void;
   onPrevious: () => void;
-  onComplete: () => Promise<void>;
+  onComplete: () => void;
 }
 
 export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
@@ -58,7 +58,7 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
       setIsLoadingAnswers(true);
       try {
         const questionIds = STEP6_QUESTIONS.map((q) => q.id);
-        const fetchedAnswers = await fetchStepAnswers(questionIds);
+                const fetchedAnswers = await fetchStep6Answers(questionIds);
 
         // Convert fetched answers to local format and calculate score
         const newAnswers = STEP6_QUESTIONS.map((q) => {
@@ -201,9 +201,7 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
   };
 
   const handleComplete = () => {
-    if (onNext) {
-      onNext();
-    }
+    onComplete();
   };
 
   if (showResults) {

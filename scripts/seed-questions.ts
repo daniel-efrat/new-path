@@ -23,15 +23,13 @@ async function seedQuestions() {
 
   const formattedQuestions = ALL_QUESTIONS.map((q: Question | Trait | AnchorQuestion) => {
     // Check if the object is a full Question (has options and a question property)
-    if ('options' in q && 'question' in q) {
+    if ('question' in q) {
       return {
         id: q.id,
         question_text: q.question,
-        options: q.options,
+        options: (q as Question).options ?? null,
       };
-    }
-    // Otherwise, it's a Trait or AnchorQuestion (has a text property)
-    else if ('text' in q) {
+    } else if ('text' in q) {
       return {
         id: q.id,
         question_text: q.text,

@@ -45,68 +45,28 @@ export default function Step4({ onNext, onPrevious }: Step4Props) {
     setLocalAnchors(newAnchors);
   };
 
-  // Save all answers to DB when Next Step is clicked
-  const handleNext = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
+  const handleNext = () => {
+    // Navigate immediately
+    onNext();
 
-      console.log("Step4: Starting save process...");
-      console.log("Step4: Local anchors to save:", localAnchors);
-      console.log("Step4: STEP4_QUESTIONS length:", STEP4_QUESTIONS.length);
-      console.log(
-        "Step4: First few question IDs:",
-        STEP4_QUESTIONS.slice(0, 3).map((q) => q.id)
-      );
-
-      // Save each anchor value as individual question ID
-      for (let i = 0; i < STEP4_QUESTIONS.length; i++) {
-        const questionId = STEP4_QUESTIONS[i].id;
-        const value = localAnchors[i];
-
-        console.log(
-          `Step4: Saving question ${i + 1}/${
-            STEP4_QUESTIONS.length
-          }: ${questionId} = ${value}`
-        );
-
-        try {
-          await setAnswer(questionId, String(value));
-          console.log(`Step4: Successfully saved ${questionId}`);
-        } catch (saveError) {
-          console.error(`Step4: Failed to save ${questionId}:`, {
-            error: saveError,
-            message:
-              saveError instanceof Error
-                ? saveError.message
-                : "Unknown save error",
-            stack: saveError instanceof Error ? saveError.stack : undefined,
-          });
-          throw saveError; // Re-throw to be caught by outer catch
+    // Save answers in the background
+    const saveAnswersInBackground = async () => {
+      try {
+        // Save each anchor value as individual question ID
+        for (let i = 0; i < STEP4_QUESTIONS.length; i++) {
+          const questionId = STEP4_QUESTIONS[i].id;
+          const value = localAnchors[i];
+          // The setAnswer function will handle its own errors, no need to await
+          setAnswer(questionId, String(value));
         }
+      } catch (err) {
+        // Since this runs in the background, we can't set state on an unmounted component.
+        // We'll log the error for debugging.
+        console.error("Error saving Step 4 answers in the background:", err);
       }
+    };
 
-      console.log("Step4: All anchor answers saved successfully!");
-
-      // Call the original onNext function
-      onNext();
-    } catch (err) {
-      console.error("Step4: Error details:", {
-        message: err instanceof Error ? err.message : "Unknown error",
-        stack: err instanceof Error ? err.stack : undefined,
-        error: err,
-        errorType: typeof err,
-        errorConstructor: err?.constructor?.name,
-        localAnchors: localAnchors,
-        stringifiedError: JSON.stringify(err, Object.getOwnPropertyNames(err)),
-      });
-
-      const errorMessage =
-        err instanceof Error ? err.message : "שגיאה לא ידועה";
-      setError(`שגיאה בשמירת התשובות: ${errorMessage}. נסה שנית.`);
-    } finally {
-      setIsLoading(false);
-    }
+    saveAnswersInBackground();
   };
 
   if (error) {

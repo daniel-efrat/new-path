@@ -105,34 +105,36 @@ export const validateStep5 = (data: StepData): ValidationResult => {
 // Step 6 validation (shape selection)
 export const validateStep6 = (data: StepData): ValidationResult => {
   const errors: string[] = [];
-  
-  // Check if shape selection answer exists
-  const shapeAnswer = data.step6_shape_selection;
-  if (!shapeAnswer || shapeAnswer.value === undefined || shapeAnswer.value === null) {
+
+  // Check if at least one answer is provided for Step 6
+  const hasAnswers = Object.keys(data).length > 0;
+  if (!hasAnswers) {
     errors.push('Shape selection is required');
   }
-  
+
+  return createValidationResult(errors.length === 0, errors);
+};
+
+// Step 7 validation (computer skills)
+export const validateStep7 = (data: StepData): ValidationResult => {
+  const errors: string[] = [];
+
+  // Basic validation - check if any answers are provided
+  const hasAnswers = Object.keys(data).length > 0;
+  if (!hasAnswers) {
+    errors.push('At least one question must be answered');
+  }
+
   return createValidationResult(errors.length === 0, errors);
 };
 
 // Main validation function
 export const validateStep = (step: number, data: StepData): ValidationResult => {
-  switch (step) {
-    case 1:
-      return validateStep1(data);
-    case 2:
-      return validateStep2(data);
-    case 3:
-      return validateStep3(data);
-    case 4:
-      return validateStep4(data);
-    case 5:
-      return validateStep5(data);
-    case 6:
-      return validateStep6(data);
-    default:
-      return createValidationResult(false, [`Invalid step: ${step}`]);
+  const validator = stepValidators[step];
+  if (validator) {
+    return validator(data);
   }
+  return createValidationResult(false, [`Invalid step: ${step}`]);
 };
 
 // Map step numbers to validators
@@ -143,4 +145,5 @@ export const stepValidators: Record<number, (data: StepData) => ValidationResult
   4: validateStep4,
   5: validateStep5,
   6: validateStep6,
+  7: validateStep7,
 };

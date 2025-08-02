@@ -70,7 +70,7 @@ export const STEP1_QUESTIONS: Trait[] = [
     type: "trait",
   },
   {
-    id: "a7b8c9d0-e1f2-3456-789a-bcdef0123456",
+    id: "a7b8c9d0-e1f2-1234-5678-abcde0123456",
     text: "אוריינטציה שירותית",
     type: "trait",
   },
@@ -275,12 +275,12 @@ export const STEP1_QUESTIONS: Trait[] = [
     type: "trait",
   },
   {
-    id: "f0a1b2c3-d4e5-89ab-cdef-890123456789",
+    id: "a0b1c2d3-e4f5-4a5b-8c9d-0e1f2a3b4c5d",
     text: "חוש הומור",
     type: "trait",
   },
   {
-    id: "a1b2c3d4-e5f6-9abc-def0-901234567890",
+    id: "a1b2c3d4-e5f6-bcde-f012-901234567891",
     text: "אופנתיות וסטייל",
     type: "trait",
   },
@@ -369,7 +369,12 @@ export const STEP2_QUESTIONS: Question[] = [
     number: 3,
     level: "אוצר מילים והקשרים",
     question: 'מה פירוש הביטוי "חרף נפשו"?',
-    options: ["התקרר בחורף", "החליט להתאבד", "חשף את רגשותיו", "סיכן את חייו"],
+    options: [
+      "התקרר בחורף",
+      "החליט להתאבד",
+      "חשף את רגשותיו",
+      "סיכן את חייו",
+    ],
     correct_option: 3,
   },
   {
@@ -530,7 +535,7 @@ export const STEP2_QUESTIONS: Question[] = [
       "כי הוא רואה בהם זמן שקט ושלו",
       "כי הוא לא אוהב את העיר",
       "כי האוטובוס תמיד מדייק",
-      "כי חשוך קמעא",
+      "חשוך קמעא",
     ],
     correct_option: 0,
   },
@@ -559,179 +564,158 @@ export const STEP2_QUESTIONS: Question[] = [
 
 export const STEP3_QUESTIONS: Question[] = [
   {
-    id: "12345678-1234-5678-9abc-123456789001",
+    id: "2e8c8e6c-6a06-47a6-8e9e-1c6f0a1f9b01",
     number: 1,
-    level: "Beginner",
-    question: "What is the plural of 'child'?",
-    options: ["Childs", "Children", "Childes", "Child"],
-    correct_option: 1,
+    level: "Reading Comprehension",
+    question:
+      "Read the sentence: John is always late for work because he wakes up too __.",
+    options: ["early", "fast", "late", "lazy"],
+    correct_option: 2,
   },
   {
-    id: "12345678-1234-5678-9abc-123456789002",
+    id: "3fe2f3d9-3d5d-4e2b-8f59-7d5a2a7e9b02",
     number: 2,
-    level: "Beginner",
-    question: "Choose the correct verb form: 'She ___ to the store.'",
-    options: ["Go", "Goes", "Gone", "Going"],
-    correct_option: 1,
+    level: "Reading Comprehension",
+    question:
+      'Read the short text: "Sophie enjoys cooking Italian food. Her favorite dish is pasta, and she often invites friends over for dinner". What does Sophie like to do?',
+    options: [
+      "Eat at restaurants",
+      "Invite strangers to her house",
+      "Cook Italian food",
+      "Order pizza",
+    ],
+    correct_option: 2,
   },
   {
-    id: "12345678-1234-5678-9abc-123456789003",
+    id: "a7f4b4e0-cf8e-4d6a-8f63-35b6a9b0e903",
     number: 3,
-    level: "Beginner",
-    question: "Which of these is a pronoun?",
-    options: ["Run", "Happy", "He", "Quickly"],
-    correct_option: 2,
+    level: "Reading Comprehension",
+    question: "Read the sentence: He didn't go to school because he __ a cold.",
+    options: ["have", "had", "has", "having"],
+    correct_option: 1,
   },
   {
-    id: "12345678-1234-5678-9abc-123456789004",
+    id: "1b5a3c1e-22c1-4a2d-9b7b-9a7f7e9c4d04",
     number: 4,
-    level: "Beginner",
-    question: "What is the past tense of 'eat'?",
-    options: ["Eated", "Ate", "Eaten", "Eat"],
+    level: "Grammar",
+    question: "Which sentence is correct?",
+    options: [
+      "She go to school every day.",
+      "She goes to school every day.",
+      "She going to school every day.",
+      "She gone to school every day.",
+    ],
     correct_option: 1,
   },
   {
-    id: "12345678-1234-5678-9abc-123456789005",
+    id: "98a7b2f1-0a8c-4f61-8f80-2c9e6c7a1e05",
     number: 5,
-    level: "Beginner",
-    question: "Which of the following is a preposition?",
-    options: ["Run", "Quickly", "Under", "Beautiful"],
+    level: "Grammar",
+    question: "Choose the correct word: I have two __.",
+    options: ["child", "childs", "children", "childrens"],
     correct_option: 2,
   },
   {
-    id: "12345678-1234-5678-9abc-123456789006",
+    id: "4c2e9a67-8f3c-4e88-9c2a-1b0b4b9a6f06",
     number: 6,
-    level: "Beginner",
-    question: "Select the correct sentence structure.",
+    level: "Grammar",
+    question: "Which question is correct?",
     options: [
-      "She is a doctor good.",
-      "She a good doctor is.",
-      "She is a good doctor.",
-      "A good doctor she is.",
+      "Where you live?",
+      "Where do you live?",
+      "Where does you live?",
+      "Where living you?",
     ],
-    correct_option: 2,
+    correct_option: 1,
   },
   {
-    id: "12345678-1234-5678-9abc-123456789007",
+    id: "5f9b3a24-6d3e-41d8-8f95-7e1a2c0b7a07",
     number: 7,
-    level: "Beginner",
-    question: "What does 'it's' stand for?",
-    options: ["It is", "It was", "It has", "Possessive form of it"],
+    level: "Vocabulary",
+    question: 'What is the opposite of "expensive"?',
+    options: ["Cheap", "Large", "Strong", "Fast"],
     correct_option: 0,
   },
   {
-    id: "12345678-1234-5678-9abc-123456789008",
+    id: "71c8f4d1-2e3b-4bfb-9f0e-0a7b3e2d5c08",
     number: 8,
-    level: "Beginner",
-    question: "Which word is an adjective?",
-    options: ["Sing", "Song", "Beautifully", "Beautiful"],
-    correct_option: 3,
+    level: "Vocabulary",
+    question:
+      "Choose the word that best completes the sentence: The sun is very __ today.",
+    options: ["cold", "rainy", "bright", "dark"],
+    correct_option: 2,
   },
   {
-    id: "12345678-1234-5678-9abc-123456789009",
+    id: "c3e2a9b1-0b1a-487b-9c3d-5f7a6e2d9a09",
     number: 9,
-    level: "Beginner",
-    question: "Choose the correct form: 'They ___ watching TV.'",
-    options: ["is", "am", "are", "be"],
-    correct_option: 2,
-  },
-  {
-    id: "12345678-1234-5678-9abc-123456789010",
-    number: 10,
-    level: "Beginner",
-    question: "What is the comparative form of 'good'?",
-    options: ["Gooder", "More good", "Better", "Best"],
-    correct_option: 2,
-  },
-  {
-    id: "12345678-1234-5678-9abc-123456789011",
-    number: 11,
-    level: "Beginner",
-    question: "Which sentence uses punctuation correctly?",
-    options: [
-      "Lets eat grandma.",
-      "Let's eat, grandma.",
-      "Lets eat, grandma.",
-      "Let's eat grandma.",
-    ],
-    correct_option: 1,
-  },
-  {
-    id: "12345678-1234-5678-9abc-123456789012",
-    number: 12,
-    level: "Beginner",
-    question: "Identify the noun in the sentence: 'The cat slept peacefully.'",
-    options: ["The", "cat", "slept", "peacefully"],
-    correct_option: 1,
-  },
-  {
-    id: "12345678-1234-5678-9abc-123456789013",
-    number: 13,
-    level: "Beginner",
-    question: "What is the opposite of 'happy'?",
-    options: ["Angry", "Sad", "Excited", "Tired"],
-    correct_option: 1,
-  },
-  {
-    id: "12345678-1234-5678-9abc-123456789014",
-    number: 14,
-    level: "Beginner",
-    question: "Which of these is a conjunction?",
-    options: ["And", "On", "Jump", "Quick"],
-    correct_option: 0,
-  },
-  {
-    id: "12345678-1234-5678-9abc-123456789015",
-    number: 15,
-    level: "Beginner",
-    question: "Choose the correct spelling.",
-    options: ["Neccessary", "Necesary", "Necessary", "Necessery"],
-    correct_option: 2,
-  },
-  {
-    id: "12345678-1234-5678-9abc-123456789016",
-    number: 16,
-    level: "Beginner",
-    question: "What type of word is 'quickly'?",
-    options: ["Adjective", "Verb", "Noun", "Adverb"],
+    level: "Vocabulary",
+    question: 'What does "hungry" mean?',
+    options: ["Tired", "Angry", "Thirsty", "Wanting to eat"],
     correct_option: 3,
   },
   {
-    id: "12345678-1234-5678-9abc-123456789017",
-    number: 17,
-    level: "Beginner",
-    question: "Which sentence is in the passive voice?",
+    id: "b2d7f1a3-7c4a-4b9c-8d2e-6f1e2a3c4b10",
+    number: 10,
+    level: "Verbs & Tenses",
+    question:
+      "Choose the correct past form of the verb: He __ a letter yesterday.",
+    options: ["writes", "write", "wrote", "written"],
+    correct_option: 2,
+  },
+  {
+    id: "e7a1c2b3-4d5e-4f6a-9b8c-1a2d3e4f5a11",
+    number: 11,
+    level: "Verbs & Tenses",
+    question: 'What is the present continuous form of "play"?',
+    options: ["Plays", "Playing", "Is playing", "Play"],
+    correct_option: 2,
+  },
+  {
+    id: "0a9c8b7d-6e5f-4a3b-9c1d-2e3f4a5b6c12",
+    number: 12,
+    level: "Verbs & Tenses",
+    question: "Choose the correct sentence:",
     options: [
-      "The dog chased the ball.",
-      "The ball was chased by the dog.",
-      "The dog is chasing the ball.",
-      "The ball is being chased by the dog.",
+      "We was happy.",
+      "We were happy.",
+      "We be happy.",
+      "We are happy yesterday",
     ],
     correct_option: 1,
   },
   {
-    id: "12345678-1234-5678-9abc-123456789018",
-    number: 18,
-    level: "Beginner",
-    question: "What is the superlative form of 'big'?",
-    options: ["Bigger", "Biggest", "More big", "Most big"],
+    id: "9f1e2d3c-4b5a-6c7d-8e9f-0a1b2c3d4e13",
+    number: 13,
+    level: "Functional Language",
+    question: "You are in a restaurant. What do you say?",
+    options: [
+      "Can I have the menu, please?",
+      "Where is the homework?",
+      "Open your books.",
+      "I’m watching TV.",
+    ],
+    correct_option: 0,
+  },
+  {
+    id: "6a5b4c3d-2e1f-0a9b-8c7d-6e5f4a3b2c14",
+    number: 14,
+    level: "Functional Language",
+    question: 'You are at the airport. What does this sign mean: "Departures"?',
+    options: ["Luggage", "Arrivals", "Security", "Flights leaving"],
+    correct_option: 3,
+  },
+  {
+    id: "3d2c1b0a-9e8f-7d6c-5b4a-3c2d1e0f9a15",
+    number: 15,
+    level: "Functional Language",
+    question: 'You see a sign: "Keep off the grass." What does it mean?',
+    options: [
+      "You can sit on the grass",
+      "You must not walk on the grass",
+      "You can pick flowers",
+      "You should water the grass",
+    ],
     correct_option: 1,
-  },
-  {
-    id: "12345678-1234-5678-9abc-123456789019",
-    number: 19,
-    level: "Beginner",
-    question: "Fill in the blank: 'She has been waiting ___ a long time.'",
-    options: ["for", "since", "at", "in"],
-    correct_option: 0,
-  },
-  {
-    id: "12345678-1234-5678-9abc-123456789020",
-    number: 20,
-    level: "Beginner",
-    question: "Which of the following is a modal verb?",
-    options: ["Can", "Eat", "Play", "Walk"],
-    correct_option: 0,
   },
 ];
 
@@ -744,7 +728,7 @@ export interface AnchorQuestion {
 export const STEP4_QUESTIONS: AnchorQuestion[] = [
   {
     id: "12345678-1234-5678-9abc-124456789001",
-    text: "אני פורח כשיש לי אתגר קשה במיוחד ועלי האחריות לפצח ולפתור אותו.",
+    text: "אני פורח כשיש לי אתגר קשה מדי ועלי האחריות לפצח ולפתור אותו.",
     type: "anchor",
   },
   {
@@ -863,6 +847,7 @@ export const STEP4_QUESTIONS: AnchorQuestion[] = [
     type: "anchor",
   },
 ];
+
 export interface LogicalQuestion {
   id: string;
   number: number;
@@ -1159,7 +1144,7 @@ export const STEP5_QUESTIONS: LogicalQuestion[] = [
 
 export const STEP6_QUESTIONS: ShapeQuestion[] = [
   {
-    id: "c1d2e3f4-a5b6-7890-1234-56789abcdef2",
+    id: "6a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c51",
     number: 1,
     level: "זיהוי דפוסים – צורות גיאומטריות",
     question: "/shapes/1.png",
@@ -1173,7 +1158,7 @@ export const STEP6_QUESTIONS: ShapeQuestion[] = [
     type: "shape",
   },
   {
-    id: "d2e3f4a5-b6c7-8901-2345-6789abcdef23",
+    id: "6a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c52",
     number: 2,
     level: "זיהוי דפוסים – צורות גיאומטריות",
     question: "/shapes/2.png",
@@ -1187,7 +1172,7 @@ export const STEP6_QUESTIONS: ShapeQuestion[] = [
     type: "shape",
   },
   {
-    id: "e3f4a5b6-c7d8-9012-3456-789abcdef234",
+    id: "6a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c53",
     number: 3,
     level: "זיהוי דפוסים – צורות גיאומטריות",
     question: "/shapes/3.png",
@@ -1201,7 +1186,7 @@ export const STEP6_QUESTIONS: ShapeQuestion[] = [
     type: "shape",
   },
   {
-    id: "f4a5b6c7-d8e9-0123-4567-89abcdef2345",
+    id: "6a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c54",
     number: 4,
     level: "זיהוי דפוסים – צורות גיאומטריות",
     question: "/shapes/4.png",
@@ -1215,7 +1200,7 @@ export const STEP6_QUESTIONS: ShapeQuestion[] = [
     type: "shape",
   },
   {
-    id: "a5b6c7d8-e9f0-1234-5678-9abcdef23456",
+    id: "6a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c55",
     number: 5,
     level: "זיהוי דפוסים – צורות גיאומטריות",
     question: "/shapes/5.png",
@@ -1229,7 +1214,7 @@ export const STEP6_QUESTIONS: ShapeQuestion[] = [
     type: "shape",
   },
   {
-    id: "b6c7d8e9-f0a1-2345-6789-abcdef234567",
+    id: "6a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c56",
     number: 6,
     level: "זיהוי דפוסים – צורות גיאומטריות",
     question: "/shapes/6.png",
@@ -1243,7 +1228,7 @@ export const STEP6_QUESTIONS: ShapeQuestion[] = [
     type: "shape",
   },
   {
-    id: "c7d8e9f0-a1b2-3456-789a-bcdef2345678",
+    id: "6a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c57",
     number: 7,
     level: "זיהוי דפוסים – צורות גיאומטריות",
     question: "/shapes/7.png",
@@ -1257,7 +1242,7 @@ export const STEP6_QUESTIONS: ShapeQuestion[] = [
     type: "shape",
   },
   {
-    id: "8f8e1d2c-3b4a-5678-9012-3456789abcde",
+    id: "6a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c58",
     number: 8,
     level: "זיהוי דפוסים – צורות גיאומטריות",
     question: "/shapes/8.png",
@@ -1271,7 +1256,7 @@ export const STEP6_QUESTIONS: ShapeQuestion[] = [
     type: "shape",
   },
   {
-    id: "9a9b8c7d-6e5f-4321-fedc-ba9876543210",
+    id: "6a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c59",
     number: 9,
     level: "זיהוי דפוסים – צורות גיאומטריות",
     question: "/shapes/9.png",
@@ -1282,11 +1267,11 @@ export const STEP6_QUESTIONS: ShapeQuestion[] = [
       "/shapes/9.4.png",
       "/shapes/9.5.png",
     ],
-    correct_option: 0, // Adjust based on correct answer
+    correct_option: 0,
     type: "shape",
   },
   {
-    id: "a1b2c3d4-e5f6-7890-1234-56789abcdefa",
+    id: "6a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c60",
     number: 10,
     level: "זיהוי דפוסים – צורות גיאומטריות",
     question: "/shapes/10.png",
@@ -1297,11 +1282,11 @@ export const STEP6_QUESTIONS: ShapeQuestion[] = [
       "/shapes/10.4.png",
       "/shapes/10.5.png",
     ],
-    correct_option: 0, // Adjust based on correct answer
+    correct_option: 1, // Adjust based on correct answer
     type: "shape",
   },
   {
-    id: "b2c3d4e5-f6a7-8901-2345-6789abcdefab",
+    id: "6a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c61",
     number: 11,
     level: "זיהוי דפוסים – צורות גיאומטריות",
     question: "/shapes/11.png",
@@ -1312,11 +1297,11 @@ export const STEP6_QUESTIONS: ShapeQuestion[] = [
       "/shapes/11.4.png",
       "/shapes/11.5.png",
     ],
-    correct_option: 0, // Adjust based on correct answer
+    correct_option: 2,
     type: "shape",
   },
   {
-    id: "c3d4e5f6-a7b8-9012-3456-789abcdefac",
+    id: "6a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c62",
     number: 12,
     level: "זיהוי דפוסים – צורות גיאומטריות",
     question: "/shapes/12.png",
@@ -1327,9 +1312,202 @@ export const STEP6_QUESTIONS: ShapeQuestion[] = [
       "/shapes/12.4.png",
       "/shapes/12.5.png",
     ],
-    correct_option: 4, // Adjust based on correct answer
+    correct_option: 0,
     type: "shape",
   },
+  {
+    id: "6a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c63",
+    number: 13,
+    level: "זיהוי דפוסים – צורות גיאומטריות",
+    question: "/shapes/13.png",
+    options: [
+      "/shapes/13.1.png",
+      "/shapes/13.2.png",
+      "/shapes/13.3.png",
+      "/shapes/13.4.png",
+      "/shapes/13.5.png",
+    ],
+    correct_option: 0, // Adjust based on correct answer
+    type: "shape",
+  },
+  {
+    id: "6a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c64",
+    number: 14,
+    level: "זיהוי דפוסים – צורות גיאומטריות",
+    question: "/shapes/14.png",
+    options: [
+      "/shapes/14.1.png",
+      "/shapes/14.2.png",
+      "/shapes/14.3.png",
+      "/shapes/14.4.png",
+      "/shapes/14.5.png",
+    ],
+    correct_option: 0, // Adjust based on correct answer
+    type: "shape",
+  },
+];
+
+export const STEP7_QUESTIONS: Question[] = [
+  {
+    id: "b3f5a4c7-8e1a-4b2c-9b7e-0b1a5c2d3e01",
+    number: 1,
+    level: "קלות",
+    question: "מה תעשה כדי לשמור קובץ במסמך Word?",
+    options: ["תלחץ על Ctrl + C", "תלחץ על Ctrl + V", "תלחץ על Ctrl + S", "תלחץ על Alt + F4"],
+    correct_option: 2
+  },
+  {
+    id: "c7a1e2f3-4b5c-6d7e-8f90-1a2b3c4d5e02",
+    number: 2,
+    level: "קלות",
+    question: "מהו הסמל שמייצג את דפדפן Google Chrome?",
+    options: ["פיירפוקס", "עין כחולה", "כדור בצבעי אדום-צהוב-ירוק עם עיגול כחול באמצע", "מכתב עם חץ"],
+    correct_option: 2
+  },
+  {
+    id: "d1e2f3a4-b5c6-4d7e-8f90-a1b2c3d4e503",
+    number: 3,
+    level: "קלות",
+    question: "מהי תוכנת גיליון נתונים?",
+    options: ["Word", "Excel", "PowerPoint", "Chrome"],
+    correct_option: 1
+  },
+  {
+    id: "e4f5a6b7-c8d9-4e01-9f12-a3b4c5d6e704",
+    number: 4,
+    level: "קלות",
+    question: "מה קובץ עם סיומת .jpg מכיל לרוב?",
+    options: ["טקסט", "גיליון נתונים", "תמונה", "מוזיקה"],
+    correct_option: 2
+  },
+  {
+    id: "f6a7b8c9-d0e1-42f3-9a45-b6c7d8e9f005",
+    number: 5,
+    level: "קלות",
+    question: "איזו פעולה מתבצעת על ידי הקלקה כפולה (Double Click)?",
+    options: ["סגירת חלון", "פתיחת קובץ", "מחיקת קובץ", "שליחת אימייל"],
+    correct_option: 1
+  },
+  {
+    id: "a7b8c9d0-e1f2-43a4-9b56-c7d8e9f0a106",
+    number: 6,
+    level: "קלות",
+    question: "מה תעשה כדי להעתיק טקסט?",
+    options: ["Ctrl + P", "Ctrl + V", "Ctrl + C", "Ctrl + Z"],
+    correct_option: 2
+  },
+  {
+    id: "b8c9d0e1-f2a3-44b5-9c67-d8e9f0a1b207",
+    number: 7,
+    level: "בינוניות",
+    question: "איזו יחידת מידה מודדת נפח של אחסון במחשב?",
+    options: ["וואט", "ג׳יגה-בייט", "הרץ", "אינצ׳ים"],
+    correct_option: 1
+  },
+  {
+    id: "c9d0e1f2-a3b4-45c6-9d78-e9f0a1b2c308",
+    number: 8,
+    level: "בינוניות",
+    question: "מה תפקידה של תוכנת אנטי-וירוס?",
+    options: ["לנהל מסמכים", "להגן על המחשב מפני תוכנות מזיקות", "למנוע מחיקת קבצים", "לערוך סרטונים"],
+    correct_option: 1
+  },
+  {
+    id: "d0e1f2a3-b4c5-46d7-9e89-f0a1b2c3d409",
+    number: 9,
+    level: "בינוניות",
+    question: "מה המשמעות של הסמל 🗑 (פח אשפה) בשולחן העבודה?",
+    options: ["תיקיית מסמכים", "מקום לשמירת קבצים זמניים", "סל מחזור – קבצים שנמחקו", "סימון אתרים לא רצויים"],
+    correct_option: 2
+  },
+  {
+    id: "e1f2a3b4-c5d6-47e8-9f90-0a1b2c3d4e10",
+    number: 10,
+    level: "בינוניות",
+    question: "איך אפשר לבדוק אם יש חיבור לאינטרנט?",
+    options: ["לבדוק אייקון של סוללה", "לבדוק סמל רמקול", "לבדוק סמל רשת / Wi-Fi", "לבדוק מיקום גיאוגרפי"],
+    correct_option: 2
+  },
+  {
+    id: "f2a3b4c5-d6e7-48f9-901a-1b2c3d4e5f11",
+    number: 11,
+    level: "בינוניות",
+    question: "מהו ה-Cloud (ענן)?",
+    options: ["דיסק קשיח בתוך המחשב", "כונן USB", "אחסון קבצים באינטרנט", "תיקייה פנימית"],
+    correct_option: 2
+  },
+  {
+    id: "a3b4c5d6-e7f8-490a-912b-2c3d4e5f6a12",
+    number: 12,
+    level: "בינוניות",
+    question: "באיזו תוכנה נשתמש להכין מצגת?",
+    options: ["Excel", "PowerPoint", "Outlook", "Notepad"],
+    correct_option: 1
+  },
+  {
+    id: "b4c5d6e7-f8a9-4a1b-923c-3d4e5f6a7b13",
+    number: 13,
+    level: "בינוניות",
+    question: "מהי מטרת סיסמה חזקה?",
+    options: ["לקצר את תהליך הכניסה", "לאפשר לכל אחד להיכנס", "להגן על המידע האישי", "לחסוך מקום בזיכרון"],
+    correct_option: 2
+  },
+  {
+    id: "c5d6e7f8-a9b0-4b2c-934d-4e5f6a7b8c14",
+    number: 14,
+    level: "בינוניות",
+    question: "באיזו תוכנה נשתמש לקרוא קובץ PDF?",
+    options: ["Word", "Excel", "Adobe Acrobat Reader", "Chrome (לא בהכרח מותקן)"],
+    correct_option: 2
+  },
+  {
+    id: "d6e7f8a9-b0c1-4c3d-945e-5f6a7b8c9d15",
+    number: 15,
+    level: "קשות",
+    question: "איזו תוכנה מתאימה לעריכת תמונות?",
+    options: ["Excel", "Photoshop", "PowerPoint", "Word"],
+    correct_option: 1
+  },
+  {
+    id: "e7f8a9b0-c1d2-4d4e-956f-6a7b8c9d0e16",
+    number: 16,
+    level: "קשות",
+    question: "מה הסיכון העיקרי בלחיצה על קישור ממקור לא ידוע?",
+    options: ["שהמחשב יתחמם", "שהמסך ייכבה", "שזה יבוא על חשבון הקובץ הקודם שהיה פתוח אצלך", "שתידבק בתוכנה זדונית / וירוס"],
+    correct_option: 3
+  },
+  {
+    id: "f8a9b0c1-d2e3-4e5f-9670-7b8c9d0e1f17",
+    number: 17,
+    level: "קשות",
+    question: "מה עושים כאשר רוצים לשמור גרסה חדשה של קובץ עם שם אחר?",
+    options: ["בוחרים \"שמור\"", "סוגרים את הקובץ", "בוחרים \"שמור בשם\"", "עושים העתק-הדבק"],
+    correct_option: 2
+  },
+  {
+    id: "a9b0c1d2-e3f4-4051-9781-8c9d0e1f2a18",
+    number: 18,
+    level: "קשות",
+    question: "איך אפשר לצלם את המסך?",
+    options: ["לחיצה על F5", "Ctrl + Z", "מקש Print Screen", "Alt + F4"],
+    correct_option: 2
+  },
+  {
+    id: "b0c1d2e3-f4a5-4152-9892-9d0e1f2a3b19",
+    number: 19,
+    level: "קשות",
+    question: "מה זה PHISHING?",
+    options: ["תוכנת גרפיקה ידועה", "ניסיון הונאה באינטרנט", "אנטי וירוס מתקדם", "גיבוי קבצים אוטומטי"],
+    correct_option: 1
+  },
+  {
+    id: "c1d2e3f4-a5b6-4263-99a3-0e1f2a3b4c20",
+    number: 20,
+    level: "קשות",
+    question: "מהי המטרה העיקרית של גיבוי נתונים?",
+    options: ["למחוק קבצים ישנים", "לשמור עותק של המידע למקרה של אובדן", "לפנות מקום בדיסק הקשיח", "לשפר את מהירות המחשב"],
+    correct_option: 1
+  }
 ];
 
 export const ALL_QUESTIONS: (Trait | Question | AnchorQuestion)[] = [
@@ -1339,6 +1517,7 @@ export const ALL_QUESTIONS: (Trait | Question | AnchorQuestion)[] = [
   ...STEP4_QUESTIONS,
   ...STEP5_QUESTIONS,
   ...STEP6_QUESTIONS,
+  ...STEP7_QUESTIONS,
 ];
 
 function isTrait(

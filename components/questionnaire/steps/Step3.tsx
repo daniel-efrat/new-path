@@ -165,9 +165,11 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
             onInit={({ conductor }) => setFireworksConductor(conductor)}
           />
           <div className="w-full max-w-4xl" dir="rtl">
-            <h2 className="text-3xl font-bold text-center mb-6">
-              {passed ? "Congratulations!" : "Review your answers"}
-            </h2>
+            <h1 className="text-3xl font-bold mb-6">תוצאות המבחן</h1>
+            <div className="text-xl mb-8">
+              הניקוד שלך: {score} מתוך {QUESTIONS.length} (
+              {Math.round((score / QUESTIONS.length) * 100)}%)
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full text-right border-collapse">
                 <thead>

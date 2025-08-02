@@ -79,8 +79,12 @@ export async function fetchStepAnswers(stepQuestionIds: string[]): Promise<Recor
 
     return answerMap;
   } catch (error) {
-    console.error('Error fetching step answers:', error);
-    return {};
+    const errorMessage = 'Error fetching step answers';
+    console.error(errorMessage, error);
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error(`${errorMessage}: ${JSON.stringify(error)}`);
   }
 }
 
@@ -109,4 +113,22 @@ export async function fetchStep2Answers(step2QuestionIds: string[]): Promise<Rec
  */
 export async function fetchStep5Answers(step5QuestionIds: string[]): Promise<Record<string, AnswerState>> {
   return fetchStepAnswers(step5QuestionIds);
+}
+
+/**
+ * Fetches answers for Step 6 (visual reasoning questions)
+ * @param step6QuestionIds Array of Step 6 question IDs
+ * @returns Record of question_id -> AnswerState
+ */
+export async function fetchStep6Answers(step6QuestionIds: string[]): Promise<Record<string, AnswerState>> {
+  return fetchStepAnswers(step6QuestionIds);
+}
+
+/**
+ * Fetches answers for Step 7 (quiz questions)
+ * @param step7QuestionIds Array of Step 7 question IDs
+ * @returns Record of question_id -> AnswerState
+ */
+export async function fetchStep7Answers(step7QuestionIds: string[]): Promise<Record<string, AnswerState>> {
+  return fetchStepAnswers(step7QuestionIds);
 }

@@ -91,7 +91,10 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
       handleNext(true);
       return;
     }
-    const interval = setInterval(() => setTimer((t) => (t > 0 ? t - 1 : 0)), 1000);
+    const interval = setInterval(
+      () => setTimer((t) => (t > 0 ? t - 1 : 0)),
+      1000
+    );
     return () => clearInterval(interval);
   }, [timer, showResult]);
 
@@ -160,12 +163,12 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
             onInit={({ conductor }) => setFireworksConductor(conductor)}
             style={{ zIndex: 1000, position: "fixed", top: 0, left: 0 }}
           />
-          <h2 className="text-3xl font-bold mb-4">
-            {passed ? "כל הכבוד, עברת את המבחן!" : "לא נורא, אפשר לנסות שוב"}
-          </h2>
-          <p className="text-xl mb-6">
-            השגת ציון של {score} מתוך {QUESTIONS.length}
-          </p>
+
+          <h1 className="text-3xl font-bold mb-6">תוצאות המבחן</h1>
+          <div className="text-xl mb-8">
+            הניקוד שלך: {score} מתוך {QUESTIONS.length} (
+            {Math.round((score / QUESTIONS.length) * 100)}%)
+          </div>
           <div className="max-w-2xl mx-auto bg-white p-4 rounded-lg shadow-md">
             <table className="w-full text-right">
               <thead>
@@ -189,9 +192,21 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
                       <td className="p-2">{userAnswer}</td>
                       <td className="p-2 text-center">
                         {isCorrect ? (
-                          <span role="img" aria-label="Correct" className="text-green-500">✓</span>
+                          <span
+                            role="img"
+                            aria-label="Correct"
+                            className="text-green-500"
+                          >
+                            ✓
+                          </span>
                         ) : (
-                          <span role="img" aria-label="Incorrect" className="text-red-500">✗</span>
+                          <span
+                            role="img"
+                            aria-label="Incorrect"
+                            className="text-red-500"
+                          >
+                            ✗
+                          </span>
                         )}
                       </td>
                     </tr>
@@ -201,7 +216,12 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
             </table>
           </div>
           <div className="flex justify-center gap-4 mt-8">
-            <Button variant="destructive" size="lg" onClick={handleRestart} className="text-lg bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-4">
+            <Button
+              variant="destructive"
+              size="lg"
+              onClick={handleRestart}
+              className="text-lg bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-4"
+            >
               🔄 RESTART QUIZ - DEV BUTTON
             </Button>
             <Button onClick={handleContinue}>המשך לשלב הבא</Button>
@@ -216,29 +236,62 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
           transition={{ duration: 0.3 }}
           dir="rtl"
         >
-          <motion.h1 initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.4 }} className="text-2xl font-bold mb-4 text-center">
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.4 }}
+            className="text-2xl font-bold mb-4 text-center"
+          >
             מבחן לוגיקה
           </motion.h1>
-          <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2, duration: 0.5 }}>
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
             <Card className="max-w-4xl mx-auto p-6 mb-6 bg-blue-50 border-blue-200">
               <div className="text-center mb-4">
-                <h3 className="text-lg font-semibold text-blue-800 mb-3">הוראות:</h3>
+                <h3 className="text-lg font-semibold text-blue-800 mb-3">
+                  הוראות:
+                </h3>
                 <div className="text-right leading-relaxed text-gray-800 bg-white p-4 rounded border">
-                  ענו לפי המידע שמופיע בכל שאלה בלבד. אל תניחו עובדות שלא ניתנו. זכרו: מטענה כללית ("כל…") אי‑אפשר להסיק קיום פרטים; מטענת קיום ("יש…") לא מסיקים כלל על כולם. הבחינו בין "אם… אז…" (תנאי מספיק), "רק אם…" (תנאי הכרחי), ו"אם ורק אם…" .
+                  ענו לפי המידע שמופיע בכל שאלה בלבד. אל תניחו עובדות שלא ניתנו.
+                  זכרו: מטענה כללית ("כל…") אי‑אפשר להסיק קיום פרטים; מטענת קיום
+                  ("יש…") לא מסיקים כלל על כולם. הבחינו בין "אם… אז…" (תנאי
+                  מספיק), "רק אם…" (תנאי הכרחי), ו"אם ורק אם…" .
                 </div>
               </div>
             </Card>
           </motion.div>
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.4 }} className="flex justify-center mb-4">
-            <span className="text-lg font-semibold">שאלה {q.number} / {QUESTIONS.length}</span>
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
+            className="flex justify-center mb-4"
+          >
+            <span className="text-lg font-semibold">
+              שאלה {q.number} / {QUESTIONS.length}
+            </span>
           </motion.div>
-          <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4, duration: 0.4 }}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.4, duration: 0.4 }}
+          >
             <Card className="max-w-xl mx-auto p-6 mb-6">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm text-gray-500">{q.level}</span>
-                <span className={`font-mono text-lg ${timer <= 15 ? "text-red-500" : "text-gray-700"}`}>{timer}ש</span>
+                <span
+                  className={`font-mono text-lg ${
+                    timer <= 15 ? "text-red-500" : "text-gray-700"
+                  }`}
+                >
+                  {timer}ש
+                </span>
               </div>
-              <div className="mb-4 font-medium text-lg text-right">{q.question}</div>
+              <div className="mb-4 font-medium text-lg text-right">
+                {q.question}
+              </div>
               <div className="space-y-2">
                 {q.options.map((opt, idx) => (
                   <Button
@@ -261,16 +314,34 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
                 ))}
               </div>
               {selected !== null && (
-                <div className={`mt-4 text-center font-semibold ${feedback ? "text-green-600" : "text-red-600"}`}>
+                <div
+                  className={`mt-4 text-center font-semibold ${
+                    feedback ? "text-green-600" : "text-red-600"
+                  }`}
+                >
                   {feedback ? "נכון!" : "לא נכון"}
                 </div>
               )}
             </Card>
           </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.4 }} className="flex justify-between mt-4">
-            <Button variant="outline" onClick={onPrevious}>שלב קודם</Button>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.4 }}
+            className="flex justify-between mt-4"
+          >
+            <Button variant="outline" onClick={onPrevious}>
+              שלב קודם
+            </Button>
             <div className="flex items-center gap-4">
-              <Button variant="destructive" size="sm" onClick={handleRestart} className="text-xs">🔄 Restart Quiz (Dev)</Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleRestart}
+                className="text-xs"
+              >
+                🔄 Restart Quiz (Dev)
+              </Button>
               <span className="text-gray-500">ניקוד: {score}</span>
             </div>
           </motion.div>

@@ -6,6 +6,7 @@ import Step3 from "@/components/questionnaire/steps/Step3";
 import Step4 from "@/components/questionnaire/steps/Step4";
 import Step5 from "@/components/questionnaire/steps/Step5";
 import Step6 from "@/components/questionnaire/steps/Step6";
+import Step7 from "@/components/questionnaire/steps/Step7";
 import QuestionnaireProgress from "@/components/ui/QuestionnaireProgress";
 import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore";
 import { useStepStore } from "@/lib/stores/stepStore";
@@ -189,28 +190,33 @@ export default function QuestionnairePage() {
           )}
           {currentStep === 4 && (
             <Step4
-              onNext={async () => {
-                const validation = validateStep(currentStep);
-                if (validation.isValid) {
-                  try {
-                    const { useStepStore } = await import(
-                      "@/lib/stores/stepStore"
-                    );
-                    useStepStore
-                      .getState()
-                      .setStepCompletion(currentStep, true);
-                  } catch (e) {
-                    console.error(
-                      "Failed to mark step as completed in dashboard:",
-                      e
-                    );
+              onNext={() => {
+                // Navigate immediately
+                useQuestionnaireStore.getState().setCurrentStep(currentStep + 1);
+
+                // Perform validation and state updates in the background
+                const runInBackground = async () => {
+                  const validation = validateStep(currentStep);
+                  if (validation.isValid) {
+                    try {
+                      const { useStepStore } = await import(
+                        "@/lib/stores/stepStore"
+                      );
+                      useStepStore
+                        .getState()
+                        .setStepCompletion(currentStep, true);
+                    } catch (e) {
+                      console.error(
+                        "Failed to mark step as completed in dashboard:",
+                        e
+                      );
+                    }
+                  } else {
+                    console.error("Validation errors:", validation.errors);
                   }
-                  useQuestionnaireStore
-                    .getState()
-                    .setCurrentStep(currentStep + 1);
-                } else {
-                  console.error("Validation errors:", validation.errors);
-                }
+                };
+
+                runInBackground();
               }}
               onPrevious={() => {
                 useQuestionnaireStore
@@ -263,6 +269,44 @@ export default function QuestionnairePage() {
           )}
           {currentStep === 6 && (
             <Step6
+              onNext={() => {}}
+              onComplete={() => {
+                // Navigate immediately
+                useQuestionnaireStore.getState().setCurrentStep(currentStep + 1);
+
+                // Perform validation and state updates in the background
+                const runInBackground = async () => {
+                  const validation = validateStep(currentStep);
+                  if (validation.isValid) {
+                    try {
+                      const { useStepStore } = await import(
+                        "@/lib/stores/stepStore"
+                      );
+                      useStepStore
+                        .getState()
+                        .setStepCompletion(currentStep, true);
+                    } catch (e) {
+                      console.error(
+                        "Failed to mark step as completed in dashboard:",
+                        e
+                      );
+                    }
+                  } else {
+                    console.error("Validation errors:", validation.errors);
+                  }
+                };
+
+                runInBackground();
+              }}
+              onPrevious={() => {
+                useQuestionnaireStore
+                  .getState()
+                  .setCurrentStep(currentStep - 1);
+              }}
+            />
+          )}
+          {currentStep === 7 && (
+            <Step7
               onNext={async () => {
                 const validation = validateStep(currentStep);
                 if (validation.isValid) {
@@ -279,30 +323,7 @@ export default function QuestionnairePage() {
                       e
                     );
                   }
-                  useQuestionnaireStore
-                    .getState()
-                    .setCurrentStep(currentStep + 1);
-                } else {
-                  console.error("Validation errors:", validation.errors);
-                }
-              }}
-              onComplete={async () => {
-                const validation = validateStep(currentStep);
-                if (validation.isValid) {
-                  try {
-                    const { useStepStore } = await import(
-                      "@/lib/stores/stepStore"
-                    );
-                    useStepStore
-                      .getState()
-                      .setStepCompletion(currentStep, true);
-                  } catch (e) {
-                    console.error(
-                      "Failed to mark step as completed in dashboard:",
-                      e
-                    );
-                  }
-                  // Step 6 is now the final step
+                  // Step 7 is now the final step
                   console.log("Questionnaire completed!");
                 } else {
                   console.error("Validation errors:", validation.errors);
