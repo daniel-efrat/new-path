@@ -137,14 +137,14 @@ export default function Step7({ onNext, onPrevious }: Step7Props) {
 
   const handleSelect = (idx: number) => {
     if (selected !== null) return;
+
     const isCorrect = QUESTIONS[current].correct_option === idx;
     setSelected(idx);
     setFeedback(isCorrect);
-    if (isCorrect) {
-      setScore((s) => s + 1);
-    }
     setAnswer(QUESTIONS[current].id, { value: idx, isCorrect });
-
+    if (isCorrect) {
+      setScore(score + 1);
+    }
     const newAnswers = [...answers];
     newAnswers[current] = idx;
     setAnswers(newAnswers);
@@ -155,15 +155,16 @@ export default function Step7({ onNext, onPrevious }: Step7Props) {
   };
 
   const handleNext = (skipped: boolean) => {
-    if (skipped && selected === null) {
-      setAnswer(QUESTIONS[current].id, { value: null, isCorrect: false });
+    if (skipped) {
+      const newAnswers = [...answers];
+      newAnswers[current] = -1; // Using -1 to denote skipped
+      setAnswers(newAnswers);
     }
 
     if (current < QUESTIONS.length - 1) {
-      setCurrent((c) => c + 1);
+      setCurrent(current + 1);
       setSelected(null);
       setFeedback(null);
-      setTimer(40);
       setAnimationKey((prev) => prev + 1);
     } else {
       setShowResult(true);
@@ -172,11 +173,7 @@ export default function Step7({ onNext, onPrevious }: Step7Props) {
   };
 
   if (isLoadingAnswers) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="text-xl">טוען נתונים...</div>
-      </div>
-    );
+    return <div>טוען...</div>;
   }
 
   const q = QUESTIONS[current];
@@ -186,54 +183,109 @@ export default function Step7({ onNext, onPrevious }: Step7Props) {
       {showResult ? (
         <motion.div
           key="result"
-          initial={{ opacity: 0, scale: 0.8 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.8 }}
-          className="text-center"
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.5 }}
+          className="min-h-[400px] flex flex-col items-center justify-center relative"
+          dir="rtl"
         >
-          <Card className="max-w-md mx-auto p-8">
-            <h2 className="text-2xl font-bold mb-4">
-              {passed ? "כל הכבוד, עברת!" : "לא נורא, נסה שוב"}
-            </h2>
-            <p className="text-lg mb-6">
-              הציון שלך: {score} מתוך {QUESTIONS.length}
-            </p>
-            <div className="flex gap-4 justify-center">
-              <Button onClick={handleRestart}>נסה שוב</Button>
-              <Button
-                onClick={handleContinue}
-                disabled={!passed}
-                className={!passed ? "cursor-not-allowed" : ""}
-              >
-                המשך לשלב הבא
-              </Button>
-            </div>
-          </Card>
-          {passed && (
-            <Fireworks
-              onInit={({ conductor }) => {
-                setFireworksConductor(conductor);
-                conductor.fire();
-              }}
-              style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                zIndex: -1,
-              }}
-            />
-          )}
+          <Fireworks
+            style={{
+              position: "fixed",
+              inset: 0,
+              pointerEvents: "none",
+              zIndex: 50,
+            }}
+            onInit={({ conductor }) => setFireworksConductor(conductor)}
+          />
+          <h1 className="text-3xl font-bold mb-6">תוצאות המבחן</h1>
+          <div className="text-xl mb-8">
+            הניקוד שלך: {score} מתוך {QUESTIONS.length} (
+            {Math.round((score / QUESTIONS.length) * 100)}%)
+          </div>
+          <div className="w-full max-w-3xl mt-6">
+            <table className="w-full border text-right text-sm">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="p-2 border">#</th>
+                  <th className="p-2 border">שאלה</th>
+                  <th className="p-2 border">התשובה שלך</th>
+                  <th className="p-2 border">תשובה נכונה</th>
+                  <th className="p-2 border">ציון</th>
+                </tr>
+              </thead>
+              <tbody>
+                {QUESTIONS.map((q, idx) => {
+                  const userAns = answers[idx];
+                  const correctIdx = q.correct_option;
+                  const isCorrect = userAns === correctIdx;
+                  return (
+                    <tr
+                      key={q.id}
+                      className={isCorrect ? "bg-green-50" : "bg-red-50"}
+                    >
+                      <td className="p-2 border text-center">{q.number}</td>
+                      <td className="p-2 border">{q.question}</td>
+                      <td className="p-2 border">
+                        {userAns !== null && userAns !== -1
+                          ? q.options[userAns]
+                          : "לא נענה"}
+                      </td>
+                      <td className="p-2 border">{q.options[correctIdx]}</td>
+                      <td className="p-2 border text-center">
+                        {isCorrect ? (
+                          <span
+                            title="Correct"
+                            style={{ color: "#16a34a", fontSize: "1.2em" }}
+                          >
+                            ✓
+                          </span>
+                        ) : (
+                          <span
+                            title="Incorrect"
+                            style={{ color: "#dc2626", fontSize: "1.2em" }}
+                          >
+                            ✗
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <div className="flex justify-center gap-4 mt-8">
+            <Button onClick={handleContinue}>המשך לשלב הבא</Button>
+          </div>
         </motion.div>
       ) : (
         <motion.div
           key={animationKey}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
           className="w-full max-w-2xl mx-auto"
         >
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.4 }}
+            className="text-2xl font-bold mb-4 text-center"
+          >
+            ידע בסיסי במחשבים
+          </motion.h1>
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="flex justify-center mb-4"
+          >
+            <span className="text-lg font-semibold">
+              שאלה {q.number} / {QUESTIONS.length}
+            </span>
+          </motion.div>
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -317,7 +369,6 @@ export default function Step7({ onNext, onPrevious }: Step7Props) {
               >
                 🔄 Restart Quiz (Dev)
               </Button>
-              <span className="text-gray-500">ניקוד: {score}</span>
             </div>
           </motion.div>
         </motion.div>

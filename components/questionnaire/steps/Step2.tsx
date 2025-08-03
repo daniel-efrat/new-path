@@ -414,7 +414,6 @@ export default function Step2({ onNext, onPrevious }: Step2Props) {
               >
                 🔄 Restart Quiz (Dev)
               </Button>
-              <span className="text-gray-500">ניקוד: {score}</span>
             </div>
           </motion.div>
         </motion.div>

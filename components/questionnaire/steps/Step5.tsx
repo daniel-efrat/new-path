@@ -342,7 +342,6 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
               >
                 🔄 Restart Quiz (Dev)
               </Button>
-              <span className="text-gray-500">ניקוד: {score}</span>
             </div>
           </motion.div>
         </motion.div>
