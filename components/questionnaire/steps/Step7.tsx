@@ -55,7 +55,7 @@ export default function Step7({ onNext, onPrevious }: Step7Props) {
     setStepAnswers({});
     setAnimationKey((prev) => prev + 1);
     QUESTIONS.forEach((q) => {
-      setAnswer(q.id, { value: null, isCorrect: false });
+      setAnswer(q.id, null, false, 7);
     });
   };
 
@@ -135,23 +135,28 @@ export default function Step7({ onNext, onPrevious }: Step7Props) {
     onNext();
   };
 
-  const handleSelect = (idx: number) => {
+  const handleSelect = async (idx: number) => {
     if (selected !== null) return;
 
-    const isCorrect = QUESTIONS[current].correct_option === idx;
+    const question = QUESTIONS[current];
+    const isCorrect = idx === question.correct_option;
+
     setSelected(idx);
     setFeedback(isCorrect);
-    setAnswer(QUESTIONS[current].id, { value: idx, isCorrect });
-    if (isCorrect) {
-      setScore(score + 1);
+    if (isCorrect) setScore((s) => s + 1);
+
+    try {
+      await setAnswer(question.id, idx, isCorrect, 7);
+      const newAnswers = [...answers];
+      newAnswers[current] = idx;
+      setAnswers(newAnswers);
+    } catch (error) {
+      console.error("Failed to save answer for question:", question.id, error);
     }
-    const newAnswers = [...answers];
-    newAnswers[current] = idx;
-    setAnswers(newAnswers);
 
     setTimeout(() => {
       handleNext(false);
-    }, 1200);
+    }, 1000);
   };
 
   const handleNext = (skipped: boolean) => {
@@ -319,7 +324,7 @@ export default function Step7({ onNext, onPrevious }: Step7Props) {
                     transition={{ delay: 0.6 + idx * 0.1 }}
                   >
                     <Button
-                      className={`w-full text-left justify-start p-4 h-auto text-base ${
+                      className={`w-full text-right p-4 h-auto text-base whitespace-normal ${
                         selected !== null
                           ? idx === q.correct_option
                             ? "bg-green-100 hover:bg-green-200 border-green-400"

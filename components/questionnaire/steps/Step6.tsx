@@ -58,7 +58,7 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
       setIsLoadingAnswers(true);
       try {
         const questionIds = STEP6_QUESTIONS.map((q) => q.id);
-                const fetchedAnswers = await fetchStep6Answers(questionIds);
+        const fetchedAnswers = await fetchStep6Answers(questionIds);
 
         // Convert fetched answers to local format and calculate score
         const newAnswers = STEP6_QUESTIONS.map((q) => {
@@ -374,129 +374,133 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
               dir="ltr"
             >
               {currentQ.options.map((optionSrc, idx) => (
-                <motion.button
-                  key={idx}
-                  onClick={() => handleShapeSelect(idx)}
-                  disabled={showFeedback}
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{
-                    duration: 0.5,
-                    delay: 0.7 + idx * 0.1,
-                  }}
-                  className={`
-                    relative p-4 border-2 rounded-lg cursor-pointer bg-white
-                    ${
-                      selectedShape === idx
-                        ? showFeedback
-                          ? isCorrect
-                            ? "border-green-500 bg-green-50 shadow-lg"
-                            : "border-red-500 bg-red-50 shadow-lg"
-                          : "border-blue-500 bg-blue-50 shadow-lg"
-                        : "border-gray-300 hover:border-gray-400 hover:shadow-md"
-                    }
-                    ${
-                      showFeedback &&
-                      idx === currentQ.correct_option &&
-                      !isCorrect &&
-                      "border-green-500 bg-green-50 shadow-md"
-                    }
-                    ${
-                      showFeedback &&
-                      selectedShape === idx &&
-                      !isCorrect &&
-                      "opacity-50"
-                    }
-                  `}
+                <div
+                  key={`${currentQ.id}-${idx}-${animationKey}`}
+                  className="relative"
                 >
-                  <Image
-                    src={optionSrc}
-                    alt={`Shape option ${idx + 1}`}
-                    width={100}
-                    height={100}
-                    className="mx-auto"
-                  />
+                  <motion.button
+                    onClick={() => handleShapeSelect(idx)}
+                    disabled={showFeedback}
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{
+                      duration: 0.5,
+                      delay: 0.7 + idx * 0.1,
+                    }}
+                    className={`
+                      relative w-full p-4 border-2 rounded-lg cursor-pointer bg-white transition-all duration-200
+                      ${
+                        selectedShape === idx
+                          ? showFeedback
+                            ? isCorrect
+                              ? "border-green-500 bg-green-50 shadow-lg"
+                              : "border-red-500 bg-red-50 shadow-lg"
+                            : "border-blue-500 bg-blue-50 shadow-lg"
+                          : "border-gray-300 hover:border-gray-400 hover:shadow-md"
+                      }
+                      ${
+                        showFeedback &&
+                        idx === currentQ.correct_option &&
+                        !isCorrect &&
+                        "border-green-500 bg-green-50 shadow-md"
+                      }
+                      ${
+                        showFeedback &&
+                        selectedShape === idx &&
+                        !isCorrect &&
+                        "opacity-50"
+                      }
+                    `}
+                  >
+                    <Image
+                      src={optionSrc}
+                      alt={`Shape option ${idx + 1}`}
+                      width={100}
+                      height={100}
+                      className="mx-auto"
+                    />
 
-                  {/* Selection indicator */}
-                  {selectedShape === idx && (
-                    <div className="absolute -top-2 -left-2 w-5 h-5 bg-blue-500 rounded-full border-2 border-white"></div>
-                  )}
+                    {/* Selection indicator */}
+                    {selectedShape === idx && (
+                      <div className="absolute -top-2 -left-2 w-5 h-5 bg-blue-500 rounded-full border-2 border-white z-10"></div>
+                    )}
 
-                  {/* Feedback indicators */}
-                  {showFeedback && selectedShape === idx && (
-                    <div className="absolute -top-2 -right-2">
-                      {isCorrect ? (
-                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                          <svg
-                            className="w-4 h-4 text-white"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </div>
-                      ) : (
-                        <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
-                          <svg
-                            className="w-4 h-4 text-white"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Show correct answer indicator */}
-                  {showFeedback &&
-                    idx === currentQ.correct_option &&
-                    selectedShape !== currentQ.correct_option && (
-                      <div className="absolute -top-2 -right-2">
-                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                          <svg
-                            className="w-4 h-4 text-white"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </div>
+                    {/* Feedback indicators */}
+                    {showFeedback && selectedShape === idx && (
+                      <div className="absolute -top-2 -right-2 z-10">
+                        {isCorrect ? (
+                          <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                            <svg
+                              className="w-4 h-4 text-white"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </div>
+                        ) : (
+                          <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
+                            <svg
+                              className="w-4 h-4 text-white"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </div>
+                        )}
                       </div>
                     )}
-                </motion.button>
+
+                    {/* Show correct answer indicator */}
+                    {showFeedback &&
+                      idx === currentQ.correct_option &&
+                      selectedShape !== currentQ.correct_option && (
+                        <div className="absolute -top-2 -right-2 z-10">
+                          <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                            <svg
+                              className="w-4 h-4 text-white"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </div>
+                        </div>
+                      )}
+                  </motion.button>
+                </div>
               ))}
             </div>
 
             {/* Feedback message */}
             {showFeedback && (
-              <div className="mt-6 text-center">
+              <div className="mt-6 text-center" dir="rtl">
                 <div
                   className={`text-lg font-semibold ${
                     isCorrect ? "text-green-600" : "text-red-600"
                   }`}
                 >
-                  {isCorrect ? "נכון." : "לא נכון. הצורה הנכונה מסומנת."}
+                  {isCorrect ? "נכון!" : "לא נכון. הצורה הנכונה מסומנת."}
                 </div>
               </div>
             )}
           </Card>
 
           {/* Navigation buttons */}
-          <div className="flex justify-between mt-8">
+          {/* <div className="flex justify-between mt-8">
             <div className="flex gap-2">
               <Button variant="outline" onClick={onPrevious}>
                 שלב קודם
@@ -525,7 +529,10 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
                   : "סיום המבחן"}
               </Button>
             )}
-          </div>
+          </div> */}
+          <Button variant="outline" onClick={handleRestart} className="text-xs">
+            🔄 Restart Quiz (Dev)
+          </Button>
         </motion.div>
       </AnimatePresence>
     </div>

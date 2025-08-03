@@ -36,7 +36,12 @@ interface QuestionnaireStore extends QuestionnaireState {
   nextStep: () => void;
   prevStep: () => void;
   canNavigate: (targetStep: number) => boolean;
-  setAnswer: (questionId: string, value: any) => Promise<void>;
+  setAnswer: (
+    questionId: string,
+    value: any,
+    is_correct?: boolean,
+    step?: number
+  ) => Promise<void>;
   validateStep: (step: number) => ValidationResult;
   validateCurrentStep: () => ValidationResult;
   getStepData: (step: number) => StepData;
@@ -121,7 +126,7 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
   },
 
   // Data Management
-  setAnswer: async (questionId: string, value: any) => {
+  setAnswer: async (questionId: string, value: any, is_correct?: boolean, step?: number) => {
     try {
       let { submissionId } = get();
 
@@ -150,6 +155,8 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
           submission_id: submissionId,
           question_id: questionId,
           answer_value: dbValue,
+          is_correct,
+          step,
         } as InsertAnswer,
         { onConflict: 'submission_id, question_id' }
       );

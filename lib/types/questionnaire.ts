@@ -33,6 +33,8 @@ export interface InsertAnswer {
   submission_id: string;
   question_id: string;
   answer_value: any;
+  is_correct?: boolean;
+  step?: number;
 }
 
 export interface UpdateAnswer {

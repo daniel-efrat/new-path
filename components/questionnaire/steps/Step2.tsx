@@ -55,7 +55,7 @@ export default function Step2({ onNext, onPrevious }: Step2Props) {
     setStepAnswers({});
     setAnimationKey((prev) => prev + 1);
     QUESTIONS.forEach((q) => {
-      setAnswer(q.id, { value: null, isCorrect: false });
+      setAnswer(q.id, null, false, 2);
     });
   };
 
@@ -158,7 +158,7 @@ export default function Step2({ onNext, onPrevious }: Step2Props) {
     if (isCorrect) setScore((s) => s + 1);
 
     try {
-      await setAnswer(question.id, idx);
+      setAnswer(question.id, idx, isCorrect, 2);
       setStepAnswers((prev) => ({
         ...prev,
         [question.id]: { value: String(idx), timestamp: new Date() },
@@ -364,7 +364,7 @@ export default function Step2({ onNext, onPrevious }: Step2Props) {
                     transition={{ delay: 0.6 + idx * 0.1 }}
                   >
                     <Button
-                      className={`w-full text-left justify-start p-4 h-auto text-base ${
+                                            className={`w-full text-left justify-start p-4 h-auto text-base whitespace-normal ${
                         selected !== null
                           ? idx === q.correct_option
                             ? "bg-green-100 hover:bg-green-200 border-green-400"

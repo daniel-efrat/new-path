@@ -43,7 +43,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
     setShowResult(false);
     setAnswers(Array(QUESTIONS.length).fill(null));
     QUESTIONS.forEach((q) => {
-      setAnswer(q.id, { value: null, isCorrect: false });
+      setAnswer(q.id, null, false, 5);
     });
   };
 
@@ -120,7 +120,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
     setSelected(idx);
     setFeedback(isCorrect);
     if (isCorrect) setScore((s) => s + 1);
-    setAnswer(QUESTIONS[current].id, { value: idx, isCorrect });
+    setAnswer(QUESTIONS[current].id, idx, isCorrect, 5);
     const newAnswers = [...answers];
     newAnswers[current] = idx;
     setAnswers(newAnswers);
@@ -175,6 +175,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
                 <tr className="border-b">
                   <th className="p-2">שאלה</th>
                   <th className="p-2">תשובה</th>
+                  <th className="p-2">תשובה נכונה</th>
                   <th className="p-2">סטטוס</th>
                 </tr>
               </thead>
@@ -190,6 +191,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
                     <tr key={idx} className="border-b">
                       <td className="p-2">{q.question}</td>
                       <td className="p-2">{userAnswer}</td>
+                      <td className="p-2">{q.options[q.correct_option]}</td>
                       <td className="p-2 text-center">
                         {isCorrect ? (
                           <span
@@ -296,7 +298,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
                 {q.options.map((opt, idx) => (
                   <Button
                     key={idx}
-                    className={`w-full text-right justify-start p-4 h-auto text-base ${
+                    className={`w-full text-right justify-start p-4 h-auto text-base whitespace-normal ${
                       selected !== null
                         ? idx === q.correct_option
                           ? "bg-green-100 hover:bg-green-200 border-green-400"

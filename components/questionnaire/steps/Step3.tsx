@@ -121,7 +121,7 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
     if (isCorrect) {
       setScore((s) => s + 1);
     }
-    setAnswer(question.id, option);
+    setAnswer(question.id, option, isCorrect, 3);
     setAnswers((prev) => ({ ...prev, [question.id]: option }));
     setTimeout(() => {
       handleNext(false);
@@ -204,7 +204,7 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
                         <td className="p-2 border text-center">
                           {isCorrect ? (
                             <span
-                              title="נכון"
+                              title="נכון!"
                               style={{ color: "#16a34a", fontSize: "1.2em" }}
                             >
                               ✓
@@ -285,7 +285,7 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
                 {q.options.map((opt) => (
                   <Button
                     key={opt}
-                    className={`w-full text-left justify-start p-4 h-auto whitespace-normal ${
+                    className={`w-full text-left justify-start p-4 h-auto text-base whitespace-normal ${
                       selected !== null
                         ? q.options.indexOf(opt) === q.correct_option
                           ? "bg-green-200 hover:bg-green-200"
