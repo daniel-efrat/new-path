@@ -12,6 +12,7 @@ import { Progress } from "@/components/ui/progress";
 import QuestionnaireProgress from "@/components/ui/QuestionnaireProgress";
 import { Check, ChevronLeft, Play, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 interface Step {
   id: number;
@@ -154,63 +155,68 @@ export default function QuestionnaireDashboard() {
     return () => subscription.unsubscribe();
   }, [router]);
 
-  const [forceReinit, setForceReinit] = useState(0);
-
-  // Initialize steps if none exist
+  // Initialize steps when component mounts
   useEffect(() => {
-    if (isAuthenticated && steps.length === 0) {
+    if (isAuthenticated) {
       initializeSteps();
     }
-  }, [isAuthenticated, initializeSteps]); // Only run when auth status changes
-
-  const completedSteps = steps.filter((step: any) => step.isCompleted).length;
-  const progressPercentage = (completedSteps / steps.length) * 100;
+  }, [isAuthenticated, initializeSteps]);
 
   const handleStepClick = (stepId: number) => {
     const step = steps.find((s: any) => s.id === stepId);
     if (step && !step.isLocked) {
-      if (step.isCompleted) {
-        // Reset this step and all following steps when editing
-        resetFromStep(stepId);
-      }
       setCurrentStep(stepId);
-      router.push(`/questionnaire`);
+      router.push("/questionnaire");
     }
   };
 
   const toggleStepCompletion = (stepId: number) => {
     const step = steps.find((s: any) => s.id === stepId);
-    if (step && !step.isLocked) {
+    if (step) {
       setStepCompletion(stepId, !step.isCompleted);
     }
   };
 
-  // Show loading while checking authentication
+  // Progress calculation
+  const completedSteps = steps.filter((step: any) => step.isCompleted).length;
+  const progressPercentage =
+    steps.length > 0 ? (completedSteps / steps.length) * 100 : 0;
+
+  // Show loading state
   if (isAuthenticated === null) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <div className="flex flex-col items-center justify-center min-h-[400px]">
+          <motion.div 
+            className="rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          />
           <p className="text-muted-foreground">בודק הרשאות...</p>
         </div>
       </div>
     );
   }
 
-  // Don't render dashboard if not authenticated (will redirect)
-  if (!isAuthenticated) {
-    return null;
-  }
-
   return (
     <div
-      className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 pt-24"
+      className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center"
       dir="rtl"
     >
       <div className="w-full flex -mt-24 flex-col items-center max-w-4xl mx-auto">
         {/* Header */}
-        <div className="mb-8 w-full max-w-4xl animate-in slide-in-from-top duration-700">
-          <div className="flex items-center gap-4 mb-6 animate-in slide-in-from-right duration-500 delay-200">
+        <motion.div 
+          className="mb-8 w-full max-w-4xl"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+        >
+          <motion.div 
+            className="flex items-center gap-4 mb-6"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
             <div>
               <h1 className="text-3xl font-bold text-foreground mt-6">
                 שאלון הערכה מקצועית
@@ -219,16 +225,21 @@ export default function QuestionnaireDashboard() {
                 השלם את כל השלבים כדי לקבל המלצות מותאמות אישית
               </p>
             </div>
-          </div>
+          </motion.div>
 
           {/* Progress Overview */}
-          <QuestionnaireProgress
-            value={progressPercentage}
-            completed={completedSteps}
-            total={steps.length}
-            className="animate-in slide-in-from-left duration-600 delay-300"
-          />
-        </div>
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
+            <QuestionnaireProgress
+              value={progressPercentage}
+              completed={completedSteps}
+              total={steps.length}
+            />
+          </motion.div>
+        </motion.div>
 
         {/* Steps */}
         <div className="space-y-4 max-w-4xl w-full">
@@ -238,153 +249,149 @@ export default function QuestionnaireDashboard() {
               isLocked: true,
             };
             return (
-              <Card
+              <motion.div
                 key={details.id}
-                className={cn(
-                  "transition-all hover:shadow-md cursor-pointer border-2 animate-in slide-in-from-bottom duration-500",
-                  step.isCompleted
-                    ? "border-green-200 bg-green-50/50"
-                    : step.isLocked
-                    ? "border-gray-200 bg-gray-50/50 cursor-not-allowed opacity-60"
-                    : "border-blue-200 bg-white hover:border-blue-300"
-                )}
-                style={{
-                  animationDelay: `${500 + index * 150}ms`,
-                  animationFillMode: "both",
-                }}
-                onClick={() => handleStepClick(details.id)}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <CardContent className="p-4">
-                  <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                    {/* Step Icon */}
-                    <div className="flex gap-4">
-                      <div
-                        className={cn(
-                          "flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 animate-in zoom-in",
-                          step.isCompleted
-                            ? "bg-secondary text-white"
-                            : step.isLocked
-                            ? "bg-gray-300 text-gray-500"
-                            : "bg-primary text-white"
-                        )}
-                        style={{
-                          animationDelay: `${700 + index * 150}ms`,
-                          animationFillMode: "both",
-                        }}
-                      >
-                        {step.isCompleted ? (
-                          <Check className="h-6 w-6" />
-                        ) : step.isLocked ? (
-                          <Lock className="h-5 w-5" />
-                        ) : (
-                          <Play className="h-5 w-5" />
-                        )}
-                      </div>
-
-                      {/* Step Content */}
-                      <div
-                        className="flex-1 animate-in slide-in-from-right duration-400"
-                        style={{
-                          animationDelay: `${800 + index * 150}ms`,
-                          animationFillMode: "both",
-                        }}
-                      >
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3
-                            className="text-lg sm:text-xl
-                          
-                          font-semibold text-foreground"
-                          >
-                            שלב {details.id}: {details.title}
-                          </h3>
-                          {step.isCompleted && (
-                            <Badge
-                              variant="default"
-                              className="bg-secondary text-white animate-in slide-in-from-right duration-300 hidden sm:block"
-                              style={{
-                                animationDelay: `${900 + index * 150}ms`,
-                                animationFillMode: "both",
-                              }}
-                            >
-                              הושלם ✓
-                            </Badge>
-                          )}
-                          {step.isLocked && (
-                            <Badge
-                              variant="secondary"
-                              className="bg-gray-200 text-muted-foreground"
-                            >
-                              נעול
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-muted-foreground text-base leading-relaxed">
-                          {details.description}
-                        </p>
-                      </div>
-                    </div>
-                    {/* Action Button */}
-                    <div
-                      className="flex flex-col gap-2 animate-in fade-in duration-400"
-                      style={{
-                        animationDelay: `${1000 + index * 150}ms`,
-                        animationFillMode: "both",
-                      }}
-                    >
-                      <div className="flex sm:flex-col justify-start gap-2">
-                        <Button
-                          variant={
+                <Card
+                  className={cn(
+                    "transition-all hover:shadow-md cursor-pointer border-2",
+                    step.isCompleted
+                      ? "border-green-200 bg-green-50/50"
+                      : step.isLocked
+                      ? "border-gray-200 bg-gray-50/50"
+                      : "border-blue-200 bg-blue-50/50 hover:border-blue-300"
+                  )}
+                  onClick={() => handleStepClick(details.id)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                      {/* Step Icon */}
+                      <div className="flex gap-4">
+                        <motion.div
+                          className={cn(
+                            "flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300",
                             step.isCompleted
-                              ? "default"
+                              ? "bg-secondary text-white"
                               : step.isLocked
-                              ? "ghost"
-                              : "default"
-                          }
-                          disabled={step.isLocked}
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (step.isCompleted) {
-                              // Navigate to questionnaire page to view results
-                              setCurrentStep(details.id);
-                              router.push('/questionnaire');
-                            } else if (!step.isLocked) {
-                              // Start the step
-                              handleStepClick(details.id);
-                            }
-                          }}
+                              ? "bg-gray-300 text-gray-500"
+                              : "bg-primary text-white"
+                          )}
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ duration: 0.3, delay: (700 + index * 100) / 1000 }}
                         >
-                          {step.isCompleted
-                            ? "תוצאות"
-                            : step.isLocked
-                            ? "נעול"
-                            : "התחל"}
-                        </Button>
+                          {step.isCompleted ? (
+                            <Check className="h-6 w-6" />
+                          ) : step.isLocked ? (
+                            <Lock className="h-5 w-5" />
+                          ) : (
+                            <Play className="h-5 w-5" />
+                          )}
+                        </motion.div>
 
-                        {/* Demo toggle button */}
-                        {!step.isLocked && (
+                        {/* Step Content */}
+                        <motion.div
+                          className="flex-1"
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.4, delay: (800 + index * 150) / 1000 }}
+                        >
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-lg sm:text-xl font-semibold text-foreground">
+                              {details.title}
+                            </h3>
+                            {step.isCompleted && (
+                              <Badge
+                                variant="secondary"
+                                className="bg-secondary text-white hidden sm:block"
+                              >
+                                הושלם
+                              </Badge>
+                            )}
+                            {step.isLocked && (
+                              <Badge
+                                variant="outline"
+                                className="border-gray-300 text-gray-500 hidden sm:block"
+                              >
+                                נעול
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-muted-foreground text-base leading-relaxed">
+                            {details.description}
+                          </p>
+                        </motion.div>
+                      </div>
+                      {/* Action Button */}
+                      <motion.div
+                        className="flex flex-col gap-2"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.4, delay: (1000 + index * 150) / 1000 }}
+                      >
+                        <div className="flex sm:flex-col justify-start gap-2">
                           <Button
-                            variant="secondary"
+                            variant={
+                              step.isCompleted
+                                ? "default"
+                                : step.isLocked
+                                ? "ghost"
+                                : "default"
+                            }
+                            disabled={step.isLocked}
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
-                              toggleStepCompletion(details.id);
+                              if (step.isCompleted) {
+                                // Navigate to questionnaire page to view results
+                                setCurrentStep(details.id);
+                                router.push('/questionnaire');
+                              } else if (!step.isLocked) {
+                                // Start the step
+                                handleStepClick(details.id);
+                              }
                             }}
                           >
-                            {step.isCompleted ? "בטל השלמה" : "סמן כהושלם"}
+                            {step.isCompleted
+                              ? "תוצאות"
+                              : step.isLocked
+                              ? "נעול"
+                              : "התחל"}
                           </Button>
-                        )}
-                      </div>
+
+                          {/* Demo toggle button */}
+                          {!step.isLocked && (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleStepCompletion(details.id);
+                              }}
+                            >
+                              {step.isCompleted ? "בטל השלמה" : "סמן כהושלם"}
+                            </Button>
+                          )}
+                        </div>
+                      </motion.div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </motion.div>
             );
           })}
         </div>
 
         {/* Footer Actions */}
-        <div className="mt-8 flex justify-between items-center animate-in slide-in-from-bottom duration-600 delay-1000">
+        <motion.div 
+          className="mt-8 flex justify-between items-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 1.0 }}
+        >
           <Button
             variant="outline"
             className="gap-2 bg-transparent"
@@ -416,7 +423,7 @@ export default function QuestionnaireDashboard() {
               <Check className="h-4 w-4" />
             </Button>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

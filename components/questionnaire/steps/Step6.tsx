@@ -330,14 +330,14 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
                   <span className="text-sm text-gray-500">
                     זמן נותר: {timer}
                   </span>
-                  <Button
+                  {/* <Button
                     onClick={handleRestart}
                     variant="outline"
                     size="sm"
                     className="text-xs"
                   >
                     התחל מחדש (dev)
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
               <div className="flex justify-center">

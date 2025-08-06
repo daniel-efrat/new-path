@@ -12,6 +12,7 @@ import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore";
 import { useStepStore } from "@/lib/stores/stepStore";
 import { useEffect, useState } from "react";
 import KeyboardShortcuts from "@/components/questionnaire/KeyboardShortcuts";
+import { motion } from "framer-motion";
 
 export default function QuestionnairePage() {
   const { setAnswer, validateStep, currentStep, initialize, reset, isLoading } =
@@ -51,9 +52,11 @@ export default function QuestionnairePage() {
           {/* Progress bar skeleton */}
           <div className="mb-8">
             <div className="h-2  bg-gray-200 rounded">
-              <div
-                className="h-full bg-primary rounded animate-pulse"
+              <motion.div
+                className="h-full bg-primary rounded"
                 style={{ width: `${progressPercentage}%` }}
+                animate={{ opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
               />
             </div>
             <div className="flex justify-between mt-2 text-sm text-gray-500">
@@ -66,12 +69,32 @@ export default function QuestionnairePage() {
 
           {/* Content skeleton */}
           <div className="space-y-8">
-            <div className="h-8 bg-gray-200 rounded w-1/3 animate-pulse" />
-            <div className="h-4 bg-gray-200 rounded w-1/2 animate-pulse" />
+            <motion.div 
+              className="h-8 bg-gray-200 rounded w-1/3"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            />
+            <motion.div 
+              className="h-4 bg-gray-200 rounded w-1/2"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
+            />
             <div className="space-y-4">
-              <div className="h-32 bg-gray-200 rounded animate-pulse" />
-              <div className="h-32 bg-gray-200 rounded animate-pulse" />
-              <div className="h-32 bg-gray-200 rounded animate-pulse" />
+              <motion.div 
+                className="h-32 bg-gray-200 rounded"
+                animate={{ opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }}
+              />
+              <motion.div 
+                className="h-32 bg-gray-200 rounded"
+                animate={{ opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 1.5, repeat: Infinity, delay: 0.6 }}
+              />
+              <motion.div 
+                className="h-32 bg-gray-200 rounded"
+                animate={{ opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 1.5, repeat: Infinity, delay: 0.8 }}
+              />
             </div>
           </div>
         </div>
@@ -93,7 +116,12 @@ export default function QuestionnairePage() {
         </div>
 
         {/* Current step */}
-        <div className="animate-in slide-in-from-top">
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          key={currentStep}
+        >
           {currentStep === 1 && (
             <Step1
               onNext={async () => {
@@ -336,7 +364,7 @@ export default function QuestionnairePage() {
               }}
             />
           )}
-        </div>
+        </motion.div>
       </div>
 
       {/* Keyboard shortcuts */}
