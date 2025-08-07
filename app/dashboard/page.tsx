@@ -30,7 +30,7 @@ export default function QuestionnaireDashboard() {
     resetFromStep,
     resetSteps,
   } = useStepStore();
-  const { setCurrentStep } = useQuestionnaireStore();
+  const { setCurrentStep, initialize } = useQuestionnaireStore();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [user, setUser] = useState<any>(null);
   const router = useRouter();
@@ -62,42 +62,48 @@ export default function QuestionnaireDashboard() {
     },
     {
       id: 5,
-      title: "מבחן לוגיקה ומתמטיקה",
-      description: "20 שאלות",
+      title: "מבחן לוגיקה",
+      description: "20 שאלות לוגיקה",
       time: "90 שניות לשאלה",
     },
     {
       id: 6,
+      title: "מבחן מתמטיקה",
+      description: "20 שאלות מתמטיקה",
+      time: "90 שניות לשאלה",
+    },
+    {
+      id: 7,
       title: "מבחן צורות חזותי",
       description: "15 שאלות",
       time: "45 שניות לשאלה",
     },
     {
-      id: 7,
+      id: 8,
       title: "מבחן ידע בסיסי במחשב",
       description: "15 שאלות",
       time: "45 שניות לשאלה",
     },
     {
-      id: 8,
+      id: 9,
       title: "מבדק קשב, סינון מידע וזיכרון",
       description: "15 שאלות",
       time: "20 שניות לשאלה",
     },
     {
-      id: 9,
+      id: 10,
       title: "מבחני אישיות",
       description: "",
       time: "לא מוגבל בזמן",
     },
     {
-      id: 10,
+      id: 11,
       title: "שאלון",
       description: "20 שאלות",
       time: "לא מוגבל בזמן",
     },
     {
-      id: 11,
+      id: 12,
       title: "נטיות לב",
       description:
         "תנ/י ציונים לתחומים מקצועיים כלליים (סמן/י עד 5 תחומים כלליים בעדיפות)",
@@ -155,12 +161,26 @@ export default function QuestionnaireDashboard() {
     return () => subscription.unsubscribe();
   }, [router]);
 
-  // Initialize steps when component mounts
+  // Initialize steps and sync with Supabase when component mounts
   useEffect(() => {
-    if (isAuthenticated) {
-      initializeSteps();
-    }
-  }, [isAuthenticated, initializeSteps]);
+    const initializeDashboard = async () => {
+      if (isAuthenticated) {
+        // First initialize the step store with default state
+        initializeSteps();
+        
+        // Then initialize questionnaire store which will load answers and sync step completion
+        try {
+          await initialize();
+          console.log('Dashboard: Questionnaire store initialized and step completion synced');
+        } catch (error) {
+          console.error('Dashboard: Failed to initialize questionnaire store:', error);
+          // Continue anyway - dashboard will work with local step state
+        }
+      }
+    };
+    
+    initializeDashboard();
+  }, [isAuthenticated, initializeSteps, initialize]);
 
   const handleStepClick = (stepId: number) => {
     const step = steps.find((s: any) => s.id === stepId);

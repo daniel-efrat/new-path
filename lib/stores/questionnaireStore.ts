@@ -50,6 +50,7 @@ interface QuestionnaireStore extends QuestionnaireState {
   reset: () => void;
   loadSubmission: () => Promise<void>;
   submit: () => Promise<void>;
+  syncStepCompletion: () => Promise<void>;
 }
 
 const TOTAL_STEPS = Object.keys(stepValidators).length;
@@ -228,6 +229,8 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
   // Lifecycle
   initialize: async () => {
     await get().loadSubmission();
+    // Sync step completion state with loaded answers
+    await get().syncStepCompletion();
   },
 
   reset: () => {
@@ -299,6 +302,35 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
       set({ isSubmitting: false, isComplete: true });
     } catch (error) {
       set({ isSubmitting: false, error: error as Error });
+    }
+  },
+
+  syncStepCompletion: async () => {
+    try {
+      // Import the step store dynamically to avoid circular dependencies
+      const { useStepStore } = await import('@/lib/stores/stepStore');
+      const stepStore = useStepStore.getState();
+      
+      // Initialize steps if not already done
+      if (stepStore.steps.length === 0) {
+        stepStore.initializeSteps();
+      }
+      
+      const { answers } = get();
+      
+      // Check each step for completion based on validation
+      for (let step = 1; step <= TOTAL_STEPS; step++) {
+        const validation = get().validateStep(step);
+        const isCompleted = validation.isValid;
+        
+        // Update step completion in the step store
+        stepStore.setStepCompletion(step, isCompleted);
+      }
+      
+      console.log('Step completion synced with Supabase answers');
+    } catch (error) {
+      console.error('Error syncing step completion:', error);
+      // Don't throw - this is not critical for app functionality
     }
   },
 }));

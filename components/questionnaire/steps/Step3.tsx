@@ -242,13 +242,13 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="flex flex-col items-center justify-center"
+          transition={{ duration: 0.5 }}
+          dir="ltr"
         >
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.4 }}
+            transition={{ delay: 0.1 }}
             className="text-2xl font-bold mb-4 text-center"
           >
             English Language Assessment
@@ -256,17 +256,18 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.4 }}
+            transition={{ delay: 0.2 }}
             className="flex justify-center mb-4"
           >
             <span className="text-lg font-semibold">
               Question {current + 1} / {QUESTIONS.length}
             </span>
           </motion.div>
+
           <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3, duration: 0.4 }}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
           >
             <Card className="max-w-xl mx-auto p-6 mb-6">
               <div className="flex justify-end items-center mb-2">
@@ -278,46 +279,61 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
                   {timer}s
                 </span>
               </div>
-              <div dir="ltr" className="mb-4 font-medium">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                dir="ltr"
+                className="mb-4 font-medium text-lg"
+              >
                 {q.question}
-              </div>
+              </motion.div>
               <div dir="ltr" className="space-y-2">
-                {q.options.map((opt) => (
-                  <Button
+                {q.options.map((opt, idx) => (
+                  <motion.div
                     key={opt}
-                    className={`w-full text-left justify-start p-4 h-auto text-base whitespace-normal ${
-                      selected !== null
-                        ? q.options.indexOf(opt) === q.correct_option
-                          ? "bg-green-200 hover:bg-green-200"
-                          : opt === selected
-                          ? "bg-red-200 hover:bg-red-200"
-                          : ""
-                        : ""
-                    }`}
-                    variant={selected === opt ? "default" : "outline"}
-                    disabled={selected !== null}
-                    onClick={() => handleSelect(opt)}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 + idx * 0.1 }}
                   >
-                    {opt}
-                  </Button>
+                    <Button
+                      className={`w-full text-left justify-start p-4 h-auto text-base whitespace-normal ${
+                        selected !== null
+                          ? q.options.indexOf(opt) === q.correct_option
+                            ? "bg-green-100 hover:bg-green-200 border-green-400"
+                            : opt === selected && !feedback
+                            ? "bg-red-100 hover:bg-red-200 border-red-400"
+                            : "bg-gray-50"
+                          : "hover:bg-gray-100"
+                      }`}
+                      variant="outline"
+                      disabled={selected !== null}
+                      onClick={() => handleSelect(opt)}
+                    >
+                      {opt}
+                    </Button>
+                  </motion.div>
                 ))}
               </div>
               {selected !== null && (
-                <div
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5 }}
                   dir="ltr"
                   className={`mt-4 text-center font-semibold ${
                     feedback ? "text-green-600" : "text-red-600"
                   }`}
                 >
                   {feedback ? "Correct!" : "Incorrect"}
-                </div>
+                </motion.div>
               )}
             </Card>
           </motion.div>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.4 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
             className="flex justify-between mt-4"
           >
             <Button variant="outline" onClick={onPrevious}>

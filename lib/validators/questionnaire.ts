@@ -102,6 +102,12 @@ export const validateStep5 = (data: StepData): ValidationResult => {
   return createValidationResult(errors.length === 0, errors);
 };
 
+// Step 5-1 validation (math questions)
+export const validateStep5_1 = (data: StepData): ValidationResult => {
+  const errors: string[] = [];
+  return createValidationResult(errors.length === 0, errors);
+};
+
 // Step 6 validation (shape selection)
 export const validateStep6 = (data: StepData): ValidationResult => {
   const errors: string[] = [];
@@ -144,6 +150,7 @@ export const stepValidators: Record<number, (data: StepData) => ValidationResult
   3: validateStep3,
   4: validateStep4,
   5: validateStep5,
-  6: validateStep6,
-  7: validateStep7,
+  6: validateStep5_1,
+  7: validateStep6,
+  8: validateStep7,
 };

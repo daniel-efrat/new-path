@@ -5,6 +5,7 @@ import Step2 from "@/components/questionnaire/steps/Step2";
 import Step3 from "@/components/questionnaire/steps/Step3";
 import Step4 from "@/components/questionnaire/steps/Step4";
 import Step5 from "@/components/questionnaire/steps/Step5";
+import Step5_1 from "@/components/questionnaire/steps/Step5-1";
 import Step6 from "@/components/questionnaire/steps/Step6";
 import Step7 from "@/components/questionnaire/steps/Step7";
 import QuestionnaireProgress from "@/components/ui/QuestionnaireProgress";
@@ -296,6 +297,47 @@ export default function QuestionnairePage() {
             />
           )}
           {currentStep === 6 && (
+            <Step5_1
+              onNext={async () => {
+                console.log("🚀 Step5_1 onNext handler called in questionnaire page!");
+                const validation = validateStep(currentStep);
+                console.log("Step5_1 validation result:", validation);
+                if (validation.isValid) {
+                  try {
+                    const { useStepStore } = await import(
+                      "@/lib/stores/stepStore"
+                    );
+                    useStepStore
+                      .getState()
+                      .setStepCompletion(currentStep, true);
+                    console.log("Step5_1 marked as completed");
+                  } catch (e) {
+                    console.error(
+                      "Failed to mark step as completed in dashboard:",
+                      e
+                    );
+                  }
+                  console.log("Navigating from step 5-1 to step 7");
+                  useQuestionnaireStore
+                    .getState()
+                    .setCurrentStep(currentStep + 1);
+                  console.log("Current step after navigation:", useQuestionnaireStore.getState().currentStep);
+                } else {
+                  console.error("Validation errors:", validation.errors);
+                }
+              }}
+              onComplete={async () => {
+                // This is for the "complete" functionality in Step5_1 if needed
+                console.log("Step 5-1 math quiz completed!");
+              }}
+              onPrevious={() => {
+                useQuestionnaireStore
+                  .getState()
+                  .setCurrentStep(currentStep - 1);
+              }}
+            />
+          )}
+          {currentStep === 7 && (
             <Step6
               onNext={() => {}}
               onComplete={() => {
@@ -333,7 +375,7 @@ export default function QuestionnairePage() {
               }}
             />
           )}
-          {currentStep === 7 && (
+          {currentStep === 8 && (
             <Step7
               onNext={async () => {
                 const validation = validateStep(currentStep);
@@ -351,7 +393,7 @@ export default function QuestionnairePage() {
                       e
                     );
                   }
-                  // Step 7 is now the final step
+                  // Step 8 is now the final step
                   console.log("Questionnaire completed!");
                 } else {
                   console.error("Validation errors:", validation.errors);

@@ -72,9 +72,9 @@ export default function Header() {
           <Image
             src="/logo-white.png"
             alt="Career Diagnosis Logo"
-            width={220}
-            height={60}
-            className="h-16 w-auto"
+            width={250}
+            height={70}
+            className="h-20 w-auto"
             priority
           />
         </Link>

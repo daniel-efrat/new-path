@@ -116,6 +116,15 @@ export async function fetchStep5Answers(step5QuestionIds: string[]): Promise<Rec
 }
 
 /**
+ * Fetches answers for Step 5-1 (math questions)
+ * @param step5_1QuestionIds Array of Step 5-1 question IDs
+ * @returns Record of question_id -> AnswerState
+ */
+export async function fetchStep5_1Answers(step5_1QuestionIds: string[]): Promise<Record<string, AnswerState>> {
+  return fetchStepAnswers(step5_1QuestionIds);
+}
+
+/**
  * Fetches answers for Step 6 (visual reasoning questions)
  * @param step6QuestionIds Array of Step 6 question IDs
  * @returns Record of question_id -> AnswerState

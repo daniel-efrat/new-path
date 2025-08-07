@@ -1,22 +1,22 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { STEP5_QUESTIONS } from "@/lib/constants/questions";
+import { STEP5_1_QUESTIONS } from "@/lib/constants/questions";
 import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore";
-import { fetchStep5Answers } from "@/lib/utils/answerFetcher";
+import { fetchStep5_1Answers } from "@/lib/utils/answerFetcher";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Fireworks from "react-canvas-confetti";
 import type { AnswerState } from "@/lib/types/questionnaire";
-import type { LogicalQuestion } from "@/lib/constants/questions";
+import type { Question } from "@/lib/constants/questions";
 
-interface Step5Props {
+interface Step5_1Props {
   onNext?: () => void;
   onPrevious: () => void;
   onComplete: () => Promise<void>;
 }
 
-export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
-  const QUESTIONS: LogicalQuestion[] = STEP5_QUESTIONS;
+export default function Step5_1({ onNext, onPrevious, onComplete }: Step5_1Props) {
+  const QUESTIONS: Question[] = STEP5_1_QUESTIONS;
 
   const { setAnswer } = useQuestionnaireStore();
   const [isLoadingAnswers, setIsLoadingAnswers] = useState(true);
@@ -43,7 +43,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
     setShowResult(false);
     setAnswers(Array(QUESTIONS.length).fill(null));
     QUESTIONS.forEach((q) => {
-      setAnswer(q.id, null, false, 5);
+      setAnswer(q.id, null, false, 5.1);
     });
   };
 
@@ -52,7 +52,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
       setIsLoadingAnswers(true);
       try {
         const questionIds = QUESTIONS.map((q) => q.id);
-        const fetchedAnswers = await fetchStep5Answers(questionIds);
+        const fetchedAnswers = await fetchStep5_1Answers(questionIds);
         const newAnswers = QUESTIONS.map((q) => {
           const storedAnswer = fetchedAnswers[q.id];
           if (storedAnswer && storedAnswer.value !== undefined) {
@@ -77,7 +77,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
           setShowResult(true);
         }
       } catch (error) {
-        console.error("Error loading Step 5 answers:", error);
+        console.error("Error loading Step 5-1 answers:", error);
       } finally {
         setIsLoadingAnswers(false);
       }
@@ -110,7 +110,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
       await onComplete();
       if (onNext) onNext();
     } catch (error) {
-      console.error("Error completing step 5:", error);
+      console.error("Error completing step 5-1:", error);
     }
   };
 
@@ -120,29 +120,33 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
     setSelected(idx);
     setFeedback(isCorrect);
     if (isCorrect) setScore((s) => s + 1);
-    setAnswer(QUESTIONS[current].id, idx, isCorrect, 5);
+    setAnswer(QUESTIONS[current].id, idx, isCorrect, 5.1);
     const newAnswers = [...answers];
     newAnswers[current] = idx;
     setAnswers(newAnswers);
-    setTimeout(() => handleNext(false), 1200);
   };
 
-  const handleNext = (skipped: boolean) => {
-    if (skipped) {
-      const newAnswers = [...answers];
-      newAnswers[current] = null;
-      setAnswers(newAnswers);
-      setAnswer(QUESTIONS[current].id, { value: null, isCorrect: false });
+  const handleNext = (skipped: boolean = false) => {
+    if (!skipped && selected === null) return;
+    if (skipped && selected === null) {
+      setAnswer(QUESTIONS[current].id, null, false, 5.1);
     }
     if (current < QUESTIONS.length - 1) {
-      setCurrent(current + 1);
+      setCurrent((c) => c + 1);
     } else {
       setShowResult(true);
     }
   };
 
   if (isLoadingAnswers) {
-    return <div className="text-center p-8">טוען שאלות...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">טוען שאלות...</p>
+        </div>
+      </div>
+    );
   }
 
   const q = QUESTIONS[current];
@@ -156,14 +160,18 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.5 }}
-          className="min-h-[600px] flex flex-col items-center justify-center relative"
+          className="min-h-[400px] flex flex-col items-center justify-center relative"
           dir="rtl"
         >
           <Fireworks
+            style={{
+              position: "fixed",
+              inset: 0,
+              pointerEvents: "none",
+              zIndex: 50,
+            }}
             onInit={({ conductor }) => setFireworksConductor(conductor)}
-            style={{ zIndex: 1000, position: "fixed", top: 0, left: 0 }}
           />
-
           <h1 className="text-3xl font-bold mb-6">תוצאות המבחן</h1>
           <div className="text-xl mb-8">
             הניקוד שלך: {score} מתוך {QUESTIONS.length} (
@@ -246,7 +254,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
             transition={{ delay: 0.1 }}
             className="text-2xl font-bold mb-4 text-center"
           >
-            מבחן לוגיקה
+            מבחן מתמטיקה
           </motion.h1>
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -264,16 +272,15 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className="max-w-4xl mx-auto p-6 mb-6 bg-blue-50 border-blue-200">
+            <Card className="max-w-4xl mx-auto p-6 mb-6 bg-green-50 border-green-200">
               <div className="text-center mb-4">
-                <h3 className="text-lg font-semibold text-blue-800 mb-3">
+                <h3 className="text-lg font-semibold text-green-800 mb-3">
                   הוראות:
                 </h3>
                 <div className="text-right leading-relaxed text-gray-800 bg-white p-4 rounded border">
-                  ענו לפי המידע שמופיע בכל שאלה בלבד. אל תניחו עובדות שלא ניתנו.
-                  זכרו: מטענה כללית ("כל…") אי‑אפשר להסיק קיום פרטים; מטענת קיום
-                  ("יש…") לא מסיקים כלל על כולם. הבחינו בין "אם… אז…" (תנאי
-                  מספיק), "רק אם…" (תנאי הכרחי), ו"אם ורק אם…" .
+                  פתרו את השאלות המתמטיות הבאות. השתמשו בידע שלכם במתמטיקה בסיסית
+                  כולל אחוזים, שברים, אלגברה, גאומטריה וחשבון יומיומי.
+                  יש לכם 90 שניות לכל שאלה.
                 </div>
               </div>
             </Card>
@@ -353,6 +360,14 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
               שלב קודם
             </Button>
             <div className="flex items-center gap-4">
+              {selected !== null && (
+                <Button
+                  onClick={() => handleNext(false)}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  {current < QUESTIONS.length - 1 ? "שאלה הבאה" : "סיום"}
+                </Button>
+              )}
               <Button
                 variant="destructive"
                 size="sm"
