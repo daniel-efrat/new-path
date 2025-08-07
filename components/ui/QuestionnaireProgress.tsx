@@ -1,11 +1,11 @@
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 
 interface QuestionnaireProgressProps {
-  value: number // percentage
-  completed: number
-  total: number
-  className?: string
+  value: number; // percentage
+  completed: number;
+  total: number;
+  className?: string;
 }
 
 export default function QuestionnaireProgress({
@@ -15,7 +15,7 @@ export default function QuestionnaireProgress({
   className = "",
 }: QuestionnaireProgressProps) {
   return (
-    <div className={`bg-white rounded-lg px-6 py-2   ${className}`}>
+    <div className={`bg-white rounded-lg px-6 py-2 mt-8   ${className}`}>
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-lg font-semibold text-foreground">
@@ -34,5 +34,5 @@ export default function QuestionnaireProgress({
       </div>
       <Progress value={value} className="h-3" />
     </div>
-  )
+  );
 }
