@@ -224,13 +224,21 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
                 </tbody>
               </table>
             </div>
-            <Button
-              className="mt-8"
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "שולח..." : "המשך לשלב הבא"}
-            </Button>
+            <div className="flex justify-center gap-4 mt-8">
+              <Button
+                variant="outline"
+                onClick={() => window.location.reload()}
+                className="text-xs"
+              >
+                🔄 Restart Quiz (Dev)
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "שולח..." : "המשך לשלב הבא"}
+              </Button>
+            </div>
             {submissionError && (
               <p className="text-red-500 mt-4">שגיאה: {submissionError}</p>
             )}
@@ -330,16 +338,28 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
               )}
             </Card>
           </motion.div>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className="flex justify-between mt-4"
-          >
-            <Button variant="outline" onClick={onPrevious}>
-              Previous Step
-            </Button>
-          </motion.div>
+          {/* Navigation Buttons - Consistent across all steps */}
+          <div className="max-w-xl mx-auto mt-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="flex justify-between items-center mx-4"
+            >
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={onPrevious}>
+                  Previous Step
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => window.location.reload()}
+                  className="text-xs"
+                >
+                  🔄 Restart Quiz (Dev)
+                </Button>
+              </div>
+            </motion.div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

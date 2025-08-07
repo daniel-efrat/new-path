@@ -179,6 +179,7 @@ export default function Step4({ onNext, onPrevious }: Step4Props) {
             </motion.div>
           ))}
         </div>
+        {/* Navigation Buttons - Consistent across all steps */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -186,11 +187,20 @@ export default function Step4({ onNext, onPrevious }: Step4Props) {
             delay: 0.5 + STEP4_QUESTIONS.length * 0.05,
             duration: 0.5,
           }}
-          className="flex justify-between mt-8"
+          className="flex justify-between items-center mt-8 mx-4"
         >
-          <Button variant="outline" onClick={onPrevious}>
-            חזור לשלב הקודם
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onPrevious}>
+              שלב קודם
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => window.location.reload()}
+              className="text-xs"
+            >
+              🔄 Restart Quiz (Dev)
+            </Button>
+          </div>
           <Button onClick={handleNext} disabled={isLoading}>
             {isLoading ? "שומר..." : "המשך לשלב הבא"}
           </Button>

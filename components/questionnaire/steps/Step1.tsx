@@ -145,32 +145,40 @@ export default function Step1({ onNext }: Step1Props) {
             isLoading={isUpdating}
           />
 
-          <div className="mt-8 border-t pt-6">
-            <div className="flex justify-between items-center">
-              <div className="text-right">
-                {error && (
-                  <p className="text-[color:var(--destructive)] text-sm">{error}</p>
-                )}
-                {!canContinue && !error && (
-                  <ul className="text-[color:var(--destructive)] text-sm list-disc list-inside">
-                    {traitsCount === 0 && <li>יש לבחור לפחות תכונה אחת</li>}
-                  </ul>
-                )}
-                {canContinue && !error && (
-                  <p className="text-[color:var(--primary)] text-sm">
-                    ✓ כל הנתונים הוזנו בהצלחה
-                  </p>
-                )}
+          {/* Status Messages */}
+          <div className="mt-6 text-center">
+            {error && (
+              <p className="text-[color:var(--destructive)] text-sm">{error}</p>
+            )}
+            {!canContinue && !error && (
+              <ul className="text-[color:var(--destructive)] text-sm list-disc list-inside">
+                {traitsCount === 0 && <li>יש לבחור לפחות תכונה אחת</li>}
+              </ul>
+            )}
+            {canContinue && !error && (
+              <p className="text-[color:var(--primary)] text-sm">
+                ✓ כל הנתונים הוזנו בהצלחה
+              </p>
+            )}
+          </div>
+
+          {/* Navigation Buttons - Consistent across all steps */}
+          <div className="max-w-4xl mx-auto mt-8">
+            <div className="flex justify-between items-center mx-4">
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => window.location.reload()}
+                  className="text-xs"
+                >
+                  🔄 Restart Quiz (Dev)
+                </Button>
               </div>
               <Button
                 onClick={onNext}
                 disabled={!canContinue}
-                className={cn("mr-4 transition-all duration-300")}
-                aria-label={
-                  canContinue
-                    ? "המשך לשלב הבא"
-                    : "יש להשלים את כל השדות לפני המעבר לשלב הבא"
-                }
+                className="px-8 py-3 text-lg font-semibold"
+                size="lg"
               >
                 המשך לשלב הבא
               </Button>

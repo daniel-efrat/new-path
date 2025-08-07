@@ -242,19 +242,14 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
           </div>
         </Card>
 
-        <div className="flex justify-between">
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={onPrevious}>
-              שלב קודם
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleRestart}
-              className="text-xs"
-            >
-              🔄 Restart Quiz (Dev)
-            </Button>
-          </div>
+        <div className="flex justify-center gap-4 mt-8">
+          <Button
+            variant="outline"
+            onClick={handleRestart}
+            className="text-xs"
+          >
+            🔄 Restart Quiz (Dev)
+          </Button>
           <Button
             onClick={handleComplete}
             className="bg-blue-600 hover:bg-blue-700"
@@ -499,40 +494,33 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
             )}
           </Card>
 
-          {/* Navigation buttons */}
-          {/* <div className="flex justify-between mt-8">
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={onPrevious}>
-                שלב קודם
-              </Button>
-              {currentQuestion > 0 && (
-                <Button variant="outline" onClick={handlePreviousQuestion}>
-                  שאלה קודמת
+          {/* Navigation Buttons - Consistent across all steps */}
+          <div className="max-w-4xl mx-auto mt-8">
+            <div className="flex justify-between items-center mx-4">
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={onPrevious}>
+                  שלב קודם
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleRestart}
+                  className="text-xs"
+                >
+                  🔄 Restart Quiz (Dev)
+                </Button>
+              </div>
+              {showFeedback && (
+                <Button
+                  onClick={handleNextQuestion}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  {currentQuestion < STEP6_QUESTIONS.length - 1
+                    ? "שאלה הבאה"
+                    : "סיום המבחן"}
                 </Button>
               )}
-              <Button
-                variant="outline"
-                onClick={handleRestart}
-                className="text-xs"
-              >
-                🔄 Restart Quiz (Dev)
-              </Button>
             </div>
-
-            {showFeedback && (
-              <Button
-                onClick={handleNextQuestion}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                {currentQuestion < STEP6_QUESTIONS.length - 1
-                  ? "שאלה הבאה"
-                  : "סיום המבחן"}
-              </Button>
-            )}
-          </div> */}
-          <Button variant="outline" onClick={handleRestart} className="text-xs">
-            🔄 Restart Quiz (Dev)
-          </Button>
+          </div>
         </motion.div>
       </AnimatePresence>
     </div>

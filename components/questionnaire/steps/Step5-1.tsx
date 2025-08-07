@@ -229,12 +229,11 @@ export default function Step5_1({ onNext, onPrevious, onComplete }: Step5_1Props
           </div>
           <div className="flex justify-center gap-4 mt-8">
             <Button
-              variant="destructive"
-              size="lg"
+              variant="outline"
               onClick={handleRestart}
-              className="text-lg bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-4"
+              className="text-xs"
             >
-              🔄 RESTART QUIZ - DEV BUTTON
+              🔄 Restart Quiz (Dev)
             </Button>
             <Button onClick={handleContinue}>המשך לשלב הבא</Button>
           </div>
@@ -350,16 +349,26 @@ export default function Step5_1({ onNext, onPrevious, onComplete }: Step5_1Props
               )}
             </Card>
           </motion.div>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className="flex justify-between mt-4"
-          >
-            <Button variant="outline" onClick={onPrevious}>
-              שלב קודם
-            </Button>
-            <div className="flex items-center gap-4">
+          {/* Navigation Buttons - Consistent across all steps */}
+          <div className="max-w-xl mx-auto mt-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="flex justify-between items-center mx-4"
+            >
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={onPrevious}>
+                  שלב קודם
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleRestart}
+                  className="text-xs"
+                >
+                  🔄 Restart Quiz (Dev)
+                </Button>
+              </div>
               {selected !== null && (
                 <Button
                   onClick={() => handleNext(false)}
@@ -368,16 +377,8 @@ export default function Step5_1({ onNext, onPrevious, onComplete }: Step5_1Props
                   {current < QUESTIONS.length - 1 ? "שאלה הבאה" : "סיום"}
                 </Button>
               )}
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={handleRestart}
-                className="text-xs"
-              >
-                🔄 Restart Quiz (Dev)
-              </Button>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
