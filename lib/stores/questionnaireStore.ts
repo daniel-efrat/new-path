@@ -1,6 +1,6 @@
-import { create } from 'zustand';
-import supabase from '@/lib/supabase';
-import { validateStep, stepValidators } from '@/lib/validators/questionnaire';
+import { create } from "zustand";
+import supabase from "@/lib/supabase";
+import { validateStep, stepValidators } from "@/lib/validators/questionnaire";
 import {
   STEP1_QUESTIONS,
   STEP2_QUESTIONS,
@@ -9,13 +9,15 @@ import {
   STEP5_QUESTIONS,
   STEP6_QUESTIONS,
   STEP7_QUESTIONS,
-} from '@/lib/constants/questions';
+  STEP8_QUESTIONS,
+  STEP11_QUESTIONS,
+} from "@/lib/constants/questions";
 import type {
   AnswerState,
   InsertAnswer,
   StepData,
   ValidationResult,
-} from '@/lib/types/questionnaire';
+} from "@/lib/types/questionnaire";
 
 // Define the state structure
 interface QuestionnaireState {
@@ -54,7 +56,7 @@ interface QuestionnaireStore extends QuestionnaireState {
 }
 
 const TOTAL_STEPS = Object.keys(stepValidators).length;
-const QUESTIONNAIRE_ID = 'fbbee5e5-33c0-4b73-8514-0407633e05a2'; // Main questionnaire ID
+const QUESTIONNAIRE_ID = "fbbee5e5-33c0-4b73-8514-0407633e05a2"; // Main questionnaire ID
 
 // Define the initial state
 const initialState: QuestionnaireState = {
@@ -72,16 +74,18 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
   ...initialState,
 
   createSubmission: async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) {
-      set({ error: new Error('User not authenticated for submission.') });
+      set({ error: new Error("User not authenticated for submission.") });
       return null;
     }
 
     const { data, error } = await supabase
-      .from('questionnaire_submissions')
+      .from("questionnaire_submissions")
       .insert({ user_id: user.id, questionnaire_id: QUESTIONNAIRE_ID })
-      .select('id')
+      .select("id")
       .single();
 
     if (error) {
@@ -127,16 +131,21 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
   },
 
   // Data Management
-  setAnswer: async (questionId: string, value: any, is_correct?: boolean, step?: number) => {
+  setAnswer: async (
+    questionId: string,
+    value: any,
+    is_correct?: boolean,
+    step?: number
+  ) => {
     try {
       let { submissionId } = get();
 
       if (!submissionId) {
         submissionId = await get().createSubmission();
-        if (!submissionId) throw new Error('Failed to create a submission.');
+        if (!submissionId) throw new Error("Failed to create a submission.");
       }
 
-      const dbValue = typeof value === 'string' ? value : JSON.stringify(value);
+      const dbValue = typeof value === "string" ? value : JSON.stringify(value);
 
       set((state) => ({
         answers: {
@@ -145,13 +154,13 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
         },
       }));
 
-      console.log('setAnswer: About to upsert to database:', {
+      console.log("setAnswer: About to upsert to database:", {
         submission_id: submissionId,
         question_id: questionId,
-        answer_value: dbValue
+        answer_value: dbValue,
       });
 
-      const { error } = await supabase.from('answers').upsert(
+      const { error } = await supabase.from("answers").upsert(
         {
           submission_id: submissionId,
           question_id: questionId,
@@ -159,20 +168,25 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
           is_correct,
           step,
         } as InsertAnswer,
-        { onConflict: 'submission_id, question_id' }
+        { onConflict: "submission_id, question_id" }
       );
 
-      console.log('setAnswer: Database response:', { error });
+      console.log("setAnswer: Database response:", { error });
 
       if (error) {
         // The original error from Supabase might not be an Error instance
-        const dbError = new Error(`Database error on upsert: ${JSON.stringify(error)}`);
-        console.error('setAnswer: Database error:', dbError);
+        const dbError = new Error(
+          `Database error on upsert: ${JSON.stringify(error)}`
+        );
+        console.error("setAnswer: Database error:", dbError);
         throw dbError;
       }
       get().updateProgress();
     } catch (error) {
-      const newError = error instanceof Error ? error : new Error(`An unexpected error occurred: ${JSON.stringify(error)}`);
+      const newError =
+        error instanceof Error
+          ? error
+          : new Error(`An unexpected error occurred: ${JSON.stringify(error)}`);
       set({ error: newError });
       // Re-throw the error so the calling component knows about it
       throw newError;
@@ -205,6 +219,10 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
         ? STEP6_QUESTIONS.map((q: any) => q.id)
         : step === 7
         ? STEP7_QUESTIONS.map((q: any) => q.id)
+        : step === 8
+        ? STEP8_QUESTIONS.map((q: any) => q.id)
+        : step === 11
+        ? STEP11_QUESTIONS.map((q: any) => q.id)
         : []
     );
 
@@ -222,7 +240,8 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
   updateProgress: () => {
     const totalQuestions = 50; // Placeholder
     const answeredCount = Object.keys(get().answers).length;
-    const progress = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;
+    const progress =
+      totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;
     set({ progress: Math.min(100, progress) });
   },
 
@@ -240,32 +259,39 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
   loadSubmission: async () => {
     try {
       set({ isLoading: true, error: null });
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) return;
 
       const { data: submissionData, error: submissionError } = await supabase
-        .from('questionnaire_submissions')
-        .select('id, answers(question_id, answer_value, created_at)')
-        .eq('user_id', user.id)
-        .eq('questionnaire_id', QUESTIONNAIRE_ID)
-        .order('created_at', { ascending: false })
+        .from("questionnaire_submissions")
+        .select("id, answers(question_id, answer_value, created_at)")
+        .eq("user_id", user.id)
+        .eq("questionnaire_id", QUESTIONNAIRE_ID)
+        .order("created_at", { ascending: false })
         .limit(1)
         .single();
 
-      if (submissionError && submissionError.code !== 'PGRST116') {
+      if (submissionError && submissionError.code !== "PGRST116") {
         throw submissionError;
       }
 
       if (submissionData) {
         const { id: submissionId, answers } = submissionData;
-        const answerMap = (answers as any[]).reduce<Record<string, AnswerState>>((acc, dbAnswer) => {
+        const answerMap = (answers as any[]).reduce<
+          Record<string, AnswerState>
+        >((acc, dbAnswer) => {
           let parsedValue: any;
           try {
             parsedValue = JSON.parse(dbAnswer.answer_value);
           } catch (e) {
             parsedValue = dbAnswer.answer_value;
           }
-          acc[dbAnswer.question_id] = { value: parsedValue, timestamp: new Date(dbAnswer.created_at) };
+          acc[dbAnswer.question_id] = {
+            value: parsedValue,
+            timestamp: new Date(dbAnswer.created_at),
+          };
           return acc;
         }, {});
         set({ submissionId, answers: answerMap });
@@ -282,23 +308,28 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
     set({ isSubmitting: true, error: null });
     try {
       const { submissionId } = get();
-      if (!submissionId) throw new Error('No submission to submit.');
+      if (!submissionId) throw new Error("No submission to submit.");
 
       for (let step = 1; step <= TOTAL_STEPS; step++) {
         const validation = get().validateStep(step);
         if (!validation.isValid) {
-          throw new Error(`Step ${step} is invalid: ${validation.errors.join(', ')}`);
+          throw new Error(
+            `Step ${step} is invalid: ${validation.errors.join(", ")}`
+          );
         }
       }
 
       const { error } = await supabase
-        .from('questionnaire_submissions')
-        .update({ status: 'completed' })
-        .eq('id', submissionId);
+        .from("questionnaire_submissions")
+        .update({ status: "completed" })
+        .eq("id", submissionId);
 
       if (error) throw error;
 
-      console.log('Questionnaire submitted successfully with answers:', get().answers);
+      console.log(
+        "Questionnaire submitted successfully with answers:",
+        get().answers
+      );
       set({ isSubmitting: false, isComplete: true });
     } catch (error) {
       set({ isSubmitting: false, error: error as Error });
@@ -308,28 +339,28 @@ export const useQuestionnaireStore = create<QuestionnaireStore>((set, get) => ({
   syncStepCompletion: async () => {
     try {
       // Import the step store dynamically to avoid circular dependencies
-      const { useStepStore } = await import('@/lib/stores/stepStore');
+      const { useStepStore } = await import("@/lib/stores/stepStore");
       const stepStore = useStepStore.getState();
-      
+
       // Initialize steps if not already done
       if (stepStore.steps.length === 0) {
         stepStore.initializeSteps();
       }
-      
+
       const { answers } = get();
-      
+
       // Check each step for completion based on validation
       for (let step = 1; step <= TOTAL_STEPS; step++) {
         const validation = get().validateStep(step);
         const isCompleted = validation.isValid;
-        
+
         // Update step completion in the step store
         stepStore.setStepCompletion(step, isCompleted);
       }
-      
-      console.log('Step completion synced with Supabase answers');
+
+      console.log("Step completion synced with Supabase answers");
     } catch (error) {
-      console.error('Error syncing step completion:', error);
+      console.error("Error syncing step completion:", error);
       // Don't throw - this is not critical for app functionality
     }
   },

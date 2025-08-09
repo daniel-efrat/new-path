@@ -1046,7 +1046,7 @@ export const STEP5_QUESTIONS: LogicalQuestion[] = [
   },
 ];
 
-export const STEP5_1_QUESTIONS: Question[] = [
+export const STEP6_QUESTIONS: Question[] = [
   {
     id: "c6de2c6c-5a5c-4a8b-9d22-5b2d9a4a1101",
     number: 1,
@@ -1210,7 +1210,7 @@ export const STEP5_1_QUESTIONS: Question[] = [
   },
 ];
 
-export const STEP6_QUESTIONS: ShapeQuestion[] = [
+export const STEP7_QUESTIONS: ShapeQuestion[] = [
   {
     id: "6a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c51",
     number: 1,
@@ -1415,7 +1415,7 @@ export const STEP6_QUESTIONS: ShapeQuestion[] = [
   },
 ];
 
-export const STEP7_QUESTIONS: Question[] = [
+export const STEP8_QUESTIONS: Question[] = [
   {
     id: "b3f5a4c7-8e1a-4b2c-9b7e-0b1a5c2d3e01",
     number: 1,
@@ -1499,7 +1499,7 @@ export const STEP7_QUESTIONS: Question[] = [
     id: "d0e1f2a3-b4c5-46d7-9e89-f0a1b2c3d409",
     number: 9,
     level: "בינוניות",
-    question: "מה המשמעות של הסמל 🗑 (פח אשפה) בשולחן העבודה?",
+    question: "מה המשמעות של הסמל <Trash2 /> (פח אשפה) בשולחן העבודה?",
     options: [
       "תיקיית מסמכים",
       "מקום לשמירת קבצים זמניים",
@@ -1638,6 +1638,165 @@ export const STEP7_QUESTIONS: Question[] = [
   },
 ];
 
+export interface HollandQuestion {
+  id: string;
+  text: string;
+  type: "holland";
+}
+
+export const STEP11_QUESTIONS: HollandQuestion[] = [
+  {
+    id: "6ae0174a-27d3-4e99-a412-0b95184e1978",
+    text: "האם נראה לך שתאהב להרכיב ארונות מטבח",
+    type: "holland",
+  },
+  {
+    id: "114914cd-2bb1-45c8-af7a-f68fd9ff5940",
+    text: "האם נראה לך שתאהב לפתח תרופה חדשה",
+    type: "holland",
+  },
+  {
+    id: "53b680e7-5030-4145-a8c4-7b0dacbcb8fe",
+    text: "האם נראה לך שתאהב לכתוב ספרים או מחזות",
+    type: "holland",
+  },
+  {
+    id: "dcbbf18c-0291-44b5-b1ac-f93aae45650d",
+    text: "האם נראה לך שתאהב לעזור לאנשים שמתמודדים עם קשיים נפשיים או עם בעיות אישיוֹת",
+    type: "holland",
+  },
+  {
+    id: "5fb9b657-2486-4ee9-ac9e-fc22b3d13b56",
+    text: "האם נראה לך שתאהב לנהל מחלקה בתוך חברה גדולה",
+    type: "holland",
+  },
+  {
+    id: "af4d6c09-f423-4668-a7ec-e5db66e40ea4",
+    text: "האם נראה לך שתאהב להתקין תוכנה על רשת מחשבים גדולה",
+    type: "holland",
+  },
+  {
+    id: "0217618b-5feb-4073-a986-eefbe0298d6c",
+    text: "האם נראה לך שתאהב לתקן מכשירי חשמל ביתיים",
+    type: "holland",
+  },
+  {
+    id: "35d5201b-212a-4804-950a-a3a2bce6b427",
+    text: "האם נראה לך שתאהב לגלות דרכים להפחית את זיהום המים",
+    type: "holland",
+  },
+  {
+    id: "95e99d88-3471-464d-a9a5-375ed288c706",
+    text: "האם נראה לך שתאהב להלחין או לעבד מוזיקה",
+    type: "holland",
+  },
+  {
+    id: "94dd3b80-577e-4443-9f15-e9610b5a3f6a",
+    text: "האם נראה לך שתאהב לתת לאנשים ייעוץ והכוונה בקריירה",
+    type: "holland",
+  },
+  {
+    id: "7b94ec35-d10f-4769-b4d0-b7b4a30e6f05",
+    text: "האם נראה לך שתאהב להקים עסק עצמאי",
+    type: "holland",
+  },
+  {
+    id: "c1a9455e-2fc1-4562-8cd8-99fa933a66a6",
+    text: "האם נראה לך שתאהב להשתמש במחשבון",
+    type: "holland",
+  },
+  {
+    id: "da8258ed-ab2e-492f-a632-026c23607694",
+    text: "האם נראה לך שתאהב להרכיב חלקים או רכיבים אלקטרוניים",
+    type: "holland",
+  },
+  {
+    id: "03cdf4b1-36e2-4e75-875f-e09405328017",
+    text: "האם נראה לך שתאהב לערוך ניסויים בכימיה",
+    type: "holland",
+  },
+  {
+    id: "d078c436-cdee-4719-95af-458904b3ae27",
+    text: "האם נראה לך שתאהב ליצור אפקטים מיוחדים לסרטים",
+    type: "holland",
+  },
+  {
+    id: "8f827cfe-b132-4881-8109-153ab601fde4",
+    text: "האם נראה לך שתאהב להעניק טיפול שיקומי לאדם שזקוק לו",
+    type: "holland",
+  },
+  {
+    id: "03135333-238d-4dff-8c64-bd45fe17148d",
+    text: "האם נראה לך שתאהב לנהל משא ומתן על חוזים עסקיים",
+    type: "holland",
+  },
+  {
+    id: "d6f1cd5a-82e5-4338-86f0-040e9cb7fc24",
+    text: "האם נראה לך שתאהב לנהל מעקב אחר משלוח וקבלה של משלוחים",
+    type: "holland",
+  },
+  {
+    id: "76f3d4e2-5b1f-4cba-a5f6-6762ec791076",
+    text: "האם נראה לך שתאהב לנהוג ברכב הובלה כדי לבצע משלוחים למשרדים או לבתים",
+    type: "holland",
+  },
+  {
+    id: "dcb48c61-d29b-4fd0-9082-59262dd23199",
+    text: "האם נראה לך שתאהב לבדוק דגימות דם באמצעות מיקרוסקופ",
+    type: "holland",
+  },
+  {
+    id: "99ade0a3-2a5d-4e93-bac2-2d90f8bd4895",
+    text: "האם נראה לך שתאהב לצבוע תפאורות להצגות תיאטרון",
+    type: "holland",
+  },
+  {
+    id: "1d471d30-9d29-43fd-b329-40d590a8e137",
+    text: "האם נראה לך שתאהב להתנדב בעמותה או בארגון ללא מטרות רווח",
+    type: "holland",
+  },
+  {
+    id: "35c4de97-b965-444e-a71f-c8b921020416",
+    text: "האם נראה לך שתאהב לשווק קולקציה חדשה של בגדים",
+    type: "holland",
+  },
+  {
+    id: "4ffeb968-f894-4ac5-a85b-e3ae8b85bf0b",
+    text: "האם נראה לך שתאהב לנהל מלאי (של סחורות) באמצעות מחשבון ידני",
+    type: "holland",
+  },
+  {
+    id: "f71cbbc3-bde3-4bfc-baf1-aadd14b1b18b",
+    text: "האם נראה לך שתאהב לבדוק את האיכות של חלקי מוצרים לפני ששולחים אותם ללקוחות",
+    type: "holland",
+  },
+  {
+    id: "08a3d413-3d42-4de3-afe0-fa9f2548e6a8",
+    text: "האם נראה לך שתאהב למצוא דרך לשפר את חיזוי מזג האוויר",
+    type: "holland",
+  },
+  {
+    id: "5180eb46-8178-4e11-b5e9-45bcc896e616",
+    text: "האם נראה לך שתאהב לכתוב תסריטים לסרטים או לתוכניות טלוויזיה",
+    type: "holland",
+  },
+  {
+    id: "cc6d745e-ba48-4477-bc61-aba626449071",
+    text: "האם נראה לך שתאהב ללמד כיתה בבית ספר תיכון",
+    type: "holland",
+  },
+  {
+    id: "6aee15f4-cdae-48fe-913a-66594e188a97",
+    text: "האם נראה לך שתאהב לרתום אנשים להגשים רעיון שלי",
+    type: "holland",
+  },
+  {
+    id: "fbaed22d-75f6-4a55-94eb-ad0908e3c581",
+    text: "האם נראה לך שתאהב למיין ולחלק דואר של חברה או ארגון",
+    type: "holland",
+  },
+];
+
 export const ALL_QUESTIONS: (Trait | Question | AnchorQuestion)[] = [
   ...STEP1_QUESTIONS,
   ...STEP2_QUESTIONS,
@@ -1646,6 +1805,7 @@ export const ALL_QUESTIONS: (Trait | Question | AnchorQuestion)[] = [
   ...STEP5_QUESTIONS,
   ...STEP6_QUESTIONS,
   ...STEP7_QUESTIONS,
+  ...STEP8_QUESTIONS,
 ];
 
 function isTrait(

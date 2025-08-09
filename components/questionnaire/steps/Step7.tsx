@@ -1,73 +1,67 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { STEP7_QUESTIONS } from "@/lib/constants/questions";
 import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore";
-import { fetchStep7Answers } from "@/lib/utils/answerFetcher";
+import { STEP7_QUESTIONS } from "@/lib/constants/questions";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Fireworks from "react-canvas-confetti";
+import Image from "next/image";
+import type { ShapeQuestion } from "@/lib/constants/questions";
+import { fetchStep7Answers } from "@/lib/utils/answerFetcher";
 import type { AnswerState } from "@/lib/types/questionnaire";
-
-interface Question {
-  id: string;
-  number?: number;
-  level?: string;
-  question: string;
-  options: string[];
-  correct_option: number;
-}
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Step7Props {
-  onNext: () => void;
+  onNext?: () => void;
   onPrevious: () => void;
+  onComplete: () => void;
 }
 
-export default function Step7({ onNext, onPrevious }: Step7Props) {
-  const QUESTIONS: Question[] = STEP7_QUESTIONS;
-
+export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
   const { setAnswer } = useQuestionnaireStore();
-  const [stepAnswers, setStepAnswers] = useState<Record<string, AnswerState>>(
-    {}
-  );
-  const [isLoadingAnswers, setIsLoadingAnswers] = useState(true);
-  const [current, setCurrent] = useState(0);
-  const [selected, setSelected] = useState<number | null>(null);
-  const [feedback, setFeedback] = useState<null | boolean>(null);
-  const [score, setScore] = useState(0);
-  const [timer, setTimer] = useState(40);
-  const [showResult, setShowResult] = useState(false);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [selectedShape, setSelectedShape] = useState<number | null>(null);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(false);
   const [answers, setAnswers] = useState<(number | null)[]>(() =>
-    Array(QUESTIONS.length).fill(null)
+    Array(STEP7_QUESTIONS.length).fill(null)
   );
+  const [score, setScore] = useState(0);
+  const [showResults, setShowResults] = useState(false);
+  const [timer, setTimer] = useState(45);
+  const [isLoadingAnswers, setIsLoadingAnswers] = useState(true);
   const [animationKey, setAnimationKey] = useState(0);
-  const [fireworksConductor, setFireworksConductor] = useState<any>(null);
 
-  const passed = score / QUESTIONS.length >= 0.7;
+  const currentQ = STEP7_QUESTIONS[currentQuestion];
 
+  // Development restart function
   const handleRestart = () => {
-    setCurrent(0);
-    setSelected(null);
-    setFeedback(null);
+    setCurrentQuestion(0);
+    setSelectedShape(null);
+    setShowFeedback(false);
+    setIsCorrect(false);
     setScore(0);
-    setTimer(40);
-    setShowResult(false);
-    setAnswers(Array(QUESTIONS.length).fill(null));
-    setStepAnswers({});
-    setAnimationKey((prev) => prev + 1);
-    QUESTIONS.forEach((q) => {
-      setAnswer(q.id, null, false, 7);
+    setTimer(45);
+    setShowResults(false);
+    setAnswers(Array(STEP7_QUESTIONS.length).fill(null));
+    // Clear stored answers from the store as well
+    STEP7_QUESTIONS.forEach((q) => {
+      try {
+        setAnswer(q.id, null);
+      } catch (error) {
+        console.warn("Failed to clear answer for question:", q.id);
+      }
     });
   };
 
+  // Load answers on component mount
   useEffect(() => {
     const loadStepAnswers = async () => {
       setIsLoadingAnswers(true);
       try {
-        const questionIds = QUESTIONS.map((q) => q.id);
+        const questionIds = STEP7_QUESTIONS.map((q) => q.id);
         const fetchedAnswers = await fetchStep7Answers(questionIds);
-        setStepAnswers(fetchedAnswers);
 
-        const newAnswers = QUESTIONS.map((q) => {
+        // Convert fetched answers to local format and calculate score
+        const newAnswers = STEP7_QUESTIONS.map((q) => {
           const storedAnswer = fetchedAnswers[q.id];
           if (storedAnswer && storedAnswer.value !== undefined) {
             const value =
@@ -81,23 +75,27 @@ export default function Step7({ onNext, onPrevious }: Step7Props) {
 
         setAnswers(newAnswers);
 
+        // Calculate score based on fetched answers
         const newScore = newAnswers.reduce((acc, answer, index) => {
-          if (answer !== null && answer === QUESTIONS[index].correct_option) {
+          if (
+            answer !== null &&
+            answer === STEP7_QUESTIONS[index].correct_option
+          ) {
             return acc + 1;
           }
           return acc;
         }, 0);
         setScore(newScore);
 
+        // If all questions are answered, show results view
         const answeredCount = newAnswers.filter(
           (answer) => answer !== null
         ).length;
-        if (answeredCount === QUESTIONS.length) {
-          setShowResult(true);
-          setAnimationKey((prev) => prev + 1);
+        if (answeredCount === STEP7_QUESTIONS.length) {
+          setShowResults(true);
         }
       } catch (error) {
-        console.error("Error loading Step 7 answers:", error);
+        console.error("Error loading Step 6 answers:", error);
       } finally {
         setIsLoadingAnswers(false);
       }
@@ -106,271 +104,395 @@ export default function Step7({ onNext, onPrevious }: Step7Props) {
     loadStepAnswers();
   }, []);
 
+  // Timer effect - auto advance when timer reaches 0
   useEffect(() => {
-    if (showResult) return;
+    if (showResults || showFeedback) return;
     if (timer === 0) {
-      handleNext(true);
+      // Auto-advance to next question when timer runs out
+      handleNextQuestion();
       return;
     }
     const interval = setInterval(() => {
       setTimer((t) => (t > 0 ? t - 1 : 0));
     }, 1000);
     return () => clearInterval(interval);
-  }, [timer, showResult]);
+  }, [timer, showResults, showFeedback]);
 
+  // Reset timer when changing questions
   useEffect(() => {
-    setTimer(40);
-    const currentAnswer = answers[current];
+    setTimer(45);
+    // Check if current question already has an answer
+    const currentAnswer = answers[currentQuestion];
     if (currentAnswer !== null) {
-      setSelected(currentAnswer);
-      const isCorrect = QUESTIONS[current].correct_option === currentAnswer;
-      setFeedback(isCorrect);
+      setSelectedShape(currentAnswer);
+      const isCorrect = currentAnswer === currentQ.correct_option;
+      setIsCorrect(isCorrect);
+      setShowFeedback(true);
     } else {
-      setSelected(null);
-      setFeedback(null);
+      setSelectedShape(null);
+      setShowFeedback(false);
+      setIsCorrect(false);
     }
-  }, [current, answers, QUESTIONS]);
+  }, [currentQuestion, answers, currentQ.correct_option]);
 
-  const handleContinue = () => {
-    onNext();
-  };
+  const handleShapeSelect = (shapeId: number) => {
+    if (showFeedback) return; // Prevent selection after feedback is shown
 
-  const handleSelect = async (idx: number) => {
-    if (selected !== null) return;
+    setSelectedShape(shapeId);
+    const correct = shapeId === currentQ.correct_option;
+    setIsCorrect(correct);
+    setShowFeedback(true);
 
-    const question = QUESTIONS[current];
-    const isCorrect = idx === question.correct_option;
+    // Update answers array
+    const newAnswers = [...answers];
+    newAnswers[currentQuestion] = shapeId;
+    setAnswers(newAnswers);
 
-    setSelected(idx);
-    setFeedback(isCorrect);
-    if (isCorrect) setScore((s) => s + 1);
+    // Update score
+    if (correct && answers[currentQuestion] === null) {
+      setScore((prev) => prev + 1);
+    }
 
+    // Store the answer (only store the selected shape ID)
     try {
-      await setAnswer(question.id, idx, isCorrect, 7);
-      const newAnswers = [...answers];
-      newAnswers[current] = idx;
-      setAnswers(newAnswers);
+      setAnswer(currentQ.id, shapeId);
     } catch (error) {
-      console.error("Failed to save answer for question:", question.id, error);
+      console.warn("Failed to save Step7 answer to database:", error);
+      // Continue without database storage - answers are still tracked locally
     }
 
+    // Auto-advance to next question after 1.5 seconds
     setTimeout(() => {
-      handleNext(false);
-    }, 1000);
+      handleNextQuestion();
+    }, 1500);
   };
 
-  const handleNext = (skipped: boolean) => {
-    if (skipped) {
-      const newAnswers = [...answers];
-      newAnswers[current] = -1; // Using -1 to denote skipped
-      setAnswers(newAnswers);
-    }
-
-    if (current < QUESTIONS.length - 1) {
-      setCurrent(current + 1);
-      setSelected(null);
-      setFeedback(null);
-      setAnimationKey((prev) => prev + 1);
+  const handleNextQuestion = () => {
+    if (currentQuestion < STEP7_QUESTIONS.length - 1) {
+      setCurrentQuestion((prev) => prev + 1);
+      setSelectedShape(answers[currentQuestion + 1]);
+      setShowFeedback(answers[currentQuestion + 1] !== null);
+      if (answers[currentQuestion + 1] !== null) {
+        setIsCorrect(
+          answers[currentQuestion + 1] ===
+            STEP7_QUESTIONS[currentQuestion + 1].correct_option
+        );
+      }
+      setTimer(45); // Reset timer for new question
+      setAnimationKey((prev) => prev + 1); // Trigger animation reset
     } else {
-      setShowResult(true);
-      setAnimationKey((prev) => prev + 1);
+      // All questions completed
+      setShowResults(true);
     }
   };
 
-  if (isLoadingAnswers) {
-    return <div>טוען...</div>;
+  const handlePreviousQuestion = () => {
+    if (currentQuestion > 0) {
+      setCurrentQuestion((prev) => prev - 1);
+      setSelectedShape(answers[currentQuestion - 1]);
+      setShowFeedback(answers[currentQuestion - 1] !== null);
+      if (answers[currentQuestion - 1] !== null) {
+        setIsCorrect(
+          answers[currentQuestion - 1] ===
+            STEP7_QUESTIONS[currentQuestion - 1].correct_option
+        );
+      }
+    }
+  };
+
+  const handleComplete = () => {
+    onComplete();
+  };
+
+  if (showResults) {
+    return (
+      <div dir="rtl" className="max-w-4xl mx-auto text-center">
+        <h1 className="text-3xl font-bold mb-6">תוצאות המבחן</h1>
+        <div className="text-xl mb-8">
+          הניקוד שלך: {score} מתוך {STEP7_QUESTIONS.length} (
+          {Math.round((score / STEP7_QUESTIONS.length) * 100)}%)
+        </div>
+
+        {/* Results summary */}
+        <Card className="p-6 mb-8">
+          <h3 className="text-lg font-semibold mb-4">סיכום תשובות:</h3>
+          <div className="space-y-4">
+            {STEP7_QUESTIONS.map((q, idx) => {
+              const userAnswer = answers[idx];
+              const isCorrect = userAnswer === q.correct_option;
+              return (
+                <div
+                  key={q.id}
+                  className="flex items-center justify-between p-3 border rounded"
+                >
+                  <span>שאלה {q.number}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-600">
+                      תשובתך: {userAnswer !== null ? userAnswer + 1 : "לא נענה"}
+                    </span>
+                    {isCorrect ? (
+                      <span className="text-green-600">✓</span>
+                    ) : (
+                      <span className="text-red-600">✗</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+
+        <div className="flex justify-center gap-4 mt-8">
+          <Button variant="outline" onClick={handleRestart} className="text-xs">
+            🔄 Restart Quiz (Dev)
+          </Button>
+          <Button
+            onClick={handleComplete}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            המשך לשלב הבא
+          </Button>
+        </div>
+      </div>
+    );
   }
 
-  const q = QUESTIONS[current];
-
   return (
-    <AnimatePresence mode="wait">
-      {showResult ? (
+    <div dir="rtl" className="max-w-4xl mx-auto">
+      <AnimatePresence mode="wait">
         <motion.div
-          key="result"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.5 }}
-          className="min-h-[400px] flex flex-col items-center justify-center relative"
-          dir="rtl"
-        >
-          <Fireworks
-            style={{
-              position: "fixed",
-              inset: 0,
-              pointerEvents: "none",
-              zIndex: 50,
-            }}
-            onInit={({ conductor }) => setFireworksConductor(conductor)}
-          />
-          <h1 className="text-3xl font-bold mb-6">תוצאות המבחן</h1>
-          <div className="text-xl mb-8">
-            הניקוד שלך: {score} מתוך {QUESTIONS.length} (
-            {Math.round((score / QUESTIONS.length) * 100)}%)
-          </div>
-          <div className="w-full max-w-3xl mt-6">
-            <table className="w-full border text-right text-sm">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="p-2 border">#</th>
-                  <th className="p-2 border">שאלה</th>
-                  <th className="p-2 border">התשובה שלך</th>
-                  <th className="p-2 border">תשובה נכונה</th>
-                  <th className="p-2 border">ציון</th>
-                </tr>
-              </thead>
-              <tbody>
-                {QUESTIONS.map((q, idx) => {
-                  const userAns = answers[idx];
-                  const correctIdx = q.correct_option;
-                  const isCorrect = userAns === correctIdx;
-                  return (
-                    <tr
-                      key={q.id}
-                      className={isCorrect ? "bg-green-50" : "bg-red-50"}
-                    >
-                      <td className="p-2 border text-center">{q.number}</td>
-                      <td className="p-2 border">{q.question}</td>
-                      <td className="p-2 border">
-                        {userAns !== null && userAns !== -1
-                          ? q.options[userAns]
-                          : "לא נענה"}
-                      </td>
-                      <td className="p-2 border">{q.options[correctIdx]}</td>
-                      <td className="p-2 border text-center">
-                        {isCorrect ? (
-                          <span
-                            title="Correct"
-                            style={{ color: "#16a34a", fontSize: "1.2em" }}
-                          >
-                            ✓
-                          </span>
-                        ) : (
-                          <span
-                            title="Incorrect"
-                            style={{ color: "#dc2626", fontSize: "1.2em" }}
-                          >
-                            ✗
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          <div className="flex justify-center gap-4 mt-8">
-            <Button
-              variant="outline"
-              onClick={handleRestart}
-              className="text-xs"
-            >
-              🔄 Restart Quiz (Dev)
-            </Button>
-            <Button onClick={handleContinue}>המשך לשלב הבא</Button>
-          </div>
-        </motion.div>
-      ) : (
-        <motion.div
-          key={animationKey}
+          key={animationKey} // Use animationKey to trigger re-animation
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className="w-full max-w-2xl mx-auto"
+          transition={{ duration: 0.5 }}
+          className="w-full"
         >
           <motion.h1
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.4 }}
-            className="text-2xl font-bold mb-4 text-center"
+            className="text-2xl font-bold mb-6 text-center"
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.7, delay: 0 }}
           >
-            ידע בסיסי במחשבים
+            זיהוי דפוסים
           </motion.h1>
+
+          {/* Progress indicator */}
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="flex justify-center mb-4"
+            className="flex justify-center mb-6"
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
           >
             <span className="text-lg font-semibold">
-              שאלה {q.number} / {QUESTIONS.length}
+              שאלה {currentQuestion + 1} מתוך {STEP7_QUESTIONS.length}
             </span>
           </motion.div>
+
+          {/* Instructions */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <Card className="max-w-xl mx-auto p-6 mb-6">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-gray-500">{q.level}</span>
-                <span
-                  className={`font-mono text-lg ${
-                    timer <= 10 ? "text-red-500" : "text-gray-700"
-                  }`}
-                >
-                  {timer}ש
-                </span>
+            <Card className="p-6 mb-6 bg-blue-50 border-blue-200">
+              <div className="text-center mb-4">
+                <h3 className="text-lg font-semibold text-blue-800 mb-3">
+                  הוראות:
+                </h3>
+                <div className="text-right leading-relaxed text-gray-800 bg-white p-4 rounded border">
+                  התבוננו בדפוס המורכב למעלה ובחרו איזה מהצורות הפשוטות למטה
+                  מופיעה בתוכו.
+                </div>
               </div>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="mb-4 font-medium text-lg text-right"
-              >
-                {q.question}
-              </motion.div>
-              <div className="space-y-2">
-                {q.options.map((opt, idx) => (
-                  <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 + idx * 0.1 }}
-                  >
-                    <Button
-                      className={`w-full text-right p-4 h-auto text-base whitespace-normal ${
-                        selected !== null
-                          ? idx === q.correct_option
-                            ? "bg-green-100 hover:bg-green-200 border-green-400"
-                            : idx === selected && !feedback
-                            ? "bg-red-100 hover:bg-red-200 border-red-400"
-                            : "bg-gray-50"
-                          : "hover:bg-gray-100"
-                      }`}
-                      variant="outline"
-                      disabled={selected !== null}
-                      onClick={() => handleSelect(idx)}
-                    >
-                      {opt}
-                    </Button>
-                  </motion.div>
-                ))}
-              </div>
-              {selected !== null && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  className={`mt-4 text-center font-semibold ${
-                    feedback ? "text-green-600" : "text-red-600"
-                  }`}
-                >
-                  {feedback ? "נכון!" : "לא נכון"}
-                </motion.div>
-              )}
             </Card>
           </motion.div>
-          {/* Navigation Buttons - Consistent across all steps */}
-          <div className="max-w-xl mx-auto mt-4">
-            <motion.div
+
+          {/* Main pattern image */}
+          <motion.div
+            initial={{ x: 20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
+            <Card className="p-6 mb-6">
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-sm text-gray-500">{currentQ.level}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-500">
+                    זמן נותר: {timer}
+                  </span>
+                  {/* <Button
+                    onClick={handleRestart}
+                    variant="outline"
+                    size="sm"
+                    className="text-xs"
+                  >
+                    התחל מחדש (dev)
+                  </Button> */}
+                </div>
+              </div>
+              <div className="flex justify-center">
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.5 }}
+                >
+                  <Image
+                    src={currentQ.question}
+                    alt="דפוס לזיהוי"
+                    width={300}
+                    height={300}
+                    className="rounded border"
+                  />
+                </motion.div>
+              </div>
+            </Card>
+          </motion.div>
+
+          {/* Shape options */}
+          <Card className="p-6 mb-6">
+            <motion.h3
+              className="text-lg font-semibold mb-4 text-center"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              className="flex justify-between items-center mx-4"
+              transition={{ duration: 0.4, delay: 0.6 }}
             >
+              בחרו את הצורה הנכונה:
+            </motion.h3>
+
+            <div
+              className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto"
+              dir="ltr"
+            >
+              {currentQ.options.map((optionSrc, idx) => (
+                <div
+                  key={`${currentQ.id}-${idx}-${animationKey}`}
+                  className="relative"
+                >
+                  <motion.button
+                    onClick={() => handleShapeSelect(idx)}
+                    disabled={showFeedback}
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{
+                      duration: 0.5,
+                      delay: 0.7 + idx * 0.1,
+                    }}
+                    className={`
+                      relative w-full p-4 border-2 rounded-lg cursor-pointer bg-white transition-all duration-200
+                      ${
+                        selectedShape === idx
+                          ? showFeedback
+                            ? isCorrect
+                              ? "border-green-500 bg-green-50 shadow-lg"
+                              : "border-red-500 bg-red-50 shadow-lg"
+                            : "border-blue-500 bg-blue-50 shadow-lg"
+                          : "border-gray-300 hover:border-gray-400 hover:shadow-md"
+                      }
+                      ${
+                        showFeedback &&
+                        idx === currentQ.correct_option &&
+                        !isCorrect &&
+                        "border-green-500 bg-green-50 shadow-md"
+                      }
+                      ${
+                        showFeedback &&
+                        selectedShape === idx &&
+                        !isCorrect &&
+                        "opacity-50"
+                      }
+                    `}
+                  >
+                    <Image
+                      src={optionSrc}
+                      alt={`Shape option ${idx + 1}`}
+                      width={100}
+                      height={100}
+                      className="mx-auto"
+                    />
+
+                    {/* Selection indicator */}
+                    {selectedShape === idx && (
+                      <div className="absolute -top-2 -left-2 w-5 h-5 bg-blue-500 rounded-full border-2 border-white z-10"></div>
+                    )}
+
+                    {/* Feedback indicators */}
+                    {showFeedback && selectedShape === idx && (
+                      <div className="absolute -top-2 -right-2 z-10">
+                        {isCorrect ? (
+                          <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                            <svg
+                              className="w-4 h-4 text-white"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </div>
+                        ) : (
+                          <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
+                            <svg
+                              className="w-4 h-4 text-white"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Show correct answer indicator */}
+                    {showFeedback &&
+                      idx === currentQ.correct_option &&
+                      selectedShape !== currentQ.correct_option && (
+                        <div className="absolute -top-2 -right-2 z-10">
+                          <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                            <svg
+                              className="w-4 h-4 text-white"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </div>
+                        </div>
+                      )}
+                  </motion.button>
+                </div>
+              ))}
+            </div>
+
+            {/* Feedback message */}
+            {showFeedback && (
+              <div className="mt-6 text-center" dir="rtl">
+                <div
+                  className={`text-lg font-semibold ${
+                    isCorrect ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {isCorrect ? "נכון!" : "לא נכון. הצורה הנכונה מסומנת."}
+                </div>
+              </div>
+            )}
+          </Card>
+
+          {/* Navigation Buttons - Consistent across all steps */}
+          <div className="max-w-4xl mx-auto mt-8">
+            <div className="flex justify-between items-center mx-4">
               <div className="flex gap-2">
                 <Button variant="outline" onClick={onPrevious}>
                   שלב קודם
@@ -383,10 +505,20 @@ export default function Step7({ onNext, onPrevious }: Step7Props) {
                   🔄 Restart Quiz (Dev)
                 </Button>
               </div>
-            </motion.div>
+              {showFeedback && (
+                <Button
+                  onClick={handleNextQuestion}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  {currentQuestion < STEP7_QUESTIONS.length - 1
+                    ? "שאלה הבאה"
+                    : "סיום המבחן"}
+                </Button>
+              )}
+            </div>
           </div>
         </motion.div>
-      )}
-    </AnimatePresence>
+      </AnimatePresence>
+    </div>
   );
 }

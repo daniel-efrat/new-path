@@ -81,6 +81,7 @@ export const useStepStore = create<StepState>()(
             { id: 9, isCompleted: false, isLocked: true },
             { id: 10, isCompleted: false, isLocked: true },
             { id: 11, isCompleted: false, isLocked: true },
+            { id: 12, isCompleted: false, isLocked: true },
           ],
         }),
     }),

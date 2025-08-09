@@ -1,7 +1,7 @@
-import supabase from '@/lib/supabase';
-import type { AnswerState } from '@/lib/types/questionnaire';
+import supabase from "@/lib/supabase";
+import type { AnswerState } from "@/lib/types/questionnaire";
 
-const QUESTIONNAIRE_ID = 'fbbee5e5-33c0-4b73-8514-0407633e05a2';
+const QUESTIONNAIRE_ID = "fbbee5e5-33c0-4b73-8514-0407633e05a2";
 
 export interface FetchedAnswer {
   question_id: string;
@@ -14,26 +14,30 @@ export interface FetchedAnswer {
  * @param stepQuestionIds Array of question IDs for the specific step
  * @returns Record of question_id -> AnswerState
  */
-export async function fetchStepAnswers(stepQuestionIds: string[]): Promise<Record<string, AnswerState>> {
+export async function fetchStepAnswers(
+  stepQuestionIds: string[]
+): Promise<Record<string, AnswerState>> {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) {
-      console.warn('User not authenticated, cannot fetch answers');
+      console.warn("User not authenticated, cannot fetch answers");
       return {};
     }
 
     // Get the latest submission for this user and questionnaire
     const { data: submissionData, error: submissionError } = await supabase
-      .from('questionnaire_submissions')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('questionnaire_id', QUESTIONNAIRE_ID)
-      .order('created_at', { ascending: false })
+      .from("questionnaire_submissions")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("questionnaire_id", QUESTIONNAIRE_ID)
+      .order("created_at", { ascending: false })
       .limit(1)
       .single();
 
     if (submissionError) {
-      if (submissionError.code === 'PGRST116') {
+      if (submissionError.code === "PGRST116") {
         // No submission found
         return {};
       }
@@ -42,10 +46,10 @@ export async function fetchStepAnswers(stepQuestionIds: string[]): Promise<Recor
 
     // Fetch answers for this submission that match the step's question IDs
     const { data: answers, error: answersError } = await supabase
-      .from('answers')
-      .select('question_id, answer_value, created_at')
-      .eq('submission_id', submissionData.id)
-      .in('question_id', stepQuestionIds);
+      .from("answers")
+      .select("question_id, answer_value, created_at")
+      .eq("submission_id", submissionData.id)
+      .in("question_id", stepQuestionIds);
 
     if (answersError) {
       throw answersError;
@@ -53,10 +57,10 @@ export async function fetchStepAnswers(stepQuestionIds: string[]): Promise<Recor
 
     // Convert to the expected format
     const answerMap: Record<string, AnswerState> = {};
-    
+
     // Debug logging
-    console.log('fetchStepAnswers - Raw answers from DB:', answers);
-    
+    console.log("fetchStepAnswers - Raw answers from DB:", answers);
+
     if (answers) {
       answers.forEach((answer: FetchedAnswer) => {
         let parsedValue: any;
@@ -65,21 +69,24 @@ export async function fetchStepAnswers(stepQuestionIds: string[]): Promise<Recor
         } catch (e) {
           parsedValue = answer.answer_value;
         }
-        
-        console.log(`fetchStepAnswers - Question ${answer.question_id}: raw="${answer.answer_value}", parsed=`, parsedValue);
-        
+
+        console.log(
+          `fetchStepAnswers - Question ${answer.question_id}: raw="${answer.answer_value}", parsed=`,
+          parsedValue
+        );
+
         answerMap[answer.question_id] = {
           value: parsedValue,
-          timestamp: new Date(answer.created_at)
+          timestamp: new Date(answer.created_at),
         };
       });
     }
-    
-    console.log('fetchStepAnswers - Final answerMap:', answerMap);
+
+    console.log("fetchStepAnswers - Final answerMap:", answerMap);
 
     return answerMap;
   } catch (error) {
-    const errorMessage = 'Error fetching step answers';
+    const errorMessage = "Error fetching step answers";
     console.error(errorMessage, error);
     if (error instanceof Error) {
       throw error;
@@ -93,7 +100,9 @@ export async function fetchStepAnswers(stepQuestionIds: string[]): Promise<Recor
  * @param step1QuestionIds Array of Step 1 question IDs
  * @returns Record of question_id -> AnswerState
  */
-export async function fetchStep1Answers(step1QuestionIds: string[]): Promise<Record<string, AnswerState>> {
+export async function fetchStep1Answers(
+  step1QuestionIds: string[]
+): Promise<Record<string, AnswerState>> {
   return fetchStepAnswers(step1QuestionIds);
 }
 
@@ -102,7 +111,9 @@ export async function fetchStep1Answers(step1QuestionIds: string[]): Promise<Rec
  * @param step2QuestionIds Array of Step 2 question IDs
  * @returns Record of question_id -> AnswerState
  */
-export async function fetchStep2Answers(step2QuestionIds: string[]): Promise<Record<string, AnswerState>> {
+export async function fetchStep2Answers(
+  step2QuestionIds: string[]
+): Promise<Record<string, AnswerState>> {
   return fetchStepAnswers(step2QuestionIds);
 }
 
@@ -111,7 +122,9 @@ export async function fetchStep2Answers(step2QuestionIds: string[]): Promise<Rec
  * @param step5QuestionIds Array of Step 5 question IDs
  * @returns Record of question_id -> AnswerState
  */
-export async function fetchStep5Answers(step5QuestionIds: string[]): Promise<Record<string, AnswerState>> {
+export async function fetchStep5Answers(
+  step5QuestionIds: string[]
+): Promise<Record<string, AnswerState>> {
   return fetchStepAnswers(step5QuestionIds);
 }
 
@@ -120,24 +133,30 @@ export async function fetchStep5Answers(step5QuestionIds: string[]): Promise<Rec
  * @param step5_1QuestionIds Array of Step 5-1 question IDs
  * @returns Record of question_id -> AnswerState
  */
-export async function fetchStep5_1Answers(step5_1QuestionIds: string[]): Promise<Record<string, AnswerState>> {
+export async function fetchStep6Answers(
+  step5_1QuestionIds: string[]
+): Promise<Record<string, AnswerState>> {
   return fetchStepAnswers(step5_1QuestionIds);
 }
 
 /**
  * Fetches answers for Step 6 (visual reasoning questions)
- * @param step6QuestionIds Array of Step 6 question IDs
+ * @param step7QuestionIds Array of Step 6 question IDs
  * @returns Record of question_id -> AnswerState
  */
-export async function fetchStep6Answers(step6QuestionIds: string[]): Promise<Record<string, AnswerState>> {
-  return fetchStepAnswers(step6QuestionIds);
+export async function fetchStep7Answers(
+  step7QuestionIds: string[]
+): Promise<Record<string, AnswerState>> {
+  return fetchStepAnswers(step7QuestionIds);
 }
 
 /**
  * Fetches answers for Step 7 (quiz questions)
- * @param step7QuestionIds Array of Step 7 question IDs
+ * @param step8QuestionIds Array of Step 7 question IDs
  * @returns Record of question_id -> AnswerState
  */
-export async function fetchStep7Answers(step7QuestionIds: string[]): Promise<Record<string, AnswerState>> {
-  return fetchStepAnswers(step7QuestionIds);
+export async function fetchStep8Answers(
+  step8QuestionIds: string[]
+): Promise<Record<string, AnswerState>> {
+  return fetchStepAnswers(step8QuestionIds);
 }
