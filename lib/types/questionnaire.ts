@@ -57,14 +57,11 @@ export interface QuestionnaireProgress {
 export interface AnswerState {
   value: any;
   timestamp: Date;
+  is_correct?: boolean;
+  step?: number;
 }
 
-export interface StepData {
-  [key: string]: {
-    value: unknown
-    isValid?: boolean
-  } | undefined
-}
+export type StepData = Record<string, AnswerState>;
 
 export interface ValidationResult {
   isValid: boolean

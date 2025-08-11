@@ -1,49 +1,28 @@
-import { NextResponse } from "next/server"
-import type { NextRequest } from "next/server"
+import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-export async function middleware(request: NextRequest) {
-  // Protect dashboard route
-  if (request.nextUrl.pathname.startsWith("/dashboard")) {
-    // Get all cookies and check for specific auth cookies
-    const cookies = request.cookies.getAll()
-    const accessToken = request.cookies.get('sb-access-token')?.value
-    const refreshToken = request.cookies.get('sb-refresh-token')?.value
-    
-    // Also check for standard Supabase cookies
-    const authCookies = cookies.filter(cookie => 
-      cookie.name.includes('supabase') || 
-      cookie.name.includes('sb-') ||
-      cookie.name.includes('auth-token')
-    )
-    
-    console.log('Middleware dashboard access check:', {
-      pathname: request.nextUrl.pathname,
-      totalCookies: cookies.length,
-      hasAccessToken: !!accessToken,
-      hasRefreshToken: !!refreshToken,
-      authCookies: authCookies.map(c => ({ name: c.name, hasValue: !!c.value })),
-      allCookieNames: cookies.map(c => c.name)
-    })
+// This function can be marked `async` if using `await` inside
+export async function middleware(req: NextRequest) {
+  const res = NextResponse.next();
+  const supabase = createMiddlewareClient({ req, res });
 
-    // Check for specific auth tokens or any auth-related cookies
-    const hasAuth = accessToken || refreshToken || authCookies.length > 0
-    
-    // Temporarily disable middleware protection for debugging
-    if (!hasAuth) {
-      console.log('No auth found, but allowing access for debugging')
-      // Uncomment the next 5 lines to re-enable protection:
-      // const redirectUrl = request.nextUrl.clone()
-      // redirectUrl.pathname = "/signin"
-      // redirectUrl.searchParams.set("from", request.nextUrl.pathname)
-      // return NextResponse.redirect(redirectUrl)
-    }
-    
-    console.log('Allowing access to dashboard')
-  }
+  // Refresh session if expired - required for Server Components
+  // https://supabase.com/docs/guides/auth/auth-helpers/nextjs#managing-session-with-middleware
+  await supabase.auth.getSession();
 
-  return NextResponse.next()
+  return res;
 }
 
+// Ensure the middleware is only called for relevant paths.
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
-}
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    '/((?!_next/static|_next/image|favicon.ico).*)',
+  ],
+};

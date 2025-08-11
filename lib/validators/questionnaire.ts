@@ -49,8 +49,34 @@ export const validateStep1 = (data: StepData): ValidationResult => {
   return createValidationResult(errors.length === 0, errors);
 };
 
-// Step 2 validation (career anchors)
+// Step 2 validation (Hebrew assessment)
 export const validateStep2 = (data: StepData): ValidationResult => {
+  const errors: string[] = [];
+
+  // Basic validation - check if any answers are provided
+  const hasAnswers = Object.keys(data).length > 0;
+  if (!hasAnswers) {
+    errors.push("At least one question must be answered");
+  }
+
+  return createValidationResult(errors.length === 0, errors);
+};
+
+// Step 3 validation (English assessment)
+export const validateStep3 = (data: StepData): ValidationResult => {
+  const errors: string[] = [];
+
+  // Basic validation - check if any answers are provided
+  const hasAnswers = Object.keys(data).length > 0;
+  if (!hasAnswers) {
+    errors.push("At least one question must be answered");
+  }
+
+  return createValidationResult(errors.length === 0, errors);
+};
+
+// Step 4 validation (career anchors)
+export const validateStep4 = (data: StepData): ValidationResult => {
   const errors: string[] = [];
 
   // Count answered questions (questions with numeric values)
@@ -76,35 +102,6 @@ export const validateStep2 = (data: StepData): ValidationResult => {
   return createValidationResult(errors.length === 0, errors);
 };
 
-// Step 3 validation (English assessment)
-export const validateStep3 = (data: StepData): ValidationResult => {
-  const errors: string[] = [];
-
-  // Basic validation - check if any answers are provided
-  const hasAnswers = Object.keys(data).length > 0;
-  if (!hasAnswers) {
-    errors.push("At least one question must be answered");
-  }
-
-  return createValidationResult(errors.length === 0, errors);
-};
-
-// Step 4 validation (career anchors detailed)
-export const validateStep4 = (data: StepData): ValidationResult => {
-  const errors: string[] = [];
-
-  // Career anchor validation
-  if (data.anchors && Array.isArray(data.anchors.value)) {
-    const anchors = data.anchors.value as number[];
-    anchors.forEach((anchor, index) => {
-      if (typeof anchor === "number" && (anchor < 0 || anchor > 10)) {
-        errors.push(`Career anchor ${index + 1} must be between 0 and 10`);
-      }
-    });
-  }
-
-  return createValidationResult(errors.length === 0, errors);
-};
 
 // Step 5 validation (placeholder)
 export const validateStep5 = (data: StepData): ValidationResult => {

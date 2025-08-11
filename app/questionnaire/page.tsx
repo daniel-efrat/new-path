@@ -16,6 +16,7 @@ import Step8 from "@/components/questionnaire/steps/Step8";
 import Step9 from "@/components/questionnaire/steps/Step9";
 import Step10 from "@/components/questionnaire/steps/Step10";
 import Step11 from "@/components/questionnaire/steps/Step11";
+import HollandResults from "@/components/questionnaire/steps/HollandResults";
 
 const stepComponents: Record<number, any> = {
   1: Step1,
@@ -29,6 +30,7 @@ const stepComponents: Record<number, any> = {
   9: Step9,
   10: Step10,
   11: Step11,
+  12: HollandResults,
 };
 
 export default function QuestionnairePage() {

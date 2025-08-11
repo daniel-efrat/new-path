@@ -43,7 +43,7 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
     setShowResult(false);
     setAnswers(Array(QUESTIONS.length).fill(null));
     QUESTIONS.forEach((q) => {
-      setAnswer(q.id, null, false, 6);
+      setAnswer(q.id, null, false);
     });
   };
 
@@ -120,7 +120,7 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
     setSelected(idx);
     setFeedback(isCorrect);
     if (isCorrect) setScore((s) => s + 1);
-    setAnswer(QUESTIONS[current].id, idx, isCorrect, 6);
+    setAnswer(QUESTIONS[current].id, idx, isCorrect);
     const newAnswers = [...answers];
     newAnswers[current] = idx;
     setAnswers(newAnswers);
@@ -129,7 +129,7 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
   const handleNext = (skipped: boolean = false) => {
     if (!skipped && selected === null) return;
     if (skipped && selected === null) {
-      setAnswer(QUESTIONS[current].id, null, false, 6);
+      setAnswer(QUESTIONS[current].id, null, false);
     }
     if (current < QUESTIONS.length - 1) {
       setCurrent((c) => c + 1);

@@ -55,7 +55,7 @@ export default function Step8({ onNext, onPrevious }: Step8Props) {
     setStepAnswers({});
     setAnimationKey((prev) => prev + 1);
     QUESTIONS.forEach((q) => {
-      setAnswer(q.id, null, false, 7);
+      setAnswer(q.id, null, false);
     });
   };
 
@@ -146,7 +146,7 @@ export default function Step8({ onNext, onPrevious }: Step8Props) {
     if (isCorrect) setScore((s) => s + 1);
 
     try {
-      await setAnswer(question.id, idx, isCorrect, 7);
+      await setAnswer(question.id, idx, isCorrect);
       const newAnswers = [...answers];
       newAnswers[current] = idx;
       setAnswers(newAnswers);

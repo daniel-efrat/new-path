@@ -23,16 +23,11 @@ interface Step {
 }
 
 export default function QuestionnaireDashboard() {
-  const {
-    steps,
-    setStepCompletion,
-    initializeSteps,
-    resetFromStep,
-    resetSteps,
-  } = useStepStore();
+  const { steps, setStepCompletion, resetSteps, initializeSteps, ensureUser } = useStepStore();
   const { setCurrentStep, initialize } = useQuestionnaireStore();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [user, setUser] = useState<any>(null);
+  const [storeReady, setStoreReady] = useState(false);
   const router = useRouter();
 
   const stepDetails = [
@@ -111,6 +106,25 @@ export default function QuestionnaireDashboard() {
     },
   ];
 
+  useEffect(() => {
+    const initializeDashboard = async () => {
+      if (!user) return;
+
+      // Ensure the store is bound to the correct user
+      await ensureUser(user.id);
+      
+      // Now, initialize the steps from the store, which will trigger fetching
+      initializeSteps();
+
+      // Indicate that the store is ready for the UI to render
+      setStoreReady(true);
+    };
+
+    if (isAuthenticated) {
+      initializeDashboard();
+    }
+  }, [isAuthenticated, user, ensureUser, initializeSteps]);
+
   // Check authentication status
   useEffect(() => {
     const checkAuth = async () => {
@@ -149,12 +163,17 @@ export default function QuestionnaireDashboard() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event: any, session: any) => {
       if (event === "SIGNED_OUT" || !session) {
+        // Clear local step state binding on sign-out
+        resetSteps();
+        useStepStore.setState({ userId: undefined });
         setIsAuthenticated(false);
         setUser(null);
         router.push("/signin");
       } else if (session) {
         setUser(session.user);
         setIsAuthenticated(true);
+        // Bind the step store to the signed-in user immediately
+        useStepStore.getState().ensureUser(session.user?.id);
       }
     });
 
@@ -164,23 +183,25 @@ export default function QuestionnaireDashboard() {
   // Initialize steps and sync with Supabase when component mounts
   useEffect(() => {
     const initializeDashboard = async () => {
-      if (isAuthenticated) {
-        // First initialize the step store with default state
+      if (isAuthenticated && user?.id) {
+        setStoreReady(false);
+        // Ensure the step store is scoped to the current signed-in user
+        await ensureUser(user.id);
         initializeSteps();
-        
-        // Then initialize questionnaire store which will load answers and sync step completion
+
         try {
           await initialize();
-          console.log('Dashboard: Questionnaire store initialized and step completion synced');
         } catch (error) {
-          console.error('Dashboard: Failed to initialize questionnaire store:', error);
+          console.error("Failed to initialize questionnaire store:", error);
           // Continue anyway - dashboard will work with local step state
+        } finally {
+          setStoreReady(true);
         }
       }
     };
     
     initializeDashboard();
-  }, [isAuthenticated, initializeSteps, initialize]);
+  }, [isAuthenticated, user, initializeSteps, initialize, ensureUser]);
 
   const handleStepClick = (stepId: number) => {
     const step = steps.find((s: any) => s.id === stepId);
@@ -203,7 +224,7 @@ export default function QuestionnaireDashboard() {
     steps.length > 0 ? (completedSteps / steps.length) * 100 : 0;
 
   // Show loading state
-  if (isAuthenticated === null) {
+  if (isAuthenticated === null || !storeReady) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="flex flex-col items-center justify-center min-h-[400px]">
