@@ -46,7 +46,8 @@ interface QuestionnaireStore extends QuestionnaireState {
   setAnswer: (
     questionId: string,
     value: any,
-    is_correct?: boolean
+    is_correct?: boolean,
+    step?: number
   ) => Promise<void>;
   validateStep: (step: number) => ValidationResult;
   validateCurrentStep: () => ValidationResult;
@@ -152,7 +153,8 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
   setAnswer: async (
     questionId: string,
     value: any,
-    is_correct?: boolean
+    is_correct?: boolean,
+    step?: number
   ) => {
     try {
       let { submissionId } = get();
@@ -164,13 +166,13 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
         }
       }
 
-      const currentStep = get().currentStep;
+      const stepNumber = step || get().currentStep;
 
       const newAnswer: AnswerState = {
         value,
         timestamp: new Date(),
         is_correct,
-        step: currentStep,
+        step: stepNumber,
       };
 
       set((state) => ({
@@ -197,7 +199,7 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
           .update({
             answer_value: value,
             is_correct,
-            step: currentStep,
+            step: stepNumber,
           })
           .eq('submission_id', submissionId)
           .eq('question_id', questionId));
@@ -210,7 +212,7 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
             question_id: questionId,
             answer_value: value,
             is_correct,
-            step: currentStep,
+            step: stepNumber,
           }));
       }
 

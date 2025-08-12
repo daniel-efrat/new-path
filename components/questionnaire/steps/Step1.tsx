@@ -87,7 +87,7 @@ export default function Step1({ onNext }: Step1Props) {
 
       // The new value will be the opposite of the current selection state.
       const newValue = !isCurrentlySelected;
-      await setAnswer(questionId, String(newValue));
+      await setAnswer(questionId, String(newValue), undefined, 1);
       
       // Update local state immediately for better UX
       setStepAnswers(prev => ({

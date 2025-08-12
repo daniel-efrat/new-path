@@ -38,8 +38,7 @@ export default function LoginPage() {
         
         if (session && !error) {
           console.log('User already authenticated, redirecting...');
-          const urlParams = new URLSearchParams(window.location.search);
-          const from = urlParams.get('from') || '/dashboard';
+          const from = new URLSearchParams(window.location.search).get('from') || '/dashboard';
           router.push(from);
           return;
         }
@@ -81,8 +80,7 @@ export default function LoginPage() {
               // Wait a moment for cookies to be set, then redirect
               setTimeout(() => {
                 console.log('Redirecting after OAuth...');
-                const urlParams = new URLSearchParams(window.location.search);
-                const from = urlParams.get('from') || '/dashboard';
+                const from = new URLSearchParams(window.location.search).get('from') || '/dashboard';
                 window.location.href = from;
               }, 1000);
             }
@@ -156,8 +154,7 @@ export default function LoginPage() {
       } else {
         console.log('Login successful, session data:', data);
         // Check for redirect parameter
-        const urlParams = new URLSearchParams(window.location.search);
-        const from = urlParams.get('from') || '/dashboard';
+        const from = new URLSearchParams(window.location.search).get('from') || '/dashboard';
         console.log('Redirecting to:', from);
         
         // Wait a moment for the session to be properly set

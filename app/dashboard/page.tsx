@@ -221,7 +221,7 @@ export default function QuestionnaireDashboard() {
       className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center"
       dir="rtl"
     >
-      <div className="w-full flex mt-4 flex-col items-center max-w-4xl mx-auto">
+      <div className="w-full flex mt-4 flex-col items-center max-w-4xl mx-auto px-2">
         {/* Header (force rotate=0 & strip any injected rotate) */}
         <motion.div
           className="mb-8 w-full max-w-4xl"

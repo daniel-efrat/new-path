@@ -57,7 +57,7 @@ export default function Step4({ onNext, onPrevious }: Step4Props) {
           const questionId = STEP4_QUESTIONS[i].id;
           const value = localAnchors[i];
           // The setAnswer function will handle its own errors, no need to await
-          setAnswer(questionId, String(value));
+          setAnswer(questionId, String(value), undefined, 4);
         }
       } catch (err) {
         // Since this runs in the background, we can't set state on an unmounted component.

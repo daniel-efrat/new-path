@@ -2,13 +2,10 @@
 
 import { MotionConfig } from "framer-motion";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function ClientMotionProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  // הפעלה דרך פרמטר כתובת: ?noanim=1
+// Component that uses useSearchParams
+function AnimationConfig({ children }: { children: React.ReactNode }) {
   const params = useSearchParams();
   const noAnim = params.get("noanim") === "1";
 
@@ -16,5 +13,17 @@ export default function ClientMotionProvider({
     <MotionConfig reducedMotion={noAnim ? "always" : "never"}>
       {children}
     </MotionConfig>
+  );
+}
+
+export default function ClientMotionProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <Suspense fallback={<MotionConfig reducedMotion="never">{children}</MotionConfig>}>
+      <AnimationConfig>{children}</AnimationConfig>
+    </Suspense>
   );
 }
