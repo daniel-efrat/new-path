@@ -7,8 +7,8 @@ import Image from "next/image";
 
 export function HeroSection() {
   return (
-    <section className="relative flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-indigo-50 p-4">
-      <div className="absolute inset-0 bg-[url('/hero-bg.jpg?height=800&width=1200')] opacity-7 bg-cover bg-center" />
+    <section className=" mt-4 relative flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-indigo-50 p-4">
+      <div className="absolute inset-0 bg-[url('/hero-bg.jpg?height=800&width=1200')] opacity-20 bg-cover bg-center" />
 
       <div className="relative z-10 max-w-4xl mx-auto text-center space-y-8">
         <div className="space-y-4">
@@ -29,13 +29,6 @@ export function HeroSection() {
         <Card className="max-w-md mx-auto p-6 shadow-lg border-0 bg-white/80 backdrop-blur-sm">
           <div className="space-y-4">
             <div className="flex items-center justify-center space-x-4 space-x-reverse text-sm text-muted-foreground">
-              {/* <div className="flex items-center">
-                <Clock className="w-4 h-4 ml-1" />5 דקות
-              </div>
-              <div className="flex items-center">
-                <Shield className="w-4 h-4 ml-1" />
-                GDPR ✓
-              </div> */}
             </div>
 
             <Link href="/dashboard">

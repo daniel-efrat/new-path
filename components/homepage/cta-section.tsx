@@ -1,10 +1,30 @@
+"use client";
+
 import { Button } from "../../components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { LazyMotion, domAnimation, m } from "framer-motion";
 
 export function CTASection() {
   return (
-    <section className="py-20 px-4 bg-gradient-to-r from-emerald-600 to-indigo-600">
+    <LazyMotion features={domAnimation}>
+      <m.section 
+        className="py-20 px-4 relative overflow-hidden"
+        initial={{ backgroundPosition: "0% 50%" }}
+        animate={{ 
+          backgroundPosition: "100% 50%",
+        }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+          repeatType: "reverse",
+          ease: "linear"
+        }}
+        style={{
+          background: "linear-gradient(270deg, #059669, #4f46e5, #059669)",
+          backgroundSize: "200% 200%",
+        }}
+      >
       <div className="max-w-4xl mx-auto text-center space-y-8">
         <div className="space-y-4">
           <h2 className="text-3xl md:text-4xl font-bold text-white">
@@ -47,6 +67,7 @@ export function CTASection() {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </m.section>
+  </LazyMotion>
+);
 }
