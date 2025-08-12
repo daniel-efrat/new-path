@@ -8,11 +8,10 @@ import supabase from "@/lib/supabase";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import QuestionnaireProgress from "@/components/ui/QuestionnaireProgress";
-import { Check, ChevronLeft, Play, Lock } from "lucide-react";
+import { Check, House, Play, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion, MotionConfig } from "framer-motion";
 
 interface Step {
   id: number;
@@ -22,8 +21,15 @@ interface Step {
   isLocked: boolean;
 }
 
+/** Kill any injected rotate in Framer's composed transform (debug-only) */
+const noRotate = (_props: any, transform: string) =>
+  transform
+    .replace(/rotate3d\([^)]*\)/g, "rotate3d(0,0,0,0deg)")
+    .replace(/rotate\([^)]*\)/g, "rotate(0deg)");
+
 export default function QuestionnaireDashboard() {
-  const { steps, setStepCompletion, resetSteps, initializeSteps, ensureUser } = useStepStore();
+  const { steps, setStepCompletion, resetSteps, initializeSteps, ensureUser } =
+    useStepStore();
   const { setCurrentStep, initialize } = useQuestionnaireStore();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [user, setUser] = useState<any>(null);
@@ -85,15 +91,10 @@ export default function QuestionnaireDashboard() {
       description: "15 שאלות",
       time: "20 שניות לשאלה",
     },
-    {
-      id: 10,
-      title: "מבחני אישיות",
-      description: "",
-      time: "לא מוגבל בזמן",
-    },
+    { id: 10, title: "מבחני אישיות", description: "", time: "לא מוגבל בזמן" },
     {
       id: 11,
-      title: "שאלון",
+      title: "שאלון הולנד",
       description: "20 שאלות",
       time: "לא מוגבל בזמן",
     },
@@ -109,23 +110,13 @@ export default function QuestionnaireDashboard() {
   useEffect(() => {
     const initializeDashboard = async () => {
       if (!user) return;
-
-      // Ensure the store is bound to the correct user
       await ensureUser(user.id);
-      
-      // Now, initialize the steps from the store, which will trigger fetching
       initializeSteps();
-
-      // Indicate that the store is ready for the UI to render
       setStoreReady(true);
     };
-
-    if (isAuthenticated) {
-      initializeDashboard();
-    }
+    if (isAuthenticated) initializeDashboard();
   }, [isAuthenticated, user, ensureUser, initializeSteps]);
 
-  // Check authentication status
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -133,20 +124,17 @@ export default function QuestionnaireDashboard() {
           data: { session },
           error,
         } = await supabase.auth.getSession();
-
         if (error) {
           console.error("Auth error:", error);
           setIsAuthenticated(false);
           router.push("/signin");
           return;
         }
-
         if (!session) {
           setIsAuthenticated(false);
           router.push("/signin");
           return;
         }
-
         setUser(session.user);
         setIsAuthenticated(true);
       } catch (error) {
@@ -158,12 +146,10 @@ export default function QuestionnaireDashboard() {
 
     checkAuth();
 
-    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event: any, session: any) => {
       if (event === "SIGNED_OUT" || !session) {
-        // Clear local step state binding on sign-out
         resetSteps();
         useStepStore.setState({ userId: undefined });
         setIsAuthenticated(false);
@@ -172,34 +158,28 @@ export default function QuestionnaireDashboard() {
       } else if (session) {
         setUser(session.user);
         setIsAuthenticated(true);
-        // Bind the step store to the signed-in user immediately
         useStepStore.getState().ensureUser(session.user?.id);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [router]);
+  }, [router, resetSteps]);
 
-  // Initialize steps and sync with Supabase when component mounts
   useEffect(() => {
     const initializeDashboard = async () => {
       if (isAuthenticated && user?.id) {
         setStoreReady(false);
-        // Ensure the step store is scoped to the current signed-in user
         await ensureUser(user.id);
         initializeSteps();
-
         try {
           await initialize();
         } catch (error) {
           console.error("Failed to initialize questionnaire store:", error);
-          // Continue anyway - dashboard will work with local step state
         } finally {
           setStoreReady(true);
         }
       }
     };
-    
     initializeDashboard();
   }, [isAuthenticated, user, initializeSteps, initialize, ensureUser]);
 
@@ -213,22 +193,19 @@ export default function QuestionnaireDashboard() {
 
   const toggleStepCompletion = (stepId: number) => {
     const step = steps.find((s: any) => s.id === stepId);
-    if (step) {
-      setStepCompletion(stepId, !step.isCompleted);
-    }
+    if (step) setStepCompletion(stepId, !step.isCompleted);
   };
 
-  // Progress calculation
   const completedSteps = steps.filter((step: any) => step.isCompleted).length;
   const progressPercentage =
     steps.length > 0 ? (completedSteps / steps.length) * 100 : 0;
 
-  // Show loading state
+  // Loading (keep spinner working — no noRotate here)
   if (isAuthenticated === null || !storeReady) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="flex flex-col items-center justify-center min-h-[400px]">
-          <motion.div 
+          <motion.div
             className="rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -244,42 +221,47 @@ export default function QuestionnaireDashboard() {
       className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center"
       dir="rtl"
     >
-      <div className="w-full flex -mt-24 flex-col items-center max-w-4xl mx-auto">
-        {/* Header */}
-        <motion.div 
+      <div className="w-full flex mt-4 flex-col items-center max-w-4xl mx-auto">
+        {/* Header (force rotate=0 & strip any injected rotate) */}
+        <motion.div
           className="mb-8 w-full max-w-4xl"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: -20, rotate: 0 }}
+          animate={{ opacity: 1, y: 0, rotate: 0 }}
           transition={{ duration: 0.7 }}
+          transformTemplate={noRotate}
         >
-          <motion.div 
+          <motion.div
             className="flex items-center gap-4 mb-6"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20, rotate: 0 }}
+            animate={{ opacity: 1, y: 0, rotate: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
+            // transformTemplate={noRotate}
           >
             <div>
               <h1 className="text-3xl font-bold text-foreground mt-6">
                 שאלון הערכה מקצועית
               </h1>
               <p className="text-muted-foreground mt-1">
-                השלם את כל השלבים כדי לקבל המלצות מותאמות אישית
+                השלים/י את כל השלבים כדי לקבל המלצות מותאמות אישית
               </p>
             </div>
           </motion.div>
 
-          {/* Progress Overview */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
-            <QuestionnaireProgress
-              value={progressPercentage}
-              completed={completedSteps}
-              total={steps.length}
-            />
-          </motion.div>
+          {/* Progress Overview (test with reducedMotion and noRotate) */}
+          <MotionConfig reducedMotion="never">
+            <motion.div
+              initial={{ opacity: 0, y: -20, rotate: 0 }}
+              animate={{ opacity: 1, y: 0, rotate: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              transformTemplate={noRotate}
+            >
+              <QuestionnaireProgress
+                value={progressPercentage}
+                completed={completedSteps}
+                total={steps.length}
+              />
+            </motion.div>
+          </MotionConfig>
         </motion.div>
 
         {/* Steps */}
@@ -292,9 +274,10 @@ export default function QuestionnaireDashboard() {
             return (
               <motion.div
                 key={details.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: 20, rotate: 0 }}
+                animate={{ opacity: 1, y: 0, rotate: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
+                // transformTemplate={noRotate}
               >
                 <Card
                   className={cn(
@@ -320,9 +303,13 @@ export default function QuestionnaireDashboard() {
                               ? "bg-gray-300 text-gray-500"
                               : "bg-primary text-white"
                           )}
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ duration: 0.3, delay: (700 + index * 100) / 1000 }}
+                          initial={{ scale: 0, rotate: 0 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          transition={{
+                            duration: 0.3,
+                            delay: (700 + index * 100) / 1000,
+                          }}
+                          // transformTemplate={noRotate}
                         >
                           {step.isCompleted ? (
                             <Check className="h-6 w-6" />
@@ -336,9 +323,13 @@ export default function QuestionnaireDashboard() {
                         {/* Step Content */}
                         <motion.div
                           className="flex-1"
-                          initial={{ opacity: 0, x: 20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.4, delay: (800 + index * 150) / 1000 }}
+                          initial={{ opacity: 0, x: 20, rotate: 0 }}
+                          animate={{ opacity: 1, x: 0, rotate: 0 }}
+                          transition={{
+                            duration: 0.4,
+                            delay: (800 + index * 150) / 1000,
+                          }}
+                          // transformTemplate={noRotate}
                         >
                           <div className="flex items-center gap-3 mb-2">
                             <h3 className="text-lg sm:text-xl font-semibold text-foreground">
@@ -366,12 +357,17 @@ export default function QuestionnaireDashboard() {
                           </p>
                         </motion.div>
                       </div>
+
                       {/* Action Button */}
                       <motion.div
                         className="flex flex-col gap-2"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.4, delay: (1000 + index * 150) / 1000 }}
+                        initial={{ opacity: 0, rotate: 0 }}
+                        animate={{ opacity: 1, rotate: 0 }}
+                        transition={{
+                          duration: 0.4,
+                          delay: (1000 + index * 150) / 1000,
+                        }}
+                        // transformTemplate={noRotate}
                       >
                         <div className="flex sm:flex-col justify-start gap-2">
                           <Button
@@ -387,11 +383,9 @@ export default function QuestionnaireDashboard() {
                             onClick={(e) => {
                               e.stopPropagation();
                               if (step.isCompleted) {
-                                // Navigate to questionnaire page to view results
                                 setCurrentStep(details.id);
-                                router.push('/questionnaire');
+                                router.push("/questionnaire");
                               } else if (!step.isLocked) {
-                                // Start the step
                                 handleStepClick(details.id);
                               }
                             }}
@@ -403,7 +397,6 @@ export default function QuestionnaireDashboard() {
                               : "התחל"}
                           </Button>
 
-                          {/* Demo toggle button */}
                           {!step.isLocked && (
                             <Button
                               variant="secondary"
@@ -427,19 +420,20 @@ export default function QuestionnaireDashboard() {
         </div>
 
         {/* Footer Actions */}
-        <motion.div 
-          className="mt-8 flex justify-between items-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <motion.div
+          className="my-8 flex justify-between items-center"
+          initial={{ opacity: 0, y: 20, rotate: 0 }}
+          animate={{ opacity: 1, y: 0, rotate: 0 }}
           transition={{ duration: 0.6, delay: 1.0 }}
+          // transformTemplate={noRotate}
         >
           <Button
             variant="outline"
             className="gap-2 bg-transparent"
             onClick={() => router.push("/")}
           >
-            <ChevronLeft className="h-4 w-4" />
             חזור לדף הבית
+            <House className="h-4 w-4" />
           </Button>
 
           <div className="flex gap-2">

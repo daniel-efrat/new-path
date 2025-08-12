@@ -1,9 +1,9 @@
-// ⚠️ אין "use client"
 import "./globals.css";
 import { assistant } from "./fonts";
 import Header from "@/components/layout/Header";
 import AuthHandler from "@/components/auth/AuthHandler";
 import type { Metadata } from "next";
+import ClientMotionProvider from "@/components/ClientMotionProvider"; // ← חדש
 
 export const metadata: Metadata = {
   title: "My App",
@@ -32,9 +32,12 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="דרך חדשה" />
       </head>
       <body className={`${assistant.className} bg-background text-foreground`}>
-        <Header />
-        <AuthHandler />
-        <main className="min-h-screen pt-24">{children}</main>
+        {/* עטוף הכל כדי לתפוס גם Header/AuthHandler אם הם משתמשים ב-Framer */}
+        <ClientMotionProvider>
+          <Header />
+          <AuthHandler />
+          <main className="min-h-screen pt-24">{children}</main>
+        </ClientMotionProvider>
       </body>
     </html>
   );
