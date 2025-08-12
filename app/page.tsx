@@ -41,6 +41,12 @@ export default function Home() {
             >
               צור קשר
             </a>
+            <a
+              href="/aboutHolland"
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              אודות השאלון
+            </a>
           </div>
         </div>
       </footer>

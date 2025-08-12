@@ -102,7 +102,7 @@ export default function QuestionnaireDashboard() {
       id: 12,
       title: "נטיות לב",
       description:
-        "תנ/י ציונים לתחומים מקצועיים כלליים (סמן/י עד 5 תחומים כלליים בעדיפות)",
+        "תן/י ציונים לתחומים מקצועיים כלליים (סמן/י עד 5 תחומים כלליים בעדיפות)",
       time: "90 שניות לשאלה",
     },
   ];
@@ -298,7 +298,7 @@ export default function QuestionnaireDashboard() {
                           className={cn(
                             "flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300",
                             step.isCompleted
-                              ? "bg-secondary text-white"
+                              ? "bg-secondary text-secondary-foreground"
                               : step.isLocked
                               ? "bg-gray-300 text-gray-500"
                               : "bg-primary text-white"
@@ -338,7 +338,7 @@ export default function QuestionnaireDashboard() {
                             {step.isCompleted && (
                               <Badge
                                 variant="secondary"
-                                className="bg-secondary text-white hidden sm:block"
+                                className="bg-secondary text-secondary-foreground hidden sm:block"
                               >
                                 הושלם
                               </Badge>

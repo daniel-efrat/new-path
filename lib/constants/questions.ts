@@ -1,21 +1,21 @@
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4 } from "uuid"
 
 // lib/constants/questions.ts
 
 export interface Trait {
-  id: string;
-  text: string;
-  type?: "trait";
+  id: string
+  text: string
+  type?: "trait"
 }
 
 export interface Question {
-  id: string;
-  number?: number;
-  level?: string;
-  question: string;
-  options: string[];
-  correct_option: number;
-  type?: "question";
+  id: string
+  number?: number
+  level?: string
+  question: string
+  options: string[]
+  correct_option: number
+  type?: "question"
 }
 
 export const STEP1_QUESTIONS: Trait[] = [
@@ -345,7 +345,7 @@ export const STEP1_QUESTIONS: Trait[] = [
     text: "חושניות",
     type: "trait",
   },
-];
+]
 
 export const STEP2_QUESTIONS: Question[] = [
   {
@@ -555,7 +555,7 @@ export const STEP2_QUESTIONS: Question[] = [
     ],
     correct_option: 2,
   },
-];
+]
 
 export const STEP3_QUESTIONS: Question[] = [
   {
@@ -712,12 +712,12 @@ export const STEP3_QUESTIONS: Question[] = [
     ],
     correct_option: 1,
   },
-];
+]
 
 export interface AnchorQuestion {
-  id: string;
-  text: string;
-  type: "anchor";
+  id: string
+  text: string
+  type: "anchor"
 }
 
 export const STEP4_QUESTIONS: AnchorQuestion[] = [
@@ -841,25 +841,25 @@ export const STEP4_QUESTIONS: AnchorQuestion[] = [
     text: "עבודה שמונעת ממני לטפח את חיי הפרט או המשפחה או התחביבים שלי מבחינת הזמן והאנרגיה שאני צריך לכך - לא מתאימה לי.",
     type: "anchor",
   },
-];
+]
 
 export interface LogicalQuestion {
-  id: string;
-  number: number;
-  level: string;
-  question: string;
-  options: string[];
-  correct_option: number; // zero-based index
+  id: string
+  number: number
+  level: string
+  question: string
+  options: string[]
+  correct_option: number // zero-based index
 }
 
 export interface ShapeQuestion {
-  id: string;
-  number: number;
-  level: string;
-  question: string; // Path to main pattern image
-  options: string[]; // Paths to option images
-  correct_option: number;
-  type: "shape";
+  id: string
+  number: number
+  level: string
+  question: string // Path to main pattern image
+  options: string[] // Paths to option images
+  correct_option: number
+  type: "shape"
 }
 export const STEP5_QUESTIONS: LogicalQuestion[] = [
   {
@@ -1044,7 +1044,7 @@ export const STEP5_QUESTIONS: LogicalQuestion[] = [
     options: ["ח", "ט", "ז", "י"],
     correct_option: 2,
   },
-];
+]
 
 export const STEP6_QUESTIONS: Question[] = [
   {
@@ -1208,7 +1208,7 @@ export const STEP6_QUESTIONS: Question[] = [
     options: ["34", "64", "36", "54"],
     correct_option: 3,
   },
-];
+]
 
 export const STEP7_QUESTIONS: ShapeQuestion[] = [
   {
@@ -1413,7 +1413,7 @@ export const STEP7_QUESTIONS: ShapeQuestion[] = [
     correct_option: 0, // Adjust based on correct answer
     type: "shape",
   },
-];
+]
 
 export const STEP8_QUESTIONS: Question[] = [
   {
@@ -1636,166 +1636,166 @@ export const STEP8_QUESTIONS: Question[] = [
     ],
     correct_option: 1,
   },
-];
+]
 
 export interface HollandQuestion {
-  id: string;
-  text: string;
-  type: "holland";
+  id: string
+  text: string
+  type: "holland"
 }
 
 export const STEP11_QUESTIONS: HollandQuestion[] = [
   {
     id: "6ae0174a-27d3-4e99-a412-0b95184e1978",
-    text: "האם נראה לך שתאהב להרכיב ארונות מטבח",
+    text: "האם נראה לך שתאהב/י להרכיב ארונות מטבח",
     type: "holland",
   },
   {
     id: "114914cd-2bb1-45c8-af7a-f68fd9ff5940",
-    text: "האם נראה לך שתאהב לפתח תרופה חדשה",
+    text: "האם נראה לך שתאהב/י לפתח תרופה חדשה",
     type: "holland",
   },
   {
     id: "53b680e7-5030-4145-a8c4-7b0dacbcb8fe",
-    text: "האם נראה לך שתאהב לכתוב ספרים או מחזות",
+    text: "האם נראה לך שתאהב/י לכתוב ספרים או מחזות",
     type: "holland",
   },
   {
     id: "dcbbf18c-0291-44b5-b1ac-f93aae45650d",
-    text: "האם נראה לך שתאהב לעזור לאנשים שמתמודדים עם קשיים נפשיים או עם בעיות אישיוֹת",
+    text: "האם נראה לך שתאהב/י לעזור לאנשים שמתמודדים עם קשיים נפשיים או עם בעיות אישיוֹת",
     type: "holland",
   },
   {
     id: "5fb9b657-2486-4ee9-ac9e-fc22b3d13b56",
-    text: "האם נראה לך שתאהב לנהל מחלקה בתוך חברה גדולה",
+    text: "האם נראה לך שתאהב/י לנהל מחלקה בתוך חברה גדולה",
     type: "holland",
   },
   {
     id: "af4d6c09-f423-4668-a7ec-e5db66e40ea4",
-    text: "האם נראה לך שתאהב להתקין תוכנה על רשת מחשבים גדולה",
+    text: "האם נראה לך שתאהב/י להתקין תוכנה על רשת מחשבים גדולה",
     type: "holland",
   },
   {
     id: "0217618b-5feb-4073-a986-eefbe0298d6c",
-    text: "האם נראה לך שתאהב לתקן מכשירי חשמל ביתיים",
+    text: "האם נראה לך שתאהב/י לתקן מכשירי חשמל ביתיים",
     type: "holland",
   },
   {
     id: "35d5201b-212a-4804-950a-a3a2bce6b427",
-    text: "האם נראה לך שתאהב לגלות דרכים להפחית את זיהום המים",
+    text: "האם נראה לך שתאהב/י לגלות דרכים להפחית את זיהום המים",
     type: "holland",
   },
   {
     id: "95e99d88-3471-464d-a9a5-375ed288c706",
-    text: "האם נראה לך שתאהב להלחין או לעבד מוזיקה",
+    text: "האם נראה לך שתאהב/י להלחין או לעבד מוזיקה",
     type: "holland",
   },
   {
     id: "94dd3b80-577e-4443-9f15-e9610b5a3f6a",
-    text: "האם נראה לך שתאהב לתת לאנשים ייעוץ והכוונה בקריירה",
+    text: "האם נראה לך שתאהב/י לתת לאנשים ייעוץ והכוונה בקריירה",
     type: "holland",
   },
   {
     id: "7b94ec35-d10f-4769-b4d0-b7b4a30e6f05",
-    text: "האם נראה לך שתאהב להקים עסק עצמאי",
+    text: "האם נראה לך שתאהב/י להקים עסק עצמאי",
     type: "holland",
   },
   {
     id: "c1a9455e-2fc1-4562-8cd8-99fa933a66a6",
-    text: "האם נראה לך שתאהב להשתמש במחשבון",
+    text: "האם נראה לך שתאהב/י להשתמש במחשבון",
     type: "holland",
   },
   {
     id: "da8258ed-ab2e-492f-a632-026c23607694",
-    text: "האם נראה לך שתאהב להרכיב חלקים או רכיבים אלקטרוניים",
+    text: "האם נראה לך שתאהב/י להרכיב חלקים או רכיבים אלקטרוניים",
     type: "holland",
   },
   {
     id: "03cdf4b1-36e2-4e75-875f-e09405328017",
-    text: "האם נראה לך שתאהב לערוך ניסויים בכימיה",
+    text: "האם נראה לך שתאהב/י לערוך ניסויים בכימיה",
     type: "holland",
   },
   {
     id: "d078c436-cdee-4719-95af-458904b3ae27",
-    text: "האם נראה לך שתאהב ליצור אפקטים מיוחדים לסרטים",
+    text: "האם נראה לך שתאהב/י ליצור אפקטים מיוחדים לסרטים",
     type: "holland",
   },
   {
     id: "8f827cfe-b132-4881-8109-153ab601fde4",
-    text: "האם נראה לך שתאהב להעניק טיפול שיקומי לאדם שזקוק לו",
+    text: "האם נראה לך שתאהב/י להעניק טיפול שיקומי לאדם שזקוק לו",
     type: "holland",
   },
   {
     id: "03135333-238d-4dff-8c64-bd45fe17148d",
-    text: "האם נראה לך שתאהב לנהל משא ומתן על חוזים עסקיים",
+    text: "האם נראה לך שתאהב/י לנהל משא ומתן על חוזים עסקיים",
     type: "holland",
   },
   {
     id: "d6f1cd5a-82e5-4338-86f0-040e9cb7fc24",
-    text: "האם נראה לך שתאהב לנהל מעקב אחר משלוח וקבלה של משלוחים",
+    text: "האם נראה לך שתאהב/י לנהל מעקב אחר משלוח וקבלה של משלוחים",
     type: "holland",
   },
   {
     id: "76f3d4e2-5b1f-4cba-a5f6-6762ec791076",
-    text: "האם נראה לך שתאהב לנהוג ברכב הובלה כדי לבצע משלוחים למשרדים או לבתים",
+    text: "האם נראה לך שתאהב/י לנהוג ברכב הובלה כדי לבצע משלוחים למשרדים או לבתים",
     type: "holland",
   },
   {
     id: "dcb48c61-d29b-4fd0-9082-59262dd23199",
-    text: "האם נראה לך שתאהב לבדוק דגימות דם באמצעות מיקרוסקופ",
+    text: "האם נראה לך שתאהב/י לבדוק דגימות דם באמצעות מיקרוסקופ",
     type: "holland",
   },
   {
     id: "99ade0a3-2a5d-4e93-bac2-2d90f8bd4895",
-    text: "האם נראה לך שתאהב לצבוע תפאורות להצגות תיאטרון",
+    text: "האם נראה לך שתאהב/י לצבוע תפאורות להצגות תיאטרון",
     type: "holland",
   },
   {
     id: "1d471d30-9d29-43fd-b329-40d590a8e137",
-    text: "האם נראה לך שתאהב להתנדב בעמותה או בארגון ללא מטרות רווח",
+    text: "האם נראה לך שתאהב/י להתנדב בעמותה או בארגון ללא מטרות רווח",
     type: "holland",
   },
   {
     id: "35c4de97-b965-444e-a71f-c8b921020416",
-    text: "האם נראה לך שתאהב לשווק קולקציה חדשה של בגדים",
+    text: "האם נראה לך שתאהב/י לשווק קולקציה חדשה של בגדים",
     type: "holland",
   },
   {
     id: "4ffeb968-f894-4ac5-a85b-e3ae8b85bf0b",
-    text: "האם נראה לך שתאהב לנהל מלאי (של סחורות) באמצעות מחשבון ידני",
+    text: "האם נראה לך שתאהב/י לנהל מלאי (של סחורות) באמצעות מחשבון ידני",
     type: "holland",
   },
   {
     id: "f71cbbc3-bde3-4bfc-baf1-aadd14b1b18b",
-    text: "האם נראה לך שתאהב לבדוק את האיכות של חלקי מוצרים לפני ששולחים אותם ללקוחות",
+    text: "האם נראה לך שתאהב/י לבדוק את האיכות של חלקי מוצרים לפני ששולחים אותם ללקוחות",
     type: "holland",
   },
   {
     id: "08a3d413-3d42-4de3-afe0-fa9f2548e6a8",
-    text: "האם נראה לך שתאהב למצוא דרך לשפר את חיזוי מזג האוויר",
+    text: "האם נראה לך שתאהב/י למצוא דרך לשפר את חיזוי מזג האוויר",
     type: "holland",
   },
   {
     id: "5180eb46-8178-4e11-b5e9-45bcc896e616",
-    text: "האם נראה לך שתאהב לכתוב תסריטים לסרטים או לתוכניות טלוויזיה",
+    text: "האם נראה לך שתאהב/י לכתוב תסריטים לסרטים או לתוכניות טלוויזיה",
     type: "holland",
   },
   {
     id: "cc6d745e-ba48-4477-bc61-aba626449071",
-    text: "האם נראה לך שתאהב ללמד כיתה בבית ספר תיכון",
+    text: "האם נראה לך שתאהב/י ללמד כיתה בבית ספר תיכון",
     type: "holland",
   },
   {
     id: "6aee15f4-cdae-48fe-913a-66594e188a97",
-    text: "האם נראה לך שתאהב לרתום אנשים להגשים רעיון שלי",
+    text: "האם נראה לך שתאהב/י לרתום אנשים להגשים רעיון שלי",
     type: "holland",
   },
   {
     id: "fbaed22d-75f6-4a55-94eb-ad0908e3c581",
-    text: "האם נראה לך שתאהב למיין ולחלק דואר של חברה או ארגון",
+    text: "האם נראה לך שתאהב/י למיין ולחלק דואר של חברה או ארגון",
     type: "holland",
   },
-];
+]
 
 export const ALL_QUESTIONS: (Trait | Question | AnchorQuestion)[] = [
   ...STEP1_QUESTIONS,
@@ -1806,38 +1806,38 @@ export const ALL_QUESTIONS: (Trait | Question | AnchorQuestion)[] = [
   ...STEP6_QUESTIONS,
   ...STEP7_QUESTIONS,
   ...STEP8_QUESTIONS,
-];
+]
 
 function isTrait(
   question: Trait | Question | AnchorQuestion
 ): question is Trait {
-  return "text" in question && (question as any).type === "trait";
+  return "text" in question && (question as any).type === "trait"
 }
 
 function isAnchorQuestion(
   question: Trait | Question | AnchorQuestion
 ): question is AnchorQuestion {
-  return "text" in question && (question as any).type === "anchor";
+  return "text" in question && (question as any).type === "anchor"
 }
 
 function isQuestion(
   question: Trait | Question | AnchorQuestion
 ): question is Question {
-  return "question" in question;
+  return "question" in question
 }
 
 export const getQuestionText = (id: string): string | undefined => {
-  const question = ALL_QUESTIONS.find((q) => q.id === id);
+  const question = ALL_QUESTIONS.find((q) => q.id === id)
   if (!question) {
-    return undefined;
+    return undefined
   }
 
   if (isTrait(question) || isAnchorQuestion(question)) {
-    return question.text;
+    return question.text
   } else {
-    return question.question;
+    return question.question
   }
-};
+}
 
 export const RIASEC_MAP = {
   R: {
@@ -1882,4 +1882,4 @@ export const RIASEC_MAP = {
       "אוהב סדר, נהלים ומסגרת. אוהב רוטינות וכללים ואוהב שפועלים לאורם. אוהב היררכיה ובהירות. שם לב לפרטים, מדויק ושיטתי. אוהב לתכנן ולפעול על פי התכנון. מעדיף תהליכים ברורים ומוגדרים. לא מתחבר לעמימות ולחריגה מן הנורמה.",
     image: "/RIASEC/C.png",
   },
-} as const;
+} as const

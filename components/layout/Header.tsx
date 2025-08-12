@@ -79,6 +79,9 @@ export default function Header() {
           />
         </Link>
         <nav className="flex space-x-8 items-center">
+          <Link href="/aboutHolland" className="text-white hover:text-gray-200 transition-colors">
+            אודות השאלון
+          </Link>
           {loading ? (
             <div className="text-gray-500">טוען...</div>
           ) : user ? (
