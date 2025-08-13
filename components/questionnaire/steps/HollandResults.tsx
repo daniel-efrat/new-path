@@ -64,7 +64,7 @@ export default function HollandResults({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       dir="rtl"
-      className="w-full"
+      className="w-full mt-6"
     >
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
@@ -89,13 +89,36 @@ export default function HollandResults({
                 transition={{ delay: 0.2 + index * 0.1 }}
                 className="text-center p-4 border rounded-lg"
               >
-                <div className="flex justify-center mb-2">
-                  <img
-                    src={desc.image}
-                    alt={desc.name}
-                    width={80}
-                    height={80}
-                    className="rounded-full"
+                <div className="flex flex-col items-center mb-2">
+                  <motion.div
+                    className="relative w-24 h-24"
+                    initial={{ y: -50, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 260,
+                      damping: 10,
+                      delay: index * 0.1,
+                      bounce: 0.5,
+                    }}
+                  >
+                    <img
+                      src={desc.image}
+                      alt={desc.name}
+                      className="w-full h-full object-contain"
+                    />
+                  </motion.div>
+                  <motion.div 
+                    initial={{ scaleX: 1.6, opacity: 0 }}
+                    animate={{ scaleX: 1, opacity: 1 }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 260,
+                      damping: 10,
+                      delay: index * 0.1 + 0.1,
+                      bounce: 0.5,
+                    }}
+                    className="w-20 h-1 rounded-[50%] flex items-center justify-center mx-auto blur-[5px] bg-[#00000050]"
                   />
                 </div>
                 <h3 className="font-bold text-lg">
