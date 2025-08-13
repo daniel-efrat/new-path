@@ -1,5 +1,49 @@
-import { Card, CardContent } from "../../components/ui/card";
-import Image from "next/image";
+"use client"
+
+import { Card, CardContent } from "../../components/ui/card"
+import Image from "next/image"
+import { motion, useInView } from "framer-motion"
+import { useRef } from "react"
+
+function FeatureCard({ feature, index }: { feature: any; index: number }) {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: "-100px" })
+
+  return (
+    <Card
+      className="border-0 shadow-md hover:shadow-lg transition-shadow duration-200"
+    >
+      <CardContent className="p-6 text-center space-y-4">
+        <motion.div
+          ref={ref}
+          className={`w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto ${feature.color}`}
+          initial={{ scale: 0 }}
+          animate={isInView ? { scale: 1 } : { scale: 0 }}
+          transition={{
+            type: "spring",
+            stiffness: 260,
+            damping: 20,
+            delay: index * 0.15,
+            bounce: 0.5
+          }}
+        >
+          <Image
+            src={feature.icon}
+            alt={`${feature.title} icon`}
+            width={84}
+            height={84}
+          />
+        </motion.div>
+        <h3 className="font-semibold text-foreground">
+          {feature.title}
+        </h3>
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          {feature.description}
+        </p>
+      </CardContent>
+    </Card>
+  )
+}
 
 export function FeaturesSection() {
   const features = [
@@ -27,7 +71,7 @@ export function FeaturesSection() {
       description: "שותפות עם המוסדות הטובים ביותר בארץ",
       color: "text-amber-600",
     },
-  ];
+  ]
 
   return (
     <section className="py-20 px-4 bg-gray-50">
@@ -43,32 +87,10 @@ export function FeaturesSection() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map((feature, index) => (
-            <Card
-              key={index}
-              className="border-0 shadow-md hover:shadow-lg transition-shadow duration-200"
-            >
-              <CardContent className="p-6 text-center space-y-4">
-                <div
-                  className={`w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto ${feature.color}`}
-                >
-                  <Image
-                    src={feature.icon}
-                    alt={`${feature.title} icon`}
-                    width={84}
-                    height={84}
-                  />
-                </div>
-                <h3 className="font-semibold text-foreground">
-                  {feature.title}
-                </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {feature.description}
-                </p>
-              </CardContent>
-            </Card>
+            <FeatureCard key={index} feature={feature} index={index} />
           ))}
         </div>
       </div>
     </section>
-  );
+  )
 }

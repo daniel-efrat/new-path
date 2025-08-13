@@ -1,13 +1,55 @@
-import { Button } from "../../components/ui/button";
-import { Card } from "../../components/ui/card";
-import { Badge } from "../../components/ui/badge";
-import { ArrowLeft, Sparkles, Shield, Clock } from "lucide-react";
-import Link from "next/link";
-import Image from "next/image";
+"use client"
+
+import { Button } from "../../components/ui/button"
+import { Card } from "../../components/ui/card"
+import { Badge } from "../../components/ui/badge"
+import { ArrowLeft, Sparkles, Shield, Clock } from "lucide-react"
+import Link from "next/link"
+import Image from "next/image"
+import { motion, useInView } from "framer-motion"
+import { useRef } from "react"
+
+function HeroIcon({ src, alt, bgColor, children, index }: { 
+  src: string; 
+  alt: string; 
+  bgColor: string;
+  children: React.ReactNode;
+  index: number;
+}) {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: "-100px" })
+
+  return (
+    <div className="text-center space-y-2">
+      <motion.div
+        ref={ref}
+        className={`w-20 h-20 ${bgColor} rounded-full flex items-center justify-center mx-auto`}
+        initial={{ scale: 0 }}
+        animate={isInView ? { scale: 1 } : { scale: 0 }}
+        transition={{
+          type: "spring",
+          stiffness: 260,
+          damping: 20,
+          bounce: 0.5,
+          delay: index * 0.15
+        }}
+      >
+        <Image
+          src={src}
+          alt={alt}
+          width={src.includes("money") ? 84 : 80}
+          height={src.includes("money") ? 84 : 80}
+          className={src.includes("target") ? "-mt-2" : ""}
+        />
+      </motion.div>
+      {children}
+    </div>
+  )
+}
 
 export function HeroSection() {
   return (
-    <section className=" mt-4 relative flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-indigo-50 p-4">
+    <section className="mt-4 relative flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-indigo-50 p-4">
       <div className="absolute inset-0 bg-[url('/hero-bg.jpg?height=800&width=1200')] opacity-20 bg-cover bg-center" />
 
       <div className="relative z-10 max-w-4xl mx-auto text-center space-y-8">
@@ -48,53 +90,28 @@ export function HeroSection() {
         </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto mt-12">
-          <div className="text-center space-y-2">
-            <div className="w-20 h-20 bg-emerald-200 rounded-full flex items-center justify-center mx-auto">
-              <Image
-                src="/icons/target.png"
-                className="-mt-2"
-                alt="Target icon"
-                width={80}
-                height={80}
-              />
-            </div>
+          <HeroIcon src="/icons/target.png" alt="Target icon" bgColor="bg-emerald-200" index={0}>
             <h3 className="font-semibold text-foreground">התאמה מדויקת</h3>
             <p className="text-sm text-muted-foreground">
               אלגוריתם חכם שמתאים לך מקצועות
             </p>
-          </div>
+          </HeroIcon>
 
-          <div className="text-center space-y-2">
-            <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto">
-              <Image
-                src="/icons/cap.png"
-                alt="Graduation cap icon"
-                width={80}
-                height={80}
-              />
-            </div>
+          <HeroIcon src="/icons/cap.png" alt="Graduation cap icon" bgColor="bg-indigo-100" index={1}>
             <h3 className="font-semibold text-foreground">מכללות שותפות</h3>
             <p className="text-sm text-muted-foreground">
               חיבור ישיר למוסדות לימוד מובילים
             </p>
-          </div>
+          </HeroIcon>
 
-          <div className="text-center space-y-2">
-            <div className="w-20 h-20 bg-rose-100 rounded-full flex items-center justify-center mx-auto">
-              <Image
-                src="/icons/money.png"
-                alt="Money icon"
-                width={84}
-                height={84}
-              />
-            </div>
+          <HeroIcon src="/icons/money.png" alt="Money icon" bgColor="bg-rose-100" index={2}>
             <h3 className="font-semibold text-foreground">נתוני שכר</h3>
             <p className="text-sm text-muted-foreground">
               מידע עדכני על שכר צפוי בתחום
             </p>
-          </div>
+          </HeroIcon>
         </div>
       </div>
     </section>
-  );
+  )
 }
