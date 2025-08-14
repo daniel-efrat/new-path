@@ -47,13 +47,20 @@ export default function LoginPage() {
     setIsGoogleLoading(true);
     
     // Determine the correct redirect URL based on environment
-    // Get the current URL and any redirect parameter
+    console.log('Starting Google sign-in process...');
     const from = new URLSearchParams(window.location.search).get('from') || '/dashboard';
-    const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(from)}`;
+    const origin = window.location.origin;
+    const redirectTo = `${origin}/auth/callback?next=${encodeURIComponent(from)}`;
     
-    console.log('Initiating Google OAuth with redirect to:', redirectTo);
+    console.log({
+      currentUrl: window.location.href,
+      origin: origin,
+      from: from,
+      redirectTo: redirectTo
+    });
     
     try {
+      console.log('Calling supabase.auth.signInWithOAuth...');
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
