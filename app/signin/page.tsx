@@ -49,22 +49,30 @@ export default function LoginPage() {
     // Determine the correct redirect URL based on environment
     console.log('Starting Google sign-in process...');
     const from = new URLSearchParams(window.location.search).get('from') || '/dashboard';
-    const origin = window.location.origin;
-    const redirectTo = `${origin}/auth/callback?next=${encodeURIComponent(from)}`;
+    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const base = isDevelopment
+      ? 'http://localhost:3000'
+      : window.location.origin;
+    const redirectTo = `${base}/auth/callback-client?next=${encodeURIComponent(from)}`;
     
-    console.log({
+    // Extra diagnostics
+    // Note: process.env.NODE_ENV is replaced at build time by Next.js
+    console.log('ENV diagnostics:', {
+      NODE_ENV: process.env.NODE_ENV,
+      isDevelopment,
       currentUrl: window.location.href,
-      origin: origin,
-      from: from,
-      redirectTo: redirectTo
+      base,
+      from,
+      redirectTo
     });
     
     try {
-      console.log('Calling supabase.auth.signInWithOAuth...');
+      console.log('Calling supabase.auth.signInWithOAuth with skipBrowserRedirect...');
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: redirectTo,
+          skipBrowserRedirect: true,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -77,6 +85,23 @@ export default function LoginPage() {
       if (error) {
         console.error('Google login error:', error);
         alert('שגיאה בהתחברות עם Google. אנא נסה שוב.');
+        return;
+      }
+
+      if (data?.url) {
+        try {
+          const testUrl = new URL(data.url);
+          const redirect_to = testUrl.searchParams.get('redirect_to');
+          console.log('Provider URL computed:', {
+            providerUrl: data.url,
+            redirect_to
+          });
+        } catch (e) {
+          console.warn('Could not parse provider URL for inspection');
+        }
+        // Manually navigate after logging
+        window.location.assign(data.url);
+        return;
       }
     } catch (error) {
       console.error('Google login error:', error);
