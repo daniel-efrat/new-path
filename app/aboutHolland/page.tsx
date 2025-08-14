@@ -1,66 +1,91 @@
 "use client"
 
-import Image from 'next/image'
-import Link from 'next/link'
+import Image from "next/image"
+import Link from "next/link"
 import { motion, useInView, AnimatePresence } from "framer-motion"
 import { useRef, useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { DialogTransition } from "@/components/ui/DialogTransition"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { ArrowLeft, Shield, Clock } from "lucide-react"
 
 interface TypeDescription {
-  title: string;
-  description: string;
-  traits: string[];
-  careers: string[];
+  title: string
+  description: string
+  traits: string[]
+  careers: string[]
 }
 
 type TypeDescriptions = {
-  [key in 'אומנותי' | 'מחקרי' | 'ביצועי' | 'מנהלי' | 'יוזם' | 'חברתי']: TypeDescription;
+  [key in
+    | "אומנותי"
+    | "חקרני"
+    | "ביצועי"
+    | "מִנהלי"
+    | "יזמי"
+    | "חברתי"]: TypeDescription
 }
 
 const typeDescriptions: TypeDescriptions = {
-  'אומנותי': {
-    title: 'הטיפוס האומנותי (A - Artistic)',
-    description: 'אנשים יצירתיים המעדיפים עבודה לא שגרתית. הם נהנים מביטוי עצמי דרך אומנות, מוזיקה, כתיבה או עיצוב. הם מעריכים חופש יצירתי ומקוריות.',
-    traits: ['יצירתיות', 'דמיון עשיר', 'חוש אסתטי', 'עצמאות מחשבתית'],
-    careers: ['מעצב/ת', 'אדריכל/ית', 'צלם/ת', 'מוזיקאי/ת', 'סופר/ת']
+  אומנותי: {
+    title: "הטיפוס האומנותי (A - Artistic)",
+    description:
+      "אנשים יצירתיים המעדיפים עבודה לא שגרתית. הם נהנים מביטוי עצמי דרך אומנות, מוזיקה, כתיבה או עיצוב. הם מעריכים חופש יצירתי ומקוריות.",
+    traits: ["יצירתיות", "דמיון עשיר", "חוש אסתטי", "עצמאות מחשבתית"],
+    careers: ["מעצב/ת", "אדריכל/ית", "צלם/ת", "מוזיקאי/ת", "סופר/ת"],
   },
-  'חקרני': {
-    title: 'הטיפוס המחקרי (I - Investigative)',
-    description: 'אנשים סקרנים האוהבים לפתור בעיות מורכבות. הם נהנים מלימוד ומחקר, ומעדיפים עבודה הדורשת חשיבה אנליטית.',
-    traits: ['חשיבה אנליטית', 'סקרנות אינטלקטואלית', 'דיוק', 'יכולת פתרון בעיות'],
-    careers: ['מדען/ית', 'רופא/ה', 'מהנדס/ת', 'חוקר/ת', 'מתכנת/ת']
+  חקרני: {
+    title: "הטיפוס המחקרי (I - Investigative)",
+    description:
+      "אנשים סקרנים האוהבים לפתור בעיות מורכבות. הם נהנים מלימוד ומחקר, ומעדיפים עבודה הדורשת חשיבה אנליטית.",
+    traits: [
+      "חשיבה אנליטית",
+      "סקרנות אינטלקטואלית",
+      "דיוק",
+      "יכולת פתרון בעיות",
+    ],
+    careers: ["מדען/ית", "רופא/ה", "מהנדס/ת", "חוקר/ת", "מתכנת/ת"],
   },
-  'ביצועי': {
-    title: 'הטיפוס הביצועי (R - Realistic)',
-    description: 'אנשים מעשיים האוהבים לעבוד עם הידיים והכלים. הם מעדיפים תוצאות מוחשיות ונהנים מפעילות פיזית.',
-    traits: ['מעשיות', 'יכולת טכנית', 'כושר גופני', 'עבודת כפיים'],
-    careers: ['טכנאי/ת', 'מכונאי/ת', 'חשמלאי/ת', 'נגר/ית', 'שף/ית']
+  ביצועי: {
+    title: "הטיפוס הביצועי (R - Realistic)",
+    description:
+      "אנשים מעשיים האוהבים לעבוד עם הידיים והכלים. הם מעדיפים תוצאות מוחשיות ונהנים מפעילות פיזית.",
+    traits: ["מעשיות", "יכולת טכנית", "כושר גופני", "עבודת כפיים"],
+    careers: ["טכנאי/ת", "מכונאי/ת", "חשמלאי/ת", "נגר/ית", "שף/ית"],
   },
-  'מִנהלי': {
-    title: 'הטיפוס המנהלי (C - Conventional)',
-    description: 'אנשים מסודרים האוהבים לעבוד עם נתונים ופרטים. הם מעריכים דיוק, יציבות וארגון.',
-    traits: ['ארגון', 'דייקנות', 'אחריות', 'יכולת מעקב אחר נהלים'],
-    careers: ['רואה חשבון', 'מנהל/ת משרד', 'בנקאי/ת', 'מזכיר/ה בכיר/ה']
+  מִנהלי: {
+    title: "הטיפוס המִנהלי (C - Conventional)",
+    description:
+      "אנשים מסודרים האוהבים לעבוד עם נתונים ופרטים. הם מעריכים דיוק, יציבות וארגון.",
+    traits: ["ארגון", "דייקנות", "אחריות", "יכולת מעקב אחר נהלים"],
+    careers: ["רואה חשבון", "מנהל/ת משרד", "בנקאי/ת", "מזכיר/ה בכיר/ה"],
   },
-  'יזמי': {
-    title: 'הטיפוס היוזם (E - Enterprising)',
-    description: 'אנשים שאפתנים האוהבים להוביל ולהשפיע. הם נהנים ממכירות, ניהול והובלת אנשים להשגת מטרות.',
-    traits: ['מנהיגות', 'שכנוע', 'ביטחון עצמי', 'יוזמה'],
-    careers: ['מנהל/ת עסקים', 'יזם/ית', 'סוכן/ת מכירות', 'עורך/ת דין']
+  יזמי: {
+    title: "הטיפוס היוזם (E - Enterprising)",
+    description:
+      "אנשים שאפתנים האוהבים להוביל ולהשפיע. הם נהנים ממכירות, ניהול והובלת אנשים להשגת מטרות.",
+    traits: ["מנהיגות", "שכנוע", "ביטחון עצמי", "יוזמה"],
+    careers: ["מנהל/ת עסקים", "יזם/ית", "סוכן/ת מכירות", "עורך/ת דין"],
   },
-  'חברתי': {
-    title: 'הטיפוס החברתי (S - Social)',
-    description: 'אנשים אמפתיים האוהבים לעזור לאחרים. הם נהנים מעבודה עם אנשים, הוראה, ייעוץ ותמיכה.',
-    traits: ['אמפתיה', 'יכולת הקשבה', 'סבלנות', 'תקשורת בינאישית'],
-    careers: ['מורה', 'יועץ/ת', 'עובד/ת סוציאלי/ת', 'פסיכולוג/ית', 'מאמן/ת']
-  }
+  חברתי: {
+    title: "הטיפוס החברתי (S - Social)",
+    description:
+      "אנשים אמפתיים האוהבים לעזור לאחרים. הם נהנים מעבודה עם אנשים, הוראה, ייעוץ ותמיכה.",
+    traits: ["אמפתיה", "יכולת הקשבה", "סבלנות", "תקשורת בינאישית"],
+    careers: ["מורה", "יועץ/ת", "עובד/ת סוציאלי/ת", "פסיכולוג/ית", "מאמן/ת"],
+  },
 }
 
 interface TypeIconProps {
-  type: { name: keyof TypeDescriptions; image: string };
-  index: number;
-  onClick: () => void;
+  type: { name: keyof TypeDescriptions; image: string }
+  index: number
+  onClick: () => void
 }
 
 function TypeIcon({ type, index, onClick }: TypeIconProps) {
@@ -81,9 +106,10 @@ function TypeIcon({ type, index, onClick }: TypeIconProps) {
         transition={{
           type: "spring",
           stiffness: 260,
-          damping: 10,
-          delay: index * 0.1,
-          bounce: 0.5,
+          damping: 5,
+          delay: index * 0.1 + 0.3,
+          bounce: 1,
+          duration: 1.5,
         }}
       >
         <Image
@@ -96,28 +122,33 @@ function TypeIcon({ type, index, onClick }: TypeIconProps) {
       </motion.div>
       <motion.div
         initial={{ scaleX: 1.6, opacity: 0 }}
-        animate={isInView ? { scaleX: 1, opacity: 1 } : { scaleX: 1, opacity: 0.6 }}
+        animate={
+          isInView ? { scaleX: 1, opacity: 1 } : { scaleX: 1, opacity: 0.6 }
+        }
         transition={{
           type: "spring",
           stiffness: 260,
-          damping: 10,
-          delay: index * 0.1 + 0.1,
-          bounce: 0.5,
+          damping: 5,
+          delay: index * 0.1 + 0.3,
+          bounce: 1,
+          duration: 1.5,
         }}
-        className="w-20 h-1 rounded-[50%] flex items-center justify-center mx-auto blur-[5px] bg-[#00000050]"
+        className="w-20 h-1 rounded-[50%] flex items-center justify-center mx-auto blur-[5px] bg-[#000000]"
       />
     </div>
   )
 }
 
 interface TypeModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  typeName: keyof TypeDescriptions | '';
+  isOpen: boolean
+  onClose: () => void
+  typeName: keyof TypeDescriptions | ""
 }
 
 function TypeModal({ isOpen, onClose, typeName }: TypeModalProps) {
-  const typeInfo = typeName ? typeDescriptions[typeName as keyof TypeDescriptions] : null
+  const typeInfo = typeName
+    ? typeDescriptions[typeName as keyof TypeDescriptions]
+    : null
 
   if (!typeInfo) return null
 
@@ -133,7 +164,7 @@ function TypeModal({ isOpen, onClose, typeName }: TypeModalProps) {
                 </DialogTitle>
               </DialogHeader>
               <div className="mt-6 space-y-6">
-                <motion.p 
+                <motion.p
                   className="text-gray-700 leading-relaxed"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -141,20 +172,22 @@ function TypeModal({ isOpen, onClose, typeName }: TypeModalProps) {
                 >
                   {typeInfo.description}
                 </motion.p>
-                
+
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
                 >
-                  <h3 className="font-semibold text-lg mb-2">מאפיינים בולטים:</h3>
+                  <h3 className="font-semibold text-lg mb-2">
+                    מאפיינים בולטים:
+                  </h3>
                   <ul className="list-disc list-inside space-y-1 text-gray-700">
                     {typeInfo.traits.map((trait: string, index: number) => (
-                      <motion.li 
+                      <motion.li
                         key={trait}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.4 + (index * 0.1) }}
+                        transition={{ delay: 0.4 + index * 0.1 }}
                       >
                         {trait}
                       </motion.li>
@@ -167,14 +200,16 @@ function TypeModal({ isOpen, onClose, typeName }: TypeModalProps) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
                 >
-                  <h3 className="font-semibold text-lg mb-2">מקצועות מתאימים:</h3>
+                  <h3 className="font-semibold text-lg mb-2">
+                    מקצועות מתאימים:
+                  </h3>
                   <ul className="list-disc list-inside space-y-1 text-gray-700">
                     {typeInfo.careers.map((career: string, index: number) => (
-                      <motion.li 
+                      <motion.li
                         key={career}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.6 + (index * 0.1) }}
+                        transition={{ delay: 0.6 + index * 0.1 }}
                       >
                         {career}
                       </motion.li>
@@ -191,14 +226,16 @@ function TypeModal({ isOpen, onClose, typeName }: TypeModalProps) {
 }
 
 export default function AboutHollandPage() {
-  const [selectedType, setSelectedType] = useState<keyof TypeDescriptions | null>(null)
+  const [selectedType, setSelectedType] = useState<
+    keyof TypeDescriptions | null
+  >(null)
 
   const types: Array<{ name: keyof TypeDescriptions; image: string }> = [
     { name: 'אומנותי', image: '/RIASEC/A.png' },
-    { name: 'מחקרי', image: '/RIASEC/I.png' },
+    { name: 'חקרני', image: '/RIASEC/I.png' },
     { name: 'ביצועי', image: '/RIASEC/R.png' },
-    { name: 'מנהלי', image: '/RIASEC/C.png' },
-    { name: 'יוזם', image: '/RIASEC/E.png' },
+    { name: 'מִנהלי', image: '/RIASEC/C.png' },
+    { name: 'יזמי', image: '/RIASEC/E.png' },
     { name: 'חברתי', image: '/RIASEC/S.png' },
   ]
 
@@ -284,9 +321,9 @@ export default function AboutHollandPage() {
           </h2>
           <div className="mt-10 grid grid-cols-2 md:grid-cols-3 gap-8">
             {types.map((type, index) => (
-              <TypeIcon 
-                key={type.name} 
-                type={type} 
+              <TypeIcon
+                key={type.name}
+                type={type}
                 index={index}
                 onClick={() => setSelectedType(type.name)}
               />
@@ -294,20 +331,40 @@ export default function AboutHollandPage() {
           </div>
         </div>
 
-        <div className="text-center">
-          <Link
-            href="/questionnaire"
-            className="inline-block rounded-lg bg-blue-600 px-8 py-4 text-center text-lg font-semibold text-white outline-none ring-blue-300 transition duration-100 hover:bg-blue-700 focus-visible:ring active:bg-blue-800 md:text-base"
-          >
-            למילוי שאלון ההכוונה
-          </Link>
-        </div>
+        <Card className="max-w-md mx-auto p-6 shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+          <div className="space-y-4">
+            <div className="flex items-center justify-center space-x-4 space-x-reverse text-sm text-muted-foreground">
+              <div className="flex items-center">
+                <Shield className="w-4 h-4 mr-1" />
+                <span>מאובטח</span>
+              </div>
+              <div className="flex items-center">
+                <Clock className="w-4 h-4 mr-1" />
+                <span>10-15 דקות</span>
+              </div>
+            </div>
+
+            <Link href="/questionnaire">
+              <Button
+                size="lg"
+                className="w-full text-lg font-semibold h-12 bg-primary hover:bg-secondary"
+              >
+                למילוי שאלון ההכוונה
+                <ArrowLeft className="w-5 h-5 mr-2" />
+              </Button>
+            </Link>
+
+            <p className="text-xs text-gray-500 text-center mt-2">
+              ללא התחייבות • ביטול בכל עת
+            </p>
+          </div>
+        </Card>
       </div>
 
       <TypeModal
         isOpen={!!selectedType}
         onClose={() => setSelectedType(null)}
-        typeName={selectedType || ''}
+        typeName={selectedType || ""}
       />
     </div>
   )

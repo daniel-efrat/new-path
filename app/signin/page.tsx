@@ -21,16 +21,8 @@ export default function LoginPage() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Handle OAuth callback tokens from URL hash
+  // Check if user is already authenticated
   useEffect(() => {
-    console.log('Signin page loaded with:', {
-      hash: window.location.hash,
-      search: window.location.search,
-      pathname: window.location.pathname,
-      href: window.location.href
-    });
-
-    // Check if user is already authenticated
     const checkExistingAuth = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -48,51 +40,6 @@ export default function LoginPage() {
     };
 
     checkExistingAuth();
-    
-    // Check for tokens in hash
-    if (window.location.hash) {
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      console.log('Hash params:', Object.fromEntries(hashParams.entries()));
-      
-      const accessToken = hashParams.get('access_token');
-      const refreshToken = hashParams.get('refresh_token');
-      
-      if (accessToken) {
-        console.log('Processing OAuth tokens from hash...');
-        
-        const handleAuthCallback = async () => {
-          try {
-            const { data, error } = await supabase.auth.setSession({
-              access_token: accessToken,
-              refresh_token: refreshToken || '',
-            });
-            
-            if (error) {
-              console.error('Session error:', error);
-              alert('שגיאה בהתחברות. אנא נסה שוב.');
-            } else {
-              console.log('Session set successfully:', data);
-              console.log('Current cookies:', document.cookie);
-              
-              // Clear the hash from URL
-              window.history.replaceState(null, '', window.location.pathname);
-              
-              // Wait a moment for cookies to be set, then redirect
-              setTimeout(() => {
-                console.log('Redirecting after OAuth...');
-                const from = new URLSearchParams(window.location.search).get('from') || '/dashboard';
-                window.location.href = from;
-              }, 1000);
-            }
-          } catch (error) {
-            console.error('Auth callback error:', error);
-            alert('שגיאה בהתחברות. אנא נסה שוב.');
-          }
-        };
-        
-        handleAuthCallback();
-      }
-    }
   }, [router]);
 
   const handleGoogleLogin = async (e: React.MouseEvent) => {
@@ -100,19 +47,24 @@ export default function LoginPage() {
     setIsGoogleLoading(true);
     
     // Determine the correct redirect URL based on environment
-    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const redirectUrl = isDevelopment 
-      ? 'http://localhost:3000/auth/callback'
-      : `${window.location.origin}/auth/callback`;
+    console.log('Starting Google sign-in process...');
+    const from = new URLSearchParams(window.location.search).get('from') || '/dashboard';
+    const origin = window.location.origin;
+    const redirectTo = `${origin}/auth/callback?next=${encodeURIComponent(from)}`;
     
-    console.log('Initiating Google OAuth with redirect to:', redirectUrl);
-    console.log('Environment:', isDevelopment ? 'development' : 'production');
+    console.log({
+      currentUrl: window.location.href,
+      origin: origin,
+      from: from,
+      redirectTo: redirectTo
+    });
     
     try {
+      console.log('Calling supabase.auth.signInWithOAuth...');
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: redirectUrl,
+          redirectTo: redirectTo,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',

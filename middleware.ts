@@ -1,20 +1,51 @@
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
+import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// This function can be marked `async` if using `await` inside
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next();
-  const supabase = createMiddlewareClient({ req, res });
+  console.log('Middleware called:', { 
+    url: req.url,
+    pathname: req.nextUrl.pathname
+  });
 
-  // Refresh session if expired - required for Server Components
-  // https://supabase.com/docs/guides/auth/auth-helpers/nextjs#managing-session-with-middleware
-  await supabase.auth.getSession();
+  const res = NextResponse.next();
+  
+  try {
+    console.log('Middleware environment:', {
+      hasSupabaseKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      nodeEnv: process.env.NODE_ENV
+    });
+    
+    console.log('Creating Supabase client in middleware...');
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get: (name: string) => req.cookies.get(name)?.value,
+          set: (name: string, value: string, options: any) => {
+            res.cookies.set(name, value, options);
+          },
+          remove: (name: string, options: any) => {
+            res.cookies.set(name, '', { ...options, maxAge: 0 });
+          },
+        },
+      }
+    );
+    
+    console.log('Getting session in middleware...');
+    const { data: { session }, error } = await supabase.auth.getSession();
+    console.log('Session check result:', { 
+      hasSession: !!session,
+      error: error || 'none'
+    });
+  } catch (error) {
+    console.error('Middleware error:', error);
+  }
 
   return res;
 }
 
-// Ensure the middleware is only called for relevant paths.
 export const config = {
   matcher: [
     /*
