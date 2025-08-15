@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 import ClientMotionProvider from "@/components/ClientMotionProvider"; // ← חדש
 
 export const metadata: Metadata = {
-  title: "My App",
+  title: "דרך חדשה",
   description: "My Next.js App",
   icons: {
     icon: [
