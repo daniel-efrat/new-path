@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useMemo } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardHeader } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
-import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore"
-import { STEP1_QUESTIONS } from "@/lib/constants/questions"
-import { fetchStep1Answers } from "@/lib/utils/answerFetcher"
-import { cn } from "@/lib/utils"
-import type { AnswerState } from "@/lib/types/questionnaire"
+import React, { useState, useEffect, useMemo } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore";
+import { STEP1_QUESTIONS } from "@/lib/constants/questions";
+import { fetchStep1Answers } from "@/lib/utils/answerFetcher";
+import { cn } from "@/lib/utils";
+import type { AnswerState } from "@/lib/types/questionnaire";
 
 // Define props for the selector to receive state and actions
 interface TraitsSelectorProps {
@@ -17,17 +17,19 @@ interface TraitsSelectorProps {
 }
 
 interface Step1Props {
-  onNext: () => void
+  onNext: () => void;
 }
 
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Step1({ onNext }: Step1Props) {
   const { setAnswer, isLoading: storeLoading } = useQuestionnaireStore();
-  const [stepAnswers, setStepAnswers] = useState<Record<string, AnswerState>>({});
+  const [stepAnswers, setStepAnswers] = useState<Record<string, AnswerState>>(
+    {}
+  );
   const [isLoadingAnswers, setIsLoadingAnswers] = useState(true);
-  const [isUpdating, setIsUpdating] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [animationKey, setAnimationKey] = useState(0);
 
   // Fetch answers directly from Supabase on component mount
@@ -35,12 +37,12 @@ export default function Step1({ onNext }: Step1Props) {
     const loadStepAnswers = async () => {
       setIsLoadingAnswers(true);
       try {
-        const questionIds = STEP1_QUESTIONS.map(q => q.id);
+        const questionIds = STEP1_QUESTIONS.map((q) => q.id);
         const fetchedAnswers = await fetchStep1Answers(questionIds);
         setStepAnswers(fetchedAnswers);
       } catch (error) {
-        console.error('Error loading Step 1 answers:', error);
-        setError('שגיאה בטעינת התשובות הקודמות');
+        console.error("Error loading Step 1 answers:", error);
+        setError("שגיאה בטעינת התשובות הקודמות");
       } finally {
         setIsLoadingAnswers(false);
       }
@@ -50,25 +52,30 @@ export default function Step1({ onNext }: Step1Props) {
   }, []);
 
   const selectedTraitIds = useMemo(() => {
-    const selected = STEP1_QUESTIONS.filter(q => {
+    const selected = STEP1_QUESTIONS.filter((q) => {
       const answer = stepAnswers[q.id];
       if (!answer) return false;
-      
+
       // Handle both string 'true' and boolean true values
       const value = answer.value;
-      return value === 'true' || value === true;
-    }).map(q => q.id);
-    
+      return value === "true" || value === true;
+    }).map((q) => q.id);
+
     // Debug logging
-    console.log('Step1 - stepAnswers:', stepAnswers);
-    console.log('Step1 - selectedTraitIds:', selected);
-    
+    console.log("Step1 - stepAnswers:", stepAnswers);
+    console.log("Step1 - selectedTraitIds:", selected);
+
     return selected;
   }, [stepAnswers]);
 
-  const traitsCount = selectedTraitIds.length
-  const totalProgress = Math.min(Math.round((traitsCount / 10) * 100), 100)
-  const canContinue = traitsCount > 0 && traitsCount <= 10 && !storeLoading && !isUpdating && !isLoadingAnswers
+  const traitsCount = selectedTraitIds.length;
+  const totalProgress = Math.min(Math.round((traitsCount / 10) * 100), 100);
+  const canContinue =
+    traitsCount > 0 &&
+    traitsCount <= 10 &&
+    !storeLoading &&
+    !isUpdating &&
+    !isLoadingAnswers;
 
   // Centralized function to handle trait toggling
   const toggleTrait = async (questionId: string) => {
@@ -88,16 +95,18 @@ export default function Step1({ onNext }: Step1Props) {
       // The new value will be the opposite of the current selection state.
       const newValue = !isCurrentlySelected;
       await setAnswer(questionId, String(newValue), undefined, 1);
-      
-      // Update local state immediately for better UX
-      setStepAnswers(prev => ({
-        ...prev,
-        [questionId]: { value: String(newValue), timestamp: new Date() }
-      }));
 
+      // Update local state immediately for better UX
+      setStepAnswers((prev) => ({
+        ...prev,
+        [questionId]: { value: String(newValue), timestamp: new Date() },
+      }));
     } catch (err) {
       setError("שגיאה בשמירת הבחירה. נסה שנית.");
-      console.error(`Error toggling trait for ID ${questionId}:`, JSON.stringify(err, Object.getOwnPropertyNames(err)));
+      console.error(
+        `Error toggling trait for ID ${questionId}:`,
+        JSON.stringify(err, Object.getOwnPropertyNames(err))
+      );
     } finally {
       setIsUpdating(false);
     }
@@ -113,13 +122,13 @@ export default function Step1({ onNext }: Step1Props) {
         transition={{ duration: 0.5 }}
         className="relative"
       >
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.5 }}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold mb-4 text-center">
+          <h1 className="text-3xl font-bold mt-6 mb-4 text-center">
             שלב 1: הערכה מקצועית
           </h1>
           <p className="text-lg text-center max-w-2xl mx-auto text-[color:var(--muted-foreground)]">
@@ -187,7 +196,7 @@ export default function Step1({ onNext }: Step1Props) {
         </motion.div>
       </motion.div>
     </AnimatePresence>
-  )
+  );
 }
 
 const TRAITS: string[] = [
@@ -249,19 +258,24 @@ const TRAITS: string[] = [
   "ייצוגיות",
   "חדות",
   "חושניות",
-]
+];
 
-function TraitsSelector({ questions, selectedTraitIds, toggleTrait, isLoading }: TraitsSelectorProps) {
-  const [mounted, setMounted] = useState(false)
-  const [focusedTrait, setFocusedTrait] = useState<number>(-1)
+function TraitsSelector({
+  questions,
+  selectedTraitIds,
+  toggleTrait,
+  isLoading,
+}: TraitsSelectorProps) {
+  const [mounted, setMounted] = useState(false);
+  const [focusedTrait, setFocusedTrait] = useState<number>(-1);
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      if (isLoading) return
+      if (isLoading) return;
 
       if ((e.key === " " || e.key === "Enter") && focusedTrait !== -1) {
         e.preventDefault();
@@ -273,14 +287,14 @@ function TraitsSelector({ questions, selectedTraitIds, toggleTrait, isLoading }:
         setFocusedTrait((prev) => Math.min(prev + 1, questions.length - 1));
       }
       if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
-        e.preventDefault()
-        setFocusedTrait((prev) => Math.max(prev - 1, 0))
+        e.preventDefault();
+        setFocusedTrait((prev) => Math.max(prev - 1, 0));
       }
-    }
+    };
 
-    window.addEventListener("keydown", handleKeyPress)
-    return () => window.removeEventListener("keydown", handleKeyPress)
-  }, [focusedTrait, isLoading, toggleTrait])
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [focusedTrait, isLoading, toggleTrait]);
 
   return (
     <section className="space-y-10" dir="rtl">
@@ -334,5 +348,5 @@ function TraitsSelector({ questions, selectedTraitIds, toggleTrait, isLoading }:
         </div>
       </div>
     </section>
-  )
+  );
 }

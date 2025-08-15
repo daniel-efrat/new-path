@@ -124,10 +124,14 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
     const newAnswers = [...answers];
     newAnswers[current] = idx;
     setAnswers(newAnswers);
+    // Auto-advance to the next question after a short delay (like Step2)
+    setTimeout(() => {
+      handleNext(false, true);
+    }, 1200);
   };
 
-  const handleNext = (skipped: boolean = false) => {
-    if (!skipped && selected === null) return;
+  const handleNext = (skipped: boolean = false, force: boolean = false) => {
+    if (!skipped && !force && selected === null) return;
     if (skipped && selected === null) {
       setAnswer(QUESTIONS[current].id, null, false);
     }
@@ -172,7 +176,7 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
             }}
             onInit={({ conductor }) => setFireworksConductor(conductor)}
           />
-          <h1 className="text-3xl font-bold mb-6">תוצאות המבחן</h1>
+          <h1 className="text-3xl font-bold my-6">תוצאות המבחן</h1>
           <div className="text-xl mb-8">
             הניקוד שלך: {score} מתוך {QUESTIONS.length} (
             {Math.round((score / QUESTIONS.length) * 100)}%)
@@ -251,7 +255,7 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-2xl font-bold mb-4 text-center"
+            className="text-2xl font-bold mb-4 mt-6 text-center"
           >
             מבחן מתמטיקה
           </motion.h1>
@@ -317,7 +321,7 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
                     transition={{ delay: 0.6 + idx * 0.1 }}
                   >
                     <Button
-                      className={`w-full text-right justify-start p-4 h-auto text-base whitespace-normal ${
+                      className={`w-full justify-center p-4 h-auto text-base whitespace-normal ${
                         selected !== null
                           ? idx === q.correct_option
                             ? "bg-green-100 hover:bg-green-200 border-green-400"
@@ -369,14 +373,6 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
                   🔄 Restart Quiz (Dev)
                 </Button>
               </div>
-              {selected !== null && (
-                <Button
-                  onClick={() => handleNext(false)}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  {current < QUESTIONS.length - 1 ? "שאלה הבאה" : "סיום"}
-                </Button>
-              )}
             </motion.div>
           </div>
         </motion.div>

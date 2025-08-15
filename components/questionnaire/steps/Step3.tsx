@@ -165,7 +165,7 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
             onInit={({ conductor }) => setFireworksConductor(conductor)}
           />
           <div className="w-full max-w-4xl" dir="rtl">
-            <h1 className="text-3xl font-bold mb-6">תוצאות המבחן</h1>
+            <h1 className="text-3xl font-bold my-6">תוצאות המבחן</h1>
             <div className="text-xl mb-8">
               הניקוד שלך: {score} מתוך {QUESTIONS.length} (
               {Math.round((score / QUESTIONS.length) * 100)}%)
@@ -232,10 +232,7 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
               >
                 🔄 Restart Quiz (Dev)
               </Button>
-              <Button
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-              >
+              <Button onClick={handleSubmit} disabled={isSubmitting}>
                 {isSubmitting ? "שולח..." : "המשך לשלב הבא"}
               </Button>
             </div>
@@ -257,7 +254,7 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-2xl font-bold mb-4 text-center"
+            className="text-2xl font-bold mt-6 mb-4 text-center"
           >
             English Language Assessment
           </motion.h1>
@@ -305,7 +302,7 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
                     transition={{ delay: 0.6 + idx * 0.1 }}
                   >
                     <Button
-                      className={`w-full text-left justify-start p-4 h-auto text-base whitespace-normal ${
+                      className={`w-full justify-center p-4 h-auto text-base whitespace-normal ${
                         selected !== null
                           ? q.options.indexOf(opt) === q.correct_option
                             ? "bg-green-100 hover:bg-green-200 border-green-400"

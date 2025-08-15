@@ -204,7 +204,7 @@ export default function Step8({ onNext, onPrevious }: Step8Props) {
             }}
             onInit={({ conductor }) => setFireworksConductor(conductor)}
           />
-          <h1 className="text-3xl font-bold mb-6">תוצאות המבחן</h1>
+          <h1 className="text-3xl font-bold my-6">תוצאות המבחן</h1>
           <div className="text-xl mb-8">
             הניקוד שלך: {score} מתוך {QUESTIONS.length} (
             {Math.round((score / QUESTIONS.length) * 100)}%)
@@ -331,7 +331,7 @@ export default function Step8({ onNext, onPrevious }: Step8Props) {
                     transition={{ delay: 0.6 + idx * 0.1 }}
                   >
                     <Button
-                      className={`w-full text-right p-4 h-auto text-base whitespace-normal ${
+                      className={`w-full justify-center p-4 h-auto text-base whitespace-normal ${
                         selected !== null
                           ? idx === q.correct_option
                             ? "bg-green-100 hover:bg-green-200 border-green-400"

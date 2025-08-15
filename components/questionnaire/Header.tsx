@@ -1,8 +1,8 @@
-import { Button } from "@/components/ui/button"
-import { ChevronLeft } from "lucide-react"
+import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
 
 interface HeaderProps {
-  onBack: () => void
+  onBack: () => void;
 }
 
 export default function Header({ onBack }: HeaderProps) {
@@ -27,5 +27,5 @@ export default function Header({ onBack }: HeaderProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

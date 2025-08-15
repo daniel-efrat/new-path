@@ -32,6 +32,28 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
 
   const currentQ = STEP7_QUESTIONS[currentQuestion];
 
+  // Dynamic instructions per question ranges
+  const getInstructionText = (qIndex: number): string => {
+    // 1-3: existing instructions
+    if (qIndex >= 0 && qIndex <= 2) {
+      return "התבוננו בדפוס המורכב למעלה ובחרו איזה מהצורות הפשוטות למטה מופיעה בתוכו.";
+    }
+    // 4
+    if (qIndex === 3) {
+      return "התבוננו בצמד השמאלי, גלו מהו השינוי מצורה א’ לצורה ב’ (כיוון/היפוך/החלפת צבעים), החילו את אותה פעולה על הצורה שבצמד הימני, ובחרו את התוצאה הנכונה.";
+    }
+    // 5-6
+    if (qIndex >= 4 && qIndex <= 5) {
+      return "התבוננו בריבועים בלוח, מצאו את החוקיות של הצורות ובחרו מבין האפשרויות את הריבוע שמשלים את הדפוס במיקום הריק.";
+    }
+    // 7-8
+    if (qIndex >= 6 && qIndex <= 7) {
+      return "התבוננו במבנה הקוביות התלת־ממדי, דמיינו אותו במבט מלמעלה, ובחרו מבין האפשרויות את התבנית הדו־ממדית (סידור הריבועים) התואמת למבנה.";
+    }
+    // 9-14
+    return "התבוננו בריבועים בלוח, מצאו את החוקיות של הצורות והעיגולים, ובחרו מבין האפשרויות את הריבוע שמשלים את הדפוס במיקום הריק.";
+  };
+
   // Development restart function
   const handleRestart = () => {
     setCurrentQuestion(0);
@@ -207,7 +229,7 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
   if (showResults) {
     return (
       <div dir="rtl" className="max-w-4xl mx-auto text-center">
-        <h1 className="text-3xl font-bold mb-6">תוצאות המבחן</h1>
+        <h1 className="text-3xl font-bold my-6">תוצאות המבחן</h1>
         <div className="text-xl mb-8">
           הניקוד שלך: {score} מתוך {STEP7_QUESTIONS.length} (
           {Math.round((score / STEP7_QUESTIONS.length) * 100)}%)
@@ -269,7 +291,7 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
           className="w-full"
         >
           <motion.h1
-            className="text-2xl font-bold mb-6 text-center"
+            className="text-2xl font-bold mb-6 mt-6 text-center"
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.7, delay: 0 }}
@@ -301,8 +323,7 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
                   הוראות:
                 </h3>
                 <div className="text-right leading-relaxed text-gray-800 bg-white p-4 rounded border">
-                  התבוננו בדפוס המורכב למעלה ובחרו איזה מהצורות הפשוטות למטה
-                  מופיעה בתוכו.
+                  {getInstructionText(currentQuestion)}
                 </div>
               </div>
             </Card>

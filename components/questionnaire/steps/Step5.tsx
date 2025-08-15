@@ -164,7 +164,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
             style={{ zIndex: 1000, position: "fixed", top: 0, left: 0 }}
           />
 
-          <h1 className="text-3xl font-bold mb-6">תוצאות המבחן</h1>
+          <h1 className="text-3xl font-bold my-6">תוצאות המבחן</h1>
           <div className="text-xl mb-8">
             הניקוד שלך: {score} מתוך {QUESTIONS.length} (
             {Math.round((score / QUESTIONS.length) * 100)}%)
@@ -270,9 +270,6 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
                 </h3>
                 <div className="text-right leading-relaxed text-gray-800 bg-white p-4 rounded border">
                   ענו לפי המידע שמופיע בכל שאלה בלבד. אל תניחו עובדות שלא ניתנו.
-                  זכרו: מטענה כללית ("כל…") אי‑אפשר להסיק קיום פרטים; מטענת קיום
-                  ("יש…") לא מסיקים כלל על כולם. הבחינו בין "אם… אז…" (תנאי
-                  מספיק), "רק אם…" (תנאי הכרחי), ו"אם ורק אם…" .
                 </div>
               </div>
             </Card>
@@ -310,7 +307,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
                     transition={{ delay: 0.6 + idx * 0.1 }}
                   >
                     <Button
-                      className={`w-full text-right justify-start p-4 h-auto text-base whitespace-normal ${
+                      className={`w-full justify-center p-4 h-auto text-base whitespace-normal ${
                         selected !== null
                           ? idx === q.correct_option
                             ? "bg-green-100 hover:bg-green-200 border-green-400"
