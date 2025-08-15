@@ -48,3 +48,21 @@
   --tracking-normal: 0em;
   --spacing: 0.25rem;
 }
+
+/* Prevent scrollbar jitter but allow vertical scrolling */
+html {
+  overflow-y: auto; /* allow vertical scrolling when needed */
+  overflow-x: hidden; /* avoid accidental horizontal scroll */
+  scrollbar-gutter: stable both-edges; /* reserve space to avoid layout shift */
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+  overscroll-behavior: none; /* disable bounce/back-forward gestures */
+}
+
+/* Ensure inner content doesn't create accidental horizontal scroll */
+* {
+  box-sizing: border-box;
+}

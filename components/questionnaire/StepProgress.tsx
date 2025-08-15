@@ -1,8 +1,8 @@
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 interface StepProgressProps {
-  currentStep: number
-  totalSteps: number
+  currentStep: number;
+  totalSteps: number;
 }
 
 export default function StepProgress({
@@ -29,7 +29,7 @@ export default function StepProgress({
               className={cn(
                 "w-4 h-4 rounded-full transition-all duration-300",
                 step === currentStep
-                  ? "bg-blue-600 ring-4 ring-blue-100"
+                  ? "bg-primary ring-4 ring-blue-100"
                   : step < currentStep
                   ? "bg-secondary"
                   : "bg-gray-200"
@@ -48,5 +48,5 @@ export default function StepProgress({
         ))}
       </div>
     </div>
-  )
+  );
 }

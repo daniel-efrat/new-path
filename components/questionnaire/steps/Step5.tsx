@@ -75,6 +75,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
         const answeredCount = newAnswers.filter((a) => a !== null).length;
         if (answeredCount === QUESTIONS.length) {
           setShowResult(true);
+          setAnimationKey((prev) => prev + 1);
         }
       } catch (error) {
         console.error("Error loading Step 5 answers:", error);
@@ -102,7 +103,6 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
     setTimer(90);
     setSelected(null);
     setFeedback(null);
-    setAnimationKey((prev) => prev + 1);
   }, [current]);
 
   const handleContinue = async () => {
@@ -132,12 +132,15 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
       const newAnswers = [...answers];
       newAnswers[current] = null;
       setAnswers(newAnswers);
-      setAnswer(QUESTIONS[current].id, { value: null, isCorrect: false });
+      // Align with setAnswer signature used elsewhere in this step
+      setAnswer(QUESTIONS[current].id, null, false, 5);
     }
     if (current < QUESTIONS.length - 1) {
-      setCurrent(current + 1);
+      setCurrent((c) => c + 1);
+      setAnimationKey((prev) => prev + 1);
     } else {
       setShowResult(true);
+      setAnimationKey((prev) => prev + 1);
     }
   };
 
@@ -243,7 +246,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-2xl font-bold mb-4 text-center"
+            className="text-2xl font-bold mb-4 mt-6 text-center"
           >
             מבחן לוגיקה
           </motion.h1>
@@ -265,7 +268,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
           >
             <Card className="max-w-4xl mx-auto p-6 mb-6 bg-blue-50 border-blue-200">
               <div className="text-center mb-4">
-                <h3 className="text-lg font-semibold text-blue-800 mb-3">
+                <h3 className="text-lg font-semibold text-primary mb-3">
                   הוראות:
                 </h3>
                 <div className="text-right leading-relaxed text-gray-800 bg-white p-4 rounded border">

@@ -67,7 +67,7 @@ export default function QuestionnairePage() {
         <h1 className="text-2xl font-semibold mb-4">שאלון</h1>
         <p className="mb-4">השלב {currentStep} אינו נתמך עדיין.</p>
         <button
-          className="px-4 py-2 bg-blue-600 text-white rounded"
+          className="px-4 py-2 bg-primary text-white rounded"
           onClick={() => router.push("/dashboard")}
         >
           חזרה ללוח הבקרה
@@ -78,8 +78,11 @@ export default function QuestionnairePage() {
 
   return (
     <div className="container mx-auto p-4">
-      <Current onPrevious={onPrevious} onNext={onNext} onComplete={onComplete} />
+      <Current
+        onPrevious={onPrevious}
+        onNext={onNext}
+        onComplete={onComplete}
+      />
     </div>
   );
 }
-

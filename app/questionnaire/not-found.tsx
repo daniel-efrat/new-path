@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function QuestionnaireNotFound() {
   return (
@@ -37,12 +37,12 @@ export default function QuestionnaireNotFound() {
           <p>צריך עזרה?</p>
           <a
             href="mailto:support@example.com"
-            className="text-blue-600 hover:text-blue-700 underline"
+            className="text-primary hover:text-blue-700 underline"
           >
             צור קשר עם התמיכה
           </a>
         </div>
       </div>
     </div>
-  )
+  );
 }

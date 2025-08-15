@@ -12,7 +12,7 @@ import { motion, AnimatePresence } from "framer-motion";
 interface Step7Props {
   onNext?: () => void;
   onPrevious: () => void;
-  onComplete: () => void;
+  onComplete: () => Promise<void>;
 }
 
 export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
@@ -222,8 +222,13 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
     }
   };
 
-  const handleComplete = () => {
-    onComplete();
+  const handleComplete = async () => {
+    try {
+      await onComplete();
+      if (onNext) onNext();
+    } catch (error) {
+      console.error("Error completing step 7:", error);
+    }
   };
 
   if (showResults) {
@@ -270,7 +275,7 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
           </Button>
           <Button
             onClick={handleComplete}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-primary hover:bg-blue-700"
           >
             המשך לשלב הבא
           </Button>
@@ -319,7 +324,7 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
           >
             <Card className="p-6 mb-6 bg-blue-50 border-blue-200">
               <div className="text-center mb-4">
-                <h3 className="text-lg font-semibold text-blue-800 mb-3">
+                <h3 className="text-lg font-semibold text-primary mb-3">
                   הוראות:
                 </h3>
                 <div className="text-right leading-relaxed text-gray-800 bg-white p-4 rounded border">
@@ -529,7 +534,7 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
               {showFeedback && (
                 <Button
                   onClick={handleNextQuestion}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-primary hover:bg-blue-700"
                 >
                   {currentQuestion < STEP7_QUESTIONS.length - 1
                     ? "שאלה הבאה"

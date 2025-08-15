@@ -73,7 +73,7 @@ export default function AuthForm() {
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full py-3 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-primary ${
+            className={`w-full py-3 px-4 bg-primary text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-primary ${
               isLoading ? "opacity-70 cursor-not-allowed" : ""
             }`}
           >

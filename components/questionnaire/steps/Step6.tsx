@@ -75,6 +75,7 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
         const answeredCount = newAnswers.filter((a) => a !== null).length;
         if (answeredCount === QUESTIONS.length) {
           setShowResult(true);
+          setAnimationKey((prev) => prev + 1);
         }
       } catch (error) {
         console.error("Error loading Step 6 answers:", error);
@@ -102,7 +103,6 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
     setTimer(90);
     setSelected(null);
     setFeedback(null);
-    setAnimationKey((prev) => prev + 1);
   }, [current]);
 
   const handleContinue = async () => {
@@ -137,8 +137,10 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
     }
     if (current < QUESTIONS.length - 1) {
       setCurrent((c) => c + 1);
+      setAnimationKey((prev) => prev + 1);
     } else {
       setShowResult(true);
+      setAnimationKey((prev) => prev + 1);
     }
   };
 
@@ -146,7 +148,7 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-gray-600">טוען שאלות...</p>
         </div>
       </div>
@@ -277,7 +279,7 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
           >
             <Card className="max-w-4xl mx-auto p-6 mb-6 bg-green-50 border-green-200">
               <div className="text-center mb-4">
-                <h3 className="text-lg font-semibold text-green-800 mb-3">
+                <h3 className="text-lg font-semibold text-primary mb-3">
                   הוראות:
                 </h3>
                 <div className="text-right leading-relaxed text-gray-800 bg-white p-4 rounded border">

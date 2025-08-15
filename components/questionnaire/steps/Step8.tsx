@@ -284,7 +284,7 @@ export default function Step8({ onNext, onPrevious }: Step8Props) {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.4 }}
-            className="text-2xl font-bold mb-4 text-center"
+            className="text-2xl font-bold mb-4 mt-6 text-center"
           >
             ידע בסיסי במחשבים
           </motion.h1>

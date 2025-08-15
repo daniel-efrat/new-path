@@ -206,7 +206,7 @@ export default function QuestionnaireDashboard() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="flex flex-col items-center justify-center min-h-[400px]">
           <motion.div
-            className="rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"
+            className="rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
           />

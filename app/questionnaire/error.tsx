@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { useEffect } from "react"
+import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
 
 export default function QuestionnaireError({
   error,
   reset,
 }: {
-  error: Error
-  reset: () => void
+  error: Error;
+  reset: () => void;
 }) {
   useEffect(() => {
     // Log the error to an error reporting service
-    console.error("Questionnaire error:", error)
-  }, [error])
+    console.error("Questionnaire error:", error);
+  }, [error]);
 
   return (
     <div
@@ -66,12 +66,12 @@ export default function QuestionnaireError({
           <p>צריך עזרה?</p>
           <a
             href="mailto:support@example.com"
-            className="text-blue-600 hover:text-blue-700 underline"
+            className="text-primary hover:text-blue-700 underline"
           >
             support@example.com
           </a>
         </div>
       </div>
     </div>
-  )
+  );
 }

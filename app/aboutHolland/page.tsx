@@ -1,25 +1,25 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import Link from "next/link"
-import { motion, useInView, AnimatePresence } from "framer-motion"
-import { useRef, useState } from "react"
+import Image from "next/image";
+import Link from "next/link";
+import { motion, useInView, AnimatePresence } from "framer-motion";
+import { useRef, useState } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { DialogTransition } from "@/components/ui/DialogTransition"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { ArrowLeft, Shield, Clock } from "lucide-react"
+} from "@/components/ui/dialog";
+import { DialogTransition } from "@/components/ui/DialogTransition";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { ArrowLeft, Shield, Clock } from "lucide-react";
 
 interface TypeDescription {
-  title: string
-  description: string
-  traits: string[]
-  careers: string[]
+  title: string;
+  description: string;
+  traits: string[];
+  careers: string[];
 }
 
 type TypeDescriptions = {
@@ -29,8 +29,8 @@ type TypeDescriptions = {
     | "ביצועי"
     | "מִנהלי"
     | "יזמי"
-    | "חברתי"]: TypeDescription
-}
+    | "חברתי"]: TypeDescription;
+};
 
 const typeDescriptions: TypeDescriptions = {
   אומנותי: {
@@ -80,17 +80,17 @@ const typeDescriptions: TypeDescriptions = {
     traits: ["אמפתיה", "יכולת הקשבה", "סבלנות", "תקשורת בינאישית"],
     careers: ["מורה", "יועץ/ת", "עובד/ת סוציאלי/ת", "פסיכולוג/ית", "מאמן/ת"],
   },
-}
+};
 
 interface TypeIconProps {
-  type: { name: keyof TypeDescriptions; image: string }
-  index: number
-  onClick: () => void
+  type: { name: keyof TypeDescriptions; image: string };
+  index: number;
+  onClick: () => void;
 }
 
 function TypeIcon({ type, index, onClick }: TypeIconProps) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-100px" })
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
     <div
@@ -136,21 +136,21 @@ function TypeIcon({ type, index, onClick }: TypeIconProps) {
         className="w-20 h-1 rounded-[50%] flex items-center justify-center mx-auto blur-[5px] bg-[#000000]"
       />
     </div>
-  )
+  );
 }
 
 interface TypeModalProps {
-  isOpen: boolean
-  onClose: () => void
-  typeName: keyof TypeDescriptions | ""
+  isOpen: boolean;
+  onClose: () => void;
+  typeName: keyof TypeDescriptions | "";
 }
 
 function TypeModal({ isOpen, onClose, typeName }: TypeModalProps) {
   const typeInfo = typeName
     ? typeDescriptions[typeName as keyof TypeDescriptions]
-    : null
+    : null;
 
-  if (!typeInfo) return null
+  if (!typeInfo) return null;
 
   return (
     <AnimatePresence mode="wait">
@@ -222,22 +222,22 @@ function TypeModal({ isOpen, onClose, typeName }: TypeModalProps) {
         </Dialog>
       )}
     </AnimatePresence>
-  )
+  );
 }
 
 export default function AboutHollandPage() {
   const [selectedType, setSelectedType] = useState<
     keyof TypeDescriptions | null
-  >(null)
+  >(null);
 
   const types: Array<{ name: keyof TypeDescriptions; image: string }> = [
-    { name: 'אומנותי', image: '/RIASEC/A.png' },
-    { name: 'חקרני', image: '/RIASEC/I.png' },
-    { name: 'ביצועי', image: '/RIASEC/R.png' },
-    { name: 'מִנהלי', image: '/RIASEC/C.png' },
-    { name: 'יזמי', image: '/RIASEC/E.png' },
-    { name: 'חברתי', image: '/RIASEC/S.png' },
-  ]
+    { name: "אומנותי", image: "/RIASEC/A.png" },
+    { name: "חקרני", image: "/RIASEC/I.png" },
+    { name: "ביצועי", image: "/RIASEC/R.png" },
+    { name: "מִנהלי", image: "/RIASEC/C.png" },
+    { name: "יזמי", image: "/RIASEC/E.png" },
+    { name: "חברתי", image: "/RIASEC/S.png" },
+  ];
 
   return (
     <div
@@ -297,7 +297,7 @@ export default function AboutHollandPage() {
             <p className="mt-2">
               כדי להקל עליכם, יצרנו שתי גרסאות של השאלון: גרסה מהירה של 30 שאלות
               וגרסה מורחבת של 60. שתי הגרסאות הן תרגום של{" "}
-              <span className="font-semibold text-blue-600">
+              <span className="font-semibold text-primary">
                 השאלון האמריקאי המקוצר
               </span>
               , והותאמו ותוקפו באופן מלא לקהל הישראלי.
@@ -367,5 +367,5 @@ export default function AboutHollandPage() {
         typeName={selectedType || ""}
       />
     </div>
-  )
+  );
 }

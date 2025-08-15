@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { default as Link } from "next/dist/client/link"
-import { motion, AnimatePresence } from "framer-motion"
-import { Card, CardHeader, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import Image from "next/image"
-import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore"
-import { STEP11_QUESTIONS } from "@/lib/constants/questions"
+import { useState, useEffect } from "react";
+import { default as Link } from "next/dist/client/link";
+import { motion, AnimatePresence } from "framer-motion";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore";
+import { STEP11_QUESTIONS } from "@/lib/constants/questions";
 
 interface Step11Props {
-  onNext?: () => void
-  onPrevious: () => void
-  onComplete: () => Promise<void> | void
+  onNext?: () => void;
+  onPrevious: () => void;
+  onComplete: () => Promise<void> | void;
 }
 
 export default function Step11({
@@ -20,78 +20,78 @@ export default function Step11({
   onPrevious,
   onComplete,
 }: Step11Props) {
-  const { answers, setAnswer, submitAnswers } = useQuestionnaireStore()
-  const [index, setIndex] = useState(0)
-  const currentQuestion = STEP11_QUESTIONS[index]
+  const { answers, setAnswer, submitAnswers } = useQuestionnaireStore();
+  const [index, setIndex] = useState(0);
+  const currentQuestion = STEP11_QUESTIONS[index];
 
   if (!currentQuestion) {
-    return null // or a loading indicator
+    return null; // or a loading indicator
   }
 
   // Intro state: show two instruction cards before the first question
-  const [showIntro, setShowIntro] = useState(true)
-  const [introIndex, setIntroIndex] = useState<0 | 1>(0) // 0..1
+  const [showIntro, setShowIntro] = useState(true);
+  const [introIndex, setIntroIndex] = useState<0 | 1>(0); // 0..1
 
   const getInitial = (id: string) => {
-    const stored = answers[id]?.value
-    if (stored === undefined || stored === null) return 3 // default mid value 1-5
-    const n = typeof stored === "string" ? parseInt(stored) : Number(stored)
-    return isNaN(n) ? 3 : Math.min(5, Math.max(1, n))
-  }
+    const stored = answers[id]?.value;
+    if (stored === undefined || stored === null) return 3; // default mid value 1-5
+    const n = typeof stored === "string" ? parseInt(stored) : Number(stored);
+    return isNaN(n) ? 3 : Math.min(5, Math.max(1, n));
+  };
 
-  const [value, setValue] = useState<number>(getInitial(currentQuestion?.id))
+  const [value, setValue] = useState<number>(getInitial(currentQuestion?.id));
 
   useEffect(() => {
     // when question changes, sync local value from store
-    setValue(getInitial(STEP11_QUESTIONS[index].id))
-  }, [index])
+    setValue(getInitial(STEP11_QUESTIONS[index].id));
+  }, [index]);
 
   useEffect(() => {
     // when value changes, save to store
     if (currentQuestion && value !== getInitial(currentQuestion.id)) {
-      saveCurrent()
+      saveCurrent();
     }
-  }, [value, index])
+  }, [value, index]);
 
   const saveCurrent = async () => {
-    const id = STEP11_QUESTIONS[index].id
-    await setAnswer(id, String(value))
-  }
+    const id = STEP11_QUESTIONS[index].id;
+    await setAnswer(id, String(value));
+  };
 
   const handlePrevQuestion = async () => {
     if (index === 0) {
-      onPrevious()
-      return
+      onPrevious();
+      return;
     }
-    await saveCurrent()
-    setIndex((i) => i - 1)
-  }
+    await saveCurrent();
+    setIndex((i) => i - 1);
+  };
 
   const handleNextQuestion = async () => {
-    await saveCurrent()
+    await saveCurrent();
     if (index < STEP11_QUESTIONS.length - 1) {
-      setIndex((i) => i + 1)
+      setIndex((i) => i + 1);
     } else {
       // Submit answers to API before proceeding
       const step11Answers = STEP11_QUESTIONS.map((q) => ({
         id: q.id,
         value: answers[q.id]?.value || 3, // default mid value if not answered
         timestamp: new Date(),
-      }))
+      }));
 
-      const results = await submitAnswers(step11Answers)
+      const results = await submitAnswers(step11Answers);
       if (results) {
         // Store results in step store for display
-        const { useStepStore } = await import("@/lib/stores/stepStore")
-        useStepStore.getState().setHollandResults(results)
+        const { useStepStore } = await import("@/lib/stores/stepStore");
+        useStepStore.getState().setHollandResults(results);
       }
 
-      await onComplete?.()
-      onNext?.()
+      await onComplete?.();
+      onNext?.();
     }
-  }
+  };
 
-  const isFirstIntro = introIndex === 0
+  const isFirstIntro = introIndex === 0;
 
   // Stagger animation for rating buttons
   const ratingContainer = {
@@ -100,11 +100,11 @@ export default function Step11({
       opacity: 1,
       transition: { staggerChildren: 0.08, delayChildren: 0.05 },
     },
-  } as const
+  } as const;
   const ratingItem = {
     hidden: { opacity: 0, y: 16 },
     show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } },
-  } as const
+  } as const;
 
   return (
     <motion.div
@@ -142,7 +142,7 @@ export default function Step11({
                     <p className="text-center text-gray-600 leading-relaxed mb-4">
                       בשאלון יוצגו לך 30 פעולות מתחומי עבודה מגוונים, עפ"י{" "}
                       <a
-                        className="text-blue-600 hover:underline"
+                        className="text-primary hover:underline"
                         href="/aboutHolland"
                       >
                         מבחן הולנד
@@ -175,7 +175,7 @@ export default function Step11({
                             onClick={() => setValue(opt.val)}
                             className={`flex flex-col items-center p-0.5 sm:p-2 rounded-lg transition-colors focus:outline-none border min-w-[52px] sm:min-w-[80px] ${
                               value === opt.val
-                                ? "border-blue-600 ring-2 ring-blue-200"
+                                ? "border-primary ring-2 ring-blue-200"
                                 : "border-transparent hover:bg-gray-50"
                             }`}
                             aria-pressed={value === opt.val}
@@ -239,12 +239,12 @@ export default function Step11({
                 <div className="flex justify-center gap-1 my-6" dir="ltr">
                   <span
                     className={`h-2 w-8 rounded-full ${
-                      isFirstIntro ? "bg-blue-600" : "bg-gray-300"
+                      isFirstIntro ? "bg-primary" : "bg-gray-300"
                     }`}
                   ></span>
                   <span
                     className={`h-2 w-8 rounded-full ${
-                      !isFirstIntro ? "bg-blue-600" : "bg-gray-300"
+                      !isFirstIntro ? "bg-primary" : "bg-gray-300"
                     }`}
                   ></span>
                 </div>
@@ -293,7 +293,7 @@ export default function Step11({
                         onClick={() => setValue(opt.val)}
                         className={`flex flex-col items-center p-0.5 sm:p-2 rounded-lg transition-colors focus:outline-none border min-w-[52px] sm:min-w-[80px] ${
                           value === opt.val
-                            ? "border-blue-600 ring-2 ring-blue-200"
+                            ? "border-primary ring-2 ring-blue-200"
                             : "border-transparent hover:bg-gray-50"
                         }`}
                         aria-pressed={value === opt.val}
@@ -332,5 +332,5 @@ export default function Step11({
         </AnimatePresence>
       )}
     </motion.div>
-  )
+  );
 }
