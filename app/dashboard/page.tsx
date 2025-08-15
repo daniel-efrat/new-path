@@ -196,9 +196,13 @@ export default function QuestionnaireDashboard() {
     if (step) setStepCompletion(stepId, !step.isCompleted);
   };
 
-  const completedSteps = steps.filter((step: any) => step.isCompleted).length;
+  // Temporarily hide steps 9 and 10 on the dashboard
+  const HIDDEN_STEP_IDS = new Set([9, 10]);
+  const visibleSteps = steps.filter((s: any) => !HIDDEN_STEP_IDS.has(s.id));
+  const visibleCompletedSteps = visibleSteps.filter((s: any) => s.isCompleted).length;
+  const visibleTotalSteps = visibleSteps.length;
   const progressPercentage =
-    steps.length > 0 ? (completedSteps / steps.length) * 100 : 0;
+    visibleTotalSteps > 0 ? (visibleCompletedSteps / visibleTotalSteps) * 100 : 0;
 
   // Loading (keep spinner working — no noRotate here)
   if (isAuthenticated === null || !storeReady) {
@@ -257,8 +261,8 @@ export default function QuestionnaireDashboard() {
             >
               <QuestionnaireProgress
                 value={progressPercentage}
-                completed={completedSteps}
-                total={steps.length}
+                completed={visibleCompletedSteps}
+                total={visibleTotalSteps}
               />
             </motion.div>
           </MotionConfig>
@@ -266,25 +270,30 @@ export default function QuestionnaireDashboard() {
 
         {/* Steps */}
         <div className="space-y-4 max-w-4xl w-full">
-          {stepDetails.map((details, index) => {
-            const step = steps.find((s: any) => s.id === details.id) || {
-              isCompleted: false,
-              isLocked: true,
-            };
-            return (
-              <motion.div
-                key={details.id}
-                initial={{ opacity: 0, y: 20, rotate: 0 }}
-                animate={{ opacity: 1, y: 0, rotate: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                // transformTemplate={noRotate}
-              >
+          {stepDetails
+            .filter((details) => !HIDDEN_STEP_IDS.has(details.id))
+            .map((details, index) => {
+              const step = steps.find((s: any) => s.id === details.id) || {
+                isCompleted: false,
+                isLocked: true,
+              };
+              // Override: if Step 8 is completed, Step 11 should be unlocked even if store shows locked
+              const step8 = steps.find((s: any) => s.id === 8);
+              const effectiveLocked =
+                details.id === 11 && step8?.isCompleted ? false : step.isLocked;
+              return (
+                <motion.div
+                  key={details.id}
+                  initial={{ opacity: 0, y: 20, rotate: 0 }}
+                  animate={{ opacity: 1, y: 0, rotate: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
                 <Card
                   className={cn(
                     "transition-all hover:shadow-md cursor-pointer border-2",
                     step.isCompleted
                       ? "border-green-200 bg-green-50/50"
-                      : step.isLocked
+                      : effectiveLocked
                       ? "border-gray-200 bg-gray-50/50"
                       : "border-blue-200 bg-blue-50/50 hover:border-blue-300"
                   )}
@@ -299,7 +308,7 @@ export default function QuestionnaireDashboard() {
                             "flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300",
                             step.isCompleted
                               ? "bg-secondary text-secondary-foreground"
-                              : step.isLocked
+                              : effectiveLocked
                               ? "bg-gray-300 text-gray-500"
                               : "bg-primary text-white"
                           )}
@@ -313,7 +322,7 @@ export default function QuestionnaireDashboard() {
                         >
                           {step.isCompleted ? (
                             <Check className="h-6 w-6" />
-                          ) : step.isLocked ? (
+                          ) : effectiveLocked ? (
                             <Lock className="h-5 w-5" />
                           ) : (
                             <Play className="h-5 w-5" />
@@ -343,7 +352,8 @@ export default function QuestionnaireDashboard() {
                                 הושלם
                               </Badge>
                             )}
-                            {step.isLocked && (
+                            {/* Only show Locked badge when not completed and effectively locked */}
+                            {!step.isCompleted && effectiveLocked && (
                               <Badge
                                 variant="outline"
                                 className="border-gray-300 text-gray-500 hidden sm:block"
@@ -374,30 +384,30 @@ export default function QuestionnaireDashboard() {
                             variant={
                               step.isCompleted
                                 ? "default"
-                                : step.isLocked
+                                : effectiveLocked
                                 ? "ghost"
                                 : "default"
                             }
-                            disabled={step.isLocked}
+                            disabled={effectiveLocked}
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
                               if (step.isCompleted) {
                                 setCurrentStep(details.id);
                                 router.push("/questionnaire");
-                              } else if (!step.isLocked) {
+                              } else if (!effectiveLocked) {
                                 handleStepClick(details.id);
                               }
                             }}
                           >
                             {step.isCompleted
                               ? "תוצאות"
-                              : step.isLocked
+                              : effectiveLocked
                               ? "נעול"
                               : "התחל"}
                           </Button>
 
-                          {!step.isLocked && (
+                          {!effectiveLocked && (
                             <Button
                               variant="secondary"
                               size="sm"
@@ -425,7 +435,6 @@ export default function QuestionnaireDashboard() {
           initial={{ opacity: 0, y: 20, rotate: 0 }}
           animate={{ opacity: 1, y: 0, rotate: 0 }}
           transition={{ duration: 0.6, delay: 1.0 }}
-          // transformTemplate={noRotate}
         >
           <Button
             variant="outline"
@@ -441,9 +450,7 @@ export default function QuestionnaireDashboard() {
               variant="ghost"
               className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
               onClick={() => {
-                if (
-                  window.confirm("האם אתה בטוח שברצונך לאפס את כל ההתקדמות?")
-                ) {
+                if (window.confirm("האם אתה בטוח שברצונך לאפס את כל ההתקדמות?")) {
                   resetSteps();
                 }
               }}
@@ -451,7 +458,7 @@ export default function QuestionnaireDashboard() {
               אפס התקדמות
             </Button>
             <Button
-              disabled={completedSteps !== steps.length}
+              disabled={visibleCompletedSteps !== visibleTotalSteps}
               className="gap-2 bg-green-600 hover:bg-green-700"
             >
               סיים ושלח שאלון

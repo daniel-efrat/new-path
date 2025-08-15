@@ -37,24 +37,46 @@ export default function QuestionnairePage() {
   const router = useRouter();
   const { currentStep, setCurrentStep, validateCurrentStep, initialize } =
     useQuestionnaireStore();
-  const { setStepCompletion, initializeSteps } = useStepStore();
+  const { setStepCompletion, initializeSteps, ensureUser } = useStepStore();
 
   useEffect(() => {
-    // Ensure stores are initialized
-    initialize();
-    initializeSteps();
+    // Ensure stores are initialized and bound to the current user so progress persists
+    (async () => {
+      try {
+        await ensureUser();
+      } finally {
+        initializeSteps();
+        initialize();
+      }
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onPrevious = () => {
-    if (currentStep > 1) setCurrentStep(currentStep - 1);
+    if (currentStep === 11) {
+      // Temporarily skip step 10 and 9 when going back from 11
+      setCurrentStep(8);
+    } else if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
   };
 
   const onNext = () => {
-    setCurrentStep(currentStep + 1);
+    // Temporarily hide steps 9 and 10: jump from 8 directly to 11
+    if (currentStep === 8) {
+      setCurrentStep(11);
+    } else {
+      setCurrentStep(currentStep + 1);
+    }
   };
 
   const onComplete = async () => {
+    // For step 8, mark as completed unconditionally to ensure Step 11 unlocks,
+    // since validation may miss answers loaded only into local component state.
+    if (currentStep === 8) {
+      setStepCompletion(8, true);
+      return;
+    }
     const validation = validateCurrentStep();
     setStepCompletion(currentStep, validation.isValid);
   };

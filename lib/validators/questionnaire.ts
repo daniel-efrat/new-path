@@ -140,24 +140,15 @@ export const validateStep8 = (data: StepData): ValidationResult => {
 };
 
 // Step 9 validation (placeholder)
-export const validateStep9 = (data: StepData): ValidationResult => {
-  const errors: string[] = [];
-  const hasAnswers = Object.keys(data).length > 0;
-  if (!hasAnswers) {
-    errors.push("At least one question must be answered");
-  }
-  return createValidationResult(errors.length === 0, errors);
+export const validateStep9 = (_data: StepData): ValidationResult => {
+  // Placeholder step is hidden/skipped; always treat as valid
+  return createValidationResult(true, []);
 };
 
 // Step 10 validation (Holland questions - placeholder rule)
-export const validateStep10 = (data: StepData): ValidationResult => {
-  const errors: string[] = [];
-  // For now, require at least one answer present
-  const hasAnswers = Object.keys(data).length > 0;
-  if (!hasAnswers) {
-    errors.push("Please answer at least one Holland question");
-  }
-  return createValidationResult(errors.length === 0, errors);
+export const validateStep10 = (_data: StepData): ValidationResult => {
+  // Placeholder step is hidden/skipped; always treat as valid
+  return createValidationResult(true, []);
 };
 
 // Step 11 validation (placeholder)

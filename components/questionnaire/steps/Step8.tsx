@@ -20,9 +20,10 @@ interface Question {
 interface Step8Props {
   onNext: () => void;
   onPrevious: () => void;
+  onComplete?: () => Promise<void> | void;
 }
 
-export default function Step8({ onNext, onPrevious }: Step8Props) {
+export default function Step8({ onNext, onPrevious, onComplete }: Step8Props) {
   const QUESTIONS: Question[] = STEP8_QUESTIONS;
 
   const { setAnswer } = useQuestionnaireStore();
@@ -131,7 +132,9 @@ export default function Step8({ onNext, onPrevious }: Step8Props) {
     }
   }, [current, answers, QUESTIONS]);
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    // Mark step completed before advancing
+    if (onComplete) await onComplete();
     onNext();
   };
 
