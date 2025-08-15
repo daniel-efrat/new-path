@@ -53,13 +53,15 @@
 html {
   overflow-y: auto; /* allow vertical scrolling when needed */
   overflow-x: hidden; /* avoid accidental horizontal scroll */
-  scrollbar-gutter: stable both-edges; /* reserve space to avoid layout shift */
+  scrollbar-gutter: stable; /* reserve space only on the scrollbar side to avoid extra left gutter */
   height: 100%;
+  margin: 0; /* ensure no default margins */
 }
 
 body {
   min-height: 100%;
   overscroll-behavior: none; /* disable bounce/back-forward gestures */
+  margin: 0; /* remove default body margin that can create gutters */
 }
 
 /* Ensure inner content doesn't create accidental horizontal scroll */
