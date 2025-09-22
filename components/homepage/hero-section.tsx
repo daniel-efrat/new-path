@@ -1,23 +1,29 @@
-"use client"
+"use client";
 
-import { Button } from "../../components/ui/button"
-import { Card } from "../../components/ui/card"
-import { Badge } from "../../components/ui/badge"
-import { ArrowLeft, Sparkles, Shield, Clock } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
-import { motion, useInView } from "framer-motion"
-import { useRef } from "react"
+import { Button } from "../../components/ui/button";
+import { Card } from "../../components/ui/card";
+import { Badge } from "../../components/ui/badge";
+import { ArrowLeft, Sparkles, Shield, Clock } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 
-function HeroIcon({ src, alt, bgColor, children, index }: { 
-  src: string; 
-  alt: string; 
+function HeroIcon({
+  src,
+  alt,
+  bgColor,
+  children,
+  index,
+}: {
+  src: string;
+  alt: string;
   bgColor: string;
   children: React.ReactNode;
   index: number;
 }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-100px" })
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
     <motion.div
@@ -30,10 +36,12 @@ function HeroIcon({ src, alt, bgColor, children, index }: {
         stiffness: 260,
         damping: 20,
         bounce: 0.5,
-        delay: 0.5 + (index * 0.15)  // 0.5s after grid appears + staggered delay
+        delay: 0.5 + index * 0.15, // 0.5s after grid appears + staggered delay
       }}
     >
-      <div className={`w-20 h-20 ${bgColor} rounded-full flex items-center justify-center mx-auto`}>
+      <div
+        className={`w-20 h-20 ${bgColor} rounded-full flex items-center justify-center mx-auto`}
+      >
         <Image
           src={src}
           alt={alt}
@@ -44,21 +52,27 @@ function HeroIcon({ src, alt, bgColor, children, index }: {
       </div>
       {children}
     </motion.div>
-  )
+  );
 }
 
 export function HeroSection() {
-  const badgeRef = useRef(null)
-  const headingRef = useRef(null)
-  const descriptionRef = useRef(null)
-  const cardRef = useRef(null)
-  const gridRef = useRef(null)
-  
-  const isBadgeInView = useInView(badgeRef, { once: true, margin: "-100px" })
-  const isHeadingInView = useInView(headingRef, { once: true, margin: "-100px" })
-  const isDescriptionInView = useInView(descriptionRef, { once: true, margin: "-100px" })
-  const isCardInView = useInView(cardRef, { once: true, margin: "-100px" })
-  const isGridInView = useInView(gridRef, { once: true, margin: "-100px" })
+  const badgeRef = useRef(null);
+  const headingRef = useRef(null);
+  const descriptionRef = useRef(null);
+  const cardRef = useRef(null);
+  const gridRef = useRef(null);
+
+  const isBadgeInView = useInView(badgeRef, { once: true, margin: "-100px" });
+  const isHeadingInView = useInView(headingRef, {
+    once: true,
+    margin: "-100px",
+  });
+  const isDescriptionInView = useInView(descriptionRef, {
+    once: true,
+    margin: "-100px",
+  });
+  const isCardInView = useInView(cardRef, { once: true, margin: "-100px" });
+  const isGridInView = useInView(gridRef, { once: true, margin: "-100px" });
 
   return (
     <section className="mt-8 relative flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-indigo-50 p-4">
@@ -69,7 +83,9 @@ export function HeroSection() {
           <motion.div
             ref={badgeRef}
             initial={{ opacity: 0, y: 20 }}
-            animate={isBadgeInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            animate={
+              isBadgeInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }
+            }
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             <Badge variant="secondary" className="text-sm font-medium">
@@ -81,7 +97,9 @@ export function HeroSection() {
           <motion.h1
             ref={headingRef}
             initial={{ opacity: 0, y: 20 }}
-            animate={isHeadingInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            animate={
+              isHeadingInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }
+            }
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-4xl md:text-6xl font-bold text-foreground leading-tight"
           >
@@ -91,7 +109,9 @@ export function HeroSection() {
           <motion.p
             ref={descriptionRef}
             initial={{ opacity: 0, y: 20 }}
-            animate={isDescriptionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            animate={
+              isDescriptionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }
+            }
             transition={{ duration: 0.5, delay: 0.3 }}
             className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
           >
@@ -107,13 +127,12 @@ export function HeroSection() {
         >
           <Card className="max-w-md mx-auto p-6 shadow-lg border-0 bg-white/80 backdrop-blur-sm">
             <div className="space-y-4">
-              <div className="flex items-center justify-center space-x-4 space-x-reverse text-sm text-muted-foreground">
-              </div>
+              <div className="flex items-center justify-center space-x-4 space-x-reverse text-sm text-muted-foreground"></div>
 
               <Link href="/dashboard">
                 <Button
                   size="lg"
-                  className="w-full text-lg font-semibold h-12 bg-primary hover:bg-secondary"
+                  className="w-full text-lg font-semibold h-12 bg-primary hover:bg-secondary custom-btn"
                 >
                   התחל אבחון
                   <ArrowLeft className="w-5 h-5 mr-2" />
@@ -134,21 +153,36 @@ export function HeroSection() {
           transition={{ duration: 0.5, delay: 0.5 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto mt-12"
         >
-          <HeroIcon src="/icons/target.png" alt="Target icon" bgColor="bg-emerald-200" index={0}>
+          <HeroIcon
+            src="/icons/target.png"
+            alt="Target icon"
+            bgColor="bg-emerald-200"
+            index={0}
+          >
             <h3 className="font-semibold text-foreground">התאמה מדויקת</h3>
             <p className="text-sm text-muted-foreground">
               אלגוריתם חכם שמתאים לך מקצועות
             </p>
           </HeroIcon>
 
-          <HeroIcon src="/icons/cap.png" alt="Graduation cap icon" bgColor="bg-indigo-100" index={1}>
+          <HeroIcon
+            src="/icons/cap.png"
+            alt="Graduation cap icon"
+            bgColor="bg-indigo-100"
+            index={1}
+          >
             <h3 className="font-semibold text-foreground">מכללות שותפות</h3>
             <p className="text-sm text-muted-foreground">
               חיבור ישיר למוסדות לימוד מובילים
             </p>
           </HeroIcon>
 
-          <HeroIcon src="/icons/money.png" alt="Money icon" bgColor="bg-rose-100" index={2}>
+          <HeroIcon
+            src="/icons/money.png"
+            alt="Money icon"
+            bgColor="bg-rose-100"
+            index={2}
+          >
             <h3 className="font-semibold text-foreground">נתוני שכר</h3>
             <p className="text-sm text-muted-foreground">
               מידע עדכני על שכר צפוי בתחום
@@ -157,5 +191,5 @@ export function HeroSection() {
         </motion.div>
       </div>
     </section>
-  )
+  );
 }
