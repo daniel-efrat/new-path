@@ -1,38 +1,53 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: oklch(96.04% 0.019 265.98);
-  --color-foreground: oklch(0.3092 0 0);
-  --color-card: oklch(0.9911 0 0);
-  --color-card-foreground: oklch(0.3161 0.0822 273.3807);
-  --color-popover: oklch(0.9911 0 0);
-  --color-popover-foreground: oklch(0.3161 0.0822 273.3807);
-  --color-primary: oklch(0.3161 0.0822 273.3807);
-  --color-primary-foreground: oklch(0.9978 0.0011 17.1777);
-  --color-secondary: oklch(0.7809 0.1509 79.7155);
-  --color-secondary-foreground: oklch(0.3161 0.0822 273.3807);
-  --color-muted: oklch(78.85% 0.02 279.44);
-  --color-muted-foreground: oklch(0.5999 0 0);
-  --color-accent: oklch(0.931 0 0);
-  --color-accent-foreground: oklch(0.2435 0 0);
-  --color-destructive: oklch(0.6271 0.1936 33.339);
-  --color-destructive-foreground: oklch(1 0 0);
-  --color-border: oklch(78.85% 0.02 279.44);
-  --color-input: oklch(78.85% 0.02 279.44);
-  --color-ring: oklch(0.3092 0 0);
-  --color-chart-1: oklch(0.4341 0.0392 41.9938);
-  --color-chart-2: oklch(0.92 0.0651 74.3695);
-  --color-chart-3: oklch(0.931 0 0);
-  --color-chart-4: oklch(0.9367 0.0523 75.5009);
-  --color-chart-5: oklch(0.4338 0.0437 41.6746);
-  --color-sidebar: oklch(0.9881 0 0);
-  --color-sidebar-foreground: oklch(0.2645 0 0);
-  --color-sidebar-primary: oklch(0.325 0 0);
-  --color-sidebar-primary-foreground: oklch(0.9881 0 0);
-  --color-sidebar-accent: oklch(0.9761 0 0);
-  --color-sidebar-accent-foreground: oklch(0.325 0 0);
-  --color-sidebar-border: oklch(0.9401 0 0);
-  --color-sidebar-ring: oklch(0.7731 0 0);
+  /* Dark palette inspired by the reference: deep navy with electric blue accents */
+  --color-background: oklch(22% 0.04 260); /* page background */
+  --color-foreground: oklch(98% 0.01 260); /* high-contrast text */
+
+  --color-card: oklch(26% 0.035 260);
+  --color-card-foreground: oklch(96% 0.01 260);
+
+  --color-popover: oklch(26% 0.035 260);
+  --color-popover-foreground: oklch(96% 0.01 260);
+
+  --color-primary: oklch(55% 0.21 260); /* bright brand blue */
+  --color-primary-foreground: oklch(98% 0.01 260);
+
+  --color-secondary: oklch(36% 0.08 230); /* muted blue */
+  --color-secondary-foreground: oklch(97% 0.015 260);
+
+  --color-muted: oklch(30% 0.03 260);
+  --color-muted-foreground: oklch(82% 0.02 260);
+
+  --color-accent: oklch(60% 0.2 260); /* accent blue for chips */
+  --color-accent-foreground: oklch(98% 0.01 260);
+
+  --color-destructive: oklch(50% 0.22 25); /* red on dark */
+  --color-destructive-foreground: oklch(98% 0 0);
+
+  --color-border: oklch(34% 0.035 260);
+  --color-input: oklch(32% 0.035 260);
+  --color-ring: oklch(65% 0.22 260); /* glow ring */
+
+  /* charts */
+  --color-chart-1: oklch(65% 0.22 260);
+  --color-chart-2: oklch(70% 0.18 200);
+  --color-chart-3: oklch(62% 0.16 160);
+  --color-chart-4: oklch(75% 0.15 100);
+  --color-chart-5: oklch(68% 0.18 320);
+
+  /* sidebar */
+  --color-sidebar: oklch(24% 0.035 260);
+  --color-sidebar-foreground: oklch(96% 0.01 260);
+  --color-sidebar-primary: oklch(55% 0.21 260);
+  --color-sidebar-primary-foreground: oklch(98% 0.01 260);
+  --color-sidebar-accent: oklch(30% 0.04 260);
+  --color-sidebar-accent-foreground: oklch(96% 0.01 260);
+  --color-sidebar-border: oklch(34% 0.035 260);
+  --color-sidebar-ring: oklch(65% 0.22 260);
+
+  /* keep existing fonts and radii/ shadows */
   --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -40,35 +55,49 @@
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     "Liberation Mono", "Courier New", monospace;
   --radius: 0.5rem;
-  --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-  --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-  --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1),
-    0 1px 2px -1px hsl(0 0% 0% / 0.1);
-  --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-  --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1),
-    0 2px 4px -1px hsl(0 0% 0% / 0.1);
-  --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1),
-    0 4px 6px -1px hsl(0 0% 0% / 0.1);
-  --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1),
-    0 8px 10px -1px hsl(0 0% 0% / 0.1);
-  --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+  --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.2);
+  --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+  --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.3),
+    0 1px 2px -1px hsl(0 0% 0% / 0.3);
+  --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.3), 0 1px 2px -1px hsl(0 0% 0% / 0.3);
+  --shadow-md: 0 2px 6px -1px hsl(0 0% 0% / 0.35);
+  --shadow-lg: 0 8px 16px -2px hsl(0 0% 0% / 0.4);
+  --shadow-xl: 0 12px 24px -4px hsl(0 0% 0% / 0.45);
+  --shadow-2xl: 0 20px 40px -8px hsl(0 0% 0% / 0.5);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
 }
 
 /* Prevent scrollbar jitter but allow vertical scrolling */
 html {
-  overflow-y: auto; /* allow vertical scrolling when needed */
-  overflow-x: hidden; /* avoid accidental horizontal scroll */
-  scrollbar-gutter: stable; /* reserve space only on the scrollbar side to avoid extra left gutter */
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
   height: 100%;
-  margin: 0; /* ensure no default margins */
+  margin: 0;
 }
 
 body {
   min-height: 100%;
-  overscroll-behavior: none; /* disable bounce/back-forward gestures */
-  margin: 0; /* remove default body margin that can create gutters */
+  overscroll-behavior: none;
+  margin: 0;
+  color: var(--color-foreground);
+  background-color: oklch(from var(--color-background) l c h / 1);
+  /* Layered dark blue gradient with geometric pattern overlay */
+  background-image: radial-gradient(
+      1200px 600px at 80% -10%,
+      oklch(30% 0.06 260) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      1000px 500px at 20% 110%,
+      oklch(28% 0.05 270) 0%,
+      transparent 60%
+    ),
+    linear-gradient(180deg, oklch(22% 0.04 260) 0%, oklch(18% 0.03 260) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160' width='160' height='160'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.06' stroke-width='1'%3E%3Cpath d='M0 40h160M0 80h160M0 120h160M40 0v160M80 0v160M120 0v160'/%3E%3C/g%3E%3C/svg%3E");
+  background-blend-mode: screen, screen, normal, normal;
+  background-attachment: fixed;
 }
 
 /* Ensure inner content doesn't create accidental horizontal scroll */
@@ -84,38 +113,25 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
-  display: inline-block;
-  box-shadow: inset 2px 2px 2px 0px rgba(255, 255, 255, 0.5),
-    7px 7px 20px 0px rgba(0, 0, 0, 0.1), 4px 4px 5px 0px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: inset 2px 2px 2px 0px rgba(255, 255, 255, 0.08),
+    7px 7px 20px 0px rgba(0, 0, 0, 0.45), 4px 4px 5px 0px rgba(0, 0, 0, 0.35);
   outline: none;
   border: none;
-  background: #252d5b;
-  background: linear-gradient(
-    0deg,
-    rgba(20, 30, 75, 1) 0%,
-    rgba(37, 45, 91, 1) 100%
-  );
+  background: linear-gradient(0deg, rgb(20 30 75) 0%, rgb(37 45 91) 100%);
   color: #fff;
   overflow: hidden;
 }
 
 .custom-btn:hover {
-  background: rgb(0, 3, 255);
-  background: linear-gradient(
-    0deg,
-    rgba(0, 3, 255, 1) 0%,
-    rgba(2, 126, 251, 1) 100%
-  );
+  background: linear-gradient(0deg, rgb(0 60 255) 0%, rgb(2 126 251) 100%);
 }
 
 .custom-btn {
   border: none;
-  background: #252d5b;
-  background: linear-gradient(
-    0deg,
-    rgba(20, 30, 75, 1) 0%,
-    rgba(37, 45, 91, 1) 100%
-  );
+  background: linear-gradient(0deg, rgb(20 30 75) 0%, rgb(37 45 91) 100%);
   color: #fff;
   overflow: hidden;
 }
@@ -144,6 +160,22 @@ body {
     inset 4px 4px 6px 0 rgba(0, 0, 0, 0.2);
 }
 
+.bg-tech {
+  position: relative;
+}
+
+.bg-tech::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("/bg/bg.jpg");
+  background-position: top;
+  background-size: contain;
+  /* background-repeat: no-repeat; */
+  opacity: 0.3;
+  pointer-events: none;
+}
+
 @-webkit-keyframes shiny-btn1 {
   0% {
     -webkit-transform: scale(0) rotate(45deg);
@@ -159,6 +191,25 @@ body {
   }
   100% {
     -webkit-transform: scale(50) rotate(45deg);
+    opacity: 0;
+  }
+}
+
+@keyframes shiny-btn1 {
+  0% {
+    transform: scale(0) rotate(45deg);
+    opacity: 0;
+  }
+  80% {
+    transform: scale(0) rotate(45deg);
+    opacity: 0.5;
+  }
+  81% {
+    transform: scale(4) rotate(45deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(50) rotate(45deg);
     opacity: 0;
   }
 }

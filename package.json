@@ -41,13 +41,15 @@
     "zustand": "^5.0.6"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
     "@tailwindcss/postcss": "^4.1.11",
     "@types/dotenv": "^6.1.1",
     "@types/node": "^20.5.6",
     "@types/react": "^18.2.21",
     "@types/react-dom": "^18.2.7",
     "autoprefixer": "^10.4.21",
-    "eslint": "^8.48.0",
+    "eslint": "^9.39.1",
+    "eslint-config-next": "^15.5.6",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.11",
     "ts-node": "^10.9.2",

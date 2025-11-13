@@ -1,21 +1,27 @@
-"use client"
+"use client";
 
-import { Button } from "../../components/ui/button"
-import { ArrowLeft } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
-import { LazyMotion, domAnimation, m, useInView } from "framer-motion"
-import { useRef } from "react"
+import { Button } from "../../components/ui/button";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import { LazyMotion, domAnimation, m, useInView } from "framer-motion";
+import { useRef } from "react";
 
-function StatIcon({ src, alt, bgColor, children, index }: { 
-  src: string; 
-  alt: string; 
+function StatIcon({
+  src,
+  alt,
+  bgColor,
+  children,
+  index,
+}: {
+  src: string;
+  alt: string;
   bgColor: string;
   children: React.ReactNode;
   index: number;
 }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-100px" })
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
     <m.div
@@ -28,26 +34,22 @@ function StatIcon({ src, alt, bgColor, children, index }: {
         stiffness: 260,
         damping: 20,
         bounce: 0.5,
-        delay: 0.5 + (index * 0.15)
+        delay: 0.5 + index * 0.15,
       }}
     >
-      <div className={`w-20 h-20 ${bgColor} rounded-full flex items-center justify-center mx-auto mb-4`}>
-        <Image
-          src={src}
-          alt={alt}
-          width={48}
-          height={48}
-          className="mx-auto"
-        />
+      <div
+        className={`w-20 h-20 ${bgColor} rounded-full flex items-center justify-center mx-auto mb-4`}
+      >
+        <Image src={src} alt={alt} width={48} height={48} className="mx-auto" />
       </div>
       {children}
     </m.div>
-  )
+  );
 }
 
 export function CTASection() {
-  const sectionRef = useRef(null)
-  const isInView = useInView(sectionRef, { once: true, margin: "-100px" })
+  const sectionRef = useRef(null);
+  const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
   return (
     <LazyMotion features={domAnimation}>
@@ -64,10 +66,10 @@ export function CTASection() {
           repeatType: "reverse",
           ease: "linear",
         }}
-        style={{
-          background: "linear-gradient(270deg, #059669, #4f46e5, #059669)",
-          backgroundSize: "200% 200%",
-        }}
+        // style={{
+        //   background: "linear-gradient(270deg, #059669, #4f46e5, #059669)",
+        //   backgroundSize: "200% 200%",
+        // }}
       >
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <m.div
@@ -145,5 +147,5 @@ export function CTASection() {
         </div>
       </m.section>
     </LazyMotion>
-  )
+  );
 }

@@ -242,13 +242,13 @@ export default function AboutHollandPage() {
   return (
     <div
       dir="rtl"
-      className="flex flex-col items-center justify-center min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8"
+      className="flex flex-col items-center justify-center min-h-screen bg-transparent py-12 px-4 sm:px-6 lg:px-8"
     >
       <div className="max-w-4xl w-full space-y-8">
         <nav aria-label="Breadcrumb">
-          <ol className="list-none p-0 inline-flex items-center text-gray-500">
+          <ol className="list-none p-0 inline-flex items-center text-muted-foreground">
             <li>
-              <Link href="/" className="hover:text-gray-700">
+              <Link href="/" className="hover:text-foreground">
                 דף הבית
               </Link>
             </li>
@@ -256,31 +256,31 @@ export default function AboutHollandPage() {
               <span className="mx-2">/</span>
             </li>
             <li>
-              <span className="text-gray-700">שאלון הולנד</span>
+              <span className="text-foreground">שאלון הולנד</span>
             </li>
           </ol>
         </nav>
 
         <div className="text-center">
-          <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+          <h1 className="text-4xl font-extrabold text-foreground sm:text-5xl md:text-6xl">
             שאלון הולנד להכוונה מקצועית
           </h1>
         </div>
 
         <div className="text-center">
-          <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+          <h1 className="text-4xl font-extrabold text-foreground sm:text-5xl md:text-6xl">
             מצאו את הכיוון המקצועי שלכם עם שאלון הולנד
           </h1>
         </div>
 
-        <div className="mt-8 text-lg text-gray-700 space-y-6 text-right leading-relaxed">
+        <div className="mt-8 text-lg text-muted-foreground space-y-6 text-right leading-relaxed">
           <p>
             מחפשים כיוון תעסוקתי? השאלון שלנו יעזור לכם למפות את תחומי העניין
             והנטיות המקצועיות שלכם. חשוב לזכור, זהו כלי להכוונה עצמית ואינו
             מהווה תחליף לייעוץ קריירה מקצועי.
           </p>
           <div className="pt-4">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-foreground">
               מה זה בעצם שאלון הולנד (RIASEC)?
             </h2>
             <p className="mt-2">
@@ -291,7 +291,7 @@ export default function AboutHollandPage() {
             </p>
           </div>
           <div className="pt-4">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-foreground">
               גרסאות מותאמות ומהירות
             </h2>
             <p className="mt-2">
@@ -304,7 +304,7 @@ export default function AboutHollandPage() {
             </p>
           </div>
           <div className="pt-4">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-foreground">
               למה דווקא שאלון הולנד?
             </h2>
             <p className="mt-2">
@@ -316,7 +316,7 @@ export default function AboutHollandPage() {
         </div>
 
         <div className="py-12 text-center">
-          <h2 className="text-3xl font-extrabold text-gray-900">
+          <h2 className="text-3xl font-extrabold text-foreground">
             ששת הטיפוסים של הולנד
           </h2>
           <div className="mt-10 grid grid-cols-2 md:grid-cols-3 gap-8">
@@ -331,7 +331,7 @@ export default function AboutHollandPage() {
           </div>
         </div>
 
-        <Card className="max-w-md mx-auto p-6 shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+        <Card className="max-w-md mx-auto p-6 shadow-lg border-0 bg-card/80 backdrop-blur-sm">
           <div className="space-y-4">
             <div className="flex items-center justify-center space-x-4 space-x-reverse text-sm text-muted-foreground">
               <div className="flex items-center">
@@ -347,14 +347,14 @@ export default function AboutHollandPage() {
             <Link href="/questionnaire">
               <Button
                 size="lg"
-                className="w-full text-lg font-semibold h-12 bg-primary hover:bg-secondary"
+                className="w-full text-lg font-semibold h-12 bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 למילוי שאלון ההכוונה
                 <ArrowLeft className="w-5 h-5 mr-2" />
               </Button>
             </Link>
 
-            <p className="text-xs text-gray-500 text-center mt-2">
+            <p className="text-xs text-muted-foreground text-center mt-2">
               ללא התחייבות • ביטול בכל עת
             </p>
           </div>

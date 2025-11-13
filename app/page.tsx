@@ -12,12 +12,12 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <div dir="rtl" className="flex flex-col min-h-screen">
+    <div dir="rtl" className="flex flex-col min-h-screen bg-tech">
       <AuthHandler />
       <HeroSection />
       <FeaturesSection />
       <CTASection />
-      <footer className="py-8 bg-gray-100 text-center">
+      <footer className="py-8 text-center border-t border-border/60 bg-transparent">
         <div className="container mx-auto">
           <p className="text-muted-foreground text-sm">
             © {new Date().getFullYear()} דרך חדשה | כל הזכויות שמורות

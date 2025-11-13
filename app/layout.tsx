@@ -35,7 +35,6 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="דרך חדשה" />
       </head>
       <body className={`${assistant.className} bg-background text-foreground`}>
-        {/* עטוף הכל כדי לתפוס גם Header/AuthHandler אם הם משתמשים ב-Framer */}
         <ClientMotionProvider>
           <Header />
           <AuthHandler />

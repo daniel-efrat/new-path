@@ -99,7 +99,7 @@ export default function QuestionnairePage() {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto bg-tech p-4">
       <Current
         onPrevious={onPrevious}
         onNext={onNext}

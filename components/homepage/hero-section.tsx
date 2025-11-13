@@ -75,9 +75,7 @@ export function HeroSection() {
   const isGridInView = useInView(gridRef, { once: true, margin: "-100px" });
 
   return (
-    <section className="mt-8 relative flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-indigo-50 p-4">
-      <div className="absolute inset-0 bg-[url('/hero-bg.jpg?height=800&width=1200')] opacity-20 bg-cover bg-center" />
-
+    <section className="mt-8 relative flex items-center justify-center bg-transparent p-4">
       <div className="relative z-10 max-w-4xl mx-auto text-center space-y-8">
         <div className="space-y-4">
           <motion.div
@@ -125,7 +123,7 @@ export function HeroSection() {
           animate={isCardInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.5, delay: 0.4 }}
         >
-          <Card className="max-w-md mx-auto p-6 shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+          <Card className="max-w-md mx-auto p-6 shadow-lg border-0 bg-card/80 backdrop-blur-sm">
             <div className="space-y-4">
               <div className="flex items-center justify-center space-x-4 space-x-reverse text-sm text-muted-foreground"></div>
 
@@ -139,7 +137,7 @@ export function HeroSection() {
                 </Button>
               </Link>
 
-              <p className="text-xs text-gray-500 text-center mt-2">
+              <p className="text-xs text-muted-foreground text-center mt-2">
                 ללא התחייבות • ביטול בכל עת
               </p>
             </div>
@@ -156,7 +154,8 @@ export function HeroSection() {
           <HeroIcon
             src="/icons/target.png"
             alt="Target icon"
-            bgColor="bg-emerald-200"
+            // bgColor="bg-emerald-200"
+            bgColor="transparent"
             index={0}
           >
             <h3 className="font-semibold text-foreground">התאמה מדויקת</h3>
@@ -168,7 +167,8 @@ export function HeroSection() {
           <HeroIcon
             src="/icons/cap.png"
             alt="Graduation cap icon"
-            bgColor="bg-indigo-100"
+            // bgColor="bg-indigo-100"
+            bgColor="transparent"
             index={1}
           >
             <h3 className="font-semibold text-foreground">מכללות שותפות</h3>
@@ -180,7 +180,8 @@ export function HeroSection() {
           <HeroIcon
             src="/icons/money.png"
             alt="Money icon"
-            bgColor="bg-rose-100"
+            // bgColor="bg-rose-100"
+            bgColor="transparent"
             index={2}
           >
             <h3 className="font-semibold text-foreground">נתוני שכר</h3>
