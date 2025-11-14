@@ -2,10 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import supabase from "@/lib/supabase";
+import supabase, { saveDesignationChoices, type DesignationChoiceRow } from "@/lib/supabase";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useStep12Store } from "@/lib/stores/step12Store";
+import { useStepStore } from "@/lib/stores/stepStore";
 
 interface Row {
   occupation_serial: number;
@@ -17,8 +18,8 @@ interface Row {
 
 export default function Step12FlowPage() {
   const router = useRouter();
-  const { selected, order, setSelectionsFor, selectionsBySerial } =
-    useStep12Store();
+  const { selected, order, setSelectionsFor, selectionsBySerial } = useStep12Store();
+  const { setStepCompletion, ensureUser } = useStepStore();
   const [index, setIndex] = useState(0);
   const serials = useMemo(
     () => (order.length ? order : selected.map((s) => s.occupation_serial)),
@@ -85,10 +86,43 @@ export default function Step12FlowPage() {
     );
   };
 
-  const onNext = () => {
+  const onNext = async () => {
     persistCurrent();
-    if (index < serials.length - 1) setIndex((i) => i + 1);
-    else router.push("/questionnaire");
+    if (index < serials.length - 1) {
+      setIndex((i) => i + 1);
+      return;
+    }
+    // Finished all 5. Save selections.
+    try {
+      // Ensure we have a user
+      await ensureUser();
+      const { data: { user } } = await supabase.auth.getUser();
+      const userId = user?.id;
+      if (!userId) throw new Error("לא זוהה משתמש מחובר");
+
+      // Build rows from order and selections (exactly 2 each)
+      const ranking = order.length ? order : selected.map(s => s.occupation_serial);
+      const rows: DesignationChoiceRow[] = ranking.map((serial, idx) => {
+        const picks = (selectionsBySerial[serial] ?? []).slice(0, 2);
+        if (picks.length !== 2) {
+          throw new Error(`יש להשלים בחירה של 2 משפטים עבור תחום ${serial}`);
+        }
+        return {
+          user_id: userId,
+          occupation_serial: serial,
+          rank: idx + 1,
+          selected_statements: picks,
+        };
+      });
+
+      await saveDesignationChoices(rows);
+      // Mark step 12 completed
+      await setStepCompletion(12, true);
+      router.push("/dashboard");
+    } catch (e: any) {
+      console.error("Failed to save designation choices", e);
+      alert(e?.message || "שמירת הבחירות נכשלה");
+    }
   };
 
   const onPrev = () => {

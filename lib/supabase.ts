@@ -84,3 +84,21 @@ export const getDefaultQuestionnaire = async () => {
 };
 
 export default supabase;
+
+// Step 12 helpers
+export interface DesignationChoiceRow {
+  user_id: string;
+  occupation_serial: number;
+  rank: number; // 1-5
+  selected_statements: number[]; // exactly 2 ints between 1-50
+}
+
+export const saveDesignationChoices = async (rows: DesignationChoiceRow[]) => {
+  if (!rows?.length) return [] as any[];
+  const { data, error } = await supabase
+    .from('user_designation_choices')
+    .upsert(rows, { onConflict: 'user_id,occupation_serial', ignoreDuplicates: false })
+    .select();
+  if (error) throw error;
+  return data as any[];
+};

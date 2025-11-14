@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { default as Link } from "next/dist/client/link";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,39 +23,38 @@ export default function Step11({
   const [index, setIndex] = useState(0);
   const currentQuestion = STEP11_QUESTIONS[index];
 
-  if (!currentQuestion) {
-    return null; // or a loading indicator
-  }
-
   // Intro state: show two instruction cards before the first question
   const [showIntro, setShowIntro] = useState(true);
   const [introIndex, setIntroIndex] = useState<0 | 1>(0); // 0..1
 
-  const getInitial = (id: string) => {
-    const stored = answers[id]?.value;
-    if (stored === undefined || stored === null) return 3; // default mid value 1-5
-    const n = typeof stored === "string" ? parseInt(stored) : Number(stored);
-    return isNaN(n) ? 3 : Math.min(5, Math.max(1, n));
-  };
+  const getInitial = useCallback(
+    (id: string) => {
+      const stored = answers[id]?.value;
+      if (stored === undefined || stored === null) return 3; // default mid value 1-5
+      const n = typeof stored === "string" ? parseInt(stored) : Number(stored);
+      return isNaN(n) ? 3 : Math.min(5, Math.max(1, n));
+    },
+    [answers]
+  );
 
   const [value, setValue] = useState<number>(getInitial(currentQuestion?.id));
+
+  const saveCurrent = useCallback(async () => {
+    const id = STEP11_QUESTIONS[index].id;
+    await setAnswer(id, String(value));
+  }, [index, setAnswer, value]);
 
   useEffect(() => {
     // when question changes, sync local value from store
     setValue(getInitial(STEP11_QUESTIONS[index].id));
-  }, [index]);
+  }, [index, getInitial]);
 
   useEffect(() => {
     // when value changes, save to store
     if (currentQuestion && value !== getInitial(currentQuestion.id)) {
       saveCurrent();
     }
-  }, [value, index]);
-
-  const saveCurrent = async () => {
-    const id = STEP11_QUESTIONS[index].id;
-    await setAnswer(id, String(value));
-  };
+  }, [value, currentQuestion, getInitial, saveCurrent]);
 
   const handlePrevQuestion = async () => {
     if (index === 0) {
@@ -105,6 +103,10 @@ export default function Step11({
     hidden: { opacity: 0, y: 16 },
     show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } },
   } as const;
+
+  if (!currentQuestion) {
+    return null;
+  }
 
   return (
     <motion.div

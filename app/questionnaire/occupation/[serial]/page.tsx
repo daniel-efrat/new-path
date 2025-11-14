@@ -87,7 +87,7 @@ export default function OccupationDetailPage() {
           {!loading && !error && (
             <div>
               <div className="flex justify-between items-center mb-3">
-                <div className="text-sm text-gray-700">
+                <div className="text-sm text-foreground">
                   בחר/י עד 2 משפטים (נבחרו {selected.size}/2)
                 </div>
                 <Button
@@ -102,9 +102,12 @@ export default function OccupationDetailPage() {
                   const checked = selected.has(r.statement_serial);
                   const disabled = !checked && !canToggle(r.statement_serial);
                   return (
-                    <li key={r.statement_serial} className="py-2">
+                    <li
+                      key={r.statement_serial}
+                      className="py-2 flex items-center"
+                    >
                       <label
-                        className={`flex items-start gap-3 ${
+                        className={`flex items-center gap-3 ${
                           disabled ? "opacity-50" : ""
                         }`}
                       >
