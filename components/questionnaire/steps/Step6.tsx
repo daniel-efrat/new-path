@@ -183,15 +183,15 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
             הניקוד שלך: {score} מתוך {QUESTIONS.length} (
             {Math.round((score / QUESTIONS.length) * 100)}%)
           </div>
-          <div className="w-full max-w-3xl mt-6">
-            <table className="w-full border text-right text-sm">
+          <div className="w-full max-w-3xl mt-6 p-4 bg-white rounded-sm">
+            <table className="p-2 w-full border text-right text-sm">
               <thead>
                 <tr className="bg-gray-100">
-                  <th className="p-2 border">#</th>
-                  <th className="p-2 border">שאלה</th>
-                  <th className="p-2 border">התשובה שלך</th>
-                  <th className="p-2 border">תשובה נכונה</th>
-                  <th className="p-2 border">ציון</th>
+                  <th className="p-2 border text-background">#</th>
+                  <th className="p-2 border text-background">שאלה</th>
+                  <th className="p-2 border text-background">התשובה שלך</th>
+                  <th className="p-2 border text-background">תשובה נכונה</th>
+                  <th className="p-2 border text-background">ציון</th>
                 </tr>
               </thead>
               <tbody>
@@ -204,13 +204,19 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
                       key={q.id}
                       className={isCorrect ? "bg-green-50" : "bg-red-50"}
                     >
-                      <td className="p-2 border text-center">{q.number}</td>
-                      <td className="p-2 border">{q.question}</td>
-                      <td className="p-2 border">
+                      <td className="p-2 border text-background text-center">
+                        {q.number}
+                      </td>
+                      <td className="p-2 border text-background">
+                        {q.question}
+                      </td>
+                      <td className="p-2 border text-background">
                         {userAns !== null ? q.options[userAns] : "דילגת"}
                       </td>
-                      <td className="p-2 border">{q.options[correctIdx]}</td>
-                      <td className="p-2 border text-center">
+                      <td className="p-2 border text-background">
+                        {q.options[correctIdx]}
+                      </td>
+                      <td className="p-2 border text-background text-center">
                         {isCorrect ? (
                           <span
                             title="Correct"
@@ -297,13 +303,15 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
           >
             <Card className="max-w-xl mx-auto p-6 mb-6">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-gray-500">{q.level}</span>
+                <span className="text-sm text-muted-background ">
+                  {q.level}
+                </span>
                 <span
                   className={`font-mono text-lg ${
-                    timer <= 15 ? "text-red-500" : "text-gray-700"
+                    timer <= 15 ? "text-orange-500" : "text-gray-300"
                   }`}
                 >
-                  {timer}ש
+                  {timer} שניות
                 </span>
               </div>
               <motion.div
@@ -326,10 +334,10 @@ export default function Step6({ onNext, onPrevious, onComplete }: Step6Props) {
                       className={`w-full justify-center p-4 h-auto text-base whitespace-normal ${
                         selected !== null
                           ? idx === q.correct_option
-                            ? "bg-green-100 hover:bg-green-200 border-green-400"
+                            ? "bg-transparent hover:bg-transparent border-green-400 text-green-400 font-semibold"
                             : idx === selected && !feedback
-                            ? "bg-red-100 hover:bg-red-200 border-red-400"
-                            : "bg-gray-50"
+                            ? "bg-transparent hover:bg-red-200 border-orange-400 text-orange-400 font-semibold"
+                            : "bg-gray-50 text-gray-800"
                           : "hover:bg-gray-100"
                       }`}
                       variant="outline"

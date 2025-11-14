@@ -254,13 +254,13 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
                 >
                   <span>שאלה {q.number}</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-forground">
                       תשובתך: {userAnswer !== null ? userAnswer + 1 : "לא נענה"}
                     </span>
                     {isCorrect ? (
                       <span className="text-green-600">✓</span>
                     ) : (
-                      <span className="text-red-600">✗</span>
+                      <span className="text-orange-500">✗</span>
                     )}
                   </div>
                 </div>
@@ -342,10 +342,16 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
           >
             <Card className="p-6 mb-6">
               <div className="flex justify-between items-center mb-4">
-                <span className="text-sm text-gray-500">{currentQ.level}</span>
+                <span className="text-sm text-muted-foreground ">
+                  {currentQ.level}
+                </span>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">
-                    זמן נותר: {timer}
+                  <span
+                    className={`font-mono text-lg ${
+                      timer <= 15 ? "text-orange-500" : "text-gray-300"
+                    }`}
+                  >
+                    {timer} שניות
                   </span>
                   {/* <Button
                     onClick={handleRestart}
@@ -410,7 +416,7 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
                         selectedShape === idx
                           ? showFeedback
                             ? isCorrect
-                              ? "border-green-500 bg-green-50 shadow-lg"
+                              ? "border-white bg-green-50 shadow-lg"
                               : "border-red-500 bg-red-50 shadow-lg"
                             : "border-blue-500 bg-blue-50 shadow-lg"
                           : "border-gray-300 hover:border-gray-400 hover:shadow-md"
@@ -419,7 +425,7 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
                         showFeedback &&
                         idx === currentQ.correct_option &&
                         !isCorrect &&
-                        "border-green-500 bg-green-50 shadow-md"
+                        "border-white bg-green-50 shadow-md"
                       }
                       ${
                         showFeedback &&
@@ -507,7 +513,7 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
               <div className="mt-6 text-center" dir="rtl">
                 <div
                   className={`text-lg font-semibold ${
-                    isCorrect ? "text-green-600" : "text-red-600"
+                    isCorrect ? "text-green-600" : "text-orange-500"
                   }`}
                 >
                   {isCorrect ? "נכון!" : "לא נכון. הצורה הנכונה מסומנת."}

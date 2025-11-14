@@ -1,23 +1,23 @@
-"use client"
+"use client";
 
-import { useEffect, useRef } from "react"
-import { Button } from "./button"
-import { ANIMATION_DURATIONS } from "@/lib/constants/questionnaire"
+import { useEffect, useRef } from "react";
+import { Button } from "./button";
+import { ANIMATION_DURATIONS } from "@/lib/constants/questionnaire";
 
 export interface RetryDialogProps {
-  isOpen: boolean
-  onConfirm: () => void
-  onCancel: () => void
-  message?: string
-  attempt?: number
-  maxAttempts?: number
-  error?: Error
+  isOpen: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+  message?: string;
+  attempt?: number;
+  maxAttempts?: number;
+  error?: Error;
   /** Custom class for the overlay */
-  overlayClassName?: string
+  overlayClassName?: string;
   /** Custom class for the dialog */
-  dialogClassName?: string
+  dialogClassName?: string;
   /** Whether to show animation */
-  animate?: boolean
+  animate?: boolean;
 }
 
 export function RetryDialog({
@@ -32,68 +32,68 @@ export function RetryDialog({
   dialogClassName = "",
   animate = true,
 }: RetryDialogProps) {
-  const dialogRef = useRef<HTMLDivElement>(null)
-  const lastActiveElement = useRef<HTMLElement | null>(null)
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const lastActiveElement = useRef<HTMLElement | null>(null);
 
   // Store last active element and focus dialog
   useEffect(() => {
     if (isOpen) {
-      lastActiveElement.current = document.activeElement as HTMLElement
-      dialogRef.current?.focus()
+      lastActiveElement.current = document.activeElement as HTMLElement;
+      dialogRef.current?.focus();
 
       // Prevent body scroll
-      document.body.style.overflow = "hidden"
+      document.body.style.overflow = "hidden";
     } else {
       // Restore focus and scroll
-      lastActiveElement.current?.focus()
-      document.body.style.overflow = ""
+      lastActiveElement.current?.focus();
+      document.body.style.overflow = "";
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   // Handle Escape key and focus trap
   useEffect(() => {
-    if (!isOpen) return
+    if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       // Close on escape
       if (e.key === "Escape") {
-        onCancel()
-        return
+        onCancel();
+        return;
       }
 
       // Focus trap
       if (e.key === "Tab") {
-        const dialog = dialogRef.current
-        if (!dialog) return
+        const dialog = dialogRef.current;
+        if (!dialog) return;
 
         const focusableElements = dialog.querySelectorAll(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        )
-        const firstFocusable = focusableElements[0] as HTMLElement
+        );
+        const firstFocusable = focusableElements[0] as HTMLElement;
         const lastFocusable = focusableElements[
           focusableElements.length - 1
-        ] as HTMLElement
+        ] as HTMLElement;
 
         if (e.shiftKey && document.activeElement === firstFocusable) {
-          e.preventDefault()
-          lastFocusable.focus()
+          e.preventDefault();
+          lastFocusable.focus();
         } else if (!e.shiftKey && document.activeElement === lastFocusable) {
-          e.preventDefault()
-          firstFocusable.focus()
+          e.preventDefault();
+          firstFocusable.focus();
         }
       }
-    }
+    };
 
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [isOpen, onCancel])
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onCancel]);
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   const overlayClasses =
     `fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50
     ${animate ? "animate-in fade-in duration-${ANIMATION_DURATIONS.FADE}" : ""}
-    ${overlayClassName}`.trim()
+    ${overlayClassName}`.trim();
 
   const dialogClasses =
     `bg-white  rounded-lg shadow-xl max-w-md w-full p-6 space-y-4
@@ -102,7 +102,7 @@ export function RetryDialog({
         ? "animate-in zoom-in-95 duration-${ANIMATION_DURATIONS.TRANSITION}"
         : ""
     }
-    ${dialogClassName}`.trim()
+    ${dialogClassName}`.trim();
 
   return (
     <div
@@ -136,7 +136,7 @@ export function RetryDialog({
 
           {/* Attempt counter */}
           <div
-            className="text-sm text-gray-500 text-right"
+            className="text-sm text-muted-background  text-right"
             role="status"
             aria-live="polite"
           >
@@ -173,5 +173,5 @@ export function RetryDialog({
         </div>
       </div>
     </div>
-  )
+  );
 }

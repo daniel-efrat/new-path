@@ -100,7 +100,7 @@ export default function QuestionnaireDashboard() {
     },
     {
       id: 12,
-      title: "נטיות לב",
+      title: "משפטי ייעוד",
       description:
         "תן/י ציונים לתחומים מקצועיים כלליים (סמן/י עד 5 תחומים כלליים בעדיפות)",
       time: "90 שניות לשאלה",
@@ -296,7 +296,7 @@ export default function QuestionnaireDashboard() {
                     className={cn(
                       "transition-all hover:shadow-md cursor-pointer border-2",
                       step.isCompleted
-                        ? "border-green-700/50 bg-green-900/20"
+                        ? "border-white/50 bg-white/20"
                         : effectiveLocked
                         ? "border-border/60 bg-muted/20"
                         : "border-primary/40 bg-primary/10 hover:border-primary/60"

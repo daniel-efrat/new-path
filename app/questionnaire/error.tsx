@@ -62,7 +62,7 @@ export default function QuestionnaireError({
         )}
 
         {/* Support contact */}
-        <div className="text-center text-sm text-gray-500">
+        <div className="text-center text-sm text-muted-background ">
           <p>צריך עזרה?</p>
           <a
             href="mailto:support@example.com"

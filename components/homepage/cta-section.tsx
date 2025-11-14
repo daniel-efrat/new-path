@@ -95,8 +95,7 @@ export function CTASection() {
             <Link href="/dashboard">
               <Button
                 size="lg"
-                variant="secondary"
-                className="text-lg font-semibold h-12 px-8"
+                className="w-full text-lg font-semibold h-12 bg-primary hover:bg-secondary custom-btn"
               >
                 התחל אבחון עכשיו
                 <ArrowLeft className="w-5 h-5 mr-2" />
@@ -104,7 +103,9 @@ export function CTASection() {
             </Link>
 
             <p className="text-sm text-emerald-100 mt-4">
-              ללא עלות • ללא התחייבות • תוצאות מיידיות
+              <span className="px-2">ללא עלות</span> •{" "}
+              <span className="px-2">ללא התחייבות</span> •{" "}
+              <span className="px-2">תוצאות מיידיות</span>
             </p>
           </m.div>
 

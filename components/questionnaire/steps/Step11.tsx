@@ -136,7 +136,7 @@ export default function Step11({
               >
                 {isFirstIntro ? (
                   <div>
-                    <h2 className="text-2xl font-extrabold text-center mb-4">
+                    <h2 className="text-2xl font-extrabold text-center mb-4 text-background">
                       איך זה עובד
                     </h2>
                     <p className="text-center text-gray-600 leading-relaxed mb-4">
@@ -206,8 +206,8 @@ export default function Step11({
                   </div>
                 ) : (
                   <div>
-                    <h2 className="text-2xl font-extrabold text-center mb-4">
-                      כשאת/ה עונה על השאלון
+                    <h2 className="text-2xl font-extrabold text-center mb-4 text-background">
+                      כשאתם עונים על השאלון
                     </h2>
                     <div className="text-center text-gray-700 leading-relaxed space-y-2">
                       <p>
@@ -263,12 +263,12 @@ export default function Step11({
           >
             <Card className="max-w-3xl mx-auto bg-white p-2 sm:p-6">
               <CardHeader className="flex justify-between items-center p-2 sm:p-6">
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-muted-background ">
                   שאלה {index + 1} / {STEP11_QUESTIONS.length}
                 </div>
               </CardHeader>
               <CardContent className="p-2 sm:p-6">
-                <div className="mb-4 sm:mb-6 text-right leading-relaxed">
+                <div className="mb-4 sm:mb-6 text-right leading-relaxed text-background">
                   {currentQuestion?.text}
                 </div>
                 <div className="mb-1 sm:mb-2 overflow-hidden">

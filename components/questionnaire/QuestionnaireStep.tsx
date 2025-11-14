@@ -64,7 +64,7 @@ export default function QuestionnaireStep({
       {question.type === "multiselect" && (
         <div className="space-y-2">
           {question.maxSelections && (
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-background ">
               בחר עד {question.maxSelections} אפשרויות
               {Array.isArray(value) && value.length > 0 && (
                 <span>

@@ -171,14 +171,14 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
               {Math.round((score / QUESTIONS.length) * 100)}%)
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-right border-collapse">
+              <table className="p-2 w-full text-right border-collapse">
                 <thead>
                   <tr className="bg-gray-100">
-                    <th className="p-2 border">#</th>
-                    <th className="p-2 border">שאלה</th>
-                    <th className="p-2 border">תשובה</th>
-                    <th className="p-2 border">תשובה נכונה</th>
-                    <th className="p-2 border">תוצאה</th>
+                    <th className="p-2 border text-background">#</th>
+                    <th className="p-2 border text-background">שאלה</th>
+                    <th className="p-2 border text-background">תשובה</th>
+                    <th className="p-2 border text-background">תשובה נכונה</th>
+                    <th className="p-2 border text-background">תוצאה</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -191,17 +191,21 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
                         key={q.id}
                         className={isCorrect ? "bg-green-50" : "bg-red-50"}
                       >
-                        <td className="p-2 border">{index + 1}</td>
-                        <td className="p-2 border">{q.question}</td>
-                        <td className="p-2 border">
+                        <td className="p-2 border text-background">
+                          {index + 1}
+                        </td>
+                        <td className="p-2 border text-background">
+                          {q.question}
+                        </td>
+                        <td className="p-2 border text-background">
                           {userAnswer ?? (
                             <span className="italic text-gray-500">דילגת</span>
                           )}
                         </td>
-                        <td className="p-2 border">
+                        <td className="p-2 border text-background">
                           {q.options[q.correct_option]}
                         </td>
-                        <td className="p-2 border text-center">
+                        <td className="p-2 border text-background text-center">
                           {isCorrect ? (
                             <span
                               title="נכון!"
@@ -278,7 +282,7 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
               <div className="flex justify-end items-center mb-2">
                 <span
                   className={`font-mono text-lg ${
-                    timer <= 10 ? "text-red-500" : "text-gray-700"
+                    timer <= 10 ? "text-orange-500" : "text-gray-300"
                   }`}
                 >
                   {timer}s
@@ -304,16 +308,16 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
                     <Button
                       className={`w-full justify-center p-4 h-auto text-base whitespace-normal ${
                         selected !== null
-                          ? q.options.indexOf(opt) === q.correct_option
-                            ? "bg-green-100 hover:bg-green-200 border-green-400"
+                          ? idx === q.correct_option
+                            ? "bg-transparent hover:bg-transparent border-green-400 text-green-400 font-semibold"
                             : opt === selected && !feedback
-                            ? "bg-red-100 hover:bg-red-200 border-red-400"
-                            : "bg-gray-50"
+                            ? "bg-transparent hover:bg-red-200 border-orange-400 text-orange-400 font-semibold"
+                            : "bg-gray-50 text-gray-800"
                           : "hover:bg-gray-100"
                       }`}
                       variant="outline"
                       disabled={selected !== null}
-                      onClick={() => handleSelect(opt)}
+                      onClick={() => handleSelect(idx)}
                     >
                       {opt}
                     </Button>

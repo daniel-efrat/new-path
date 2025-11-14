@@ -18,10 +18,10 @@ export default function QuestionnaireProgress({
     <div className={`bg-white rounded-lg px-6 py-2 mt-8   ${className}`}>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">
+          <h2 className="text-lg font-semibold text-background">
             התקדמות כללית
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-background">
             {completed} מתוך {total} שלבים הושלמו
           </p>
         </div>

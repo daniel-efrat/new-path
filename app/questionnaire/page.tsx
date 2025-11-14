@@ -16,7 +16,7 @@ import Step8 from "@/components/questionnaire/steps/Step8";
 import Step9 from "@/components/questionnaire/steps/Step9";
 import Step10 from "@/components/questionnaire/steps/Step10";
 import Step11 from "@/components/questionnaire/steps/Step11";
-import HollandResults from "@/components/questionnaire/steps/HollandResults";
+import Step12 from "@/components/questionnaire/steps/Step12";
 
 const stepComponents: Record<number, any> = {
   1: Step1,
@@ -30,7 +30,7 @@ const stepComponents: Record<number, any> = {
   9: Step9,
   10: Step10,
   11: Step11,
-  12: HollandResults,
+  12: Step12,
 };
 
 export default function QuestionnairePage() {
@@ -99,7 +99,7 @@ export default function QuestionnairePage() {
   }
 
   return (
-    <div className="container mx-auto bg-tech p-4">
+    <div className="container mx-auto p-4">
       <Current
         onPrevious={onPrevious}
         onNext={onNext}

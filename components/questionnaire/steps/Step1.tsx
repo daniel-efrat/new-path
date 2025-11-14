@@ -302,7 +302,10 @@ function TraitsSelector({
         <h2 className="text-xl font-semibold text-right">
           בחר/י עד 10 תכונות המתארות אותך
         </h2>
-        <p className="text-sm text-gray-500 text-right" aria-live="polite">
+        <p
+          className="text-sm text-muted-background  text-right"
+          aria-live="polite"
+        >
           נבחרו {selectedTraitIds.length} מתוך 10 תכונות אפשריות
         </p>
         <div className="text-xs text-gray-500 mb-2">

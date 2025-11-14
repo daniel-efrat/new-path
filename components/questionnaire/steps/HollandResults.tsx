@@ -108,7 +108,7 @@ export default function HollandResults({
                       className="w-full h-full object-contain"
                     />
                   </motion.div>
-                  <motion.div 
+                  <motion.div
                     initial={{ scaleX: 1.6, opacity: 0 }}
                     animate={{ scaleX: 1, opacity: 1 }}
                     transition={{
@@ -142,9 +142,13 @@ export default function HollandResults({
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {Object.entries(riasec_vector).map(([code, score]) => {
-              const name = RIASEC_MAP[code as keyof typeof RIASEC_MAP]?.name ?? code;
+              const name =
+                RIASEC_MAP[code as keyof typeof RIASEC_MAP]?.name ?? code;
               return (
-                <div key={code} className="text-center p-2 border rounded">
+                <div
+                  key={code}
+                  className="text-center p-2 border text-background rounded"
+                >
                   <span className="font-semibold">{name}:</span> {score}%
                 </div>
               );

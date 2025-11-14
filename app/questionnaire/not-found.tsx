@@ -33,7 +33,7 @@ export default function QuestionnaireNotFound() {
         </div>
 
         {/* Help section */}
-        <div className="pt-8 border-t text-sm text-gray-500">
+        <div className="pt-8 border-t text-sm text-muted-background ">
           <p>צריך עזרה?</p>
           <a
             href="mailto:support@example.com"

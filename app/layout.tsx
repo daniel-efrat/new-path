@@ -38,7 +38,7 @@ export default function RootLayout({
         <ClientMotionProvider>
           <Header />
           <AuthHandler />
-          <main className="min-h-screen pt-24">{children}</main>
+          <main className="min-h-screen pt-24 bg-tech">{children}</main>
         </ClientMotionProvider>
       </body>
     </html>
