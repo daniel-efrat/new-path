@@ -27,25 +27,14 @@ export default function SignupPage() {
     setIsLoading(true);
     setError(null);
 
-    // Determine the correct redirect URL based on environment
-    const isDevelopment =
-      window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1";
-    const redirectUrl = isDevelopment
-      ? "http://localhost:3000/auth/callback-client"
-      : `${window.location.origin}/auth/callback-client`;
-
-    console.log(
-      "Initiating Google OAuth signup with redirect to:",
-      redirectUrl
-    );
-    console.log("Environment:", isDevelopment ? "development" : "production");
-
     try {
+      const base = window.location.origin;
+      const redirectTo = `${base}/dashboard`; // or "/signin?from=/dashboard" if you want
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: redirectUrl,
+          redirectTo,
           queryParams: {
             access_type: "offline",
             prompt: "consent",
@@ -54,6 +43,7 @@ export default function SignupPage() {
       });
 
       if (error) throw error;
+      // Usually browser is already gone, no code runs after this
     } catch (error: any) {
       console.error("Google signup error:", error);
       setError(error.message || "שגיאה בהרשמה עם Google");

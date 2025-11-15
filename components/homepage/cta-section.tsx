@@ -87,7 +87,7 @@ export function CTASection() {
           </m.div>
 
           <m.div
-            className="space-y-4"
+            className="space-y-4 flex flex-col items-center justify-center"
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ duration: 0.5, delay: 0.3 }}
@@ -95,7 +95,7 @@ export function CTASection() {
             <Link href="/dashboard">
               <Button
                 size="lg"
-                className="w-full text-lg font-semibold h-12 bg-primary hover:bg-secondary custom-btn"
+                className="w-fit text-lg font-semibold h-12 bg-primary hover:bg-secondary custom-btn"
               >
                 התחל אבחון עכשיו
                 <ArrowLeft className="w-5 h-5 mr-2" />

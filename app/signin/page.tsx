@@ -1,20 +1,19 @@
-'use client';
+"use client";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import Link from "next/link"
-import { useRouter } from 'next/navigation'
-import supabase from '@/lib/supabase'
-import { useState, useEffect } from 'react'
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import supabase from "@/lib/supabase";
+import { useState, useEffect } from "react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,17 +24,21 @@ export default function LoginPage() {
   useEffect(() => {
     const checkExistingAuth = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        console.log('Existing session check:', { session, error });
-        
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+        console.log("Existing session check:", { session, error });
+
         if (session && !error) {
-          console.log('User already authenticated, redirecting...');
-          const from = new URLSearchParams(window.location.search).get('from') || '/dashboard';
+          console.log("User already authenticated, redirecting...");
+          const searchParams = new URLSearchParams(window.location.search);
+          const from = searchParams.get("from") || "/dashboard";
           router.push(from);
           return;
         }
       } catch (error) {
-        console.error('Session check error:', error);
+        console.error("Session check error:", error);
       }
     };
 
@@ -45,67 +48,44 @@ export default function LoginPage() {
   const handleGoogleLogin = async (e: React.MouseEvent) => {
     e.preventDefault();
     setIsGoogleLoading(true);
-    
-    // Determine the correct redirect URL based on environment
-    console.log('Starting Google sign-in process...');
-    const from = new URLSearchParams(window.location.search).get('from') || '/dashboard';
-    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const base = isDevelopment
-      ? 'http://localhost:3000'
-      : window.location.origin;
-    const redirectTo = `${base}/auth/callback-client?next=${encodeURIComponent(from)}`;
-    
-    // Extra diagnostics
-    // Note: process.env.NODE_ENV is replaced at build time by Next.js
-    console.log('ENV diagnostics:', {
-      NODE_ENV: process.env.NODE_ENV,
-      isDevelopment,
-      currentUrl: window.location.href,
-      base,
-      from,
-      redirectTo
-    });
-    
+
     try {
-      console.log('Calling supabase.auth.signInWithOAuth with skipBrowserRedirect...');
+      const searchParams = new URLSearchParams(window.location.search);
+      const from = searchParams.get("from") || "/dashboard";
+
+      // Works for both dev (localhost:3000) and prod (new-path-test.vercel.app)
+      const base = window.location.origin;
+      const redirectTo = `${base}${from}`;
+
+      console.log("Google login redirectTo:", redirectTo);
+
       const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+        provider: "google",
         options: {
-          redirectTo: redirectTo,
-          skipBrowserRedirect: true,
+          redirectTo,
+          // Let supabase-js redirect automatically
+          // (no skipBrowserRedirect here)
           queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
+            access_type: "offline",
+            prompt: "consent",
           },
         },
       });
 
-      console.log('Google OAuth response:', { data, error });
-
       if (error) {
-        console.error('Google login error:', error);
-        alert('שגיאה בהתחברות עם Google. אנא נסה שוב.');
+        console.error("Google login error:", error);
+        alert("שגיאה בהתחברות עם Google. אנא נסה שוב.");
         return;
       }
 
+      // In most cases, supabase-js already redirected.
+      // This is just a fallback if skipBrowserRedirect is false and still we got a URL:
       if (data?.url) {
-        try {
-          const testUrl = new URL(data.url);
-          const redirect_to = testUrl.searchParams.get('redirect_to');
-          console.log('Provider URL computed:', {
-            providerUrl: data.url,
-            redirect_to
-          });
-        } catch (e) {
-          console.warn('Could not parse provider URL for inspection');
-        }
-        // Manually navigate after logging
         window.location.assign(data.url);
-        return;
       }
     } catch (error) {
-      console.error('Google login error:', error);
-      alert('שגיאה בהתחברות עם Google. אנא נסה שוב.');
+      console.error("Google login error:", error);
+      alert("שגיאה בהתחברות עם Google. אנא נסה שוב.");
     } finally {
       setIsGoogleLoading(false);
     }
@@ -114,10 +94,10 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     const formData = new FormData(e.currentTarget as HTMLFormElement);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -126,22 +106,21 @@ export default function LoginPage() {
       });
 
       if (error) {
-        console.error('Login error:', error);
-        alert('שגיאה בהתחברות. אנא בדוק את פרטי ההתחברות שלך.');
+        console.error("Login error:", error);
+        alert("שגיאה בהתחברות. אנא בדוק את פרטי ההתחברות שלך.");
       } else {
-        console.log('Login successful, session data:', data);
-        // Check for redirect parameter
-        const from = new URLSearchParams(window.location.search).get('from') || '/dashboard';
-        console.log('Redirecting to:', from);
-        
-        // Wait a moment for the session to be properly set
+        console.log("Login successful, session data:", data);
+        const searchParams = new URLSearchParams(window.location.search);
+        const from = searchParams.get("from") || "/dashboard";
+        console.log("Redirecting to:", from);
+
         setTimeout(() => {
           router.push(from);
         }, 500);
       }
     } catch (error) {
-      console.error('Login error:', error);
-      alert('שגיאה בהתחברות. אנא נסה שוב.');
+      console.error("Login error:", error);
+      alert("שגיאה בהתחברות. אנא נסה שוב.");
     } finally {
       setIsLoading(false);
     }
@@ -222,5 +201,5 @@ export default function LoginPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
