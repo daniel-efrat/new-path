@@ -54,17 +54,15 @@ export default function LoginPage() {
       const from = searchParams.get("from") || "/dashboard";
 
       // Works for both dev (localhost:3000) and prod (new-path-test.vercel.app)
-      const base = window.location.origin;
-      const redirectTo = `${base}${from}`;
-
-      console.log("Google login redirectTo:", redirectTo);
+      const base = window.location.origin; // dev: http://localhost:3000, prod: https://new-path-test.vercel.app
+      const redirectTo = `${base}/auth/callback?next=${encodeURIComponent(
+        from
+      )}`;
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo,
-          // Let supabase-js redirect automatically
-          // (no skipBrowserRedirect here)
           queryParams: {
             access_type: "offline",
             prompt: "consent",
@@ -78,8 +76,6 @@ export default function LoginPage() {
         return;
       }
 
-      // In most cases, supabase-js already redirected.
-      // This is just a fallback if skipBrowserRedirect is false and still we got a URL:
       if (data?.url) {
         window.location.assign(data.url);
       }

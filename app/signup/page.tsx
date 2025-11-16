@@ -29,7 +29,9 @@ export default function SignupPage() {
 
     try {
       const base = window.location.origin;
-      const redirectTo = `${base}/dashboard`; // or "/signin?from=/dashboard" if you want
+      const redirectTo = `${base}/auth/callback?next=${encodeURIComponent(
+        "/dashboard"
+      )}`;
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
