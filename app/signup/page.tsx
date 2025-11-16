@@ -29,7 +29,7 @@ export default function SignupPage() {
 
     try {
       const base = window.location.origin;
-      const redirectTo = `${base}/auth/callback?next=${encodeURIComponent(
+      const redirectTo = `${base}/auth/callback-client?next=${encodeURIComponent(
         "/dashboard"
       )}`;
 

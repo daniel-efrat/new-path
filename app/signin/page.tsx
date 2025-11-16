@@ -55,7 +55,7 @@ export default function LoginPage() {
 
       // Works for both dev (localhost:3000) and prod (new-path-test.vercel.app)
       const base = window.location.origin; // dev: http://localhost:3000, prod: https://new-path-test.vercel.app
-      const redirectTo = `${base}/auth/callback?next=${encodeURIComponent(
+      const redirectTo = `${base}/auth/callback-client?next=${encodeURIComponent(
         from
       )}`;
 
