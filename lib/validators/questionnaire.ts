@@ -102,7 +102,6 @@ export const validateStep4 = (data: StepData): ValidationResult => {
   return createValidationResult(errors.length === 0, errors);
 };
 
-
 // Step 5 validation (placeholder)
 export const validateStep5 = (data: StepData): ValidationResult => {
   const errors: string[] = [];
@@ -171,6 +170,35 @@ export const validateStep12 = (data: StepData): ValidationResult => {
   return createValidationResult(errors.length === 0, errors);
 };
 
+// Step 13 validation – values exercise
+export const validateStep13 = (data: StepData): ValidationResult => {
+  const errors: string[] = [];
+
+  const coreValuesAnswer = data["step13_core_values"];
+  if (!coreValuesAnswer || !coreValuesAnswer.value) {
+    errors.push("יש לבחור לפחות 4 ועד 6 ערכי ליבה ולהגדיר להם ציון.");
+    return createValidationResult(errors.length === 0, errors);
+  }
+
+  try {
+    const parsed = JSON.parse(coreValuesAnswer.value as string);
+    if (!Array.isArray(parsed) || parsed.length < 4 || parsed.length > 6) {
+      errors.push("יש לבחור בין 4 ל-6 ערכי ליבה.");
+    } else {
+      parsed.forEach((row: any, index: number) => {
+        const score = row?.score;
+        if (typeof score !== "number" || score < 1 || score > 10) {
+          errors.push(`לא הוגדר ציון תקין לערך מספר ${index + 1}.`);
+        }
+      });
+    }
+  } catch {
+    errors.push("לא ניתן לקרוא את נתוני ערכי הליבה.");
+  }
+
+  return createValidationResult(errors.length === 0, errors);
+};
+
 // Main validation function
 export const validateStep = (
   step: number,
@@ -200,4 +228,5 @@ export const stepValidators: Record<
   10: validateStep10,
   11: validateStep11,
   12: validateStep12,
+  13: validateStep13,
 };

@@ -16,7 +16,8 @@ import Step8 from "@/components/questionnaire/steps/Step8";
 import Step9 from "@/components/questionnaire/steps/Step9";
 import Step10 from "@/components/questionnaire/steps/Step10";
 import Step11 from "@/components/questionnaire/steps/Step11";
-import Step12 from "@/components/questionnaire/steps/Step12";
+import HollandResults from "@/components/questionnaire/steps/HollandResults";
+import Step13 from "@/components/questionnaire/steps/Step13";
 
 const stepComponents: Record<number, any> = {
   1: Step1,
@@ -30,7 +31,8 @@ const stepComponents: Record<number, any> = {
   9: Step9,
   10: Step10,
   11: Step11,
-  12: Step12,
+  12: HollandResults,
+  13: Step13,
 };
 
 export default function QuestionnairePage() {
@@ -65,6 +67,12 @@ export default function QuestionnairePage() {
     // Temporarily hide steps 9 and 10: jump from 8 directly to 11
     if (currentStep === 8) {
       setCurrentStep(11);
+    } else if (currentStep === 12) {
+      // After Holland results, move to values exercise
+      setCurrentStep(13);
+    } else if (currentStep === 13) {
+      // After Step 13, exit to dashboard
+      router.push("/dashboard");
     } else {
       setCurrentStep(currentStep + 1);
     }
