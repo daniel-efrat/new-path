@@ -317,7 +317,7 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
                       }`}
                       variant="outline"
                       disabled={selected !== null}
-                      onClick={() => handleSelect(idx)}
+                      onClick={() => handleSelect(opt)}
                     >
                       {opt}
                     </Button>

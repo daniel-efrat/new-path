@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -33,9 +32,8 @@ export default function LoginPage() {
 
         if (session && !error) {
           console.log("User already authenticated, redirecting...");
-          const from =
-            new URLSearchParams(window.location.search).get("from") ||
-            "/dashboard";
+          const searchParams = new URLSearchParams(window.location.search);
+          const from = searchParams.get("from") || "/dashboard";
           router.push(from);
           return;
         }
@@ -51,48 +49,25 @@ export default function LoginPage() {
     e.preventDefault();
     setIsGoogleLoading(true);
 
-    // Determine the correct redirect URL based on environment
-    console.log("Starting Google sign-in process...");
-    const from =
-      new URLSearchParams(window.location.search).get("from") || "/dashboard";
-    const isDevelopment =
-      window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1";
-    const base = isDevelopment
-      ? "http://localhost:3000"
-      : window.location.origin;
-    const redirectTo = `${base}/auth/callback-client?next=${encodeURIComponent(
-      from
-    )}`;
-
-    // Extra diagnostics
-    // Note: process.env.NODE_ENV is replaced at build time by Next.js
-    console.log("ENV diagnostics:", {
-      NODE_ENV: process.env.NODE_ENV,
-      isDevelopment,
-      currentUrl: window.location.href,
-      base,
-      from,
-      redirectTo,
-    });
-
     try {
-      console.log(
-        "Calling supabase.auth.signInWithOAuth with skipBrowserRedirect..."
-      );
+      const searchParams = new URLSearchParams(window.location.search);
+      const from = searchParams.get("from") || "/dashboard";
+
+      // Works for both dev (localhost:3000) and prod (new-path-test.vercel.app)
+      const base = window.location.origin; // dev: http://localhost:3000, prod: https://new-path-test.vercel.app
+      const redirectTo = `${base}/auth/callback-client?next=${encodeURIComponent(
+        from
+      )}`;
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: redirectTo,
-          skipBrowserRedirect: true,
+          redirectTo,
           queryParams: {
             access_type: "offline",
             prompt: "consent",
           },
         },
       });
-
-      console.log("Google OAuth response:", { data, error });
 
       if (error) {
         console.error("Google login error:", error);
@@ -101,19 +76,7 @@ export default function LoginPage() {
       }
 
       if (data?.url) {
-        try {
-          const testUrl = new URL(data.url);
-          const redirect_to = testUrl.searchParams.get("redirect_to");
-          console.log("Provider URL computed:", {
-            providerUrl: data.url,
-            redirect_to,
-          });
-        } catch (e) {
-          console.warn("Could not parse provider URL for inspection");
-        }
-        // Manually navigate after logging
         window.location.assign(data.url);
-        return;
       }
     } catch (error) {
       console.error("Google login error:", error);
@@ -142,13 +105,9 @@ export default function LoginPage() {
         alert("שגיאה בהתחברות. אנא בדוק את פרטי ההתחברות שלך.");
       } else {
         console.log("Login successful, session data:", data);
-        // Check for redirect parameter
-        const from =
-          new URLSearchParams(window.location.search).get("from") ||
-          "/dashboard";
+        const searchParams = new URLSearchParams(window.location.search);
+        const from = searchParams.get("from") || "/dashboard";
         console.log("Redirecting to:", from);
-
-        // Wait a moment for the session to be properly set
         setTimeout(() => {
           router.push(from);
         }, 500);
