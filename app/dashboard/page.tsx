@@ -105,6 +105,12 @@ export default function QuestionnaireDashboard() {
         "תן/י ציונים לתחומים מקצועיים כלליים (סמן/י עד 5 תחומים כלליים בעדיפות)",
       time: "90 שניות לשאלה",
     },
+    {
+      id: 13,
+      title: "ליבת הערכים אישיים",
+      description: "בחירת ערכים",
+      time: "לא מוגבל בזמן",
+    },
   ];
 
   useEffect(() => {

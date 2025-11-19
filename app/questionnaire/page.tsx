@@ -85,6 +85,16 @@ export default function QuestionnairePage() {
       setStepCompletion(8, true);
       return;
     }
+
+    // For step 13, explicitly mark both step 12 and 13 as completed so that
+    // the dashboard reliably keeps step 13 unlocked and preserves the fact
+    // that step 12 was completed via the occupation flow.
+    if (currentStep === 13) {
+      await setStepCompletion(12, true);
+      await setStepCompletion(13, true);
+      return;
+    }
+
     const validation = validateCurrentStep();
     setStepCompletion(currentStep, validation.isValid);
   };

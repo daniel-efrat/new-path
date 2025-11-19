@@ -188,7 +188,42 @@ export const useStepStore = create<StepState>()(
             .single();
 
           if (data && data.steps_progress) {
-            set({ steps: data.steps_progress as Step[], isInitialized: true });
+            const persistedSteps = data.steps_progress as Step[];
+            const defaultSteps = makeInitialSteps();
+
+            // Merge persisted steps with defaults so newly added steps
+            // (e.g., step 13) are always present in the store.
+            const mergedSteps: Step[] = defaultSteps.map((defaultStep) => {
+              const existing = persistedSteps.find(
+                (step) => step.id === defaultStep.id
+              );
+              return existing ?? defaultStep;
+            });
+
+            set({ steps: mergedSteps, isInitialized: true });
+
+            // Optionally persist the merged structure back so future loads
+            // already include the new steps.
+            try {
+              const { error: updateError } = await supabase
+                .from("user_questionnaire_progress")
+                .update({
+                  steps_progress: mergedSteps,
+                  updated_at: new Date().toISOString(),
+                })
+                .eq("user_id", userId);
+
+              if (updateError) {
+                console.error(
+                  "Failed to update merged user progress:",
+                  updateError
+                );
+              }
+            } catch (mergeError) {
+              console.error("Exception while updating merged progress:", {
+                message: (mergeError as any)?.message ?? String(mergeError),
+              });
+            }
           } else if (error && error.code === "PGRST116") {
             // No record found, create one with initial steps
             const initialSteps = makeInitialSteps();

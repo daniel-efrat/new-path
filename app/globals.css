@@ -93,18 +93,18 @@ body {
   /* Layered dark blue gradient with geometric pattern overlay */
   background-image: radial-gradient(
       1200px 600px at 80% -10%,
-      oklch(47.842% 0.18554 260.537) 0%,
+      oklch(61.42% 0.19882 259.823) 0%,
       transparent 60%
     ),
     radial-gradient(
       1000px 500px at 20% 110%,
-      oklch(58.901% 0.21283 266.872) 0%,
+      oklch(52.478% 0.26471 264.593) 0%,
       transparent 60%
     ),
     linear-gradient(
       180deg,
-      oklch(34.122% 0.12251 259.414) 0%,
-      oklch(47.933% 0.18128 260.429) 100%
+      oklch(60.647% 0.21441 259.318) 0%,
+      oklch(51.599% 0.22776 261.343) 100%
     );
   background-blend-mode: screen, screen, normal, normal;
   background-attachment: fixed;
