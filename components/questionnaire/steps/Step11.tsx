@@ -142,7 +142,8 @@ export default function Step11({
                       איך זה עובד
                     </h2>
                     <p className="text-center text-gray-600 leading-relaxed mb-4">
-                      בשאלון יוצגו לך 30 פעולות מתחומי עבודה מגוונים, עפ"י{" "}
+                      בשאלון יוצגו לך {STEP11_QUESTIONS.length} היגדים מתחומי
+                      עבודה מגוונים, עפ"י{" "}
                       <a
                         className="text-blue-800 underline underline-offset-2 hover:text-blue-950"
                         href="/aboutHolland"
@@ -152,8 +153,7 @@ export default function Step11({
                       .
                     </p>
                     <p className="text-center text-gray-600 leading-relaxed mb-6">
-                      לגבי כל פעולה סמן/י אם היא מעניינת אותך ואם נראה לך שהיית
-                      אוהב/ת לעשות אותה.
+                      לגבי כל היגד סמן/י עד כמה הוא מתאים לך.
                     </p>
                     <div className="mb-2 overflow-hidden">
                       {/* Image rating buttons (left to right: very like -> not at all) */}
@@ -217,13 +217,11 @@ export default function Step11({
                         ואין תשובות נכונות.
                       </p>
                       <p>
-                        <span className="font-semibold">אל תחשבו</span> איך לבצע
-                        את הפעולה וגם <span className="font-semibold">לא</span>{" "}
-                        כמה לימודים צריך או מה השכר.
+                        <span className="font-semibold">אל תחשבו</span> על
+                        תשובה רצויה או נכונה; סמנו את התשובה שמתאימה לכם.
                       </p>
                       <p>
-                        השאלה היחידה היא – אם היית אוהב/ת לעשות אותה. זה בסדר
-                        לדמיין :)
+                        התייחסו לאופן שבו הייתם רוצים לעבוד ולהתבטא במקצוע.
                       </p>
                       <hr className="my-3 border-gray-200" />
                       <p>
