@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import supabase from '@/lib/supabase'
 
 export interface Step12Occupation {
   occupation_serial: number
@@ -8,6 +9,7 @@ export interface Step12Occupation {
 }
 
 interface Step12State {
+  userId?: string
   selected: Step12Occupation[] // up to 5
   order: number[] // array of occupation_serial in preferred order (length 5 when set)
   selectionsBySerial: Record<number, number[]> // statement_serials selected (up to 2 per occupation)
@@ -16,11 +18,13 @@ interface Step12State {
   setOrder: (order: number[]) => void
   setSelectionsFor: (serial: number, statementSerials: number[]) => void
   reset: () => void
+  ensureUser: (expectedUserId?: string) => Promise<void>
 }
 
 export const useStep12Store = create<Step12State>()(
   persist(
     (set, get) => ({
+      userId: undefined,
       selected: [],
       order: [],
       selectionsBySerial: {},
@@ -46,7 +50,30 @@ export const useStep12Store = create<Step12State>()(
       })),
 
       reset: () => set({ selected: [], order: [], selectionsBySerial: {} }),
+
+      ensureUser: async (expectedUserId) => {
+        const userId = expectedUserId ?? (await supabase.auth.getUser()).data.user?.id
+        if (get().userId !== userId) {
+          set({
+            userId,
+            selected: [],
+            order: [],
+            selectionsBySerial: {},
+          })
+        }
+      },
     }),
-    { name: 'step12-store', version: 1 }
+    {
+      name: 'step12-store',
+      version: 2,
+      // Selections are user data and should not be hydrated into another session.
+      partialize: (state) => ({ userId: state.userId }),
+      migrate: () => ({
+        userId: undefined,
+        selected: [],
+        order: [],
+        selectionsBySerial: {},
+      }),
+    }
   )
 )

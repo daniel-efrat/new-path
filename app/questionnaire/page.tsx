@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore";
 import { useStepStore } from "@/lib/stores/stepStore";
+import { useStep12Store } from "@/lib/stores/step12Store";
 
 import Step1 from "@/components/questionnaire/steps/Step1";
 import Step2 from "@/components/questionnaire/steps/Step2";
@@ -40,15 +41,17 @@ export default function QuestionnairePage() {
   const { currentStep, setCurrentStep, validateCurrentStep, initialize } =
     useQuestionnaireStore();
   const { setStepCompletion, initializeSteps, ensureUser } = useStepStore();
+  const ensureStep12User = useStep12Store((state) => state.ensureUser);
+  const [storeReady, setStoreReady] = useState(false);
 
   useEffect(() => {
-    // Ensure stores are initialized and bound to the current user so progress persists
     (async () => {
       try {
-        await ensureUser();
+        await Promise.all([ensureUser(), ensureStep12User()]);
+        await initializeSteps();
+        await initialize();
       } finally {
-        initializeSteps();
-        initialize();
+        setStoreReady(true);
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -100,6 +103,14 @@ export default function QuestionnairePage() {
   };
 
   const Current = stepComponents[currentStep];
+
+  if (!storeReady) {
+    return (
+      <div className="container mx-auto p-6">
+        <p>טוען שאלון...</p>
+      </div>
+    );
+  }
 
   if (!Current) {
     return (

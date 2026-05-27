@@ -8,8 +8,21 @@ import { useStep12Store } from "@/lib/stores/step12Store";
 
 export default function RankOccupationsPage() {
   const router = useRouter();
-  const { selected, order, setOrder } = useStep12Store();
+  const { selected, order, setOrder, ensureUser } = useStep12Store();
+  const [storeReady, setStoreReady] = useState(false);
   const [list, setList] = useState<number[]>(order.length ? order : selected.map(s => s.occupation_serial));
+
+  useEffect(() => {
+    ensureUser().finally(() => {
+      const state = useStep12Store.getState();
+      setList(
+        state.order.length
+          ? state.order
+          : state.selected.map((item) => item.occupation_serial)
+      );
+      setStoreReady(true);
+    });
+  }, [ensureUser]);
 
   useEffect(() => {
     // Keep list in sync if user revisits after changing selections
@@ -61,6 +74,10 @@ export default function RankOccupationsPage() {
     setOrder(list);
     router.push("/questionnaire/occupation/flow");
   };
+
+  if (!storeReady) {
+    return <p className="p-6">טוען...</p>;
+  }
 
   return (
     <div className="max-w-2xl mx-auto" dir="rtl">
