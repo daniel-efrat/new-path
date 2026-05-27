@@ -58,7 +58,6 @@ interface QuestionnaireStore extends QuestionnaireState {
   loadSubmission: () => Promise<void>;
   submit: () => Promise<void>;
   submitAnswers: (answers: { id: string; value: any; timestamp: Date }[]) => Promise<{ riasec_vector: Record<string, number>, riasec_code: string } | null>;
-  syncStepCompletion: () => Promise<void>;
 }
 
 const TOTAL_STEPS = Object.keys(stepValidators).length;
@@ -220,7 +219,6 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
         set({ error: new Error(`Database error: ${error.message}`) });
       } else {
         get().updateProgress();
-        await get().syncStepCompletion();
       }
     } catch (error) {
       console.error("Error in setAnswer:", error);
@@ -403,7 +401,6 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
 
     set({ answers: answersMap });
     get().updateProgress();
-    get().syncStepCompletion();
   },
 
   submit: async () => {
@@ -424,34 +421,6 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
       set({ error: error as Error });
     } finally {
       set({ isSubmitting: false });
-    }
-  },
-
-  syncStepCompletion: async () => {
-    try {
-      // Placeholder for future implementation
-      console.log("syncStepCompletion called");
-      const { useStepStore } = await import("@/lib/stores/stepStore");
-      const stepStore = useStepStore.getState();
-
-      // Initialize steps if not already done
-      if (stepStore.steps.length === 0) {
-        stepStore.initializeSteps();
-      }
-
-      // Check each step for completion based on validation
-      for (let step = 1; step <= TOTAL_STEPS; step++) {
-        const validation = get().validateStep(step);
-        const isCompleted = validation.isValid;
-
-        // Update step completion in the step store
-        stepStore.setStepCompletion(step, isCompleted);
-      }
-
-      console.log("Step completion synced with Supabase answers");
-    } catch (error: any) {
-      console.error("Error syncing step completion:", error);
-      // Don't throw - this is not critical for app functionality
     }
   },
 }));

@@ -92,7 +92,8 @@ export default function Step12FlowPage() {
   };
 
   const onNext = async () => {
-    persistCurrent();
+    const currentPicks = Array.from(selectedTwo).sort((a, b) => a - b);
+    setSelectionsFor(currentSerial, currentPicks);
     if (index < serials.length - 1) {
       setIndex((i) => i + 1);
       return;
@@ -107,8 +108,12 @@ export default function Step12FlowPage() {
 
       // Build rows from order and selections (exactly 2 each)
       const ranking = order.length ? order : selected.map(s => s.occupation_serial);
+      const completedSelections = {
+        ...selectionsBySerial,
+        [currentSerial]: currentPicks,
+      };
       const rows: DesignationChoiceRow[] = ranking.map((serial, idx) => {
-        const picks = (selectionsBySerial[serial] ?? []).slice(0, 2);
+        const picks = (completedSelections[serial] ?? []).slice(0, 2);
         if (picks.length !== 2) {
           throw new Error(`יש להשלים בחירה של 2 משפטים עבור תחום ${serial}`);
         }

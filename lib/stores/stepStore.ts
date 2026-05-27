@@ -19,6 +19,7 @@ interface StepState {
   setStepCompletion: (stepId: number, isCompleted: boolean) => Promise<void>;
   initializeSteps: () => Promise<void>;
   resetSteps: () => void;
+  resetProgress: () => Promise<void>;
   resetFromStep: (stepId: number) => void;
   setUserId: (userId?: string) => void;
   setHollandResults: (
@@ -79,41 +80,38 @@ export const useStepStore = create<StepState>()(
 
         set({ steps: newSteps });
 
-        // Persist the changes to Supabase (non-blocking) with robust logging
+        // Persist before allowing the next step to render so writes cannot land
+        // out of order and restore an older lock state.
         const userId = state.userId;
         if (userId) {
-          // Fire-and-forget with an async IIFE so UI is not blocked, but errors are logged
-          (async () => {
-            try {
-              const { error } = await supabase
-                .from("user_questionnaire_progress")
-                .upsert(
-                  {
-                    user_id: userId,
-                    steps_progress: newSteps,
-                    updated_at: new Date().toISOString(),
-                  },
-                  {
-                    onConflict: "user_id",
-                    ignoreDuplicates: false,
-                  }
-                );
-              if (error) {
-                console.error("Failed to save progress:", {
-                  message: (error as any)?.message,
-                  code: (error as any)?.code,
-                  details: (error as any)?.details,
-                  hint: (error as any)?.hint,
-                });
-              }
-            } catch (e: unknown) {
-              console.error("Save progress threw exception:", {
-                message: (e as any)?.message ?? String(e),
+          try {
+            const { error } = await supabase
+              .from("user_questionnaire_progress")
+              .upsert(
+                {
+                  user_id: userId,
+                  steps_progress: newSteps,
+                  updated_at: new Date().toISOString(),
+                },
+                {
+                  onConflict: "user_id",
+                  ignoreDuplicates: false,
+                }
+              );
+            if (error) {
+              console.error("Failed to save progress:", {
+                message: (error as any)?.message,
+                code: (error as any)?.code,
+                details: (error as any)?.details,
+                hint: (error as any)?.hint,
               });
             }
-          })();
+          } catch (e: unknown) {
+            console.error("Save progress threw exception:", {
+              message: (e as any)?.message ?? String(e),
+            });
+          }
         } else {
-          // Helpful when auth/session not yet bound
           console.warn("Skipping save progress: no userId bound to step store");
         }
       },
@@ -139,6 +137,29 @@ export const useStepStore = create<StepState>()(
           isInitialized: false,
           hollandResults: null,
         }),
+
+      resetProgress: async () => {
+        const initialSteps = makeInitialSteps();
+        const userId = get().userId;
+        set({ steps: initialSteps, isInitialized: true, hollandResults: null });
+
+        if (!userId) return;
+
+        const { error } = await supabase
+          .from("user_questionnaire_progress")
+          .upsert(
+            {
+              user_id: userId,
+              steps_progress: initialSteps,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "user_id", ignoreDuplicates: false }
+          );
+
+        if (error) {
+          console.error("Failed to reset progress:", error);
+        }
+      },
 
       initializeSteps: async () => {
         const userId = get().userId;

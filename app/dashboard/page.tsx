@@ -13,6 +13,13 @@ import QuestionnaireProgress from "@/components/ui/QuestionnaireProgress";
 import { Check, House, Play, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, MotionConfig } from "framer-motion";
+import {
+  STEP2_QUESTIONS,
+  STEP3_QUESTIONS,
+  STEP7_QUESTIONS,
+  STEP8_QUESTIONS,
+  STEP11_QUESTIONS,
+} from "@/lib/constants/questions";
 
 interface Step {
   id: number;
@@ -29,8 +36,14 @@ const noRotate = (_props: any, transform: string) =>
     .replace(/rotate\([^)]*\)/g, "rotate(0deg)");
 
 export default function QuestionnaireDashboard() {
-  const { steps, setStepCompletion, resetSteps, initializeSteps, ensureUser } =
-    useStepStore();
+  const {
+    steps,
+    setStepCompletion,
+    resetSteps,
+    resetProgress,
+    initializeSteps,
+    ensureUser,
+  } = useStepStore();
   const { setCurrentStep, initialize, reset: resetQuestionnaire } =
     useQuestionnaireStore();
   const { ensureUser: ensureStep12User, reset: resetStep12 } =
@@ -44,19 +57,19 @@ export default function QuestionnaireDashboard() {
     {
       id: 1,
       title: "תכונות ליבה",
-      description: "סמן/י 8 חוזקות אישיוּת מובילות",
+      description: "בחר/י עד 10 תכונות מובילות",
       time: "לא מוגבל בזמן",
     },
     {
       id: 2,
       title: "מבחן שפה - עברית",
-      description: "10 שאלות - מבחן אמריקאי",
+      description: `${STEP2_QUESTIONS.length} שאלות - מבחן אמריקאי`,
       time: "20 שניות לשאלה",
     },
     {
       id: 3,
       title: "מבחן שפה - אנגלית",
-      description: "10 שאלות - מבחן אמריקאי",
+      description: `${STEP3_QUESTIONS.length} שאלות - מבחן אמריקאי`,
       time: "40 שניות לשאלה",
     },
     {
@@ -80,13 +93,13 @@ export default function QuestionnaireDashboard() {
     {
       id: 7,
       title: "מבחן צורות חזותי",
-      description: "15 שאלות",
+      description: `${STEP7_QUESTIONS.length} שאלות`,
       time: "45 שניות לשאלה",
     },
     {
       id: 8,
       title: "מבחן ידע בסיסי במחשב",
-      description: "15 שאלות",
+      description: `${STEP8_QUESTIONS.length} שאלות`,
       time: "45 שניות לשאלה",
     },
     {
@@ -99,7 +112,7 @@ export default function QuestionnaireDashboard() {
     {
       id: 11,
       title: "שאלון הולנד",
-      description: "20 שאלות",
+      description: `${STEP11_QUESTIONS.length} שאלות`,
       time: "לא מוגבל בזמן",
     },
     {
@@ -116,6 +129,10 @@ export default function QuestionnaireDashboard() {
       time: "לא מוגבל בזמן",
     },
   ];
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -467,7 +484,7 @@ export default function QuestionnaireDashboard() {
                 if (
                   window.confirm("האם אתה בטוח שברצונך לאפס את כל ההתקדמות?")
                 ) {
-                  resetSteps();
+                  resetProgress();
                 }
               }}
             >

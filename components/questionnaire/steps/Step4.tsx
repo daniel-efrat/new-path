@@ -10,9 +10,10 @@ import { cn } from "@/lib/utils";
 interface Step4Props {
   onNext: () => void;
   onPrevious: () => void;
+  onComplete: () => Promise<void> | void;
 }
 
-export default function Step4({ onNext, onPrevious }: Step4Props) {
+export default function Step4({ onNext, onPrevious, onComplete }: Step4Props) {
   const { answers, setAnswer } = useQuestionnaireStore();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,28 +46,21 @@ export default function Step4({ onNext, onPrevious }: Step4Props) {
     setLocalAnchors(newAnchors);
   };
 
-  const handleNext = () => {
-    // Navigate immediately
-    onNext();
-
-    // Save answers in the background
-    const saveAnswersInBackground = async () => {
-      try {
-        // Save each anchor value as individual question ID
-        for (let i = 0; i < STEP4_QUESTIONS.length; i++) {
-          const questionId = STEP4_QUESTIONS[i].id;
-          const value = localAnchors[i];
-          // The setAnswer function will handle its own errors, no need to await
-          setAnswer(questionId, String(value), undefined, 4);
-        }
-      } catch (err) {
-        // Since this runs in the background, we can't set state on an unmounted component.
-        // We'll log the error for debugging.
-        console.error("Error saving Step 4 answers in the background:", err);
+  const handleNext = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      for (let i = 0; i < STEP4_QUESTIONS.length; i++) {
+        await setAnswer(STEP4_QUESTIONS[i].id, String(localAnchors[i]), undefined, 4);
       }
-    };
-
-    saveAnswersInBackground();
+      await onComplete();
+      onNext();
+    } catch (err) {
+      console.error("Error saving Step 4 answers:", err);
+      setError("שגיאה בשמירת התשובות. נסה שנית.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (error) {

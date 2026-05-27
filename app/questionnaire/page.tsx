@@ -18,6 +18,7 @@ import Step9 from "@/components/questionnaire/steps/Step9";
 import Step10 from "@/components/questionnaire/steps/Step10";
 import Step11 from "@/components/questionnaire/steps/Step11";
 import HollandResults from "@/components/questionnaire/steps/HollandResults";
+import Step12 from "@/components/questionnaire/steps/Step12";
 import Step13 from "@/components/questionnaire/steps/Step13";
 
 const stepComponents: Record<number, any> = {
@@ -32,17 +33,18 @@ const stepComponents: Record<number, any> = {
   9: Step9,
   10: Step10,
   11: Step11,
-  12: HollandResults,
+  12: Step12,
   13: Step13,
 };
 
 export default function QuestionnairePage() {
   const router = useRouter();
-  const { currentStep, setCurrentStep, validateCurrentStep, initialize } =
+  const { currentStep, setCurrentStep, initialize } =
     useQuestionnaireStore();
   const { setStepCompletion, initializeSteps, ensureUser } = useStepStore();
   const ensureStep12User = useStep12Store((state) => state.ensureUser);
   const [storeReady, setStoreReady] = useState(false);
+  const [showHollandResults, setShowHollandResults] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -58,7 +60,9 @@ export default function QuestionnairePage() {
   }, []);
 
   const onPrevious = () => {
-    if (currentStep === 11) {
+    if (showHollandResults) {
+      setShowHollandResults(false);
+    } else if (currentStep === 11) {
       // Temporarily skip step 10 and 9 when going back from 11
       setCurrentStep(8);
     } else if (currentStep > 1) {
@@ -70,9 +74,8 @@ export default function QuestionnairePage() {
     // Temporarily hide steps 9 and 10: jump from 8 directly to 11
     if (currentStep === 8) {
       setCurrentStep(11);
-    } else if (currentStep === 12) {
-      // After Holland results, move to values exercise
-      setCurrentStep(13);
+    } else if (currentStep === 11) {
+      setShowHollandResults(true);
     } else if (currentStep === 13) {
       // After Step 13, exit to dashboard
       router.push("/dashboard");
@@ -81,28 +84,22 @@ export default function QuestionnairePage() {
     }
   };
 
-  const onComplete = async () => {
-    // For step 8, mark as completed unconditionally to ensure Step 11 unlocks,
-    // since validation may miss answers loaded only into local component state.
-    if (currentStep === 8) {
-      setStepCompletion(8, true);
-      return;
-    }
-
-    // For step 13, explicitly mark both step 12 and 13 as completed so that
-    // the dashboard reliably keeps step 13 unlocked and preserves the fact
-    // that step 12 was completed via the occupation flow.
-    if (currentStep === 13) {
-      await setStepCompletion(12, true);
-      await setStepCompletion(13, true);
-      return;
-    }
-
-    const validation = validateCurrentStep();
-    setStepCompletion(currentStep, validation.isValid);
+  const continueFromHollandResults = () => {
+    setShowHollandResults(false);
+    setCurrentStep(12);
   };
 
-  const Current = stepComponents[currentStep];
+  const onComplete = async () => {
+    await setStepCompletion(currentStep, true);
+  };
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentStep, showHollandResults]);
+
+  const Current = showHollandResults
+    ? HollandResults
+    : stepComponents[currentStep];
 
   if (!storeReady) {
     return (
@@ -131,7 +128,7 @@ export default function QuestionnairePage() {
     <div className="container mx-auto p-4">
       <Current
         onPrevious={onPrevious}
-        onNext={onNext}
+        onNext={showHollandResults ? continueFromHollandResults : onNext}
         onComplete={onComplete}
       />
     </div>

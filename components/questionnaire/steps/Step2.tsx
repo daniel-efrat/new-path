@@ -20,9 +20,10 @@ interface Question {
 interface Step2Props {
   onNext: () => void;
   onPrevious: () => void;
+  onComplete: () => Promise<void> | void;
 }
 
-export default function Step2({ onNext, onPrevious }: Step2Props) {
+export default function Step2({ onNext, onPrevious, onComplete }: Step2Props) {
   const QUESTIONS: Question[] = STEP2_QUESTIONS;
 
   const { setAnswer } = useQuestionnaireStore();
@@ -132,6 +133,7 @@ export default function Step2({ onNext, onPrevious }: Step2Props) {
   }, [current, answers, QUESTIONS]);
 
   const handleContinue = async () => {
+    await onComplete();
     onNext();
   };
 

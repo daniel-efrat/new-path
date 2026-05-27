@@ -13,9 +13,10 @@ import { fetchStepAnswers } from "@/lib/utils/answerFetcher";
 interface Step3Props {
   onNext: () => void;
   onPrevious: () => void;
+  onComplete: () => Promise<void> | void;
 }
 
-export default function Step3({ onNext, onPrevious }: Step3Props) {
+export default function Step3({ onNext, onPrevious, onComplete }: Step3Props) {
   const {
     setAnswer,
     answers: allAnswers,
@@ -132,6 +133,7 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
     setSubmissionError(null);
     try {
       await submit();
+      await onComplete();
       onNext();
     } catch (error) {
       console.error("Submission failed:", error);

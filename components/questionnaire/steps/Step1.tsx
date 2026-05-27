@@ -18,11 +18,12 @@ interface TraitsSelectorProps {
 
 interface Step1Props {
   onNext: () => void;
+  onComplete: () => Promise<void> | void;
 }
 
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function Step1({ onNext }: Step1Props) {
+export default function Step1({ onNext, onComplete }: Step1Props) {
   const { setAnswer, isLoading: storeLoading } = useQuestionnaireStore();
   const [stepAnswers, setStepAnswers] = useState<Record<string, AnswerState>>(
     {}
@@ -112,6 +113,11 @@ export default function Step1({ onNext }: Step1Props) {
     }
   };
 
+  const handleContinue = async () => {
+    await onComplete();
+    onNext();
+  };
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -184,7 +190,7 @@ export default function Step1({ onNext }: Step1Props) {
                 </Button>
               </div>
               <Button
-                onClick={onNext}
+                onClick={handleContinue}
                 disabled={!canContinue}
                 className="px-8 py-3 text-lg font-semibold"
                 size="lg"
