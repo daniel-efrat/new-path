@@ -303,12 +303,12 @@ function TraitsSelector({
           בחר/י עד 10 תכונות המתארות אותך
         </h2>
         <p
-          className="text-sm text-muted-background  text-right"
+          className="text-sm text-muted-foreground text-right"
           aria-live="polite"
         >
           נבחרו {selectedTraitIds.length} מתוך 10 תכונות אפשריות
         </p>
-        <div className="text-xs text-gray-500 mb-2">
+        <div className="text-xs text-muted-foreground mb-2">
           ניתן ללחוץ על החץ למעלה/למטה לניווט, SPACE לבחירה
         </div>
         <div
@@ -342,7 +342,9 @@ function TraitsSelector({
                 <span>{question.text}</span>
                 <Checkbox
                   checked={selectedTraitIds.includes(question.id)}
-                  onCheckedChange={() => toggleTrait(question.id)}
+                  tabIndex={-1}
+                  aria-hidden="true"
+                  className="pointer-events-none"
                   disabled={isLoading}
                 />
               </CardHeader>

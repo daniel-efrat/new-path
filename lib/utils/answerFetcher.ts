@@ -6,7 +6,7 @@ const QUESTIONNAIRE_ID = "fbbee5e5-33c0-4b73-8514-0407633e05a2";
 export interface FetchedAnswer {
   question_id: string;
   answer_value: string;
-  created_at: string;
+  answered_at: string;
 }
 
 /**
@@ -47,7 +47,7 @@ export async function fetchStepAnswers(
     // Fetch answers for this submission that match the step's question IDs
     const { data: answers, error: answersError } = await supabase
       .from("answers")
-      .select("question_id, answer_value, created_at")
+      .select("question_id, answer_value, answered_at")
       .eq("submission_id", submissionData.id)
       .in("question_id", stepQuestionIds);
 
@@ -77,7 +77,7 @@ export async function fetchStepAnswers(
 
         answerMap[answer.question_id] = {
           value: parsedValue,
-          timestamp: new Date(answer.created_at),
+          timestamp: new Date(answer.answered_at),
         };
       });
     }

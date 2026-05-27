@@ -185,7 +185,7 @@ export const useStepStore = create<StepState>()(
             .from("user_questionnaire_progress")
             .select("steps_progress")
             .eq("user_id", userId)
-            .single();
+            .maybeSingle();
 
           if (data && data.steps_progress) {
             const persistedSteps = data.steps_progress as Step[];
@@ -224,18 +224,21 @@ export const useStepStore = create<StepState>()(
                 message: (mergeError as any)?.message ?? String(mergeError),
               });
             }
-          } else if (error && error.code === "PGRST116") {
-            // No record found, create one with initial steps
+          } else if (!error) {
+            // No record found. Upsert makes concurrent initialization safe.
             const initialSteps = makeInitialSteps();
             set({ steps: initialSteps, isInitialized: true });
 
             const { error: insertError } = await supabase
               .from("user_questionnaire_progress")
-              .insert({
-                user_id: userId,
-                steps_progress: initialSteps,
-                updated_at: new Date().toISOString(),
-              });
+              .upsert(
+                {
+                  user_id: userId,
+                  steps_progress: initialSteps,
+                  updated_at: new Date().toISOString(),
+                },
+                { onConflict: "user_id", ignoreDuplicates: true }
+              );
 
             if (insertError) {
               console.error(

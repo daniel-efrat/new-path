@@ -63,7 +63,7 @@ export default function Step12({ onPrevious }: Step12Props) {
     <div className="max-w-3xl mx-auto" dir="rtl">
       <h2 className="text-2xl font-bold my-6 text-center">בחירת תחום עיסוק</h2>
 
-      <Card className="bg-white">
+      <Card className="bg-white text-background">
         <CardContent className="p-4">
           <div className="flex gap-2 items-center mb-4">
             <input
@@ -71,7 +71,7 @@ export default function Step12({ onPrevious }: Step12Props) {
               placeholder="חפש/י תחום עיסוק..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 text-background  focus:ring-primary"
+              className="w-full border border-gray-500 rounded-md px-3 py-2 text-background"
             />
             <Button variant="outline" onClick={() => setSearch("")}>
               נקה

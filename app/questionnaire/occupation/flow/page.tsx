@@ -140,7 +140,7 @@ export default function Step12FlowPage() {
         <p className="text-center text-muted-foreground mb-4">{info.desc}</p>
       )}
 
-      <Card className="bg-white">
+      <Card className="bg-white text-background">
         <CardContent className="p-4">
           <div className="text-sm text-gray-700 mb-3 text-center">
             תחום {index + 1} מתוך {serials.length} — בחר/י 2 משפטים (נבחרו{" "}

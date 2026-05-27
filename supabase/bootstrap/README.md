@@ -4,12 +4,13 @@ Use these files when the hosted database was deleted and you are standing up **s
 
 ## Order of execution
 
-1. `01_fresh_schema.sql` — schema + RLS + default questionnaire
-2. `../migrations/08_add_step3_questions.sql`
-3. `../migrations/09_add_step4_questions.sql`
-4. `../migrations/11_create_designation_statements.sql`
-5. `../../supabase_questions_upsert.sql` (repo root)
-6. `npx tsx scripts/seed-holland-questions.mjs`
+1. `01_fresh_schema.sql` - schema + RLS + default questionnaire
+2. `batches/questions_01.sql` - questionnaire question catalog
+3. `batches/holland_seed.sql` - Holland scoring map
+4. `batches/designation_01.sql` through `batches/designation_13.sql` - occupation statements
+
+The batch files are idempotent and are the preferred seed source for a hosted
+Supabase project or MCP-driven bootstrap.
 
 Full instructions: [docs/database-setup-coolify.md](../../docs/database-setup-coolify.md)
 

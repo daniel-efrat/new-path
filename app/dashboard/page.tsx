@@ -232,10 +232,10 @@ export default function QuestionnaireDashboard() {
 
   return (
     <div
-      className="min-h-screen bg-transparent flex items-center justify-center bg-tech"
+      className="dashboard-glass-page min-h-screen bg-transparent flex items-center justify-center"
       dir="rtl"
     >
-      <div className="w-full flex mt-4 flex-col items-center max-w-4xl mx-auto px-2">
+      <div className="relative z-[1] w-full flex mt-4 flex-col items-center max-w-4xl mx-auto px-3 sm:px-4">
         {/* Header (force rotate=0 & strip any injected rotate) */}
         <motion.div
           className="mb-8 w-full max-w-4xl"
@@ -252,10 +252,10 @@ export default function QuestionnaireDashboard() {
             // transformTemplate={noRotate}
           >
             <div>
-              <h1 className="text-3xl font-bold text-foreground mt-6">
+              <h1 className="text-3xl font-bold text-white/95 mt-6 tracking-tight">
                 שאלון הערכה מקצועית
               </h1>
-              <p className="text-muted-foreground mt-1">
+              <p className="text-white/90 mt-1">
                 השלים/י את כל השלבים כדי לקבל המלצות מותאמות אישית
               </p>
             </div>
@@ -273,6 +273,7 @@ export default function QuestionnaireDashboard() {
                 value={progressPercentage}
                 completed={visibleCompletedSteps}
                 total={visibleTotalSteps}
+                className="dashboard-progress-panel"
               />
             </motion.div>
           </MotionConfig>
@@ -300,27 +301,27 @@ export default function QuestionnaireDashboard() {
                 >
                   <Card
                     className={cn(
-                      "transition-all hover:shadow-md cursor-pointer border-2",
+                      "dashboard-glass-card transition-all duration-300 cursor-pointer",
                       step.isCompleted
-                        ? "border-white/50 bg-white/20"
+                        ? "dashboard-glass-card--complete"
                         : effectiveLocked
-                        ? "border-border/60 bg-muted/20"
-                        : "border-primary/40 bg-primary/10 hover:border-primary/60"
+                        ? "dashboard-glass-card--locked"
+                        : "dashboard-glass-card--active"
                     )}
                     onClick={() => handleStepClick(details.id)}
                   >
-                    <CardContent className="p-4">
+                    <CardContent className="relative z-[1] p-4 sm:p-5">
                       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                         {/* Step Icon */}
                         <div className="flex gap-4">
                           <motion.div
                             className={cn(
-                              "flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300",
+                              "dashboard-step-orb flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300",
                               step.isCompleted
-                                ? "bg-secondary text-secondary-foreground"
+                                ? "dashboard-step-orb--complete"
                                 : effectiveLocked
-                                ? "bg-muted text-muted-foreground"
-                                : "bg-primary text-primary-foreground"
+                                ? "dashboard-step-orb--locked"
+                                : "dashboard-step-orb--active"
                             )}
                             initial={{ scale: 0, rotate: 0 }}
                             animate={{ scale: 1, rotate: 0 }}
@@ -351,13 +352,13 @@ export default function QuestionnaireDashboard() {
                             // transformTemplate={noRotate}
                           >
                             <div className="flex items-center gap-3 mb-2">
-                              <h3 className="text-lg sm:text-xl font-semibold text-foreground">
+                              <h3 className="text-lg sm:text-xl font-semibold text-white/95">
                                 {details.title}
                               </h3>
                               {step.isCompleted && (
                                 <Badge
                                   variant="secondary"
-                                  className="bg-secondary text-secondary-foreground hidden sm:block"
+                                  className="dashboard-glass-badge hidden sm:block"
                                 >
                                   הושלם
                                 </Badge>
@@ -366,13 +367,13 @@ export default function QuestionnaireDashboard() {
                               {!step.isCompleted && effectiveLocked && (
                                 <Badge
                                   variant="outline"
-                                  className="hidden sm:block"
+                                  className="dashboard-glass-badge hidden sm:block"
                                 >
                                   נעול
                                 </Badge>
                               )}
                             </div>
-                            <p className="text-muted-foreground text-base leading-relaxed">
+                            <p className="text-white/90 text-base leading-relaxed">
                               {details.description}
                             </p>
                           </motion.div>
@@ -400,6 +401,12 @@ export default function QuestionnaireDashboard() {
                               }
                               disabled={effectiveLocked}
                               size="sm"
+                              className={cn(
+                                "dashboard-glass-button",
+                                !effectiveLocked &&
+                                  !step.isCompleted &&
+                                  "dashboard-glass-button--primary"
+                              )}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 if (step.isCompleted) {
@@ -421,6 +428,7 @@ export default function QuestionnaireDashboard() {
                               <Button
                                 variant="secondary"
                                 size="sm"
+                                className="dashboard-glass-button dashboard-glass-button--subtle"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   toggleStepCompletion(details.id);
@@ -441,14 +449,14 @@ export default function QuestionnaireDashboard() {
 
         {/* Footer Actions */}
         <motion.div
-          className="my-8 flex justify-between items-center"
+          className="dashboard-glass-toolbar my-8 flex flex-wrap justify-between items-center gap-3 px-3 py-3 sm:px-4"
           initial={{ opacity: 0, y: 20, rotate: 0 }}
           animate={{ opacity: 1, y: 0, rotate: 0 }}
           transition={{ duration: 0.6, delay: 1.0 }}
         >
           <Button
             variant="outline"
-            className="gap-2 bg-transparent"
+            className="dashboard-glass-button gap-2 bg-transparent"
             onClick={() => router.push("/")}
           >
             חזור לדף הבית
@@ -458,7 +466,7 @@ export default function QuestionnaireDashboard() {
           <div className="flex gap-2">
             <Button
               variant="ghost"
-              className="gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+              className="dashboard-glass-button gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
               onClick={() => {
                 if (
                   window.confirm("האם אתה בטוח שברצונך לאפס את כל ההתקדמות?")
@@ -471,7 +479,7 @@ export default function QuestionnaireDashboard() {
             </Button>
             <Button
               disabled={visibleCompletedSteps !== visibleTotalSteps}
-              className="gap-2 bg-primary hover:bg-primary/90"
+              className="dashboard-glass-button dashboard-glass-button--primary gap-2"
             >
               סיים ושלח שאלון
               <Check className="h-4 w-4" />

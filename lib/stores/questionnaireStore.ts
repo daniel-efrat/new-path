@@ -14,7 +14,6 @@ import {
 } from "@/lib/constants/questions";
 import type {
   AnswerState as AnswerStateDefinition,
-  InsertAnswer,
   StepData,
   ValidationResult,
 } from "@/lib/types/questionnaire";
@@ -182,42 +181,26 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
         },
       }));
 
-      // Persist to Supabase - check if answer exists first
-      const { data: existingAnswer } = await supabase
+      const { error } = await supabase
         .from("answers")
-        .select('id')
-        .eq('submission_id', submissionId)
-        .eq('question_id', questionId)
-        .single();
-
-      let error;
-      
-      if (existingAnswer) {
-        // Update existing answer
-        ({ error } = await supabase
-          .from("answers")
-          .update({
-            answer_value: value,
-            is_correct,
-            step: stepNumber,
-          })
-          .eq('submission_id', submissionId)
-          .eq('question_id', questionId));
-      } else {
-        // Insert new answer
-        ({ error } = await supabase
-          .from("answers")
-          .insert({
+        .upsert(
+          {
             submission_id: submissionId,
             question_id: questionId,
-            answer_value: value,
+            answer_value: String(value),
             is_correct,
             step: stepNumber,
-          }));
-      }
+          },
+          { onConflict: "submission_id,question_id" }
+        );
 
       if (error) {
-        console.error("Failed to save answer to database:", error);
+        console.error("Failed to save answer to database:", {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+        });
         set({ error: new Error(`Database error: ${error.message}`) });
       } else {
         get().updateProgress();
@@ -353,10 +336,15 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
     if (submissionError) {
-      console.warn("No existing submission found for user.", submissionError);
+      console.error("Failed to load submission for user:", submissionError);
+      set({ error: submissionError });
+      return;
+    }
+
+    if (!submission) {
       return;
     }
 
@@ -365,7 +353,7 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
     // Load answers for the submission
     const { data: answers, error: answersError } = await supabase
       .from("answers")
-      .select("question_id, answer_value, created_at, step")
+      .select("question_id, answer_value, answered_at, step")
       .eq("submission_id", submission.id);
 
     if (answersError) {
@@ -377,7 +365,7 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
     answers.forEach((answer) => {
       answersMap[answer.question_id] = {
         value: answer.answer_value,
-        timestamp: new Date(answer.created_at),
+        timestamp: new Date(answer.answered_at),
         step: answer.step,
       };
     });

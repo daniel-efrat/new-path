@@ -54,7 +54,7 @@ export default function KeyboardShortcuts() {
       onClick={() => setIsVisible(false)}
     >
       <div
-        className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md animate-in zoom-in-95"
+        className="bg-white text-background rounded-lg shadow-lg p-6 w-full max-w-md animate-in zoom-in-95"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-4">
@@ -62,6 +62,7 @@ export default function KeyboardShortcuts() {
           <Button
             variant="ghost"
             size="sm"
+            className="text-background hover:bg-gray-100 active:bg-gray-200"
             onClick={() => setIsVisible(false)}
             aria-label="סגור"
           >
@@ -75,7 +76,7 @@ export default function KeyboardShortcuts() {
               key={key}
               className="flex justify-between items-center py-2 border-b last:border-0"
             >
-              <span className="text-sm text-muted-foreground ">
+              <span className="text-sm text-gray-700">
                 {description}
               </span>
               <kbd className="px-2 py-1 bg-gray-100 rounded text-sm">{key}</kbd>
@@ -83,7 +84,7 @@ export default function KeyboardShortcuts() {
           ))}
         </div>
 
-        <div className="mt-6 text-sm text-center text-gray-500">
+        <div className="mt-6 text-sm text-center text-gray-700">
           ניתן ללחוץ על Ctrl+? בכל עת להצגת קיצורי המקלדת
         </div>
       </div>

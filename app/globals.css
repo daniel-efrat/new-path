@@ -20,25 +20,25 @@
   --color-popover: oklch(26% 0.035 260);
   --color-popover-foreground: oklch(96% 0.01 260);
 
-  --color-primary: oklch(55% 0.21 260); /* bright brand blue */
+  --color-primary: oklch(43% 0.16 260); /* AA-safe fill behind white labels */
   --color-primary-foreground: oklch(98% 0.01 260);
 
-  --color-secondary: oklch(36% 0.08 230); /* muted blue */
+  --color-secondary: oklch(31% 0.065 230); /* AA-safe secondary fill */
   --color-secondary-foreground: oklch(97% 0.015 260);
 
   --color-muted: oklch(30% 0.03 260);
-  --color-muted-foreground: oklch(82% 0.02 260);
-  --color-muted-background: oklch(0.5396 0.04 260);
+  --color-muted-foreground: oklch(92% 0.015 260);
+  --color-muted-background: oklch(90% 0.015 260);
 
-  --color-accent: oklch(60% 0.2 260); /* accent blue for chips */
+  --color-accent: oklch(42% 0.14 260); /* accent blue for chips */
   --color-accent-foreground: oklch(98% 0.01 260);
 
-  --color-destructive: oklch(50% 0.22 25); /* red on dark */
+  --color-destructive: oklch(43% 0.18 25); /* red fill behind white labels */
   --color-destructive-foreground: oklch(98% 0 0);
 
-  --color-border: oklch(34% 0.035 260);
-  --color-input: oklch(32% 0.035 260);
-  --color-ring: oklch(65% 0.22 260); /* glow ring */
+  --color-border: oklch(63% 0.03 260);
+  --color-input: oklch(67% 0.035 260);
+  --color-ring: oklch(94% 0.02 245);
 
   /* charts */
   --color-chart-1: oklch(65% 0.22 260);
@@ -93,18 +93,18 @@ body {
   /* Layered dark blue gradient with geometric pattern overlay */
   background-image: radial-gradient(
       1200px 600px at 80% -10%,
-      oklch(61.42% 0.19882 259.823) 0%,
+      oklch(50% 0.17 259.823) 0%,
       transparent 60%
     ),
     radial-gradient(
       1000px 500px at 20% 110%,
-      oklch(52.478% 0.26471 264.593) 0%,
+      oklch(45% 0.19 264.593) 0%,
       transparent 60%
     ),
     linear-gradient(
       180deg,
-      oklch(60.647% 0.21441 259.318) 0%,
-      oklch(51.599% 0.22776 261.343) 100%
+      oklch(45% 0.17 259.318) 0%,
+      oklch(36% 0.16 261.343) 100%
     );
   background-blend-mode: screen, screen, normal, normal;
   background-attachment: fixed;
@@ -113,6 +113,19 @@ body {
 /* Ensure inner content doesn't create accidental horizontal scroll */
 * {
   box-sizing: border-box;
+}
+
+a[href]:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+[role="checkbox"]:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 3px solid #fff !important;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px #102b67 !important;
 }
 
 .custom-btn {
@@ -136,7 +149,7 @@ body {
 }
 
 .custom-btn:hover {
-  background: linear-gradient(0deg, rgb(0 60 255) 0%, rgb(2 126 251) 100%);
+  background: linear-gradient(0deg, rgb(10 35 122) 0%, rgb(24 68 164) 100%);
 }
 
 .custom-btn {
@@ -161,7 +174,7 @@ body {
   animation: shiny-btn1 3s ease-in-out infinite;
 }
 .custom-btn:hover {
-  opacity: 0.7;
+  opacity: 1;
 }
 .custom-btn:active {
   box-shadow: 4px 4px 6px 0 rgba(255, 255, 255, 0.3),
@@ -184,6 +197,215 @@ body {
   /* background-repeat: no-repeat; */
   opacity: 0.1;
   pointer-events: none;
+}
+
+.dashboard-glass-page::after {
+  content: "";
+  position: fixed;
+  z-index: 0;
+  inset: 5.5rem 0 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 10%, rgba(255, 255, 255, 0.11), transparent 32%),
+    radial-gradient(circle at 80% 42%, rgba(220, 237, 255, 0.1), transparent 28%);
+}
+
+.liquid-glass-header {
+  background: linear-gradient(
+    112deg,
+    rgba(7, 30, 82, 0.72),
+    rgba(12, 44, 102, 0.62)
+  );
+  border-bottom: 1px solid rgba(255, 255, 255, 0.38);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    0 18px 42px rgba(4, 22, 61, 0.12);
+  backdrop-filter: blur(30px) saturate(175%);
+  -webkit-backdrop-filter: blur(30px) saturate(175%);
+}
+
+.dashboard-glass-panel,
+.dashboard-glass-card,
+.dashboard-glass-toolbar {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid transparent;
+  background:
+    linear-gradient(
+        120deg,
+        rgba(10, 38, 99, 0.66),
+        rgba(5, 28, 79, 0.6) 51%,
+        rgba(13, 43, 106, 0.57)
+      )
+      padding-box,
+    linear-gradient(
+        137deg,
+        rgba(255, 255, 255, 0.62),
+        rgba(231, 238, 248, 0.37) 31%,
+        rgba(197, 209, 228, 0.17) 64%,
+        rgba(255, 255, 255, 0.41)
+      )
+      border-box;
+  box-shadow:
+    0 20px 45px rgba(4, 22, 67, 0.16),
+    0 5px 14px rgba(4, 22, 67, 0.11),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(24px) saturate(165%);
+  -webkit-backdrop-filter: blur(24px) saturate(165%);
+}
+
+.dashboard-glass-panel::before,
+.dashboard-glass-card::before,
+.dashboard-glass-toolbar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    116deg,
+    rgba(255, 255, 255, 0.1),
+    transparent 32%,
+    transparent 66%,
+    rgba(255, 255, 255, 0.04)
+  );
+}
+
+.dashboard-glass-card {
+  border-radius: 1.25rem;
+}
+
+.dashboard-glass-card:hover {
+  transform: translateY(-1px);
+  background:
+    linear-gradient(
+        120deg,
+        rgba(23, 65, 142, 0.7),
+        rgba(8, 33, 91, 0.64) 50%,
+        rgba(18, 53, 120, 0.63)
+      )
+      padding-box,
+    linear-gradient(
+        137deg,
+        rgba(255, 255, 255, 0.73),
+        rgba(233, 241, 251, 0.45) 34%,
+        rgba(201, 214, 233, 0.23) 65%,
+        rgba(255, 255, 255, 0.53)
+      )
+      border-box;
+  box-shadow:
+    0 25px 52px rgba(4, 22, 67, 0.2),
+    0 7px 18px rgba(4, 22, 67, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.34);
+}
+
+.dashboard-glass-card--active {
+  background:
+    linear-gradient(120deg, rgba(19, 57, 130, 0.69), rgba(6, 31, 87, 0.63))
+      padding-box,
+    linear-gradient(137deg, rgba(255, 255, 255, 0.7), rgba(207, 220, 239, 0.24))
+      border-box;
+}
+
+.dashboard-glass-card--locked {
+  background:
+    linear-gradient(120deg, rgba(10, 42, 108, 0.69), rgba(5, 27, 76, 0.64))
+      padding-box,
+    linear-gradient(137deg, rgba(255, 255, 255, 0.53), rgba(196, 208, 226, 0.18))
+      border-box;
+}
+
+.dashboard-glass-card--complete {
+  background:
+    linear-gradient(120deg, rgba(22, 63, 137, 0.69), rgba(8, 34, 91, 0.62))
+      padding-box,
+    linear-gradient(137deg, rgba(255, 255, 255, 0.73), rgba(208, 225, 240, 0.27))
+      border-box;
+}
+
+.dashboard-progress-panel {
+  border-radius: 1.35rem;
+}
+
+.dashboard-progress-track {
+  background: rgba(223, 236, 255, 0.17);
+  box-shadow:
+    inset 0 1px 3px rgba(6, 30, 75, 0.13),
+    0 1px 0 rgba(255, 255, 255, 0.17);
+}
+
+.dashboard-progress-track > div {
+  background: linear-gradient(90deg, rgba(197, 230, 255, 0.96), #fff);
+  box-shadow: 0 0 13px rgba(224, 243, 255, 0.68);
+}
+
+.dashboard-progress-badge,
+.dashboard-glass-badge {
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(244, 249, 255, 0.13);
+  color: rgba(252, 254, 255, 0.94);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.17);
+}
+
+.dashboard-step-orb {
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 8px 18px rgba(5, 27, 68, 0.15);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+}
+
+.dashboard-step-orb--active,
+.dashboard-step-orb--complete {
+  background: rgba(241, 248, 255, 0.18);
+  color: #fff;
+}
+
+.dashboard-step-orb--locked {
+  background: rgba(20, 41, 83, 0.16);
+  color: rgba(231, 239, 251, 0.76);
+}
+
+.dashboard-glass-button {
+  border: 1px solid rgba(255, 255, 255, 0.68);
+  background: rgba(5, 27, 79, 0.48);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+}
+
+.dashboard-glass-button:hover:not(:disabled) {
+  background: rgba(18, 57, 128, 0.7);
+  color: #fff;
+}
+
+.dashboard-glass-button--primary {
+  background: rgba(10, 43, 108, 0.68);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 8px 18px rgba(5, 27, 68, 0.13);
+}
+
+.dashboard-glass-button:disabled {
+  border-color: rgba(225, 235, 248, 0.21);
+  background: rgba(8, 30, 82, 0.38);
+  color: rgba(237, 244, 253, 0.72);
+}
+
+.dashboard-glass-toolbar {
+  border-radius: 1.15rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
 }
 
 @-webkit-keyframes shiny-btn1 {

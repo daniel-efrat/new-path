@@ -314,12 +314,12 @@ export default function Step8({ onNext, onPrevious, onComplete }: Step8Props) {
           >
             <Card className="max-w-xl mx-auto p-6 mb-6">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-muted-background ">
+                <span className="text-sm text-muted-foreground">
                   {q.level}
                 </span>
                 <span
                   className={`font-mono text-lg ${
-                    timer <= 10 ? "text-orange-500" : "text-gray-300"
+                    timer <= 10 ? "text-orange-300" : "text-muted-foreground"
                   }`}
                 >
                   {timer} שניות
@@ -345,9 +345,9 @@ export default function Step8({ onNext, onPrevious, onComplete }: Step8Props) {
                       className={`w-full justify-center p-4 h-auto text-base whitespace-normal ${
                         selected !== null
                           ? idx === q.correct_option
-                            ? "bg-green-100 hover:bg-green-200 border-green-400"
+                            ? "bg-green-100 hover:bg-green-200 border-green-700 text-green-900"
                             : idx === selected && !feedback
-                            ? "bg-red-100 hover:bg-red-200 border-red-400"
+                            ? "bg-red-100 hover:bg-red-200 border-red-700 text-red-900"
                             : "bg-gray-50"
                           : "hover:bg-gray-100"
                       }`}
@@ -366,7 +366,7 @@ export default function Step8({ onNext, onPrevious, onComplete }: Step8Props) {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.5 }}
                   className={`mt-4 text-center font-semibold ${
-                    feedback ? "text-green-600" : "text-red-600"
+                    feedback ? "text-green-300" : "text-red-300"
                   }`}
                 >
                   {feedback ? "נכון!" : "לא נכון"}

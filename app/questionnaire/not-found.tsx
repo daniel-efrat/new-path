@@ -37,7 +37,7 @@ export default function QuestionnaireNotFound() {
           <p>צריך עזרה?</p>
           <a
             href="mailto:support@example.com"
-            className="text-primary hover:text-blue-700 underline"
+            className="text-white hover:bg-white/10 underline"
           >
             צור קשר עם התמיכה
           </a>

@@ -41,7 +41,7 @@ export default class ErrorBoundary extends Component<Props, State> {
               <h2 className="text-xl font-semibold text-red-700 mb-2">
                 אירעה שגיאה בלתי צפויה
               </h2>
-              <p className="text-red-600 mb-4">
+              <p className="text-red-800 mb-4">
                 אנו מתנצלים על התקלה. נסה לרענן את הדף או לחזור מאוחר יותר.
               </p>
               <div className="space-x-2 rtl:space-x-reverse">

@@ -81,7 +81,7 @@ export function CTASection() {
             <h2 className="text-3xl md:text-4xl font-bold text-white">
               מוכן להתחיל את המסע?
             </h2>
-            <p className="text-xl text-emerald-100 max-w-2xl mx-auto">
+            <p className="text-xl text-white max-w-2xl mx-auto">
               הצטרף לאלפי צעירים שכבר מצאו את הדרך שלהם
             </p>
           </m.div>
@@ -102,7 +102,7 @@ export function CTASection() {
               </Button>
             </Link>
 
-            <p className="text-sm text-emerald-100 mt-4">
+            <p className="text-sm text-white mt-4">
               <span className="px-2">ללא עלות</span> •{" "}
               <span className="px-2">ללא התחייבות</span> •{" "}
               <span className="px-2">תוצאות מיידיות</span>
@@ -122,7 +122,7 @@ export function CTASection() {
               index={0}
             >
               <div className="text-2xl font-bold text-white">10,000+</div>
-              <div className="text-sm text-emerald-100">הערכות הושלמו</div>
+              <div className="text-sm text-white">הערכות הושלמו</div>
             </StatIcon>
 
             <StatIcon
@@ -132,7 +132,7 @@ export function CTASection() {
               index={1}
             >
               <div className="text-2xl font-bold text-white">95%</div>
-              <div className="text-sm text-emerald-100">שביעות רצון</div>
+              <div className="text-sm text-white">שביעות רצון</div>
             </StatIcon>
 
             <StatIcon
@@ -142,7 +142,7 @@ export function CTASection() {
               index={2}
             >
               <div className="text-2xl font-bold text-white">50+</div>
-              <div className="text-sm text-emerald-100">מכללות שותפות</div>
+              <div className="text-sm text-white">מכללות שותפות</div>
             </StatIcon>
           </m.div>
         </div>
