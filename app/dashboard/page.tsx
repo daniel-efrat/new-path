@@ -220,8 +220,11 @@ export default function QuestionnaireDashboard() {
   // Loading (keep spinner working — no noRotate here)
   if (isAuthenticated === null || !storeReady) {
     return (
-      <div className="min-h-screen bg-transparent flex items-center justify-center">
-        <div className="flex flex-col items-center justify-center bg-tech min-h-[400px]">
+      <div
+        className="dashboard-glass-page min-h-screen w-full flex items-center justify-center"
+        dir="rtl"
+      >
+        <div className="relative z-[1] flex flex-col items-center justify-center">
           <motion.div
             className="rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"
             animate={{ rotate: 360 }}
