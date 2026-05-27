@@ -1,6 +1,5 @@
 /**
  * Seed holland_questions from STEP11_QUESTIONS with RIASEC types.
- * Pattern: questions cycle R,I,A,S,E,C (see scripts/holland.md).
  *
  * Usage (from repo root):
  *   npx tsx scripts/seed-holland-questions.ts
@@ -18,8 +17,6 @@ import { STEP11_QUESTIONS } from "../lib/constants/questions.ts";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 config({ path: path.resolve(__dirname, "../.env.local") });
 
-const RIASEC = ["R", "I", "A", "S", "E", "C"];
-
 async function main() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -30,10 +27,10 @@ async function main() {
 
   const supabase = createClient(url, key, { auth: { persistSession: false } });
 
-  const rows = STEP11_QUESTIONS.map((q, i) => ({
+  const rows = STEP11_QUESTIONS.map((q) => ({
     id: q.id,
     text: q.text,
-    riasec_type: RIASEC[i % 6],
+    riasec_type: q.riasecType,
   }));
 
   const { data, error } = await supabase

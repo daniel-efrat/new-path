@@ -1,10 +1,9 @@
 import { writeFileSync } from "fs";
 import { STEP11_QUESTIONS } from "../lib/constants/questions.ts";
 
-const RIASEC = ["R", "I", "A", "S", "E", "C"];
 const vals = STEP11_QUESTIONS.map(
-  (q, i) =>
-    `('${q.id}','${q.text.replace(/'/g, "''")}','${RIASEC[i % 6]}')`
+  (q) =>
+    `('${q.id}','${q.text.replace(/'/g, "''")}','${q.riasecType}')`
 ).join(",\n");
 
 const sql = `INSERT INTO public.holland_questions (id, text, riasec_type) VALUES
