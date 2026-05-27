@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="x-apple-disable-message-reformatting" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&amp;display=swap");
+    </style>
+    <title>אישור כתובת האימייל שלך | דרך חדשה</title>
+  </head>
+  <body
+    style="margin: 0; padding: 0; background-color: #f4f6f1; direction: rtl; font-family: 'Assistant', Arial, 'Helvetica Neue', sans-serif;"
+  >
+    <div
+      style="display: none; max-height: 0; overflow: hidden; opacity: 0; color: transparent;"
+    >
+      אשרו את כתובת האימייל שלכם כדי להתחיל את הדרך החדשה שלכם.
+    </div>
+    <table
+      role="presentation"
+      width="100%"
+      cellspacing="0"
+      cellpadding="0"
+      border="0"
+      style="width: 100%; background-color: #f4f6f1;"
+    >
+      <tr>
+        <td align="center" style="padding: 36px 16px;">
+          <table
+            role="presentation"
+            width="600"
+            cellspacing="0"
+            cellpadding="0"
+            border="0"
+            style="width: 100%; max-width: 600px; background-color: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 24px rgba(39, 48, 45, 0.08);"
+          >
+            <tr>
+              <td
+                align="center"
+                style="padding: 32px 24px 28px; background-color: #29325d;"
+              >
+                <img
+                  src="https://hhcjagfhomddigmlbefj.supabase.co/storage/v1/object/public/email-assets/branding/logo-white.png"
+                  width="174"
+                  alt="דרך חדשה"
+                  style="display: block; width: 174px; max-width: 100%; height: auto; border: 0;"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td
+                style="padding: 42px 42px 24px; font-family: 'Assistant', Arial, 'Helvetica Neue', sans-serif; color: #303030; text-align: right;"
+              >
+                <h1
+                  style="margin: 0 0 18px; font-size: 28px; line-height: 1.35; font-weight: 700; color: #29325d;"
+                >
+                  עוד צעד קטן ומתחילים
+                </h1>
+                <p style="margin: 0 0 14px; font-size: 17px; line-height: 1.75;">
+                  תודה שהצטרפתם לדרך חדשה.
+                </p>
+                <p style="margin: 0 0 30px; font-size: 17px; line-height: 1.75;">
+                  כדי להפעיל את החשבון ולהתחיל באבחון, יש לאשר את כתובת האימייל
+                  בלחיצה על הכפתור:
+                </p>
+                <table
+                  role="presentation"
+                  width="100%"
+                  cellspacing="0"
+                  cellpadding="0"
+                  border="0"
+                >
+                  <tr>
+                    <td align="center" style="padding: 0 0 32px;">
+                      <a
+                        href="{{ .ConfirmationURL }}"
+                        target="_blank"
+                        style="display: inline-block; padding: 15px 40px; background-color: #b9d854; border-radius: 999px; color: #29325d; font-family: 'Assistant', Arial, 'Helvetica Neue', sans-serif; font-size: 17px; line-height: 24px; font-weight: 700; text-decoration: none;"
+                      >
+                        אישור כתובת האימייל
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin: 0 0 10px; font-size: 14px; line-height: 1.7; color: #626975;">
+                  אם הכפתור לא עובד, אפשר להעתיק את הקישור הבא לדפדפן:
+                </p>
+                <p
+                  dir="ltr"
+                  style="margin: 0; padding: 12px 14px; background-color: #f4f6f1; border-radius: 8px; font-family: 'Assistant', Arial, 'Helvetica Neue', sans-serif; font-size: 12px; line-height: 1.65; color: #52606d; text-align: left; word-break: break-all;"
+                >
+                  <a
+                    href="{{ .ConfirmationURL }}"
+                    target="_blank"
+                    style="color: #52606d; text-decoration: underline;"
+                  >{{ .ConfirmationURL }}</a>
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 0 42px;">
+                <div style="height: 1px; background-color: #e5eadb;"></div>
+              </td>
+            </tr>
+            <tr>
+              <td
+                align="center"
+                style="padding: 24px 32px 34px; font-family: 'Assistant', Arial, 'Helvetica Neue', sans-serif; color: #687169;"
+              >
+                <img
+                  src="https://hhcjagfhomddigmlbefj.supabase.co/storage/v1/object/public/email-assets/branding/icon-mark.png"
+                  width="48"
+                  height="48"
+                  alt=""
+                  style="display: block; margin: 0 auto 14px; width: 48px; height: 48px; border: 0; border-radius: 50%;"
+                />
+                <p style="margin: 0; font-size: 13px; line-height: 1.7;">
+                  לא יצרתם חשבון? אפשר להתעלם מהודעה זו.
+                </p>
+                <p style="margin: 6px 0 0; font-size: 13px; line-height: 1.7;">
+                  דרך חדשה | אבחון תעסוקתי לצעירים
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
