@@ -307,12 +307,13 @@ export default function QuestionnaireDashboard() {
                 >
                   <Card
                     className={cn(
-                      "dashboard-glass-card transition-all duration-300 cursor-pointer",
+                      "dashboard-glass-card transition-all duration-300",
                       step.isCompleted
                         ? "dashboard-glass-card--complete"
                         : effectiveLocked
                         ? "dashboard-glass-card--locked"
-                        : "dashboard-glass-card--active"
+                        : "dashboard-glass-card--active",
+                      effectiveLocked ? "cursor-default" : "cursor-pointer"
                     )}
                     onClick={() => handleStepClick(details.id)}
                   >
@@ -320,31 +321,28 @@ export default function QuestionnaireDashboard() {
                       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                         {/* Step Icon */}
                         <div className="flex gap-4">
-                          <motion.div
-                            className={cn(
-                              "dashboard-step-orb flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300",
-                              step.isCompleted
-                                ? "dashboard-step-orb--complete"
-                                : effectiveLocked
-                                ? "dashboard-step-orb--locked"
-                                : "dashboard-step-orb--active"
-                            )}
-                            initial={{ scale: 0, rotate: 0 }}
-                            animate={{ scale: 1, rotate: 0 }}
-                            transition={{
-                              duration: 0.3,
-                              delay: (700 + index * 100) / 1000,
-                            }}
-                            // transformTemplate={noRotate}
-                          >
-                            {step.isCompleted ? (
-                              <Check className="h-6 w-6" />
-                            ) : effectiveLocked ? (
-                              <Lock className="h-5 w-5" />
-                            ) : (
-                              <Play className="h-5 w-5" />
-                            )}
-                          </motion.div>
+                          {!effectiveLocked && (
+                            <motion.div
+                              className={cn(
+                                "dashboard-step-orb flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300",
+                                step.isCompleted
+                                  ? "dashboard-step-orb--complete"
+                                  : "dashboard-step-orb--active"
+                              )}
+                              initial={{ scale: 0, rotate: 0 }}
+                              animate={{ scale: 1, rotate: 0 }}
+                              transition={{
+                                duration: 0.3,
+                                delay: (700 + index * 100) / 1000,
+                              }}
+                            >
+                              {step.isCompleted ? (
+                                <Check className="h-6 w-6" />
+                              ) : (
+                                <Play className="h-5 w-5" />
+                              )}
+                            </motion.div>
+                          )}
 
                           {/* Step Content */}
                           <motion.div
@@ -369,15 +367,6 @@ export default function QuestionnaireDashboard() {
                                   הושלם
                                 </Badge>
                               )}
-                              {/* Only show Locked badge when not completed and effectively locked */}
-                              {!step.isCompleted && effectiveLocked && (
-                                <Badge
-                                  variant="outline"
-                                  className="dashboard-glass-badge hidden sm:block"
-                                >
-                                  נעול
-                                </Badge>
-                              )}
                             </div>
                             <p className="text-white/90 text-base leading-relaxed">
                               {details.description}
@@ -396,41 +385,42 @@ export default function QuestionnaireDashboard() {
                           }}
                           // transformTemplate={noRotate}
                         >
-                          <div className="flex sm:flex-col justify-start gap-2">
-                            <Button
-                              variant={
-                                step.isCompleted
-                                  ? "default"
-                                  : effectiveLocked
-                                  ? "ghost"
-                                  : "default"
-                              }
-                              disabled={effectiveLocked}
-                              size="sm"
-                              className={cn(
-                                "dashboard-glass-button",
-                                !effectiveLocked &&
-                                  !step.isCompleted &&
-                                  "dashboard-glass-button--primary"
-                              )}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (step.isCompleted) {
-                                  setCurrentStep(details.id);
-                                  router.push("/questionnaire");
-                                } else if (!effectiveLocked) {
-                                  handleStepClick(details.id);
-                                }
+                          {effectiveLocked ? (
+                            <motion.div
+                              className="dashboard-step-orb dashboard-step-orb--locked flex items-center justify-center w-12 h-12 rounded-full"
+                              initial={{ scale: 0, rotate: 0 }}
+                              animate={{ scale: 1, rotate: 0 }}
+                              transition={{
+                                duration: 0.3,
+                                delay: (700 + index * 100) / 1000,
                               }}
+                              aria-label="נעול"
                             >
-                              {step.isCompleted
-                                ? "תוצאות"
-                                : effectiveLocked
-                                ? "נעול"
-                                : "התחל"}
-                            </Button>
+                              <Lock className="h-5 w-5" />
+                            </motion.div>
+                          ) : (
+                            <div className="flex sm:flex-col justify-start gap-2">
+                              <Button
+                                variant="default"
+                                size="sm"
+                                className={cn(
+                                  "dashboard-glass-button",
+                                  !step.isCompleted &&
+                                    "dashboard-glass-button--primary"
+                                )}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (step.isCompleted) {
+                                    setCurrentStep(details.id);
+                                    router.push("/questionnaire");
+                                  } else {
+                                    handleStepClick(details.id);
+                                  }
+                                }}
+                              >
+                                {step.isCompleted ? "תוצאות" : "התחל"}
+                              </Button>
 
-                            {!effectiveLocked && (
                               <Button
                                 variant="secondary"
                                 size="sm"
@@ -442,8 +432,8 @@ export default function QuestionnaireDashboard() {
                               >
                                 {step.isCompleted ? "בטל השלמה" : "סמן כהושלם"}
                               </Button>
-                            )}
-                          </div>
+                            </div>
+                          )}
                         </motion.div>
                       </div>
                     </CardContent>
