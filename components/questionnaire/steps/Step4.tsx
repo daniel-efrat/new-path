@@ -50,7 +50,7 @@ export default function Step4({ onNext, onPrevious, onComplete }: Step4Props) {
       currentQuestion.id,
       String(localAnchors[current]),
       undefined,
-      4
+      2
     );
   };
 

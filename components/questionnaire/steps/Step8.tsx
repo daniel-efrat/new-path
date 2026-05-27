@@ -56,7 +56,7 @@ export default function Step8({ onNext, onPrevious, onComplete }: Step8Props) {
     setStepAnswers({});
     setAnimationKey((prev) => prev + 1);
     QUESTIONS.forEach((q) => {
-      setAnswer(q.id, null, false);
+      setAnswer(q.id, null, false, 10);
     });
   };
 
@@ -149,7 +149,7 @@ export default function Step8({ onNext, onPrevious, onComplete }: Step8Props) {
     if (isCorrect) setScore((s) => s + 1);
 
     try {
-      await setAnswer(question.id, idx, isCorrect);
+      await setAnswer(question.id, idx, isCorrect, 10);
       const newAnswers = [...answers];
       newAnswers[current] = idx;
       setAnswers(newAnswers);
@@ -342,14 +342,14 @@ export default function Step8({ onNext, onPrevious, onComplete }: Step8Props) {
                     transition={{ delay: 0.6 + idx * 0.1 }}
                   >
                     <Button
-                      className={`w-full justify-center p-4 h-auto text-base whitespace-normal ${
+                      className={`w-full justify-center p-4 h-auto text-base whitespace-normal disabled:opacity-100 ${
                         selected !== null
                           ? idx === q.correct_option
-                            ? "bg-green-100 hover:bg-green-200 border-green-700 text-green-900"
+                            ? "bg-green-100 hover:bg-green-100 border-green-700 text-green-950 font-semibold"
                             : idx === selected && !feedback
-                            ? "bg-red-100 hover:bg-red-200 border-red-700 text-red-900"
-                            : "bg-gray-50"
-                          : "hover:bg-gray-100"
+                            ? "bg-red-100 hover:bg-red-100 border-red-700 text-red-950 font-semibold"
+                            : "bg-gray-100 hover:bg-gray-100 border-gray-400 text-gray-950"
+                          : "text-foreground hover:bg-white/10"
                       }`}
                       variant="outline"
                       disabled={selected !== null}

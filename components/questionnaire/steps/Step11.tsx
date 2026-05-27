@@ -41,7 +41,7 @@ export default function Step11({
 
   const saveCurrent = useCallback(async () => {
     const id = STEP11_QUESTIONS[index].id;
-    await setAnswer(id, String(value));
+    await setAnswer(id, String(value), undefined, 3);
   }, [index, setAnswer, value]);
 
   useEffect(() => {

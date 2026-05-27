@@ -16,6 +16,7 @@ import { motion, MotionConfig } from "framer-motion";
 import {
   STEP2_QUESTIONS,
   STEP3_QUESTIONS,
+  STEP4_QUESTIONS,
   STEP7_QUESTIONS,
   STEP8_QUESTIONS,
   STEP11_QUESTIONS,
@@ -56,74 +57,92 @@ export default function QuestionnaireDashboard() {
   const stepDetails = [
     {
       id: 1,
+      group: "שאלון 1",
       title: "תכונות ליבה",
       description: "בחר/י עד 10 תכונות מובילות",
       time: "לא מוגבל בזמן",
     },
     {
       id: 2,
-      title: "מבחן שפה - עברית",
-      description: `${STEP2_QUESTIONS.length} שאלות - מבחן אמריקאי`,
-      time: "20 שניות לשאלה",
-    },
-    {
-      id: 3,
-      title: "מבחן שפה - אנגלית",
-      description: `${STEP3_QUESTIONS.length} שאלות - מבחן אמריקאי`,
-      time: "40 שניות לשאלה",
-    },
-    {
-      id: 4,
+      group: "שאלון 1",
       title: "עוגני קריירה",
-      description: "24 שאלות",
+      description: `${STEP4_QUESTIONS.length} שאלות`,
       time: "לא מוגבל בזמן",
     },
     {
-      id: 5,
-      title: "מבחן לוגיקה",
-      description: "20 שאלות לוגיקה",
-      time: "90 שניות לשאלה",
-    },
-    {
-      id: 6,
-      title: "מבחן מתמטיקה",
-      description: "20 שאלות מתמטיקה",
-      time: "90 שניות לשאלה",
-    },
-    {
-      id: 7,
-      title: "מבחן צורות חזותי",
-      description: `${STEP7_QUESTIONS.length} שאלות`,
-      time: "45 שניות לשאלה",
-    },
-    {
-      id: 8,
-      title: "מבחן ידע בסיסי במחשב",
-      description: `${STEP8_QUESTIONS.length} שאלות`,
-      time: "45 שניות לשאלה",
-    },
-    {
-      id: 9,
-      title: "מבדק קשב, סינון מידע וזיכרון",
-      description: "15 שאלות",
-      time: "20 שניות לשאלה",
-    },
-    { id: 10, title: "מבחני אישיות", description: "", time: "לא מוגבל בזמן" },
-    {
-      id: 11,
+      id: 3,
+      group: "שאלון 1",
       title: "שאלון הולנד",
       description: `${STEP11_QUESTIONS.length} שאלות`,
       time: "לא מוגבל בזמן",
     },
     {
-      id: 12,
+      id: 4,
+      group: "שאלון 1",
       title: "משפטי ייעוד",
       description:
         "תן/י ציונים לתחומים מקצועיים כלליים (סמן/י עד 5 תחומים כלליים בעדיפות)",
+      time: "לא מוגבל בזמן",
+    },
+    {
+      id: 5,
+      group: "שאלון 2",
+      title: "מבחן שפה - עברית",
+      description: `${STEP2_QUESTIONS.length} שאלות - מבחן אמריקאי`,
+      time: "20 שניות לשאלה",
+    },
+    {
+      id: 6,
+      group: "שאלון 2",
+      title: "מבחן שפה - אנגלית",
+      description: `${STEP3_QUESTIONS.length} שאלות - מבחן אמריקאי`,
+      time: "40 שניות לשאלה",
+    },
+    {
+      id: 7,
+      group: "שאלון 2",
+      title: "מבחן לוגיקה",
+      description: "20 שאלות לוגיקה",
       time: "90 שניות לשאלה",
     },
     {
+      id: 8,
+      group: "שאלון 2",
+      title: "מבחן מתמטיקה",
+      description: "20 שאלות מתמטיקה",
+      time: "90 שניות לשאלה",
+    },
+    {
+      id: 9,
+      group: "שאלון 2",
+      title: "מבחן צורות חזותי",
+      description: `${STEP7_QUESTIONS.length} שאלות`,
+      time: "45 שניות לשאלה",
+    },
+    {
+      id: 10,
+      group: "שאלון 2",
+      title: "מבחן ידע בסיסי במחשב",
+      description: `${STEP8_QUESTIONS.length} שאלות`,
+      time: "45 שניות לשאלה",
+    },
+    {
+      id: 11,
+      group: "שאלון 2",
+      title: "מבדק קשב, סינון מידע וזיכרון",
+      description: "15 שאלות",
+      time: "20 שניות לשאלה",
+    },
+    {
+      id: 12,
+      group: "שאלון 2",
+      title: "מבחני אישיות",
+      description: "",
+      time: "לא מוגבל בזמן",
+    },
+    {
       id: 13,
+      group: "שאלון 2",
       title: "ליבת הערכים אישיים",
       description: "בחירת ערכים",
       time: "לא מוגבל בזמן",
@@ -222,8 +241,7 @@ export default function QuestionnaireDashboard() {
     if (step) setStepCompletion(stepId, !step.isCompleted);
   };
 
-  // Temporarily hide steps 9 and 10 on the dashboard
-  const HIDDEN_STEP_IDS = new Set([9, 10]);
+  const HIDDEN_STEP_IDS = new Set<number>();
   const visibleSteps = steps.filter((s: any) => !HIDDEN_STEP_IDS.has(s.id));
   const visibleCompletedSteps = visibleSteps.filter(
     (s: any) => s.isCompleted
@@ -311,17 +329,22 @@ export default function QuestionnaireDashboard() {
                 isCompleted: false,
                 isLocked: true,
               };
-              // Override: if Step 8 is completed, Step 11 should be unlocked even if store shows locked
-              const step8 = steps.find((s: any) => s.id === 8);
-              const effectiveLocked =
-                details.id === 11 && step8?.isCompleted ? false : step.isLocked;
+              const effectiveLocked = step.isLocked;
+              const previousDetails = stepDetails[index - 1];
+              const showGroupTitle =
+                !previousDetails || previousDetails.group !== details.group;
               return (
-                <motion.div
-                  key={details.id}
-                  initial={{ opacity: 0, y: 20, rotate: 0 }}
-                  animate={{ opacity: 1, y: 0, rotate: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
+                <div key={details.id}>
+                  {showGroupTitle && (
+                    <h2 className="px-1 pt-2 text-xl font-bold text-white/95">
+                      {details.group}
+                    </h2>
+                  )}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20, rotate: 0 }}
+                    animate={{ opacity: 1, y: 0, rotate: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                  >
                   <Card
                     className={cn(
                       "dashboard-glass-card transition-all duration-300",
@@ -455,7 +478,8 @@ export default function QuestionnaireDashboard() {
                       </div>
                     </CardContent>
                   </Card>
-                </motion.div>
+                  </motion.div>
+                </div>
               );
             })}
         </div>

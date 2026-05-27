@@ -300,21 +300,21 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
       currentStep === 1
         ? STEP1_QUESTIONS.length
         : currentStep === 2
-        ? STEP2_QUESTIONS.length
-        : currentStep === 3
-        ? STEP3_QUESTIONS.length
-        : currentStep === 4
         ? STEP4_QUESTIONS.length
-        : currentStep === 5
-        ? STEP5_QUESTIONS.length
-        : currentStep === 6
-        ? STEP6_QUESTIONS.length
-        : currentStep === 7
-        ? STEP7_QUESTIONS.length
-        : currentStep === 8
-        ? STEP8_QUESTIONS.length
-        : currentStep === 11
+        : currentStep === 3
         ? STEP11_QUESTIONS.length
+        : currentStep === 5
+        ? STEP2_QUESTIONS.length
+        : currentStep === 6
+        ? STEP3_QUESTIONS.length
+        : currentStep === 7
+        ? STEP5_QUESTIONS.length
+        : currentStep === 8
+        ? STEP6_QUESTIONS.length
+        : currentStep === 9
+        ? STEP7_QUESTIONS.length
+        : currentStep === 10
+        ? STEP8_QUESTIONS.length
         : 0;
 
     const progress = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;

@@ -122,7 +122,7 @@ export default function Step3({ onNext, onPrevious, onComplete }: Step3Props) {
     if (isCorrect) {
       setScore((s) => s + 1);
     }
-    setAnswer(question.id, option, isCorrect, 3);
+    setAnswer(question.id, option, isCorrect, 6);
     setAnswers((prev) => ({ ...prev, [question.id]: option }));
     setTimeout(() => {
       handleNext(false);

@@ -23,17 +23,17 @@ import Step13 from "@/components/questionnaire/steps/Step13";
 
 const stepComponents: Record<number, any> = {
   1: Step1,
-  2: Step2,
-  3: Step3,
-  4: Step4,
-  5: Step5,
-  6: Step6,
-  7: Step7,
-  8: Step8,
-  9: Step9,
-  10: Step10,
-  11: Step11,
-  12: Step12,
+  2: Step4,
+  3: Step11,
+  4: Step12,
+  5: Step2,
+  6: Step3,
+  7: Step5,
+  8: Step6,
+  9: Step7,
+  10: Step8,
+  11: Step9,
+  12: Step10,
   13: Step13,
 };
 
@@ -62,19 +62,13 @@ export default function QuestionnairePage() {
   const onPrevious = () => {
     if (showHollandResults) {
       setShowHollandResults(false);
-    } else if (currentStep === 11) {
-      // Temporarily skip step 10 and 9 when going back from 11
-      setCurrentStep(8);
     } else if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
   };
 
   const onNext = () => {
-    // Temporarily hide steps 9 and 10: jump from 8 directly to 11
-    if (currentStep === 8) {
-      setCurrentStep(11);
-    } else if (currentStep === 11) {
+    if (currentStep === 3) {
       setShowHollandResults(true);
     } else if (currentStep === 13) {
       // After Step 13, exit to dashboard
@@ -86,7 +80,7 @@ export default function QuestionnairePage() {
 
   const continueFromHollandResults = () => {
     setShowHollandResults(false);
-    setCurrentStep(12);
+    setCurrentStep(4);
   };
 
   const onComplete = async () => {

@@ -56,7 +56,7 @@ export default function Step2({ onNext, onPrevious, onComplete }: Step2Props) {
     setStepAnswers({});
     setAnimationKey((prev) => prev + 1);
     QUESTIONS.forEach((q) => {
-      setAnswer(q.id, null, false, 2);
+      setAnswer(q.id, null, false, 5);
     });
   };
 
@@ -160,7 +160,7 @@ export default function Step2({ onNext, onPrevious, onComplete }: Step2Props) {
     if (isCorrect) setScore((s) => s + 1);
 
     try {
-      setAnswer(question.id, idx, isCorrect, 2);
+      setAnswer(question.id, idx, isCorrect, 5);
       setStepAnswers((prev) => ({
         ...prev,
         [question.id]: { value: String(idx), timestamp: new Date() },

@@ -43,7 +43,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
     setShowResult(false);
     setAnswers(Array(QUESTIONS.length).fill(null));
     QUESTIONS.forEach((q) => {
-      setAnswer(q.id, null, false, 5);
+      setAnswer(q.id, null, false, 7);
     });
   };
 
@@ -120,7 +120,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
     setSelected(idx);
     setFeedback(isCorrect);
     if (isCorrect) setScore((s) => s + 1);
-    setAnswer(QUESTIONS[current].id, idx, isCorrect, 5);
+    setAnswer(QUESTIONS[current].id, idx, isCorrect, 7);
     const newAnswers = [...answers];
     newAnswers[current] = idx;
     setAnswers(newAnswers);
@@ -133,7 +133,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
       newAnswers[current] = null;
       setAnswers(newAnswers);
       // Align with setAnswer signature used elsewhere in this step
-      setAnswer(QUESTIONS[current].id, null, false, 5);
+      setAnswer(QUESTIONS[current].id, null, false, 7);
     }
     if (current < QUESTIONS.length - 1) {
       setCurrent((c) => c + 1);

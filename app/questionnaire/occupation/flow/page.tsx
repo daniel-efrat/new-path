@@ -126,8 +126,8 @@ export default function Step12FlowPage() {
       });
 
       await saveDesignationChoices(rows);
-      // Mark step 12 completed
-      await setStepCompletion(12, true);
+      // Mark the designation sentences step completed.
+      await setStepCompletion(4, true);
       router.push("/dashboard");
     } catch (e: any) {
       console.error("Failed to save designation choices", e);

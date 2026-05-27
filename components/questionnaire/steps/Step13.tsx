@@ -102,6 +102,8 @@ const ALL_VALUES: string[] = [
 const MAX_INITIAL_SELECTION = 12;
 const MIN_CORE_VALUES = 4;
 const MAX_CORE_VALUES = 6;
+const STEP13_SELECTED_VALUES_ID = "9d79036e-bf0c-4d65-b06f-f5f4b5f01301";
+const STEP13_CORE_VALUES_ID = "9d79036e-bf0c-4d65-b06f-f5f4b5f01302";
 
 export default function Step13({
   onNext,
@@ -110,10 +112,10 @@ export default function Step13({
 }: Step13Props) {
   const setAnswer = useQuestionnaireStore((state) => state.setAnswer);
   const selectedAnswer = useQuestionnaireStore(
-    (state) => state.answers["step13_selected_values"]
+    (state) => state.answers[STEP13_SELECTED_VALUES_ID]
   );
   const coreValuesAnswer = useQuestionnaireStore(
-    (state) => state.answers["step13_core_values"]
+    (state) => state.answers[STEP13_CORE_VALUES_ID]
   );
 
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
@@ -149,44 +151,43 @@ export default function Step13({
   }, [selectedAnswer?.value, coreValuesAnswer?.value]);
 
   const toggleSelected = (value: string) => {
-    setSelectedValues((prev) => {
-      const exists = prev.includes(value);
-      let next: string[];
-      if (exists) {
-        next = prev.filter((v) => v !== value);
-      } else {
-        if (prev.length >= MAX_INITIAL_SELECTION) {
-          return prev;
-        }
-        next = [...prev, value];
-      }
-      setAnswer("step13_selected_values", next, false, 13);
+    const exists = selectedValues.includes(value);
+    const nextSelectedValues = exists
+      ? selectedValues.filter((v) => v !== value)
+      : selectedValues.length >= MAX_INITIAL_SELECTION
+      ? selectedValues
+      : [...selectedValues, value];
 
-      // Ensure core values remain subset of selected
-      setCoreValues((rows) => rows.filter((row) => next.includes(row.name)));
+    if (nextSelectedValues === selectedValues) {
+      return;
+    }
 
-      return next;
-    });
+    const nextCoreValues = coreValues.filter((row) =>
+      nextSelectedValues.includes(row.name)
+    );
+
+    setSelectedValues(nextSelectedValues);
+    setCoreValues(nextCoreValues);
+    setAnswer(STEP13_SELECTED_VALUES_ID, nextSelectedValues, false, 13);
+    if (nextCoreValues.length !== coreValues.length) {
+      persistCoreValues(nextCoreValues);
+    }
   };
 
   const toggleCoreValue = (value: string) => {
-    setCoreValues((prev) => {
-      const exists = prev.find((row) => row.name === value);
-      if (exists) {
-        const next = prev.filter((row) => row.name !== value);
-        persistCoreValues(next);
-        return next;
-      }
-      if (prev.length >= MAX_CORE_VALUES) {
-        return prev;
-      }
-      const next: CoreValueRow[] = [
-        ...prev,
-        { name: value, score: "", missing: "" },
-      ];
-      persistCoreValues(next);
-      return next;
-    });
+    const exists = coreValues.find((row) => row.name === value);
+    const nextCoreValues: CoreValueRow[] = exists
+      ? coreValues.filter((row) => row.name !== value)
+      : coreValues.length >= MAX_CORE_VALUES
+      ? coreValues
+      : [...coreValues, { name: value, score: "", missing: "" }];
+
+    if (nextCoreValues === coreValues) {
+      return;
+    }
+
+    setCoreValues(nextCoreValues);
+    persistCoreValues(nextCoreValues);
   };
 
   const persistCoreValues = (rows: CoreValueRow[]) => {
@@ -195,28 +196,24 @@ export default function Step13({
       score: row.score === "" ? null : row.score,
       missing: row.missing,
     }));
-    setAnswer("step13_core_values", JSON.stringify(payload), false, 13);
+    setAnswer(STEP13_CORE_VALUES_ID, JSON.stringify(payload), false, 13);
   };
 
   const handleScoreChange = (name: string, value: string) => {
     const numeric = value ? Number(value) : "";
-    setCoreValues((prev) => {
-      const next: CoreValueRow[] = prev.map((row) =>
-        row.name === name ? { ...row, score: numeric } : row
-      );
-      persistCoreValues(next);
-      return next;
-    });
+    const nextCoreValues: CoreValueRow[] = coreValues.map((row) =>
+      row.name === name ? { ...row, score: numeric } : row
+    );
+    setCoreValues(nextCoreValues);
+    persistCoreValues(nextCoreValues);
   };
 
   const handleMissingChange = (name: string, value: string) => {
-    setCoreValues((prev) => {
-      const next: CoreValueRow[] = prev.map((row) =>
-        row.name === name ? { ...row, missing: value } : row
-      );
-      persistCoreValues(next);
-      return next;
-    });
+    const nextCoreValues: CoreValueRow[] = coreValues.map((row) =>
+      row.name === name ? { ...row, missing: value } : row
+    );
+    setCoreValues(nextCoreValues);
+    persistCoreValues(nextCoreValues);
   };
 
   const canContinue = useMemo(() => {

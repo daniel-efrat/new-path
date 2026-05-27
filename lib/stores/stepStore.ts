@@ -48,12 +48,6 @@ const makeInitialSteps = () => [
   { id: 13, isCompleted: false, isLocked: true },
 ];
 
-// Temporary skip map: when completing a step, unlock the mapped next step instead
-// This allows skipping placeholder steps (e.g., 9 and 10) so that completing 8 unlocks 11
-const SKIP_UNLOCK_MAP: Record<number, number> = {
-  8: 11,
-};
-
 export const useStepStore = create<StepState>()(
   persist(
     (set, get) => ({
@@ -65,7 +59,7 @@ export const useStepStore = create<StepState>()(
       setStepCompletion: async (stepId, isCompleted) => {
         const state = get();
         const newSteps = state.steps.map((step) => {
-          const nextStepId = SKIP_UNLOCK_MAP[stepId] ?? stepId + 1;
+          const nextStepId = stepId + 1;
           if (step.id === stepId) {
             return { ...step, isCompleted };
           }

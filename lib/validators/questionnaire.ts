@@ -171,10 +171,12 @@ export const validateStep12 = (data: StepData): ValidationResult => {
 };
 
 // Step 13 validation – values exercise
+const STEP13_CORE_VALUES_ID = "9d79036e-bf0c-4d65-b06f-f5f4b5f01302";
+
 export const validateStep13 = (data: StepData): ValidationResult => {
   const errors: string[] = [];
 
-  const coreValuesAnswer = data["step13_core_values"];
+  const coreValuesAnswer = data[STEP13_CORE_VALUES_ID];
   if (!coreValuesAnswer || !coreValuesAnswer.value) {
     errors.push("יש לבחור לפחות 4 ועד 6 ערכי ליבה ולהגדיר להם ציון.");
     return createValidationResult(errors.length === 0, errors);
@@ -217,16 +219,16 @@ export const stepValidators: Record<
   (data: StepData) => ValidationResult
 > = {
   1: validateStep1,
-  2: validateStep2,
-  3: validateStep3,
-  4: validateStep4,
-  5: validateStep5,
-  6: validateStep6,
-  7: validateStep7,
-  8: validateStep8,
-  9: validateStep9,
-  10: validateStep10,
-  11: validateStep11,
-  12: validateStep12,
+  2: validateStep4,
+  3: validateStep11,
+  4: validateStep12,
+  5: validateStep2,
+  6: validateStep3,
+  7: validateStep5,
+  8: validateStep6,
+  9: validateStep7,
+  10: validateStep8,
+  11: validateStep9,
+  12: validateStep10,
   13: validateStep13,
 };

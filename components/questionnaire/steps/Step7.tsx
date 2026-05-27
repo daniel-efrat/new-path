@@ -67,7 +67,7 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
     // Clear stored answers from the store as well
     STEP7_QUESTIONS.forEach((q) => {
       try {
-        setAnswer(q.id, null);
+        setAnswer(q.id, null, false, 9);
       } catch (error) {
         console.warn("Failed to clear answer for question:", q.id);
       }
@@ -177,7 +177,7 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
 
     // Store the answer (only store the selected shape ID)
     try {
-      setAnswer(currentQ.id, shapeId);
+      setAnswer(currentQ.id, shapeId, undefined, 9);
     } catch (error) {
       console.warn("Failed to save Step7 answer to database:", error);
       // Continue without database storage - answers are still tracked locally
