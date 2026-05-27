@@ -17,7 +17,7 @@ interface StepState {
     riasec_code: string;
   } | null;
   setStepCompletion: (stepId: number, isCompleted: boolean) => Promise<void>;
-  initializeSteps: () => void;
+  initializeSteps: () => Promise<void>;
   resetSteps: () => void;
   resetFromStep: (stepId: number) => void;
   setUserId: (userId?: string) => void;
@@ -133,14 +133,19 @@ export const useStepStore = create<StepState>()(
           return { steps: newSteps };
         }),
 
-      resetSteps: () => set({ steps: makeInitialSteps() }),
+      resetSteps: () =>
+        set({
+          steps: makeInitialSteps(),
+          isInitialized: false,
+          hollandResults: null,
+        }),
 
-      initializeSteps: () => {
+      initializeSteps: async () => {
         const userId = get().userId;
         if (userId) {
-          get().fetchUserProgress(userId);
+          await get().fetchUserProgress(userId);
         } else {
-          set({ steps: makeInitialSteps() });
+          set({ steps: makeInitialSteps(), isInitialized: true });
         }
       },
 
@@ -160,14 +165,24 @@ export const useStepStore = create<StepState>()(
           }
 
           const state = get();
-          if (currentUserId && state.userId !== currentUserId) {
-            // Bind to the new user and fetch their progress
-            set({ userId: currentUserId, hollandResults: null });
-            state.fetchUserProgress(currentUserId);
-          } else if (!state.userId && currentUserId) {
-            // This case handles initial hydration for a logged-in user
-            set({ userId: currentUserId });
-            state.fetchUserProgress(currentUserId);
+          if (!currentUserId) {
+            set({
+              steps: makeInitialSteps(),
+              userId: undefined,
+              isInitialized: false,
+              hollandResults: null,
+            });
+          } else if (state.userId !== currentUserId) {
+            // Never render state hydrated for a different signed-in user.
+            set({
+              steps: makeInitialSteps(),
+              userId: currentUserId,
+              isInitialized: false,
+              hollandResults: null,
+            });
+            await get().fetchUserProgress(currentUserId);
+          } else if (!state.isInitialized) {
+            await get().fetchUserProgress(currentUserId);
           }
         } catch (e) {
           // Non-fatal: if something goes wrong, avoid breaking the UI
@@ -178,7 +193,7 @@ export const useStepStore = create<StepState>()(
       setHollandResults: (results) => set({ hollandResults: results }),
 
       fetchUserProgress: async (userId) => {
-        if (get().isInitialized) return;
+        if (get().userId !== userId || get().isInitialized) return;
 
         try {
           const { data, error } = await supabase
@@ -200,6 +215,7 @@ export const useStepStore = create<StepState>()(
               return existing ?? defaultStep;
             });
 
+            if (get().userId !== userId) return;
             set({ steps: mergedSteps, isInitialized: true });
 
             // Optionally persist the merged structure back so future loads
@@ -227,6 +243,7 @@ export const useStepStore = create<StepState>()(
           } else if (!error) {
             // No record found. Upsert makes concurrent initialization safe.
             const initialSteps = makeInitialSteps();
+            if (get().userId !== userId) return;
             set({ steps: initialSteps, isInitialized: true });
 
             const { error: insertError } = await supabase
@@ -252,7 +269,7 @@ export const useStepStore = create<StepState>()(
         } catch (e) {
           console.error("Failed to fetch user progress:", e);
           // Fallback to default steps on error, but prevent looping
-          if (!get().isInitialized) {
+          if (get().userId === userId && !get().isInitialized) {
             set({ steps: makeInitialSteps(), isInitialized: true });
           }
         }
@@ -260,9 +277,11 @@ export const useStepStore = create<StepState>()(
     }),
     {
       name: "step-storage",
-      version: 3,
+      version: 4,
+      // Progress is server-backed; do not retain user data in shared browser storage.
+      partialize: (state) => ({ userId: state.userId }),
       // Validate the hydrated state against the current user before the UI renders
-      onRehydrateStorage: () => (state) => {
+      onRehydrateStorage: () => (_state) => {
         // After hydration completes
         setTimeout(async () => {
           try {
@@ -277,26 +296,26 @@ export const useStepStore = create<StepState>()(
               hydratedUserId &&
               hydratedUserId !== currentUserId
             ) {
-              // Different user -> fetch new user's progress
-              useStepStore.getState().fetchUserProgress(currentUserId);
+              await useStepStore.getState().ensureUser(currentUserId);
             } else if (currentUserId && !hydratedUserId) {
-              // No user bound yet -> bind and fetch progress
-              useStepStore.getState().fetchUserProgress(currentUserId);
+              await useStepStore.getState().ensureUser(currentUserId);
             }
           } catch (e) {
             console.error("onRehydrateStorage user validation failed:", e);
           }
         });
       },
-      // In case older persisted state didn't track user, migrate to include userId
-      migrate: (persistedState: any, version: number) => {
-        if (version < 2) {
-          return { userId: undefined, hollandResults: null, ...persistedState };
+      // Discard older locally stored progress so it cannot cross identities.
+      migrate: (_persistedState: any, version: number) => {
+        if (version < 4) {
+          return {
+            steps: makeInitialSteps(),
+            userId: undefined,
+            isInitialized: false,
+            hollandResults: null,
+          };
         }
-        if (version < 3) {
-          return { hollandResults: null, ...persistedState };
-        }
-        return persistedState;
+        return _persistedState;
       },
     }
   )

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useStepStore } from "@/lib/stores/stepStore";
 import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore";
+import { useStep12Store } from "@/lib/stores/step12Store";
 import supabase from "@/lib/supabase";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,10 @@ const noRotate = (_props: any, transform: string) =>
 export default function QuestionnaireDashboard() {
   const { steps, setStepCompletion, resetSteps, initializeSteps, ensureUser } =
     useStepStore();
-  const { setCurrentStep, initialize } = useQuestionnaireStore();
+  const { setCurrentStep, initialize, reset: resetQuestionnaire } =
+    useQuestionnaireStore();
+  const { ensureUser: ensureStep12User, reset: resetStep12 } =
+    useStep12Store();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [user, setUser] = useState<any>(null);
   const [storeReady, setStoreReady] = useState(false);
@@ -114,16 +118,6 @@ export default function QuestionnaireDashboard() {
   ];
 
   useEffect(() => {
-    const initializeDashboard = async () => {
-      if (!user) return;
-      await ensureUser(user.id);
-      initializeSteps();
-      setStoreReady(true);
-    };
-    if (isAuthenticated) initializeDashboard();
-  }, [isAuthenticated, user, ensureUser, initializeSteps]);
-
-  useEffect(() => {
     const checkAuth = async () => {
       try {
         const {
@@ -157,6 +151,8 @@ export default function QuestionnaireDashboard() {
     } = supabase.auth.onAuthStateChange((event: any, session: any) => {
       if (event === "SIGNED_OUT" || !session) {
         resetSteps();
+        resetQuestionnaire();
+        resetStep12();
         useStepStore.setState({ userId: undefined });
         setIsAuthenticated(false);
         setUser(null);
@@ -169,14 +165,14 @@ export default function QuestionnaireDashboard() {
     });
 
     return () => subscription.unsubscribe();
-  }, [router, resetSteps]);
+  }, [router, resetQuestionnaire, resetStep12, resetSteps]);
 
   useEffect(() => {
     const initializeDashboard = async () => {
       if (isAuthenticated && user?.id) {
         setStoreReady(false);
-        await ensureUser(user.id);
-        initializeSteps();
+        await Promise.all([ensureUser(user.id), ensureStep12User(user.id)]);
+        await initializeSteps();
         try {
           await initialize();
         } catch (error) {
@@ -187,7 +183,14 @@ export default function QuestionnaireDashboard() {
       }
     };
     initializeDashboard();
-  }, [isAuthenticated, user, initializeSteps, initialize, ensureUser]);
+  }, [
+    isAuthenticated,
+    user,
+    initializeSteps,
+    initialize,
+    ensureUser,
+    ensureStep12User,
+  ]);
 
   const handleStepClick = (stepId: number) => {
     const step = steps.find((s: any) => s.id === stepId);

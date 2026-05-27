@@ -18,8 +18,9 @@ interface Row {
 
 export default function Step12FlowPage() {
   const router = useRouter();
-  const { selected, order, setSelectionsFor, selectionsBySerial } = useStep12Store();
+  const { selected, order, setSelectionsFor, selectionsBySerial, ensureUser: ensureStep12User } = useStep12Store();
   const { setStepCompletion, ensureUser } = useStepStore();
+  const [storeReady, setStoreReady] = useState(false);
   const [index, setIndex] = useState(0);
   const serials = useMemo(
     () => (order.length ? order : selected.map((s) => s.occupation_serial)),
@@ -31,6 +32,10 @@ export default function Step12FlowPage() {
   const [error, setError] = useState<string | null>(null);
   const [rows, setRows] = useState<Row[]>([]);
   const [selectedTwo, setSelectedTwo] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    ensureStep12User().finally(() => setStoreReady(true));
+  }, [ensureStep12User]);
 
   useEffect(() => {
     if (!currentSerial) return;
@@ -130,6 +135,10 @@ export default function Step12FlowPage() {
     if (index > 0) setIndex((i) => i - 1);
     else router.back();
   };
+
+  if (!storeReady) {
+    return <p className="p-6">טוען...</p>;
+  }
 
   return (
     <div className="max-w-3xl mx-auto" dir="rtl">

@@ -25,6 +25,7 @@ interface AnswerState extends AnswerStateDefinition {
 
 // Define the state structure
 interface QuestionnaireState {
+  userId: string | null;
   submissionId: string | null;
   currentStep: number;
   answers: Record<string, AnswerState>;
@@ -65,6 +66,7 @@ const QUESTIONNAIRE_ID = "fbbee5e5-33c0-4b73-8514-0407633e05a2"; // Main questio
 
 // Define the initial state
 const initialState: QuestionnaireState = {
+  userId: null,
   submissionId: null,
   currentStep: 1,
   answers: {},
@@ -92,6 +94,10 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
       return null;
     }
 
+    if (get().userId !== user.id) {
+      set({ ...initialState, userId: user.id });
+    }
+
     const userId = user.id;
     const questionnaireId = QUESTIONNAIRE_ID;
 
@@ -111,7 +117,7 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
       return null;
     }
 
-    set({ submissionId: data.id });
+    set({ submissionId: data.id, userId: user.id });
     return data.id;
   },
 
@@ -156,6 +162,16 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
     step?: number
   ) => {
     try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error("User not authenticated for submission.");
+      }
+      if (get().userId !== user.id) {
+        set({ ...initialState, userId: user.id });
+      }
+
       let { submissionId } = get();
 
       if (!submissionId) {
@@ -325,15 +341,28 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) {
-      set({ error: new Error("User not authenticated for submission.") });
+      set({
+        ...initialState,
+        error: new Error("User not authenticated for submission."),
+      });
       return;
     }
+
+    const currentState = get();
+    const isLoading = currentState.isLoading;
+    const currentStep =
+      currentState.userId === user.id
+        ? currentState.currentStep
+        : initialState.currentStep;
+    // Clear any prior in-memory questionnaire state before loading this identity.
+    set({ ...initialState, userId: user.id, currentStep, isLoading });
 
     // Load the latest submission for the user
     const { data: submission, error: submissionError } = await supabase
       .from("questionnaire_submissions")
       .select("id")
       .eq("user_id", user.id)
+      .eq("questionnaire_id", QUESTIONNAIRE_ID)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -348,6 +377,7 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
       return;
     }
 
+    if (get().userId !== user.id) return;
     set({ submissionId: submission.id });
 
     // Load answers for the submission
@@ -361,6 +391,7 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
       return;
     }
 
+    if (get().userId !== user.id) return;
     const answersMap: Record<string, AnswerState> = {};
     answers.forEach((answer) => {
       answersMap[answer.question_id] = {
