@@ -51,7 +51,7 @@ export default function AuthForm() {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <div className="bg-white p-8 rounded-lg shadow-md">
+      <div className="bg-white text-background p-8 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold mb-6 text-center">התחברות / הרשמה</h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -65,7 +65,7 @@ export default function AuthForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="your@email.com"
-              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full p-3 border border-gray-500 rounded-md focus-visible:outline-none"
               required
             />
           </div>
@@ -73,7 +73,7 @@ export default function AuthForm() {
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full py-3 px-4 bg-primary text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-primary ${
+            className={`w-full py-3 px-4 bg-primary text-white rounded-md hover:bg-blue-900 focus-visible:outline-none ${
               isLoading ? "opacity-70 cursor-not-allowed" : ""
             }`}
           >
@@ -85,15 +85,15 @@ export default function AuthForm() {
           <div
             className={`mt-4 p-3 rounded-md ${
               message.type === "success"
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
+                ? "bg-green-100 text-green-900"
+                : "bg-red-100 text-red-900"
             }`}
           >
             {message.text}
           </div>
         )}
 
-        <p className="mt-6 text-sm text-center text-gray-500">
+        <p className="mt-6 text-sm text-center text-gray-700">
           נשלח לך קישור קסם לאימייל שלך להתחברות.
           <br />
           אין צורך בסיסמה!

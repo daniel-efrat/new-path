@@ -25,7 +25,7 @@ export default function QuestionnaireError({
           <h2 className="text-xl font-semibold text-red-700 mb-4">
             אירעה שגיאה בטעינת השאלון
           </h2>
-          <p className="text-red-600 mb-6">
+          <p className="text-red-800 mb-6">
             לא הצלחנו לטעון את השאלון כראוי. אנא נסה שוב או צור קשר עם התמיכה אם
             הבעיה נמשכת.
           </p>
@@ -66,7 +66,7 @@ export default function QuestionnaireError({
           <p>צריך עזרה?</p>
           <a
             href="mailto:support@example.com"
-            className="text-primary hover:text-blue-700 underline"
+            className="text-white hover:bg-white/10 underline"
           >
             support@example.com
           </a>

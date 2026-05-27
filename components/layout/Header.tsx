@@ -66,7 +66,7 @@ export default function Header() {
     router.push("/signin");
   };
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 white/10 backdrop-blur-md shadow-md py-4 border-b border-white/40">
+    <header className="liquid-glass-header fixed top-0 left-0 right-0 z-50 py-4">
       <div className="container mx-auto px-4 flex justify-between items-center">
         <Link href="/" className="flex items-center">
           <Image
@@ -83,7 +83,7 @@ export default function Header() {
             אודות השאלון
           </Link> */}
           {loading ? (
-            <div className="text-gray-500">טוען...</div>
+            <div className="text-white">טוען...</div>
           ) : user ? (
             <div className="flex items-center gap-4">
               <span className="hidden sm:block text-white text-sm">

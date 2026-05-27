@@ -199,7 +199,7 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
                         </td>
                         <td className="p-2 border text-background">
                           {userAnswer ?? (
-                            <span className="italic text-gray-500">דילגת</span>
+                            <span className="italic text-gray-700">דילגת</span>
                           )}
                         </td>
                         <td className="p-2 border text-background">
@@ -241,7 +241,7 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
               </Button>
             </div>
             {submissionError && (
-              <p className="text-red-500 mt-4">שגיאה: {submissionError}</p>
+              <p className="text-red-300 mt-4">שגיאה: {submissionError}</p>
             )}
           </div>
         </motion.div>
@@ -282,7 +282,7 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
               <div className="flex justify-end items-center mb-2">
                 <span
                   className={`font-mono text-lg ${
-                    timer <= 10 ? "text-orange-500" : "text-gray-300"
+                    timer <= 10 ? "text-orange-300" : "text-muted-foreground"
                   }`}
                 >
                   {timer}s
@@ -309,9 +309,9 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
                       className={`w-full justify-center p-4 h-auto text-base whitespace-normal ${
                         selected !== null
                           ? idx === q.correct_option
-                            ? "bg-transparent hover:bg-transparent border-green-400 text-green-400 font-semibold"
+                            ? "bg-transparent hover:bg-white/10 border-green-300 text-green-300 font-semibold"
                             : opt === selected && !feedback
-                            ? "bg-transparent hover:bg-red-200 border-orange-400 text-orange-400 font-semibold"
+                            ? "bg-transparent hover:bg-white/10 border-orange-300 text-orange-300 font-semibold"
                             : "bg-gray-50 text-gray-800"
                           : "hover:bg-gray-100"
                       }`}
@@ -331,7 +331,7 @@ export default function Step3({ onNext, onPrevious }: Step3Props) {
                   transition={{ delay: 0.5 }}
                   dir="ltr"
                   className={`mt-4 text-center font-semibold ${
-                    feedback ? "text-green-600" : "text-red-600"
+                    feedback ? "text-green-300" : "text-red-300"
                   }`}
                 >
                   {feedback ? "Correct!" : "Incorrect"}

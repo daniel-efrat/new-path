@@ -93,11 +93,13 @@ function TypeIcon({ type, index, onClick }: TypeIconProps) {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <div
+    <button
+      type="button"
+      aria-haspopup="dialog"
       onClick={onClick}
-      className="flex flex-col items-center space-y-4 p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+      className="flex w-full flex-col items-center space-y-4 p-4 border border-white/70 rounded-lg shadow-sm hover:bg-white/10 hover:shadow-md active:bg-white/15 transition-all cursor-pointer"
     >
-      <p className="text-xl font-semibold text-gray-900">{type.name}</p>
+      <span className="text-xl font-semibold text-foreground">{type.name}</span>
       <motion.div
         ref={ref}
         className="relative w-24 h-24"
@@ -114,7 +116,7 @@ function TypeIcon({ type, index, onClick }: TypeIconProps) {
       >
         <Image
           src={type.image}
-          alt={type.name}
+          alt=""
           fill
           sizes="(max-width: 768px) 50vw, 33vw"
           className="object-contain"
@@ -135,7 +137,7 @@ function TypeIcon({ type, index, onClick }: TypeIconProps) {
         }}
         className="w-20 h-1 rounded-[50%] flex items-center justify-center mx-auto blur-[5px] bg-[#000000]"
       />
-    </div>
+    </button>
   );
 }
 
@@ -165,7 +167,7 @@ function TypeModal({ isOpen, onClose, typeName }: TypeModalProps) {
               </DialogHeader>
               <div className="mt-6 space-y-6">
                 <motion.p
-                  className="text-gray-700 leading-relaxed"
+                  className="text-muted-foreground leading-relaxed"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
@@ -181,7 +183,7 @@ function TypeModal({ isOpen, onClose, typeName }: TypeModalProps) {
                   <h3 className="font-semibold text-lg mb-2">
                     מאפיינים בולטים:
                   </h3>
-                  <ul className="list-disc list-inside space-y-1 text-gray-700">
+                  <ul className="list-disc list-inside space-y-1 text-muted-foreground">
                     {typeInfo.traits.map((trait: string, index: number) => (
                       <motion.li
                         key={trait}
@@ -203,7 +205,7 @@ function TypeModal({ isOpen, onClose, typeName }: TypeModalProps) {
                   <h3 className="font-semibold text-lg mb-2">
                     מקצועות מתאימים:
                   </h3>
-                  <ul className="list-disc list-inside space-y-1 text-gray-700">
+                  <ul className="list-disc list-inside space-y-1 text-muted-foreground">
                     {typeInfo.careers.map((career: string, index: number) => (
                       <motion.li
                         key={career}
@@ -297,7 +299,7 @@ export default function AboutHollandPage() {
             <p className="mt-2">
               כדי להקל עליכם, יצרנו שתי גרסאות של השאלון: גרסה מהירה של 30 שאלות
               וגרסה מורחבת של 60. שתי הגרסאות הן תרגום של{" "}
-              <span className="font-semibold text-primary">
+              <span className="font-semibold text-white underline underline-offset-2">
                 השאלון האמריקאי המקוצר
               </span>
               , והותאמו ותוקפו באופן מלא לקהל הישראלי.

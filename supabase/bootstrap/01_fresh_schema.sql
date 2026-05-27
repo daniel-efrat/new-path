@@ -133,7 +133,7 @@ BEGIN
   NEW.updated_at = now();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = '';
 
 DROP TRIGGER IF EXISTS trg_submissions_set_updated_at ON public.questionnaire_submissions;
 CREATE TRIGGER trg_submissions_set_updated_at
@@ -162,11 +162,11 @@ ALTER TABLE public.user_designation_choices ENABLE ROW LEVEL SECURITY;
 
 -- profiles
 DROP POLICY IF EXISTS "Profiles are viewable by owner" ON public.profiles;
-CREATE POLICY "Profiles are viewable by owner" ON public.profiles FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Profiles are viewable by owner" ON public.profiles FOR SELECT USING ((SELECT auth.uid()) = id);
 DROP POLICY IF EXISTS "Users can insert own profile" ON public.profiles;
-CREATE POLICY "Users can insert own profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "Users can insert own profile" ON public.profiles FOR INSERT WITH CHECK ((SELECT auth.uid()) = id);
 DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
-CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
+CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING ((SELECT auth.uid()) = id);
 
 -- public read for catalog
 DROP POLICY IF EXISTS "Questionnaires are viewable by everyone" ON public.questionnaires;
@@ -180,53 +180,53 @@ CREATE POLICY "Designation statements are viewable by everyone" ON public.design
 
 -- submissions
 DROP POLICY IF EXISTS "Submissions are viewable by owner" ON public.questionnaire_submissions;
-CREATE POLICY "Submissions are viewable by owner" ON public.questionnaire_submissions FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Submissions are viewable by owner" ON public.questionnaire_submissions FOR SELECT USING ((SELECT auth.uid()) = user_id);
 DROP POLICY IF EXISTS "Users can insert own submissions" ON public.questionnaire_submissions;
-CREATE POLICY "Users can insert own submissions" ON public.questionnaire_submissions FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can insert own submissions" ON public.questionnaire_submissions FOR INSERT WITH CHECK ((SELECT auth.uid()) = user_id);
 DROP POLICY IF EXISTS "Users can update own submissions" ON public.questionnaire_submissions;
-CREATE POLICY "Users can update own submissions" ON public.questionnaire_submissions FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can update own submissions" ON public.questionnaire_submissions FOR UPDATE USING ((SELECT auth.uid()) = user_id);
 
 -- answers (via submission ownership)
 DROP POLICY IF EXISTS "Answers are viewable by submission owner" ON public.answers;
 CREATE POLICY "Answers are viewable by submission owner" ON public.answers FOR SELECT
   USING (EXISTS (
     SELECT 1 FROM public.questionnaire_submissions s
-    WHERE s.id = answers.submission_id AND s.user_id = auth.uid()
+    WHERE s.id = answers.submission_id AND s.user_id = (SELECT auth.uid())
   ));
 DROP POLICY IF EXISTS "Users can insert answers for own submissions" ON public.answers;
 CREATE POLICY "Users can insert answers for own submissions" ON public.answers FOR INSERT
   WITH CHECK (EXISTS (
     SELECT 1 FROM public.questionnaire_submissions s
-    WHERE s.id = answers.submission_id AND s.user_id = auth.uid()
+    WHERE s.id = answers.submission_id AND s.user_id = (SELECT auth.uid())
   ));
 DROP POLICY IF EXISTS "Users can update answers for own submissions" ON public.answers;
 CREATE POLICY "Users can update answers for own submissions" ON public.answers FOR UPDATE
   USING (EXISTS (
     SELECT 1 FROM public.questionnaire_submissions s
-    WHERE s.id = answers.submission_id AND s.user_id = auth.uid()
+    WHERE s.id = answers.submission_id AND s.user_id = (SELECT auth.uid())
   ));
 
 -- progress
 DROP POLICY IF EXISTS "Progress select own" ON public.user_questionnaire_progress;
-CREATE POLICY "Progress select own" ON public.user_questionnaire_progress FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Progress select own" ON public.user_questionnaire_progress FOR SELECT USING ((SELECT auth.uid()) = user_id);
 DROP POLICY IF EXISTS "Progress insert own" ON public.user_questionnaire_progress;
-CREATE POLICY "Progress insert own" ON public.user_questionnaire_progress FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Progress insert own" ON public.user_questionnaire_progress FOR INSERT WITH CHECK ((SELECT auth.uid()) = user_id);
 DROP POLICY IF EXISTS "Progress update own" ON public.user_questionnaire_progress;
-CREATE POLICY "Progress update own" ON public.user_questionnaire_progress FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Progress update own" ON public.user_questionnaire_progress FOR UPDATE USING ((SELECT auth.uid()) = user_id);
 
 -- holland results
 DROP POLICY IF EXISTS "Holland results select own" ON public.holland_results;
-CREATE POLICY "Holland results select own" ON public.holland_results FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Holland results select own" ON public.holland_results FOR SELECT USING ((SELECT auth.uid()) = user_id);
 DROP POLICY IF EXISTS "Holland results insert own" ON public.holland_results;
-CREATE POLICY "Holland results insert own" ON public.holland_results FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Holland results insert own" ON public.holland_results FOR INSERT WITH CHECK ((SELECT auth.uid()) = user_id);
 
 -- designation choices
 DROP POLICY IF EXISTS "udc_select_own" ON public.user_designation_choices;
-CREATE POLICY udc_select_own ON public.user_designation_choices FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY udc_select_own ON public.user_designation_choices FOR SELECT USING ((SELECT auth.uid()) = user_id);
 DROP POLICY IF EXISTS "udc_insert_own" ON public.user_designation_choices;
-CREATE POLICY udc_insert_own ON public.user_designation_choices FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY udc_insert_own ON public.user_designation_choices FOR INSERT WITH CHECK ((SELECT auth.uid()) = user_id);
 DROP POLICY IF EXISTS "udc_update_own" ON public.user_designation_choices;
-CREATE POLICY udc_update_own ON public.user_designation_choices FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY udc_update_own ON public.user_designation_choices FOR UPDATE USING ((SELECT auth.uid()) = user_id);
 
 -- ---------------------------------------------------------------------------
 -- Default questionnaire row (hardcoded in app)

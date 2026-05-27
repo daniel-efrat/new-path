@@ -258,9 +258,9 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
                       תשובתך: {userAnswer !== null ? userAnswer + 1 : "לא נענה"}
                     </span>
                     {isCorrect ? (
-                      <span className="text-green-600">✓</span>
+                      <span className="text-green-300">✓</span>
                     ) : (
-                      <span className="text-orange-500">✗</span>
+                      <span className="text-orange-300">✗</span>
                     )}
                   </div>
                 </div>
@@ -348,7 +348,7 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
                 <div className="flex items-center gap-2">
                   <span
                     className={`font-mono text-lg ${
-                      timer <= 15 ? "text-orange-500" : "text-gray-300"
+                      timer <= 15 ? "text-orange-300" : "text-muted-foreground"
                     }`}
                   >
                     {timer} שניות
@@ -513,7 +513,7 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
               <div className="mt-6 text-center" dir="rtl">
                 <div
                   className={`text-lg font-semibold ${
-                    isCorrect ? "text-green-600" : "text-orange-500"
+                    isCorrect ? "text-green-300" : "text-orange-300"
                   }`}
                 >
                   {isCorrect ? "נכון!" : "לא נכון. הצורה הנכונה מסומנת."}

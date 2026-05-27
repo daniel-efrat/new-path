@@ -125,23 +125,23 @@ export default function SignupPage() {
           <CardContent>
             {success ? (
               <div className="text-center space-y-4">
-                <div className="p-4 bg-green-50 border border-green-200 rounded-md">
+                <div className="p-4 bg-green-50 border border-green-700 rounded-md">
                   <p className="text-green-800 font-medium">
                     ההרשמה הושלמה בהצלחה!
                   </p>
-                  <p className="text-green-600 text-sm mt-1">
+                  <p className="text-green-800 text-sm mt-1">
                     נשלח אליך אימייל אישור. אנא לחץ על הקישור באימייל כדי להפעיל
                     את החשבון.
                   </p>
                 </div>
-                <Link href="/signin" className="text-primary hover:underline">
+                <Link href="/signin" className="text-white underline underline-offset-4 hover:bg-white/10">
                   חזור לדף ההתחברות
                 </Link>
               </div>
             ) : (
               <form onSubmit={handleSubmit}>
                 {error && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-md mb-4">
+                  <div className="p-3 bg-red-50 border border-red-700 rounded-md mb-4">
                     <p className="text-red-800 text-sm">{error}</p>
                   </div>
                 )}

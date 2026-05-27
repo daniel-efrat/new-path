@@ -126,7 +126,7 @@ export default function Step11({
 
       {/* Intro cards – shown only before the first question */}
       {showIntro && index === 0 ? (
-        <Card className="max-w-3xl mx-auto bg-white p-2 sm:p-6">
+        <Card className="max-w-3xl mx-auto bg-white text-background p-2 sm:p-6">
           <CardContent className="p-2 sm:p-6">
             <AnimatePresence mode="wait">
               <motion.div
@@ -144,7 +144,7 @@ export default function Step11({
                     <p className="text-center text-gray-600 leading-relaxed mb-4">
                       בשאלון יוצגו לך 30 פעולות מתחומי עבודה מגוונים, עפ"י{" "}
                       <a
-                        className="text-primary hover:underline"
+                        className="text-blue-800 underline underline-offset-2 hover:text-blue-950"
                         href="/aboutHolland"
                       >
                         מבחן הולנד
@@ -175,7 +175,7 @@ export default function Step11({
                             key={opt.src}
                             type="button"
                             onClick={() => setValue(opt.val)}
-                            className={`flex flex-col items-center p-0.5 sm:p-2 rounded-lg transition-colors focus:outline-none border min-w-[52px] sm:min-w-[80px] ${
+                            className={`flex flex-col items-center p-0.5 sm:p-2 rounded-lg transition-colors focus-visible:outline-none border min-w-[52px] sm:min-w-[80px] ${
                               value === opt.val
                                 ? "border-primary ring-2 ring-blue-200"
                                 : "border-transparent hover:bg-gray-50"
@@ -263,9 +263,9 @@ export default function Step11({
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
           >
-            <Card className="max-w-3xl mx-auto bg-white p-2 sm:p-6">
+            <Card className="max-w-3xl mx-auto bg-white text-background p-2 sm:p-6">
               <CardHeader className="flex justify-between items-center p-2 sm:p-6">
-                <div className="text-sm text-muted-background ">
+                <div className="text-sm text-gray-700">
                   שאלה {index + 1} / {STEP11_QUESTIONS.length}
                 </div>
               </CardHeader>
@@ -293,7 +293,7 @@ export default function Step11({
                         key={opt.src}
                         type="button"
                         onClick={() => setValue(opt.val)}
-                        className={`flex flex-col items-center p-0.5 sm:p-2 rounded-lg transition-colors focus:outline-none border min-w-[52px] sm:min-w-[80px] ${
+                        className={`flex flex-col items-center p-0.5 sm:p-2 rounded-lg transition-colors focus-visible:outline-none border min-w-[52px] sm:min-w-[80px] ${
                           value === opt.val
                             ? "border-primary ring-2 ring-blue-200"
                             : "border-transparent hover:bg-gray-50"

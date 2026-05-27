@@ -66,7 +66,7 @@ export default function RankOccupationsPage() {
     <div className="max-w-2xl mx-auto" dir="rtl">
       <h2 className="text-2xl font-bold my-6 text-center">דרג/י את 5 התחומים הנבחרים (1–5)</h2>
 
-      <Card className="bg-white">
+      <Card className="bg-white text-background">
         <CardContent className="p-4">
           <ol className="space-y-2">
             {list.map((serial, idx) => (

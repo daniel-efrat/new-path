@@ -36,7 +36,7 @@ export default function HollandResults({
         animate={{ opacity: 1 }}
         className="flex justify-center items-center h-full"
       >
-        <Card className="max-w-3xl mx-auto bg-white p-6">
+        <Card className="max-w-3xl mx-auto bg-white text-background p-6">
           <CardContent>
             <p className="text-center text-gray-600">
               No Holland results available. Please complete Step 11 first.
@@ -75,7 +75,7 @@ export default function HollandResults({
         תוצאות שאלון הולנד
       </motion.h1>
 
-      <Card className="max-w-3xl mx-auto bg-white p-6 mb-6">
+      <Card className="max-w-3xl mx-auto bg-white text-background p-6 mb-6">
         <CardHeader>
           <CardTitle className="text-center">הקוד שלך: {riasec_code}</CardTitle>
         </CardHeader>
@@ -135,7 +135,7 @@ export default function HollandResults({
         </CardContent>
       </Card>
 
-      <Card className="max-w-3xl mx-auto bg-white p-6">
+      <Card className="max-w-3xl mx-auto bg-white text-background p-6">
         <CardContent>
           <h2 className="text-xl font-bold mb-4 text-center">
             האבחון המלא שלך

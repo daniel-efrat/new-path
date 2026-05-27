@@ -79,7 +79,7 @@ export default function OccupationDetailPage() {
         <p className="text-center text-muted-foreground mb-4">{info.desc}</p>
       )}
 
-      <Card className="bg-white">
+      <Card className="bg-white text-background">
         <CardContent className="p-4">
           {loading && <p className="text-sm text-gray-600">טוען משפטים...</p>}
           {error && <p className="text-sm text-destructive">שגיאה: {error}</p>}

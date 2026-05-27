@@ -129,14 +129,14 @@ export function RetryDialog({
         <div className="space-y-2">
           <p
             id="retry-dialog-description"
-            className="text-muted-foreground  text-right"
+            className="text-gray-700 text-right"
           >
             {message}
           </p>
 
           {/* Attempt counter */}
           <div
-            className="text-sm text-muted-background  text-right"
+            className="text-sm text-gray-700 text-right"
             role="status"
             aria-live="polite"
           >

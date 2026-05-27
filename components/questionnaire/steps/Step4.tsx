@@ -126,7 +126,7 @@ export default function Step4({ onNext, onPrevious }: Step4Props) {
           <strong>10 = נכון מאוד</strong>
         </p>
       </motion.div>
-      <Card className="max-w-3xl mx-auto bg-white p-6">
+      <Card className="max-w-3xl mx-auto bg-white text-background p-6">
         <div
           className={cn(
             "space-y-6 transition-opacity duration-200",

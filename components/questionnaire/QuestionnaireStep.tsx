@@ -48,7 +48,7 @@ export default function QuestionnaireStep({
         <select
           value={value as string}
           onChange={handleSelectChange}
-          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+          className="w-full p-3 border border-input rounded-md focus-visible:outline-none"
         >
           <option value="" disabled>
             בחר אפשרות
@@ -64,7 +64,7 @@ export default function QuestionnaireStep({
       {question.type === "multiselect" && (
         <div className="space-y-2">
           {question.maxSelections && (
-            <p className="text-sm text-muted-background ">
+            <p className="text-sm text-muted-foreground">
               בחר עד {question.maxSelections} אפשרויות
               {Array.isArray(value) && value.length > 0 && (
                 <span>
