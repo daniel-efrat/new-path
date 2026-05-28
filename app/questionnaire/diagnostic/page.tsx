@@ -499,7 +499,7 @@ function DiagnosticReportView({ data }: { data: DiagnosticApiResponse }) {
         <div className="flex items-center justify-between gap-3">
           <SectionTitle
             icon={<BriefcaseBusiness className="size-5" />}
-            title="מקצועות המתאימים לך"
+            title="מקצועות שמתאימים לך"
           />
         </div>
         <div className="grid gap-3">
@@ -868,10 +868,6 @@ function DiagnosticPdfDocument({
                 <span className="font-semibold text-[#0f172a]">תאריך: </span>
                 {formatDateTime(report.generatedAt)}
               </div>
-              <div>
-                <span className="font-semibold text-[#0f172a]">ספק: </span>
-                {providerLabel(data.provider)}
-              </div>
             </div>
           </div>
         </header>
@@ -933,7 +929,7 @@ function DiagnosticPdfDocument({
           </div>
         </PdfSection>
 
-        <PdfSection title="מקצועות המתאימים לך" keepTogether={false}>
+        <PdfSection title="מקצועות שמתאימים לך" keepTogether={false}>
           <div className="space-y-5">
             {report.topOccupations.map((occupation, index) => (
               <PdfOccupation
