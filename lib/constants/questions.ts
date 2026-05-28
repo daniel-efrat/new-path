@@ -897,7 +897,7 @@ export const STEP5_QUESTIONS: LogicalQuestion[] = [
       "1/2, 3/4, 2/3",
       "2/3, 1/2, 3/4",
     ],
-    correct_option: 1,
+    correct_option: 0,
   },
   {
     id: "b3a1df8e-7ef3-4e5c-9e7d-9c2a1f5b1005",
@@ -927,7 +927,7 @@ export const STEP5_QUESTIONS: LogicalQuestion[] = [
     id: "0f2b6a9d-4e7c-4a50-9b23-1c8d5e7f1008",
     number: 8,
     level: "לוגיקה – דפוס מספרי",
-    question: "אם 4=2, 9=3, 16=4 – אז 5=?",
+    question: "אם 2=4, 3=9, 4=16 – אז 5=?",
     options: ["10", "20", "25", "30"],
     correct_option: 2,
   },
@@ -1076,7 +1076,7 @@ export const STEP6_QUESTIONS: Question[] = [
     number: 4,
     level: "שברים",
     question: "מהו השבר הפשוט ביותר של 24/18?",
-    options: ["3/4", "2/3", "1/2", "4/6"],
+    options: ["4/3", "2/3", "1/2", "4/6"],
     correct_option: 0,
   },
   {
@@ -1142,7 +1142,7 @@ export const STEP6_QUESTIONS: Question[] = [
     level: "לוח שנה",
     question: "אם היום יום שלישי, מה יהיה היום בעוד 12 ימים?",
     options: ["שישי", "ראשון", "רביעי", "שבת"],
-    correct_option: 0,
+    correct_option: 1,
   },
   {
     id: "41d56789-abcd-4ef0-c345-d6789abe1113",

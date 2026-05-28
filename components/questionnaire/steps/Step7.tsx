@@ -13,14 +13,20 @@ interface Step7Props {
   onNext?: () => void;
   onPrevious: () => void;
   onComplete: () => Promise<void>;
+  resultsMode?: boolean;
+  onBackToReport?: () => void;
 }
 
-export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
+export default function Step7({
+  onNext,
+  onPrevious,
+  onComplete,
+  resultsMode = false,
+  onBackToReport,
+}: Step7Props) {
   const { setAnswer } = useQuestionnaireStore();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedShape, setSelectedShape] = useState<number | null>(null);
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [isCorrect, setIsCorrect] = useState(false);
   const [answers, setAnswers] = useState<(number | null)[]>(() =>
     Array(STEP7_QUESTIONS.length).fill(null)
   );
@@ -58,8 +64,6 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
   const handleRestart = () => {
     setCurrentQuestion(0);
     setSelectedShape(null);
-    setShowFeedback(false);
-    setIsCorrect(false);
     setScore(0);
     setTimer(45);
     setShowResults(false);
@@ -113,7 +117,7 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
         const answeredCount = newAnswers.filter(
           (answer) => answer !== null
         ).length;
-        if (answeredCount === STEP7_QUESTIONS.length) {
+        if (answeredCount === STEP7_QUESTIONS.length && resultsMode) {
           setShowResults(true);
         }
       } catch (error) {
@@ -128,42 +132,29 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
 
   // Timer effect - auto advance when timer reaches 0
   useEffect(() => {
-    if (showResults || showFeedback) return;
+    if (showResults) return;
     if (timer === 0) {
       // Auto-advance to next question when timer runs out
-      handleNextQuestion();
+      void handleNextQuestion();
       return;
     }
     const interval = setInterval(() => {
       setTimer((t) => (t > 0 ? t - 1 : 0));
     }, 1000);
     return () => clearInterval(interval);
-  }, [timer, showResults, showFeedback]);
+  }, [timer, showResults]);
 
   // Reset timer when changing questions
   useEffect(() => {
     setTimer(45);
-    // Check if current question already has an answer
-    const currentAnswer = answers[currentQuestion];
-    if (currentAnswer !== null) {
-      setSelectedShape(currentAnswer);
-      const isCorrect = currentAnswer === currentQ.correct_option;
-      setIsCorrect(isCorrect);
-      setShowFeedback(true);
-    } else {
-      setSelectedShape(null);
-      setShowFeedback(false);
-      setIsCorrect(false);
-    }
-  }, [currentQuestion, answers, currentQ.correct_option]);
+    setSelectedShape(null);
+  }, [currentQuestion]);
 
-  const handleShapeSelect = (shapeId: number) => {
-    if (showFeedback) return; // Prevent selection after feedback is shown
+  const handleShapeSelect = async (shapeId: number) => {
+    if (selectedShape !== null) return;
 
     setSelectedShape(shapeId);
     const correct = shapeId === currentQ.correct_option;
-    setIsCorrect(correct);
-    setShowFeedback(true);
 
     // Update answers array
     const newAnswers = [...answers];
@@ -177,52 +168,44 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
 
     // Store the answer (only store the selected shape ID)
     try {
-      setAnswer(currentQ.id, shapeId, undefined, 9);
+      await setAnswer(currentQ.id, shapeId, undefined, 9);
     } catch (error) {
       console.warn("Failed to save Step7 answer to database:", error);
       // Continue without database storage - answers are still tracked locally
     }
 
-    // Auto-advance to next question after 1.5 seconds
-    setTimeout(() => {
-      handleNextQuestion();
-    }, 1500);
+    await handleNextQuestion();
   };
 
-  const handleNextQuestion = () => {
+  const handleNextQuestion = async () => {
     if (currentQuestion < STEP7_QUESTIONS.length - 1) {
       setCurrentQuestion((prev) => prev + 1);
-      setSelectedShape(answers[currentQuestion + 1]);
-      setShowFeedback(answers[currentQuestion + 1] !== null);
-      if (answers[currentQuestion + 1] !== null) {
-        setIsCorrect(
-          answers[currentQuestion + 1] ===
-            STEP7_QUESTIONS[currentQuestion + 1].correct_option
-        );
-      }
+      setSelectedShape(null);
       setTimer(45); // Reset timer for new question
       setAnimationKey((prev) => prev + 1); // Trigger animation reset
     } else {
       // All questions completed
-      setShowResults(true);
+      if (resultsMode) {
+        setShowResults(true);
+      } else {
+        await onComplete();
+        if (onNext) onNext();
+      }
     }
   };
 
   const handlePreviousQuestion = () => {
     if (currentQuestion > 0) {
       setCurrentQuestion((prev) => prev - 1);
-      setSelectedShape(answers[currentQuestion - 1]);
-      setShowFeedback(answers[currentQuestion - 1] !== null);
-      if (answers[currentQuestion - 1] !== null) {
-        setIsCorrect(
-          answers[currentQuestion - 1] ===
-            STEP7_QUESTIONS[currentQuestion - 1].correct_option
-        );
-      }
+      setSelectedShape(null);
     }
   };
 
   const handleComplete = async () => {
+    if (resultsMode) {
+      onBackToReport?.();
+      return;
+    }
     try {
       await onComplete();
       if (onNext) onNext();
@@ -233,52 +216,113 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
 
   if (showResults) {
     return (
-      <div dir="rtl" className="max-w-4xl mx-auto text-center">
-        <h1 className="text-3xl font-bold my-6">תוצאות המבחן</h1>
-        <div className="text-xl mb-8">
-          הניקוד שלך: {score} מתוך {STEP7_QUESTIONS.length} (
-          {Math.round((score / STEP7_QUESTIONS.length) * 100)}%)
-        </div>
-
-        {/* Results summary */}
-        <Card className="p-6 mb-8">
-          <h3 className="text-lg font-semibold mb-4">סיכום תשובות:</h3>
-          <div className="space-y-4">
-            {STEP7_QUESTIONS.map((q, idx) => {
-              const userAnswer = answers[idx];
-              const isCorrect = userAnswer === q.correct_option;
-              return (
-                <div
-                  key={q.id}
-                  className="flex items-center justify-between p-3 border rounded"
-                >
-                  <span>שאלה {q.number}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-forground">
-                      תשובתך: {userAnswer !== null ? userAnswer + 1 : "לא נענה"}
-                    </span>
-                    {isCorrect ? (
-                      <span className="text-green-300">✓</span>
-                    ) : (
-                      <span className="text-orange-300">✗</span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+      <div
+        dir="rtl"
+        className="min-h-[400px] flex flex-col items-center justify-center relative"
+      >
+        <div className="w-full max-w-4xl text-center">
+          <h1 className="text-3xl font-bold my-6">תוצאות המבחן</h1>
+          <div className="text-xl mb-8">
+            הניקוד שלך: {score} מתוך {STEP7_QUESTIONS.length} (
+            {Math.round((score / STEP7_QUESTIONS.length) * 100)}%)
           </div>
-        </Card>
 
-        <div className="flex justify-center gap-4 mt-8">
-          <Button variant="outline" onClick={handleRestart} className="text-xs">
-            🔄 Restart Quiz (Dev)
-          </Button>
-          <Button
-            onClick={handleComplete}
-            className="bg-primary hover:bg-blue-700"
-          >
-            המשך לשלב הבא
-          </Button>
+          <div className="w-full max-w-3xl mx-auto mt-6 p-4 bg-white rounded-sm">
+            <div className="overflow-x-auto">
+              <table className="p-2 w-full border text-right text-sm">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="p-2 border text-background">#</th>
+                    <th className="p-2 border text-background">שאלה</th>
+                    <th className="p-2 border text-background">התשובה שלך</th>
+                    <th className="p-2 border text-background">תשובה נכונה</th>
+                    <th className="p-2 border text-background">ציון</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {STEP7_QUESTIONS.map((q, idx) => {
+                    const userAnswer = answers[idx];
+                    const correctIdx = q.correct_option;
+                    const isCorrect = userAnswer === correctIdx;
+
+                    return (
+                      <tr
+                        key={q.id}
+                        className={isCorrect ? "bg-green-50" : "bg-red-50"}
+                      >
+                        <td className="p-2 border text-background text-center">
+                          {q.number}
+                        </td>
+                        <td className="p-2 border text-background">
+                          <div className="flex flex-col items-center gap-2">
+                            <span className="text-xs text-gray-600">
+                              {q.level}
+                            </span>
+                            <Image
+                              src={q.question}
+                              alt={`שאלה ${q.number}`}
+                              width={88}
+                              height={88}
+                              className="rounded border bg-white"
+                            />
+                          </div>
+                        </td>
+                        <td className="p-2 border text-background">
+                          {userAnswer !== null ? (
+                            <div className="flex flex-col items-center gap-2">
+                              <Image
+                                src={q.options[userAnswer]}
+                                alt={`התשובה שלך לשאלה ${q.number}`}
+                                width={56}
+                                height={56}
+                                className="rounded border bg-white"
+                              />
+                              <span>אפשרות {userAnswer + 1}</span>
+                            </div>
+                          ) : (
+                            "דילגת"
+                          )}
+                        </td>
+                        <td className="p-2 border text-background">
+                          <div className="flex flex-col items-center gap-2">
+                            <Image
+                              src={q.options[correctIdx]}
+                              alt={`התשובה הנכונה לשאלה ${q.number}`}
+                              width={56}
+                              height={56}
+                              className="rounded border bg-white"
+                            />
+                            <span>אפשרות {correctIdx + 1}</span>
+                          </div>
+                        </td>
+                        <td className="p-2 border text-background text-center">
+                          {isCorrect ? (
+                            <span
+                              title="Correct"
+                              style={{ color: "#16a34a", fontSize: "1.2em" }}
+                            >
+                              ✓
+                            </span>
+                          ) : (
+                            <span
+                              title="Incorrect"
+                              style={{ color: "#dc2626", fontSize: "1.2em" }}
+                            >
+                              ✗
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="flex justify-center gap-4 mt-8">
+            <Button onClick={handleComplete}>חזרה לדו״ח הראשי</Button>
+          </div>
         </div>
       </div>
     );
@@ -403,7 +447,7 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
                 >
                   <motion.button
                     onClick={() => handleShapeSelect(idx)}
-                    disabled={showFeedback}
+                    disabled={selectedShape !== null}
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{
@@ -414,24 +458,8 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
                       relative w-full p-4 border-2 rounded-lg cursor-pointer bg-white transition-all duration-200
                       ${
                         selectedShape === idx
-                          ? showFeedback
-                            ? isCorrect
-                              ? "border-white bg-green-50 shadow-lg"
-                              : "border-red-500 bg-red-50 shadow-lg"
-                            : "border-blue-500 bg-blue-50 shadow-lg"
+                          ? "border-blue-500 bg-blue-50 shadow-lg"
                           : "border-gray-300 hover:border-gray-400 hover:shadow-md"
-                      }
-                      ${
-                        showFeedback &&
-                        idx === currentQ.correct_option &&
-                        !isCorrect &&
-                        "border-white bg-green-50 shadow-md"
-                      }
-                      ${
-                        showFeedback &&
-                        selectedShape === idx &&
-                        !isCorrect &&
-                        "opacity-50"
                       }
                     `}
                   >
@@ -448,78 +476,11 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
                       <div className="absolute -top-2 -left-2 w-5 h-5 bg-blue-500 rounded-full border-2 border-white z-10"></div>
                     )}
 
-                    {/* Feedback indicators */}
-                    {showFeedback && selectedShape === idx && (
-                      <div className="absolute -top-2 -right-2 z-10">
-                        {isCorrect ? (
-                          <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                            <svg
-                              className="w-4 h-4 text-white"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          </div>
-                        ) : (
-                          <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
-                            <svg
-                              className="w-4 h-4 text-white"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Show correct answer indicator */}
-                    {showFeedback &&
-                      idx === currentQ.correct_option &&
-                      selectedShape !== currentQ.correct_option && (
-                        <div className="absolute -top-2 -right-2 z-10">
-                          <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                            <svg
-                              className="w-4 h-4 text-white"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          </div>
-                        </div>
-                      )}
                   </motion.button>
                 </div>
               ))}
             </div>
 
-            {/* Feedback message */}
-            {showFeedback && (
-              <div className="mt-6 text-center" dir="rtl">
-                <div
-                  className={`text-lg font-semibold ${
-                    isCorrect ? "text-green-300" : "text-orange-300"
-                  }`}
-                >
-                  {isCorrect ? "נכון!" : "לא נכון. הצורה הנכונה מסומנת."}
-                </div>
-              </div>
-            )}
           </Card>
 
           {/* Navigation Buttons - Consistent across all steps */}
@@ -537,16 +498,6 @@ export default function Step7({ onNext, onPrevious, onComplete }: Step7Props) {
                   🔄 Restart Quiz (Dev)
                 </Button>
               </div>
-              {showFeedback && (
-                <Button
-                  onClick={handleNextQuestion}
-                  className="bg-primary hover:bg-blue-700"
-                >
-                  {currentQuestion < STEP7_QUESTIONS.length - 1
-                    ? "שאלה הבאה"
-                    : "סיום המבחן"}
-                </Button>
-              )}
             </div>
           </div>
         </motion.div>

@@ -21,9 +21,17 @@ interface Step2Props {
   onNext: () => void;
   onPrevious: () => void;
   onComplete: () => Promise<void> | void;
+  resultsMode?: boolean;
+  onBackToReport?: () => void;
 }
 
-export default function Step2({ onNext, onPrevious, onComplete }: Step2Props) {
+export default function Step2({
+  onNext,
+  onPrevious,
+  onComplete,
+  resultsMode = false,
+  onBackToReport,
+}: Step2Props) {
   const QUESTIONS: Question[] = STEP2_QUESTIONS;
 
   const { setAnswer } = useQuestionnaireStore();
@@ -33,7 +41,6 @@ export default function Step2({ onNext, onPrevious, onComplete }: Step2Props) {
   const [isLoadingAnswers, setIsLoadingAnswers] = useState(true);
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
-  const [feedback, setFeedback] = useState<null | boolean>(null);
   const [score, setScore] = useState(0);
   const [timer, setTimer] = useState(40);
   const [showResult, setShowResult] = useState(false);
@@ -48,7 +55,6 @@ export default function Step2({ onNext, onPrevious, onComplete }: Step2Props) {
   const handleRestart = () => {
     setCurrent(0);
     setSelected(null);
-    setFeedback(null);
     setScore(0);
     setTimer(40);
     setShowResult(false);
@@ -93,7 +99,7 @@ export default function Step2({ onNext, onPrevious, onComplete }: Step2Props) {
         const answeredCount = newAnswers.filter(
           (answer) => answer !== null
         ).length;
-        if (answeredCount === QUESTIONS.length) {
+        if (answeredCount === QUESTIONS.length && resultsMode) {
           setShowResult(true);
           setAnimationKey((prev) => prev + 1);
         }
@@ -110,7 +116,7 @@ export default function Step2({ onNext, onPrevious, onComplete }: Step2Props) {
   useEffect(() => {
     if (showResult) return;
     if (timer === 0) {
-      handleNext(true);
+      void handleNext(true);
       return;
     }
     const interval = setInterval(() => {
@@ -121,18 +127,14 @@ export default function Step2({ onNext, onPrevious, onComplete }: Step2Props) {
 
   useEffect(() => {
     setTimer(40);
-    const currentAnswer = answers[current];
-    if (currentAnswer !== null) {
-      setSelected(currentAnswer);
-      const isCorrect = QUESTIONS[current].correct_option === currentAnswer;
-      setFeedback(isCorrect);
-    } else {
-      setSelected(null);
-      setFeedback(null);
-    }
-  }, [current, answers, QUESTIONS]);
+    setSelected(null);
+  }, [current]);
 
   const handleContinue = async () => {
+    if (resultsMode) {
+      onBackToReport?.();
+      return;
+    }
     await onComplete();
     onNext();
   };
@@ -150,7 +152,6 @@ export default function Step2({ onNext, onPrevious, onComplete }: Step2Props) {
     const isCorrect = question.correct_option === idx;
 
     setSelected(idx);
-    setFeedback(isCorrect);
     setAnswers((prev) => {
       const copy = [...prev];
       copy[current] = idx;
@@ -160,7 +161,7 @@ export default function Step2({ onNext, onPrevious, onComplete }: Step2Props) {
     if (isCorrect) setScore((s) => s + 1);
 
     try {
-      setAnswer(question.id, idx, isCorrect, 5);
+      await setAnswer(question.id, idx, isCorrect, 5);
       setStepAnswers((prev) => ({
         ...prev,
         [question.id]: { value: String(idx), timestamp: new Date() },
@@ -172,12 +173,10 @@ export default function Step2({ onNext, onPrevious, onComplete }: Step2Props) {
       );
     }
 
-    setTimeout(() => {
-      handleNext(false);
-    }, 1200);
+    await handleNext(false);
   };
 
-  const handleNext = (skipped: boolean) => {
+  const handleNext = async (skipped: boolean) => {
     if (skipped) {
       setAnswers((prev) => {
         const copy = [...prev];
@@ -189,8 +188,13 @@ export default function Step2({ onNext, onPrevious, onComplete }: Step2Props) {
       setCurrent((c) => c + 1);
       setAnimationKey((prev) => prev + 1);
     } else {
-      setShowResult(true);
-      setAnimationKey((prev) => prev + 1);
+      if (resultsMode) {
+        setShowResult(true);
+        setAnimationKey((prev) => prev + 1);
+      } else {
+        await onComplete();
+        onNext();
+      }
     }
   };
 
@@ -280,14 +284,7 @@ export default function Step2({ onNext, onPrevious, onComplete }: Step2Props) {
             </table>
           </div>
           <div className="flex justify-center gap-4 mt-8">
-            <Button
-              variant="outline"
-              onClick={handleRestart}
-              className="text-xs"
-            >
-              🔄 Restart Quiz (Dev)
-            </Button>
-            <Button onClick={handleContinue}>המשך לשלב הבא</Button>
+            <Button onClick={handleContinue}>חזרה לדו״ח הראשי</Button>
           </div>
         </motion.div>
       ) : (
@@ -373,15 +370,7 @@ export default function Step2({ onNext, onPrevious, onComplete }: Step2Props) {
                     transition={{ delay: 0.6 + idx * 0.1 }}
                   >
                     <Button
-                      className={`w-full justify-center p-4 h-auto text-base whitespace-normal ${
-                        selected !== null
-                          ? idx === q.correct_option
-                            ? "bg-transparent hover:bg-white/10 border-green-300 text-green-300 font-semibold"
-                            : idx === selected && !feedback
-                            ? "bg-transparent hover:bg-white/10 border-orange-300 text-orange-300 font-semibold"
-                            : "bg-gray-50 text-gray-800"
-                          : "hover:bg-gray-100"
-                      }`}
+                      className="w-full justify-center p-4 h-auto text-base whitespace-normal hover:bg-gray-100"
                       variant="outline"
                       disabled={selected !== null}
                       onClick={() => handleSelect(idx)}
@@ -391,18 +380,6 @@ export default function Step2({ onNext, onPrevious, onComplete }: Step2Props) {
                   </motion.div>
                 ))}
               </div>
-              {selected !== null && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  className={`mt-4 text-center font-semibold ${
-                    feedback ? "text-green-300" : "text-orange-300"
-                  }`}
-                >
-                  {feedback ? "נכון!" : "לא נכון"}
-                </motion.div>
-              )}
             </Card>
           </motion.div>
           {/* Navigation Buttons - Consistent across all steps */}

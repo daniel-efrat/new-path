@@ -4,22 +4,113 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import supabase from '@/lib/supabase';
 
+const safeNextPath = (next: string | null) => {
+  if (!next || !next.startsWith('/') || next.startsWith('//')) {
+    return '/dashboard';
+  }
+
+  return next;
+};
+
+const getCallbackParam = (
+  url: URL,
+  hashParams: URLSearchParams,
+  key: string
+) => url.searchParams.get(key) ?? hashParams.get(key);
+
 export default function AuthCallbackClientPage() {
   const router = useRouter();
   const [message, setMessage] = useState<string>('Completing sign-in...');
 
   useEffect(() => {
+    const redirectToSignin = (error: string, description?: string | null) => {
+      const params = new URLSearchParams({ error });
+
+      if (description) {
+        params.set('message', description);
+      }
+
+      router.replace(`/signin?${params.toString()}`);
+    };
+
     const run = async () => {
       try {
         const url = new URL(window.location.href);
-        const code = url.searchParams.get('code');
-        const next = url.searchParams.get('next') || '/dashboard';
+        const hashParams = new URLSearchParams(
+          url.hash.startsWith('#') ? url.hash.slice(1) : url.hash
+        );
+        const code = getCallbackParam(url, hashParams, 'code');
+        const next = safeNextPath(getCallbackParam(url, hashParams, 'next'));
+        const callbackError = getCallbackParam(url, hashParams, 'error');
+        const callbackErrorCode = getCallbackParam(url, hashParams, 'error_code');
+        const callbackErrorDescription = getCallbackParam(
+          url,
+          hashParams,
+          'error_description'
+        );
+        const accessToken = getCallbackParam(url, hashParams, 'access_token');
+        const refreshToken = getCallbackParam(url, hashParams, 'refresh_token');
 
         console.log('Client callback params:', {
           href: window.location.href,
           hasCode: !!code,
+          hasAccessToken: !!accessToken,
+          hasRefreshToken: !!refreshToken,
+          error: callbackError,
+          errorCode: callbackErrorCode,
           next
         });
+
+        if (callbackError || callbackErrorDescription) {
+          const description =
+            callbackErrorDescription || callbackError || 'OAuth callback failed';
+
+          console.error('OAuth callback returned an error:', {
+            error: callbackError,
+            errorCode: callbackErrorCode,
+            description,
+          });
+          setMessage(description);
+          redirectToSignin(callbackError || 'oauth_callback_error', description);
+          return;
+        }
+
+        // Some Supabase/Auth configurations return tokens in the URL hash.
+        if (accessToken || refreshToken) {
+          if (!accessToken || !refreshToken) {
+            console.error('Incomplete OAuth token callback:', {
+              hasAccessToken: !!accessToken,
+              hasRefreshToken: !!refreshToken,
+            });
+            setMessage('Authentication callback was incomplete.');
+            redirectToSignin(
+              'incomplete_oauth_callback',
+              'The OAuth callback did not include both access and refresh tokens.'
+            );
+            return;
+          }
+
+          console.log('Attempting hash token session setup...');
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+
+          if (!error && data?.session) {
+            setMessage('Signed in! Redirecting...');
+            window.history.replaceState(null, '', url.pathname);
+            router.replace(next);
+            return;
+          }
+
+          console.error('Hash token session setup failed:', error);
+          setMessage('Authentication failed. Redirecting to sign in...');
+          redirectToSignin(
+            error?.code || 'token_callback_error',
+            error?.message || 'Could not create a session from the OAuth tokens.'
+          );
+          return;
+        }
 
         // 1) Fast path: already have a session (e.g., implicit handled automatically)
         {
@@ -44,7 +135,13 @@ export default function AuthCallbackClientPage() {
             return;
           }
 
-          console.warn('PKCE exchange failed or no session, falling back to session check');
+          console.error('PKCE exchange failed or no session:', error);
+          setMessage('Authentication failed. Redirecting to sign in...');
+          redirectToSignin(
+            error?.code || 'pkce_exchange_error',
+            error?.message || 'Could not exchange the OAuth code for a session.'
+          );
+          return;
         }
 
         // 3) Implicit or delayed session propagation: poll briefly for a session
@@ -61,13 +158,19 @@ export default function AuthCallbackClientPage() {
         }
 
         // 4) Give up and send back to signin with error
-        console.error('No session and no code; redirecting back to signin');
+        console.error('No session, OAuth error, code, or token callback found.');
         setMessage('Authentication failed. Redirecting to sign in...');
-        router.replace('/signin?error=callback_error');
+        redirectToSignin(
+          'missing_oauth_callback',
+          'No OAuth code or session was returned to the app.'
+        );
       } catch (err) {
         console.error('Client callback error:', err);
         setMessage('Unexpected error. Redirecting to sign in...');
-        router.replace('/signin?error=callback_error');
+        redirectToSignin(
+          'callback_error',
+          err instanceof Error ? err.message : 'Unexpected callback error.'
+        );
       }
     };
 

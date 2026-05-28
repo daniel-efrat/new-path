@@ -33,7 +33,7 @@ export default function SignupPage() {
         "/dashboard"
       )}`;
 
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo,
@@ -45,7 +45,10 @@ export default function SignupPage() {
       });
 
       if (error) throw error;
-      // Usually browser is already gone, no code runs after this
+
+      if (data?.url) {
+        window.location.assign(data.url);
+      }
     } catch (error: any) {
       console.error("Google signup error:", error);
       setError(error.message || "שגיאה בהרשמה עם Google");

@@ -19,11 +19,20 @@ export default function LoginPage() {
   const router = useRouter();
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   // Check if user is already authenticated
   useEffect(() => {
     const checkExistingAuth = async () => {
       try {
+        const searchParams = new URLSearchParams(window.location.search);
+        const message = searchParams.get("message");
+        const callbackError = searchParams.get("error");
+
+        if (callbackError) {
+          setAuthError(message || "לא ניתן היה להשלים את ההתחברות.");
+        }
+
         const {
           data: { session },
           error,
@@ -32,7 +41,6 @@ export default function LoginPage() {
 
         if (session && !error) {
           console.log("User already authenticated, redirecting...");
-          const searchParams = new URLSearchParams(window.location.search);
           const from = searchParams.get("from") || "/dashboard";
           router.push(from);
           return;
@@ -131,6 +139,11 @@ export default function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {authError && (
+              <div className="mb-4 rounded-md border border-red-700 bg-red-50 p-3">
+                <p className="text-sm text-red-800">{authError}</p>
+              </div>
+            )}
             <form onSubmit={handleSubmit}>
               <div className="flex flex-col gap-6">
                 <div className="grid gap-3">

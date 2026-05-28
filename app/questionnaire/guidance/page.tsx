@@ -39,8 +39,12 @@ export default function QuestionnaireGuidancePage() {
         return;
       }
 
+      const savedOnly =
+        typeof window !== "undefined" &&
+        new URLSearchParams(window.location.search).get("saved") === "1";
+
       const response = await fetch("/api/guidance", {
-        method: "POST",
+        method: savedOnly ? "GET" : "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,

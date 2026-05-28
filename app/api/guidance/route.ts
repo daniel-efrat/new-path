@@ -14,6 +14,65 @@ import type {
   GuidanceReport,
 } from "@/lib/guidance/types";
 
+interface GuidanceReportRow {
+  id: string;
+  report_json: GuidanceReport | null;
+  provider: "gemini" | "openrouter";
+  model: string;
+  input_hash: string;
+}
+
+export async function GET(
+  request: NextRequest
+): Promise<NextResponse<GuidanceApiResponse | GuidanceApiError>> {
+  const supabase = createAuthenticatedClient(request);
+
+  try {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    const { data: saved, error: savedError } = await supabase
+      .from("guidance_reports")
+      .select("id, report_json, provider, model, input_hash")
+      .eq("user_id", user.id)
+      .eq("status", "completed")
+      .not("report_json", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (savedError) {
+      throw new Error(`Could not load saved guidance: ${savedError.message}`);
+    }
+
+    if (!saved?.report_json) {
+      return NextResponse.json(
+        { error: "No saved guidance report was found." },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(toResponse(saved as GuidanceReportRow, true));
+  } catch (error) {
+    console.error("Guidance API error:", error);
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Could not load saved guidance report.",
+      },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(
   request: NextRequest
 ): Promise<NextResponse<GuidanceApiResponse | GuidanceApiError>> {
@@ -38,7 +97,6 @@ export async function POST(
       .eq("user_id", user.id)
       .eq("submission_id", input.submissionId)
       .eq("input_hash", inputHash)
-      .eq("status", "completed")
       .maybeSingle();
 
     if (cachedError) {
@@ -46,21 +104,14 @@ export async function POST(
     }
 
     if (cached?.report_json) {
-      return NextResponse.json({
-        report: cached.report_json as GuidanceReport,
-        reportId: cached.id,
-        inputHash: cached.input_hash,
-        provider: cached.provider,
-        model: cached.model,
-        cached: true,
-      });
+      return NextResponse.json(toResponse(cached as GuidanceReportRow, true));
     }
 
     const generation = await generateGuidanceReport(input);
 
     const { data: inserted, error: insertError } = await supabase
       .from("guidance_reports")
-      .insert({
+      .upsert({
         user_id: user.id,
         submission_id: input.submissionId,
         input_hash: inputHash,
@@ -69,22 +120,17 @@ export async function POST(
         model: generation.model,
         input_snapshot: input,
         report_json: generation.report,
+      }, {
+        onConflict: "user_id,submission_id,input_hash",
       })
-      .select("id")
+      .select("id, report_json, provider, model, input_hash")
       .single();
 
     if (insertError) {
       throw new Error(`Could not save guidance report: ${insertError.message}`);
     }
 
-    return NextResponse.json({
-      report: generation.report,
-      reportId: inserted.id,
-      inputHash,
-      provider: generation.provider,
-      model: generation.model,
-      cached: false,
-    });
+    return NextResponse.json(toResponse(inserted as GuidanceReportRow, false));
   } catch (error) {
     console.error("Guidance API error:", error);
     return NextResponse.json(
@@ -97,6 +143,17 @@ export async function POST(
       { status: 500 }
     );
   }
+}
+
+function toResponse(row: GuidanceReportRow, cached: boolean): GuidanceApiResponse {
+  return {
+    report: row.report_json as GuidanceReport,
+    reportId: row.id,
+    inputHash: row.input_hash,
+    provider: row.provider,
+    model: row.model,
+    cached,
+  };
 }
 
 function createAuthenticatedClient(request: NextRequest) {

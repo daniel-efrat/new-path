@@ -77,6 +77,10 @@ export default function AuthHandler() {
 
     // Only run on client side
     if (typeof window !== "undefined") {
+      if (window.location.pathname === "/auth/callback-client") {
+        return;
+      }
+
       // Small delay to ensure DOM is ready
       const timeout = setTimeout(() => {
         handleAuthCallback();

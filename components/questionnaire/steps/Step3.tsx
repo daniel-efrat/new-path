@@ -14,9 +14,17 @@ interface Step3Props {
   onNext: () => void;
   onPrevious: () => void;
   onComplete: () => Promise<void> | void;
+  resultsMode?: boolean;
+  onBackToReport?: () => void;
 }
 
-export default function Step3({ onNext, onPrevious, onComplete }: Step3Props) {
+export default function Step3({
+  onNext,
+  onPrevious,
+  onComplete,
+  resultsMode = false,
+  onBackToReport,
+}: Step3Props) {
   const {
     setAnswer,
     answers: allAnswers,
@@ -30,7 +38,6 @@ export default function Step3({ onNext, onPrevious, onComplete }: Step3Props) {
   const [answers, setAnswers] = useState<Record<string, string | null>>({});
   const [score, setScore] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState(false);
   const [timer, setTimer] = useState(30);
   const [isFinished, setIsFinished] = useState(false);
   const [fireworksConductor, setFireworksConductor] = useState<any>(null);
@@ -61,7 +68,7 @@ export default function Step3({ onNext, onPrevious, onComplete }: Step3Props) {
         setAnswers(localAnswers);
         setScore(currentScore);
         const answeredCount = Object.keys(localAnswers).length;
-        if (answeredCount === STEP3_QUESTIONS.length) {
+        if (answeredCount === STEP3_QUESTIONS.length && resultsMode) {
           setIsFinished(true);
         } else if (answeredCount > 0) {
           setCurrent(answeredCount);
@@ -76,7 +83,7 @@ export default function Step3({ onNext, onPrevious, onComplete }: Step3Props) {
   useEffect(() => {
     if (isFinished) return;
     if (timer === 0) {
-      handleNext(true);
+      void handleNext(true);
       return;
     }
     const interval = setInterval(() => {
@@ -88,7 +95,6 @@ export default function Step3({ onNext, onPrevious, onComplete }: Step3Props) {
   useEffect(() => {
     setTimer(30);
     setSelected(null);
-    setFeedback(false);
     setAnimationKey((prev) => prev + 1);
   }, [current]);
 
@@ -98,7 +104,7 @@ export default function Step3({ onNext, onPrevious, onComplete }: Step3Props) {
     }
   }, [isFinished, fireworksConductor, passed]);
 
-  const handleNext = (skipped: boolean) => {
+  const handleNext = async (skipped: boolean) => {
     if (skipped) {
       setAnswers((prev) => ({
         ...prev,
@@ -108,7 +114,11 @@ export default function Step3({ onNext, onPrevious, onComplete }: Step3Props) {
     if (current < QUESTIONS.length - 1) {
       setCurrent((c) => c + 1);
     } else {
-      setIsFinished(true);
+      if (resultsMode) {
+        setIsFinished(true);
+      } else {
+        await handleSubmit();
+      }
     }
   };
 
@@ -118,18 +128,19 @@ export default function Step3({ onNext, onPrevious, onComplete }: Step3Props) {
     const isCorrect =
       question.options.indexOf(option) === question.correct_option;
     setSelected(option);
-    setFeedback(isCorrect);
     if (isCorrect) {
       setScore((s) => s + 1);
     }
-    setAnswer(question.id, option, isCorrect, 6);
+    await setAnswer(question.id, option, isCorrect, 6);
     setAnswers((prev) => ({ ...prev, [question.id]: option }));
-    setTimeout(() => {
-      handleNext(false);
-    }, 1000);
+    await handleNext(false);
   };
 
   const handleSubmit = async () => {
+    if (resultsMode) {
+      onBackToReport?.();
+      return;
+    }
     setSubmissionError(null);
     try {
       await submit();
@@ -231,15 +242,8 @@ export default function Step3({ onNext, onPrevious, onComplete }: Step3Props) {
               </table>
             </div>
             <div className="flex justify-center gap-4 mt-8">
-              <Button
-                variant="outline"
-                onClick={() => window.location.reload()}
-                className="text-xs"
-              >
-                🔄 Restart Quiz (Dev)
-              </Button>
               <Button onClick={handleSubmit} disabled={isSubmitting}>
-                {isSubmitting ? "שולח..." : "המשך לשלב הבא"}
+                {isSubmitting ? "שולח..." : "חזרה לדו״ח הראשי"}
               </Button>
             </div>
             {submissionError && (
@@ -308,15 +312,7 @@ export default function Step3({ onNext, onPrevious, onComplete }: Step3Props) {
                     transition={{ delay: 0.6 + idx * 0.1 }}
                   >
                     <Button
-                      className={`w-full justify-center p-4 h-auto text-base whitespace-normal ${
-                        selected !== null
-                          ? idx === q.correct_option
-                            ? "bg-transparent hover:bg-white/10 border-green-300 text-green-300 font-semibold"
-                            : opt === selected && !feedback
-                            ? "bg-transparent hover:bg-white/10 border-orange-300 text-orange-300 font-semibold"
-                            : "bg-gray-50 text-gray-800"
-                          : "hover:bg-gray-100"
-                      }`}
+                      className="w-full justify-center p-4 h-auto text-base whitespace-normal hover:bg-gray-100"
                       variant="outline"
                       disabled={selected !== null}
                       onClick={() => handleSelect(opt)}
@@ -326,19 +322,6 @@ export default function Step3({ onNext, onPrevious, onComplete }: Step3Props) {
                   </motion.div>
                 ))}
               </div>
-              {selected !== null && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  dir="ltr"
-                  className={`mt-4 text-center font-semibold ${
-                    feedback ? "text-green-300" : "text-red-300"
-                  }`}
-                >
-                  {feedback ? "Correct!" : "Incorrect"}
-                </motion.div>
-              )}
             </Card>
           </motion.div>
           {/* Navigation Buttons - Consistent across all steps */}

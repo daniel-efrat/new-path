@@ -28,6 +28,18 @@ import type {
 import supabase from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 
+const ABILITY_STEP_BY_LABEL: Record<string, number> = {
+  "שפה עברית": 5,
+  "שפה אנגלית": 6,
+  "חשיבה לוגית": 7,
+  "חשיבה כמותית": 8,
+  "חשיבה חזותית": 9,
+  "ידע בסיסי במחשב": 10,
+  "קשב": 11,
+  "סינון מידע": 11,
+  "זיכרון עבודה": 11,
+};
+
 export default function QuestionnaireDiagnosticPage() {
   const router = useRouter();
   const [data, setData] = useState<DiagnosticApiResponse | null>(null);
@@ -48,8 +60,12 @@ export default function QuestionnaireDiagnosticPage() {
         return;
       }
 
+      const savedOnly =
+        typeof window !== "undefined" &&
+        new URLSearchParams(window.location.search).get("saved") === "1";
+
       const response = await fetch("/api/diagnostic", {
-        method: "POST",
+        method: savedOnly ? "GET" : "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
@@ -203,6 +219,10 @@ function DiagnosticReportView({ data }: { data: DiagnosticApiResponse }) {
           icon={<BarChart3 className="size-5" />}
           title="ציוני יכולת"
           scores={report.abilityScores}
+          getResultHref={(score) => {
+            const step = ABILITY_STEP_BY_LABEL[score.label];
+            return step ? `/questionnaire?step=${step}&results=1` : null;
+          }}
         />
         <ScorePanel
           icon={<Brain className="size-5" />}
@@ -273,30 +293,53 @@ function ScorePanel({
   icon,
   title,
   scores,
+  getResultHref,
 }: {
   icon: ReactNode;
   title: string;
   scores: ScoreSummary[];
+  getResultHref?: (score: ScoreSummary) => string | null;
 }) {
   return (
     <Card className="border-white/20 bg-white/10 text-white shadow-xl backdrop-blur-md">
       <CardContent className="space-y-5 p-5 sm:p-6">
         <SectionTitle icon={icon} title={title} />
         <div className="grid gap-4 sm:grid-cols-2">
-          {scores.map((score) => (
-            <div key={score.label} className="space-y-2 rounded-md border border-white/15 bg-white/10 p-4">
-              <div className="flex items-center justify-between gap-3">
-                <span className="font-semibold">{score.label}</span>
-                <span className="text-sm tabular-nums text-white/75">
-                  {score.score}/100
-                </span>
+          {scores.map((score) => {
+            const href = getResultHref?.(score) || null;
+            const content = (
+              <>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="font-semibold">{score.label}</span>
+                  <span className="text-sm tabular-nums text-white/75">
+                    {score.score}/100
+                  </span>
+                </div>
+                <Progress value={score.score} className="h-2 bg-white/15" />
+                <p className="text-xs text-white/62">
+                  {score.answered}/{score.total} תשובות
+                </p>
+              </>
+            );
+
+            return href ? (
+              <Link
+                key={score.label}
+                href={href}
+                className="block w-full cursor-pointer space-y-2 rounded-md border border-white/15 bg-white/10 p-4 text-right transition hover:border-white/35 hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                aria-label={`פתח תוצאות ${score.label}`}
+              >
+                {content}
+              </Link>
+            ) : (
+              <div
+                key={score.label}
+                className="space-y-2 rounded-md border border-white/15 bg-white/10 p-4"
+              >
+                {content}
               </div>
-              <Progress value={score.score} className="h-2 bg-white/15" />
-              <p className="text-xs text-white/62">
-                {score.answered}/{score.total} תשובות
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </CardContent>
     </Card>

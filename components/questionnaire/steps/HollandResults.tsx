@@ -10,11 +10,15 @@ import { RIASEC_MAP } from "@/lib/constants/questions";
 interface HollandResultsProps {
   onNext?: () => void;
   onPrevious: () => void;
+  resultsMode?: boolean;
+  onBackToReport?: () => void;
 }
 
 export default function HollandResults({
   onNext,
   onPrevious,
+  resultsMode = false,
+  onBackToReport,
 }: HollandResultsProps) {
   const [results, setResults] = useState<{
     riasec_vector: Record<string, number>;
@@ -155,10 +159,16 @@ export default function HollandResults({
             })}
           </div>
           <div className="flex justify-between mt-6">
-            <Button variant="outline" onClick={onPrevious}>
-              שלב קודם
-            </Button>
-            <Button onClick={onNext}>המשך</Button>
+            {resultsMode ? (
+              <Button onClick={onBackToReport}>חזרה לדו״ח הראשי</Button>
+            ) : (
+              <>
+                <Button variant="outline" onClick={onPrevious}>
+                  שלב קודם
+                </Button>
+                <Button onClick={onNext}>המשך</Button>
+              </>
+            )}
           </div>
         </CardContent>
       </Card>

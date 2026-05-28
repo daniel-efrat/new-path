@@ -45,6 +45,7 @@ export default function QuestionnairePage() {
   const ensureStep12User = useStep12Store((state) => state.ensureUser);
   const [storeReady, setStoreReady] = useState(false);
   const [showHollandResults, setShowHollandResults] = useState(false);
+  const [resultsMode, setResultsMode] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -52,6 +53,16 @@ export default function QuestionnairePage() {
         await Promise.all([ensureUser(), ensureStep12User()]);
         await initializeSteps();
         await initialize();
+        const params = new URLSearchParams(window.location.search);
+        setResultsMode(params.get("results") === "1");
+        const requestedStep = Number(params.get("step"));
+        if (
+          Number.isInteger(requestedStep) &&
+          requestedStep >= 1 &&
+          requestedStep <= 13
+        ) {
+          setCurrentStep(requestedStep);
+        }
       } finally {
         setStoreReady(true);
       }
@@ -69,7 +80,11 @@ export default function QuestionnairePage() {
 
   const onNext = () => {
     if (currentStep === 3) {
-      setShowHollandResults(true);
+      if (resultsMode) {
+        setShowHollandResults(true);
+      } else {
+        setCurrentStep(4);
+      }
     } else if (currentStep === 13) {
       router.push("/questionnaire/diagnostic");
     } else {
@@ -84,6 +99,10 @@ export default function QuestionnairePage() {
 
   const onComplete = async () => {
     await setStepCompletion(currentStep, true);
+  };
+
+  const onBackToReport = () => {
+    router.push("/questionnaire/diagnostic?saved=1");
   };
 
   useEffect(() => {
@@ -123,6 +142,8 @@ export default function QuestionnairePage() {
         onPrevious={onPrevious}
         onNext={showHollandResults ? continueFromHollandResults : onNext}
         onComplete={onComplete}
+        resultsMode={resultsMode}
+        onBackToReport={onBackToReport}
       />
     </div>
   );

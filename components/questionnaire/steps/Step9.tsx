@@ -13,18 +13,25 @@ interface Step9Props {
   onNext?: () => void;
   onPrevious: () => void;
   onComplete: () => Promise<void> | void;
+  resultsMode?: boolean;
+  onBackToReport?: () => void;
 }
 
 const QUESTIONS = STEP9_QUESTIONS;
 const STEP_NUMBER = 11;
 const QUESTION_SECONDS = 25;
 
-export default function Step9({ onNext, onPrevious, onComplete }: Step9Props) {
+export default function Step9({
+  onNext,
+  onPrevious,
+  onComplete,
+  resultsMode = false,
+  onBackToReport,
+}: Step9Props) {
   const { setAnswer } = useQuestionnaireStore();
   const [isLoadingAnswers, setIsLoadingAnswers] = useState(true);
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
-  const [feedback, setFeedback] = useState<boolean | null>(null);
   const [answers, setAnswers] = useState<(number | null)[]>(() =>
     Array(QUESTIONS.length).fill(null)
   );
@@ -66,9 +73,16 @@ export default function Step9({ onNext, onPrevious, onComplete }: Step9Props) {
           0
         )
       );
-      setShowResult(true);
+      if (resultsMode) {
+        setShowResult(true);
+      } else {
+        void (async () => {
+          await onComplete?.();
+          onNext?.();
+        })();
+      }
     },
-    [current]
+    [current, onComplete, onNext, resultsMode]
   );
 
   const handleSkip = useCallback(async () => {
@@ -93,7 +107,6 @@ export default function Step9({ onNext, onPrevious, onComplete }: Step9Props) {
       nextAnswers[current] = optionIndex;
 
       setSelected(optionIndex);
-      setFeedback(isCorrect);
       setAnswers(nextAnswers);
       setScore(
         nextAnswers.reduce<number>(
@@ -104,12 +117,8 @@ export default function Step9({ onNext, onPrevious, onComplete }: Step9Props) {
       );
 
       await setAnswer(question.id, optionIndex, isCorrect, STEP_NUMBER);
-
-      window.setTimeout(() => {
-        setSelected(null);
-        setFeedback(null);
-        completeOrAdvance(nextAnswers);
-      }, 650);
+      setSelected(null);
+      completeOrAdvance(nextAnswers);
     },
     [
       answers,
@@ -147,7 +156,7 @@ export default function Step9({ onNext, onPrevious, onComplete }: Step9Props) {
           )
         );
 
-        if (nextAnswers.every((answer) => answer !== null)) {
+        if (nextAnswers.every((answer) => answer !== null) && resultsMode) {
           setShowResult(true);
         }
       } catch (error) {
@@ -163,18 +172,10 @@ export default function Step9({ onNext, onPrevious, onComplete }: Step9Props) {
   useEffect(() => {
     if (showResult) return;
 
-    const existingAnswer = answers[current];
     setTimer(QUESTION_SECONDS);
-    setSelected(
-      existingAnswer !== null && existingAnswer >= 0 ? existingAnswer : null
-    );
-    setFeedback(
-      existingAnswer !== null && existingAnswer >= 0
-        ? existingAnswer === question.correct_option
-        : null
-    );
+    setSelected(null);
 
-    if (question.stimulus && existingAnswer === null) {
+    if (question.stimulus && answers[current] === null) {
       setShowStimulus(true);
       setStimulusLeft(question.stimulusSeconds || 5);
     } else {
@@ -184,7 +185,6 @@ export default function Step9({ onNext, onPrevious, onComplete }: Step9Props) {
   }, [
     answers,
     current,
-    question.correct_option,
     question.stimulus,
     question.stimulusSeconds,
     showResult,
@@ -219,22 +219,12 @@ export default function Step9({ onNext, onPrevious, onComplete }: Step9Props) {
   }, [showStimulus, stimulusLeft]);
 
   const handleContinue = async () => {
+    if (resultsMode) {
+      onBackToReport?.();
+      return;
+    }
     await onComplete?.();
     onNext?.();
-  };
-
-  const handleRestart = async () => {
-    setCurrent(0);
-    setSelected(null);
-    setFeedback(null);
-    setScore(0);
-    setTimer(QUESTION_SECONDS);
-    setShowResult(false);
-    setAnswers(Array(QUESTIONS.length).fill(null));
-
-    await Promise.all(
-      QUESTIONS.map((item) => setAnswer(item.id, null, false, STEP_NUMBER))
-    );
   };
 
   if (isLoadingAnswers) {
@@ -313,10 +303,7 @@ export default function Step9({ onNext, onPrevious, onComplete }: Step9Props) {
         </Card>
 
         <div className="flex flex-wrap justify-center gap-3">
-          <Button variant="outline" onClick={handleRestart}>
-            התחלה מחדש
-          </Button>
-          <Button onClick={handleContinue}>המשך לשלב הבא</Button>
+          <Button onClick={handleContinue}>חזרה לדו״ח הראשי</Button>
         </div>
       </div>
     );
@@ -382,10 +369,8 @@ export default function Step9({ onNext, onPrevious, onComplete }: Step9Props) {
                   onClick={() => handleSelect(index)}
                   className={`h-auto justify-center whitespace-normal p-4 text-base disabled:opacity-100 ${
                     selected !== null
-                      ? index === question.correct_option
-                        ? "border-green-700 bg-green-100 text-green-950"
-                        : index === selected
-                        ? "border-red-700 bg-red-100 text-red-950"
+                      ? index === selected
+                        ? "border-primary bg-primary/10 text-primary"
                         : "bg-gray-100 text-gray-900"
                       : ""
                   }`}
@@ -395,15 +380,6 @@ export default function Step9({ onNext, onPrevious, onComplete }: Step9Props) {
               ))}
             </div>
 
-            {feedback !== null ? (
-              <div
-                className={`text-center font-semibold ${
-                  feedback ? "text-green-700" : "text-red-700"
-                }`}
-              >
-                {feedback ? "נכון" : "לא נכון"}
-              </div>
-            ) : null}
           </CardContent>
         </Card>
 

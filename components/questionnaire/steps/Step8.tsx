@@ -21,9 +21,17 @@ interface Step8Props {
   onNext: () => void;
   onPrevious: () => void;
   onComplete?: () => Promise<void> | void;
+  resultsMode?: boolean;
+  onBackToReport?: () => void;
 }
 
-export default function Step8({ onNext, onPrevious, onComplete }: Step8Props) {
+export default function Step8({
+  onNext,
+  onPrevious,
+  onComplete,
+  resultsMode = false,
+  onBackToReport,
+}: Step8Props) {
   const QUESTIONS: Question[] = STEP8_QUESTIONS;
 
   const { setAnswer } = useQuestionnaireStore();
@@ -33,7 +41,6 @@ export default function Step8({ onNext, onPrevious, onComplete }: Step8Props) {
   const [isLoadingAnswers, setIsLoadingAnswers] = useState(true);
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
-  const [feedback, setFeedback] = useState<null | boolean>(null);
   const [score, setScore] = useState(0);
   const [timer, setTimer] = useState(40);
   const [showResult, setShowResult] = useState(false);
@@ -48,7 +55,6 @@ export default function Step8({ onNext, onPrevious, onComplete }: Step8Props) {
   const handleRestart = () => {
     setCurrent(0);
     setSelected(null);
-    setFeedback(null);
     setScore(0);
     setTimer(40);
     setShowResult(false);
@@ -93,7 +99,7 @@ export default function Step8({ onNext, onPrevious, onComplete }: Step8Props) {
         const answeredCount = newAnswers.filter(
           (answer) => answer !== null
         ).length;
-        if (answeredCount === QUESTIONS.length) {
+        if (answeredCount === QUESTIONS.length && resultsMode) {
           setShowResult(true);
           setAnimationKey((prev) => prev + 1);
         }
@@ -110,7 +116,7 @@ export default function Step8({ onNext, onPrevious, onComplete }: Step8Props) {
   useEffect(() => {
     if (showResult) return;
     if (timer === 0) {
-      handleNext(true);
+      void handleNext(true);
       return;
     }
     const interval = setInterval(() => {
@@ -121,18 +127,14 @@ export default function Step8({ onNext, onPrevious, onComplete }: Step8Props) {
 
   useEffect(() => {
     setTimer(40);
-    const currentAnswer = answers[current];
-    if (currentAnswer !== null) {
-      setSelected(currentAnswer);
-      const isCorrect = QUESTIONS[current].correct_option === currentAnswer;
-      setFeedback(isCorrect);
-    } else {
-      setSelected(null);
-      setFeedback(null);
-    }
-  }, [current, answers, QUESTIONS]);
+    setSelected(null);
+  }, [current]);
 
   const handleContinue = async () => {
+    if (resultsMode) {
+      onBackToReport?.();
+      return;
+    }
     // Mark step completed before advancing
     if (onComplete) await onComplete();
     onNext();
@@ -145,7 +147,6 @@ export default function Step8({ onNext, onPrevious, onComplete }: Step8Props) {
     const isCorrect = idx === question.correct_option;
 
     setSelected(idx);
-    setFeedback(isCorrect);
     if (isCorrect) setScore((s) => s + 1);
 
     try {
@@ -157,12 +158,10 @@ export default function Step8({ onNext, onPrevious, onComplete }: Step8Props) {
       console.error("Failed to save answer for question:", question.id, error);
     }
 
-    setTimeout(() => {
-      handleNext(false);
-    }, 1000);
+    await handleNext(false);
   };
 
-  const handleNext = (skipped: boolean) => {
+  const handleNext = async (skipped: boolean) => {
     if (skipped) {
       const newAnswers = [...answers];
       newAnswers[current] = -1; // Using -1 to denote skipped
@@ -172,11 +171,15 @@ export default function Step8({ onNext, onPrevious, onComplete }: Step8Props) {
     if (current < QUESTIONS.length - 1) {
       setCurrent(current + 1);
       setSelected(null);
-      setFeedback(null);
       setAnimationKey((prev) => prev + 1);
     } else {
-      setShowResult(true);
-      setAnimationKey((prev) => prev + 1);
+      if (resultsMode) {
+        setShowResult(true);
+        setAnimationKey((prev) => prev + 1);
+      } else {
+        if (onComplete) await onComplete();
+        onNext();
+      }
     }
   };
 
@@ -271,14 +274,7 @@ export default function Step8({ onNext, onPrevious, onComplete }: Step8Props) {
             </table>
           </div>
           <div className="flex justify-center gap-4 mt-8">
-            <Button
-              variant="outline"
-              onClick={handleRestart}
-              className="text-xs"
-            >
-              🔄 Restart Quiz (Dev)
-            </Button>
-            <Button onClick={handleContinue}>המשך לשלב הבא</Button>
+            <Button onClick={handleContinue}>חזרה לדו״ח הראשי</Button>
           </div>
         </motion.div>
       ) : (
@@ -342,15 +338,7 @@ export default function Step8({ onNext, onPrevious, onComplete }: Step8Props) {
                     transition={{ delay: 0.6 + idx * 0.1 }}
                   >
                     <Button
-                      className={`w-full justify-center p-4 h-auto text-base whitespace-normal disabled:opacity-100 ${
-                        selected !== null
-                          ? idx === q.correct_option
-                            ? "bg-green-100 hover:bg-green-100 border-green-700 text-green-950 font-semibold"
-                            : idx === selected && !feedback
-                            ? "bg-red-100 hover:bg-red-100 border-red-700 text-red-950 font-semibold"
-                            : "bg-gray-100 hover:bg-gray-100 border-gray-400 text-gray-950"
-                          : "text-foreground hover:bg-white/10"
-                      }`}
+                      className="w-full justify-center p-4 h-auto text-base whitespace-normal text-foreground hover:bg-white/10 disabled:opacity-100"
                       variant="outline"
                       disabled={selected !== null}
                       onClick={() => handleSelect(idx)}
@@ -360,18 +348,6 @@ export default function Step8({ onNext, onPrevious, onComplete }: Step8Props) {
                   </motion.div>
                 ))}
               </div>
-              {selected !== null && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  className={`mt-4 text-center font-semibold ${
-                    feedback ? "text-green-300" : "text-red-300"
-                  }`}
-                >
-                  {feedback ? "נכון!" : "לא נכון"}
-                </motion.div>
-              )}
             </Card>
           </motion.div>
           {/* Navigation Buttons - Consistent across all steps */}

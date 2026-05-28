@@ -13,16 +13,23 @@ interface Step5Props {
   onNext?: () => void;
   onPrevious: () => void;
   onComplete: () => Promise<void>;
+  resultsMode?: boolean;
+  onBackToReport?: () => void;
 }
 
-export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
+export default function Step5({
+  onNext,
+  onPrevious,
+  onComplete,
+  resultsMode = false,
+  onBackToReport,
+}: Step5Props) {
   const QUESTIONS: LogicalQuestion[] = STEP5_QUESTIONS;
 
   const { setAnswer } = useQuestionnaireStore();
   const [isLoadingAnswers, setIsLoadingAnswers] = useState(true);
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
-  const [feedback, setFeedback] = useState<null | boolean>(null);
   const [score, setScore] = useState(0);
   const [timer, setTimer] = useState(90);
   const [showResult, setShowResult] = useState(false);
@@ -37,7 +44,6 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
   const handleRestart = () => {
     setCurrent(0);
     setSelected(null);
-    setFeedback(null);
     setScore(0);
     setTimer(90);
     setShowResult(false);
@@ -73,7 +79,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
         }, 0);
         setScore(newScore);
         const answeredCount = newAnswers.filter((a) => a !== null).length;
-        if (answeredCount === QUESTIONS.length) {
+        if (answeredCount === QUESTIONS.length && resultsMode) {
           setShowResult(true);
           setAnimationKey((prev) => prev + 1);
         }
@@ -89,7 +95,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
   useEffect(() => {
     if (showResult) return;
     if (timer === 0) {
-      handleNext(true);
+      void handleNext(true);
       return;
     }
     const interval = setInterval(
@@ -102,10 +108,13 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
   useEffect(() => {
     setTimer(90);
     setSelected(null);
-    setFeedback(null);
   }, [current]);
 
   const handleContinue = async () => {
+    if (resultsMode) {
+      onBackToReport?.();
+      return;
+    }
     try {
       await onComplete();
       if (onNext) onNext();
@@ -114,20 +123,19 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
     }
   };
 
-  const handleSelect = (idx: number) => {
+  const handleSelect = async (idx: number) => {
     if (selected !== null) return;
     const isCorrect = idx === QUESTIONS[current].correct_option;
     setSelected(idx);
-    setFeedback(isCorrect);
     if (isCorrect) setScore((s) => s + 1);
-    setAnswer(QUESTIONS[current].id, idx, isCorrect, 7);
+    await setAnswer(QUESTIONS[current].id, idx, isCorrect, 7);
     const newAnswers = [...answers];
     newAnswers[current] = idx;
     setAnswers(newAnswers);
-    setTimeout(() => handleNext(false), 1200);
+    void handleNext(false);
   };
 
-  const handleNext = (skipped: boolean) => {
+  const handleNext = async (skipped: boolean) => {
     if (skipped) {
       const newAnswers = [...answers];
       newAnswers[current] = null;
@@ -139,8 +147,13 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
       setCurrent((c) => c + 1);
       setAnimationKey((prev) => prev + 1);
     } else {
-      setShowResult(true);
-      setAnimationKey((prev) => prev + 1);
+      if (resultsMode) {
+        setShowResult(true);
+        setAnimationKey((prev) => prev + 1);
+      } else {
+        await onComplete();
+        onNext?.();
+      }
     }
   };
 
@@ -229,14 +242,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
             </table>
           </div>
           <div className="flex justify-center gap-4 mt-8">
-            <Button
-              variant="outline"
-              onClick={handleRestart}
-              className="text-xs"
-            >
-              🔄 Restart Quiz (Dev)
-            </Button>
-            <Button onClick={handleContinue}>המשך לשלב הבא</Button>
+            <Button onClick={handleContinue}>חזרה לדו״ח הראשי</Button>
           </div>
         </motion.div>
       ) : (
@@ -318,15 +324,7 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
                     transition={{ delay: 0.6 + idx * 0.1 }}
                   >
                     <Button
-                      className={`w-full justify-center p-4 h-auto text-base whitespace-normal ${
-                        selected !== null
-                          ? idx === q.correct_option
-                            ? "bg-transparent hover:bg-white/10 border-green-300 text-green-300 font-semibold"
-                            : idx === selected && !feedback
-                            ? "bg-transparent hover:bg-white/10 border-orange-300 text-orange-300 font-semibold"
-                            : "bg-gray-50 text-gray-800"
-                          : "hover:bg-gray-100"
-                      }`}
+                      className="w-full justify-center p-4 h-auto text-base whitespace-normal hover:bg-gray-100"
                       variant="outline"
                       disabled={selected !== null}
                       onClick={() => handleSelect(idx)}
@@ -336,18 +334,6 @@ export default function Step5({ onNext, onPrevious, onComplete }: Step5Props) {
                   </motion.div>
                 ))}
               </div>
-              {selected !== null && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  className={`mt-4 text-center font-semibold ${
-                    feedback ? "text-green-300" : "text-red-300"
-                  }`}
-                >
-                  {feedback ? "נכון!" : "לא נכון"}
-                </motion.div>
-              )}
             </Card>
           </motion.div>
           {/* Navigation Buttons - Consistent across all steps */}

@@ -11,8 +11,70 @@ import {
 import type {
   DiagnosticApiError,
   DiagnosticApiResponse,
+  DiagnosticProvider,
   DiagnosticReport,
 } from "@/lib/diagnostic/types";
+
+interface DiagnosticReportRow {
+  id: string;
+  report_json: DiagnosticReport | null;
+  provider: DiagnosticProvider;
+  model: string;
+  input_hash: string;
+}
+
+export async function GET(
+  request: NextRequest
+): Promise<NextResponse<DiagnosticApiResponse | DiagnosticApiError>> {
+  const supabase = createAuthenticatedClient(request);
+
+  try {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    const { data: saved, error: savedError } = await supabase
+      .from("diagnostic_reports")
+      .select("id, report_json, provider, model, input_hash")
+      .eq("user_id", user.id)
+      .eq("status", "completed")
+      .not("report_json", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (savedError) {
+      throw new Error(
+        `Could not load saved diagnostic report: ${savedError.message}`
+      );
+    }
+
+    if (!saved?.report_json) {
+      return NextResponse.json(
+        { error: "No saved diagnostic report was found." },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(toResponse(saved as DiagnosticReportRow, true));
+  } catch (error) {
+    console.error("Diagnostic API error:", error);
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Could not load saved diagnostic report.",
+      },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(
   request: NextRequest
@@ -38,7 +100,6 @@ export async function POST(
       .eq("user_id", user.id)
       .eq("submission_id", input.submissionId)
       .eq("input_hash", inputHash)
-      .eq("status", "completed")
       .maybeSingle();
 
     if (cachedError) {
@@ -48,21 +109,14 @@ export async function POST(
     }
 
     if (cached?.report_json) {
-      return NextResponse.json({
-        report: cached.report_json as DiagnosticReport,
-        reportId: cached.id,
-        inputHash: cached.input_hash,
-        provider: cached.provider,
-        model: cached.model,
-        cached: true,
-      });
+      return NextResponse.json(toResponse(cached as DiagnosticReportRow, true));
     }
 
     const generation = await generateDiagnosticReport(input);
 
     const { data: inserted, error: insertError } = await supabase
       .from("diagnostic_reports")
-      .insert({
+      .upsert({
         user_id: user.id,
         submission_id: input.submissionId,
         guidance_report_id: input.guidanceReportId,
@@ -72,8 +126,10 @@ export async function POST(
         model: generation.model,
         input_snapshot: input,
         report_json: generation.report,
+      }, {
+        onConflict: "user_id,submission_id,input_hash",
       })
-      .select("id")
+      .select("id, report_json, provider, model, input_hash")
       .single();
 
     if (insertError) {
@@ -82,14 +138,7 @@ export async function POST(
       );
     }
 
-    return NextResponse.json({
-      report: generation.report,
-      reportId: inserted.id,
-      inputHash,
-      provider: generation.provider,
-      model: generation.model,
-      cached: false,
-    });
+    return NextResponse.json(toResponse(inserted as DiagnosticReportRow, false));
   } catch (error) {
     console.error("Diagnostic API error:", error);
     return NextResponse.json(
@@ -102,6 +151,20 @@ export async function POST(
       { status: 500 }
     );
   }
+}
+
+function toResponse(
+  row: DiagnosticReportRow,
+  cached: boolean
+): DiagnosticApiResponse {
+  return {
+    report: row.report_json as DiagnosticReport,
+    reportId: row.id,
+    inputHash: row.input_hash,
+    provider: row.provider,
+    model: row.model,
+    cached,
+  };
 }
 
 function createAuthenticatedClient(request: NextRequest) {

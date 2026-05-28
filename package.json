@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "npm run kill:dev-port && next dev -p 3000",
+    "kill:dev-port": "lsof -ti tcp:3000 | xargs kill -9 2>/dev/null || true",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

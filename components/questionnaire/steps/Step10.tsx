@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { BarChart3, CheckCircle2, RotateCcw } from "lucide-react";
+import { BarChart3, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,6 +17,8 @@ interface Step10Props {
   onNext?: () => void;
   onPrevious: () => void;
   onComplete: () => Promise<void> | void;
+  resultsMode?: boolean;
+  onBackToReport?: () => void;
 }
 
 interface DimensionCopy {
@@ -88,7 +90,13 @@ function getBand(score: number) {
   return "דורש תמיכה";
 }
 
-export default function Step10({ onNext, onPrevious, onComplete }: Step10Props) {
+export default function Step10({
+  onNext,
+  onPrevious,
+  onComplete,
+  resultsMode = false,
+  onBackToReport,
+}: Step10Props) {
   const { setAnswer } = useQuestionnaireStore();
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [isLoadingAnswers, setIsLoadingAnswers] = useState(true);
@@ -171,7 +179,9 @@ export default function Step10({ onNext, onPrevious, onComplete }: Step10Props) 
         );
 
         setAnswers(nextAnswers);
-        setShowResult(Object.keys(nextAnswers).length === QUESTIONS.length);
+        setShowResult(
+          resultsMode && Object.keys(nextAnswers).length === QUESTIONS.length
+        );
       } catch (error) {
         console.error("Error loading personality answers:", error);
       } finally {
@@ -187,25 +197,20 @@ export default function Step10({ onNext, onPrevious, onComplete }: Step10Props) 
     await setAnswer(questionId, value, undefined, STEP_NUMBER);
   };
 
-  const handleShowResult = () => {
-    if (isComplete) setShowResult(true);
-  };
-
-  const handleEdit = () => {
-    setShowResult(false);
-  };
-
-  const handleRestart = async () => {
-    setAnswers({});
-    setShowResult(false);
-    await Promise.all(
-      QUESTIONS.map((question) =>
-        setAnswer(question.id, null, undefined, STEP_NUMBER)
-      )
-    );
+  const handleShowResult = async () => {
+    if (!isComplete) return;
+    if (resultsMode) {
+      setShowResult(true);
+      return;
+    }
+    await handleContinue();
   };
 
   const handleContinue = async () => {
+    if (resultsMode) {
+      onBackToReport?.();
+      return;
+    }
     if (!isComplete) return;
     await onComplete?.();
     onNext?.();
@@ -276,16 +281,8 @@ export default function Step10({ onNext, onPrevious, onComplete }: Step10Props) 
         </div>
 
         <div className="flex flex-wrap justify-center gap-3">
-          <Button variant="outline" onClick={handleEdit}>
-            עריכת תשובות
-          </Button>
-          <Button variant="outline" onClick={handleRestart}>
-            <RotateCcw className="h-4 w-4" />
-            התחלה מחדש
-          </Button>
           <Button onClick={handleContinue}>
-            <CheckCircle2 className="h-4 w-4" />
-            המשך לשלב הבא
+            חזרה לדו״ח הראשי
           </Button>
         </div>
       </div>
@@ -375,7 +372,7 @@ export default function Step10({ onNext, onPrevious, onComplete }: Step10Props) 
             {isComplete ? "כל ההיגדים מולאו" : "יש להשלים את כל ההיגדים"}
           </span>
           <Button onClick={handleShowResult} disabled={!isComplete}>
-            הצג סיכום
+            {resultsMode ? "הצג סיכום" : "המשך לשלב הבא"}
           </Button>
         </div>
       </div>
