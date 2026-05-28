@@ -31,7 +31,6 @@ export default function Step1({ onNext, onComplete }: Step1Props) {
   const [isLoadingAnswers, setIsLoadingAnswers] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [animationKey, setAnimationKey] = useState(0);
 
   // Fetch answers directly from Supabase on component mount
   useEffect(() => {
@@ -121,7 +120,6 @@ export default function Step1({ onNext, onComplete }: Step1Props) {
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        key={animationKey}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -179,16 +177,7 @@ export default function Step1({ onNext, onComplete }: Step1Props) {
 
           {/* Navigation Buttons - Consistent across all steps */}
           <div className="max-w-4xl mx-auto mt-8">
-            <div className="flex justify-between items-center mx-4">
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => window.location.reload()}
-                  className="text-xs"
-                >
-                  🔄 Restart Quiz (Dev)
-                </Button>
-              </div>
+            <div className="flex justify-end items-center mx-4">
               <Button
                 onClick={handleContinue}
                 disabled={!canContinue}

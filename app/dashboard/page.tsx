@@ -10,7 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import QuestionnaireProgress from "@/components/ui/QuestionnaireProgress";
-import { Check, House, Play, Lock } from "lucide-react";
+import { Check, Play, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, MotionConfig } from "framer-motion";
 import {
@@ -40,9 +40,7 @@ const noRotate = (_props: any, transform: string) =>
 export default function QuestionnaireDashboard() {
   const {
     steps,
-    setStepCompletion,
     resetSteps,
-    resetProgress,
     initializeSteps,
     ensureUser,
   } = useStepStore();
@@ -235,11 +233,6 @@ export default function QuestionnaireDashboard() {
       setCurrentStep(stepId);
       router.push("/questionnaire");
     }
-  };
-
-  const toggleStepCompletion = (stepId: number) => {
-    const step = steps.find((s: any) => s.id === stepId);
-    if (step) setStepCompletion(stepId, !step.isCompleted);
   };
 
   const HIDDEN_STEP_IDS = new Set<number>();
@@ -461,18 +454,6 @@ export default function QuestionnaireDashboard() {
                               >
                                 {step.isCompleted ? "תוצאות" : "התחל"}
                               </Button>
-
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                className="dashboard-glass-button dashboard-glass-button--subtle"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleStepCompletion(details.id);
-                                }}
-                              >
-                                {step.isCompleted ? "בטל השלמה" : "סמן כהושלם"}
-                              </Button>
                             </div>
                           )}
                         </motion.div>
@@ -487,43 +468,19 @@ export default function QuestionnaireDashboard() {
 
         {/* Footer Actions */}
         <motion.div
-          className="dashboard-glass-toolbar my-8 flex flex-wrap justify-between items-center gap-3 px-3 py-3 sm:px-4"
+          className="dashboard-glass-toolbar my-8 flex flex-wrap justify-center items-center gap-3 px-3 py-3 sm:px-4"
           initial={{ opacity: 0, y: 20, rotate: 0 }}
           animate={{ opacity: 1, y: 0, rotate: 0 }}
           transition={{ duration: 0.6, delay: 1.0 }}
         >
           <Button
-            variant="outline"
-            className="dashboard-glass-button gap-2 bg-transparent"
-            onClick={() => router.push("/")}
+            disabled={visibleCompletedSteps !== visibleTotalSteps}
+            className="dashboard-glass-button dashboard-glass-button--primary gap-2"
+            onClick={() => router.push("/questionnaire/diagnostic")}
           >
-            חזור לדף הבית
-            <House className="h-4 w-4" />
+            סיים ושלח שאלון
+            <Check className="h-4 w-4" />
           </Button>
-
-          <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              className="dashboard-glass-button gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
-              onClick={() => {
-                if (
-                  window.confirm("האם אתה בטוח שברצונך לאפס את כל ההתקדמות?")
-                ) {
-                  resetProgress();
-                }
-              }}
-            >
-              אפס התקדמות
-            </Button>
-            <Button
-              disabled={visibleCompletedSteps !== visibleTotalSteps}
-              className="dashboard-glass-button dashboard-glass-button--primary gap-2"
-              onClick={() => router.push("/questionnaire/diagnostic")}
-            >
-              סיים ושלח שאלון
-              <Check className="h-4 w-4" />
-            </Button>
-          </div>
         </motion.div>
       </div>
     </div>

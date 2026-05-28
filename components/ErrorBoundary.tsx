@@ -52,10 +52,10 @@ export default class ErrorBoundary extends Component<Props, State> {
                   רענן דף
                 </Button>
                 <Button
-                  onClick={() => window.history.back()}
+                  onClick={() => window.location.assign("/dashboard")}
                   variant="outline"
                 >
-                  חזור לדף הקודם
+                  ללוח הבקרה
                 </Button>
               </div>
             </div>

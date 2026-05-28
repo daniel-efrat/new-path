@@ -86,16 +86,10 @@ export default function OccupationDetailPage() {
 
           {!loading && !error && (
             <div>
-              <div className="flex justify-between items-center mb-3">
+              <div className="flex justify-end items-center mb-3">
                 <div className="text-sm text-foreground">
                   בחר/י עד 2 משפטים (נבחרו {selected.size}/2)
                 </div>
-                <Button
-                  variant="outline"
-                  onClick={() => setSelected(new Set())}
-                >
-                  אפס בחירה
-                </Button>
               </div>
               <ul className="divide-y text-background">
                 {rows.map((r) => {
@@ -127,10 +121,7 @@ export default function OccupationDetailPage() {
                 })}
               </ul>
 
-              <div className="flex justify-between mt-6">
-                <Button variant="outline" onClick={() => router.back()}>
-                  חזור
-                </Button>
+              <div className="flex justify-end mt-6">
                 <Button onClick={handleDone} disabled={selected.size !== 2}>
                   המשך
                 </Button>

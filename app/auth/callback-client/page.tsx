@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import supabase from '@/lib/supabase';
 
@@ -18,22 +18,41 @@ const getCallbackParam = (
   key: string
 ) => url.searchParams.get(key) ?? hashParams.get(key);
 
+const getSafeAuthErrorMessage = (
+  error: string,
+  description?: string | null
+) => {
+  if (
+    error === 'server_error' &&
+    description?.includes('Unable to exchange external code')
+  ) {
+    return 'לא ניתן היה להשלים את ההתחברות מול Google. נסו להתחבר שוב.';
+  }
+
+  return description || 'OAuth callback failed';
+};
+
 export default function AuthCallbackClientPage() {
   const router = useRouter();
   const [message, setMessage] = useState<string>('Completing sign-in...');
+  const hasHandledCallback = useRef(false);
 
   useEffect(() => {
     const redirectToSignin = (error: string, description?: string | null) => {
       const params = new URLSearchParams({ error });
+      const safeDescription = getSafeAuthErrorMessage(error, description);
 
-      if (description) {
-        params.set('message', description);
+      if (safeDescription) {
+        params.set('message', safeDescription);
       }
 
       router.replace(`/signin?${params.toString()}`);
     };
 
     const run = async () => {
+      if (hasHandledCallback.current) return;
+      hasHandledCallback.current = true;
+
       try {
         const url = new URL(window.location.href);
         const hashParams = new URLSearchParams(
@@ -62,13 +81,15 @@ export default function AuthCallbackClientPage() {
         });
 
         if (callbackError || callbackErrorDescription) {
-          const description =
-            callbackErrorDescription || callbackError || 'OAuth callback failed';
+          const description = getSafeAuthErrorMessage(
+            callbackError || 'oauth_callback_error',
+            callbackErrorDescription || callbackError
+          );
 
           console.error('OAuth callback returned an error:', {
             error: callbackError,
             errorCode: callbackErrorCode,
-            description,
+            description: callbackErrorDescription || callbackError,
           });
           setMessage(description);
           redirectToSignin(callbackError || 'oauth_callback_error', description);

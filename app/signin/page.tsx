@@ -15,6 +15,17 @@ import { useRouter } from "next/navigation";
 import supabase from "@/lib/supabase";
 import { useState, useEffect } from "react";
 
+const getSafeSigninErrorMessage = (error: string, message: string | null) => {
+  if (
+    error === "server_error" &&
+    message?.includes("Unable to exchange external code")
+  ) {
+    return "לא ניתן היה להשלים את ההתחברות מול Google. נסו להתחבר שוב. אם זה חוזר, יש לבדוק את הגדרות Google OAuth ב-Supabase.";
+  }
+
+  return message || "לא ניתן היה להשלים את ההתחברות.";
+};
+
 export default function LoginPage() {
   const router = useRouter();
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -30,7 +41,12 @@ export default function LoginPage() {
         const callbackError = searchParams.get("error");
 
         if (callbackError) {
-          setAuthError(message || "לא ניתן היה להשלים את ההתחברות.");
+          setAuthError(getSafeSigninErrorMessage(callbackError, message));
+          const from = searchParams.get("from");
+          const cleanPath = from
+            ? `/signin?from=${encodeURIComponent(from)}`
+            : "/signin";
+          window.history.replaceState(null, "", cleanPath);
         }
 
         const {
@@ -56,6 +72,7 @@ export default function LoginPage() {
   const handleGoogleLogin = async (e: React.MouseEvent) => {
     e.preventDefault();
     setIsGoogleLoading(true);
+    setAuthError(null);
 
     try {
       const searchParams = new URLSearchParams(window.location.search);

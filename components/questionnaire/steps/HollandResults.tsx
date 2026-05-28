@@ -9,14 +9,12 @@ import { RIASEC_MAP } from "@/lib/constants/questions";
 
 interface HollandResultsProps {
   onNext?: () => void;
-  onPrevious: () => void;
   resultsMode?: boolean;
   onBackToReport?: () => void;
 }
 
 export default function HollandResults({
   onNext,
-  onPrevious,
   resultsMode = false,
   onBackToReport,
 }: HollandResultsProps) {
@@ -45,9 +43,6 @@ export default function HollandResults({
             <p className="text-center text-gray-600">
               No Holland results available. Please complete Step 11 first.
             </p>
-            <div className="flex justify-center mt-4">
-              <Button onClick={onPrevious}>חזור לשלב 11</Button>
-            </div>
           </CardContent>
         </Card>
       </motion.div>
@@ -158,16 +153,11 @@ export default function HollandResults({
               );
             })}
           </div>
-          <div className="flex justify-between mt-6">
+          <div className="flex justify-end mt-6">
             {resultsMode ? (
               <Button onClick={onBackToReport}>חזרה לדו״ח הראשי</Button>
             ) : (
-              <>
-                <Button variant="outline" onClick={onPrevious}>
-                  שלב קודם
-                </Button>
-                <Button onClick={onNext}>המשך</Button>
-              </>
+              <Button onClick={onNext}>המשך</Button>
             )}
           </div>
         </CardContent>

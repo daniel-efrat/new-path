@@ -11,7 +11,6 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface Step7Props {
   onNext?: () => void;
-  onPrevious: () => void;
   onComplete: () => Promise<void>;
   resultsMode?: boolean;
   onBackToReport?: () => void;
@@ -19,7 +18,6 @@ interface Step7Props {
 
 export default function Step7({
   onNext,
-  onPrevious,
   onComplete,
   resultsMode = false,
   onBackToReport,
@@ -58,24 +56,6 @@ export default function Step7({
     }
     // 9-14
     return "התבוננו בריבועים בלוח, מצאו את החוקיות של הצורות והעיגולים, ובחרו מבין האפשרויות את הריבוע שמשלים את הדפוס במיקום הריק.";
-  };
-
-  // Development restart function
-  const handleRestart = () => {
-    setCurrentQuestion(0);
-    setSelectedShape(null);
-    setScore(0);
-    setTimer(45);
-    setShowResults(false);
-    setAnswers(Array(STEP7_QUESTIONS.length).fill(null));
-    // Clear stored answers from the store as well
-    STEP7_QUESTIONS.forEach((q) => {
-      try {
-        setAnswer(q.id, null, false, 9);
-      } catch (error) {
-        console.warn("Failed to clear answer for question:", q.id);
-      }
-    });
   };
 
   // Load answers on component mount
@@ -191,13 +171,6 @@ export default function Step7({
         await onComplete();
         if (onNext) onNext();
       }
-    }
-  };
-
-  const handlePreviousQuestion = () => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion((prev) => prev - 1);
-      setSelectedShape(null);
     }
   };
 
@@ -387,23 +360,13 @@ export default function Step7({
                 <span className="text-sm text-muted-foreground ">
                   {currentQ.level}
                 </span>
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`font-mono text-lg ${
-                      timer <= 15 ? "text-orange-300" : "text-muted-foreground"
-                    }`}
-                  >
-                    {timer} שניות
-                  </span>
-                  {/* <Button
-                    onClick={handleRestart}
-                    variant="outline"
-                    size="sm"
-                    className="text-xs"
-                  >
-                    התחל מחדש (dev)
-                  </Button> */}
-                </div>
+                <span
+                  className={`font-mono text-lg ${
+                    timer <= 15 ? "text-orange-300" : "text-muted-foreground"
+                  }`}
+                >
+                  {timer} שניות
+                </span>
               </div>
               <div className="flex justify-center">
                 <motion.div
@@ -482,22 +445,7 @@ export default function Step7({
           </Card>
 
           {/* Navigation Buttons - Consistent across all steps */}
-          <div className="max-w-4xl mx-auto mt-8">
-            <div className="flex justify-between items-center mx-4">
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={onPrevious}>
-                  שלב קודם
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={handleRestart}
-                  className="text-xs"
-                >
-                  🔄 Restart Quiz (Dev)
-                </Button>
-              </div>
-            </div>
-          </div>
+          <div className="max-w-4xl mx-auto mt-8" aria-hidden="true" />
         </motion.div>
       </AnimatePresence>
     </div>

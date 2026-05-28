@@ -84,13 +84,6 @@ export default function Step12FlowPage() {
     });
   };
 
-  const persistCurrent = () => {
-    setSelectionsFor(
-      currentSerial,
-      Array.from(selectedTwo).sort((a, b) => a - b)
-    );
-  };
-
   const onNext = async () => {
     const currentPicks = Array.from(selectedTwo).sort((a, b) => a - b);
     setSelectionsFor(currentSerial, currentPicks);
@@ -133,12 +126,6 @@ export default function Step12FlowPage() {
       console.error("Failed to save designation choices", e);
       alert(e?.message || "שמירת הבחירות נכשלה");
     }
-  };
-
-  const onPrev = () => {
-    persistCurrent();
-    if (index > 0) setIndex((i) => i - 1);
-    else router.back();
   };
 
   if (!storeReady) {
@@ -193,10 +180,7 @@ export default function Step12FlowPage() {
             </ul>
           )}
 
-          <div className="flex justify-between mt-6">
-            <Button variant="outline" onClick={onPrev}>
-              הקודם
-            </Button>
+          <div className="flex justify-end mt-6">
             <Button onClick={onNext} disabled={selectedTwo.size !== 2}>
               {index < serials.length - 1 ? "הבא" : "סיום"}
             </Button>

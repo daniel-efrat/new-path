@@ -11,7 +11,6 @@ import { fetchStepAnswers } from "@/lib/utils/answerFetcher";
 
 interface Step9Props {
   onNext?: () => void;
-  onPrevious: () => void;
   onComplete: () => Promise<void> | void;
   resultsMode?: boolean;
   onBackToReport?: () => void;
@@ -23,7 +22,6 @@ const QUESTION_SECONDS = 25;
 
 export default function Step9({
   onNext,
-  onPrevious,
   onComplete,
   resultsMode = false,
   onBackToReport,
@@ -401,10 +399,7 @@ export default function Step9({
           </CardContent>
         </Card>
 
-        <div className="flex items-center justify-between">
-          <Button variant="outline" onClick={onPrevious}>
-            שלב קודם
-          </Button>
+        <div className="flex items-center justify-end">
           <div className="flex items-center gap-3">
             <span className="text-sm text-white/70">
               נענו {answeredCount}/{QUESTIONS.length}

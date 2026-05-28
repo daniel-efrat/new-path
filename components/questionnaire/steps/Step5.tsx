@@ -11,7 +11,6 @@ import type { LogicalQuestion } from "@/lib/constants/questions";
 
 interface Step5Props {
   onNext?: () => void;
-  onPrevious: () => void;
   onComplete: () => Promise<void>;
   resultsMode?: boolean;
   onBackToReport?: () => void;
@@ -19,7 +18,6 @@ interface Step5Props {
 
 export default function Step5({
   onNext,
-  onPrevious,
   onComplete,
   resultsMode = false,
   onBackToReport,
@@ -40,18 +38,6 @@ export default function Step5({
   const [fireworksConductor, setFireworksConductor] = useState<any>(null);
 
   const passed = score / QUESTIONS.length >= 0.7;
-
-  const handleRestart = () => {
-    setCurrent(0);
-    setSelected(null);
-    setScore(0);
-    setTimer(90);
-    setShowResult(false);
-    setAnswers(Array(QUESTIONS.length).fill(null));
-    QUESTIONS.forEach((q) => {
-      setAnswer(q.id, null, false, 7);
-    });
-  };
 
   useEffect(() => {
     const loadStepAnswers = async () => {
@@ -337,27 +323,7 @@ export default function Step5({
             </Card>
           </motion.div>
           {/* Navigation Buttons - Consistent across all steps */}
-          <div className="max-w-xl mx-auto mt-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              className="flex justify-between items-center mx-4"
-            >
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={onPrevious}>
-                  שלב קודם
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={handleRestart}
-                  className="text-xs"
-                >
-                  🔄 Restart Quiz (Dev)
-                </Button>
-              </div>
-            </motion.div>
-          </div>
+          <div className="max-w-xl mx-auto mt-4" aria-hidden="true" />
         </motion.div>
       )}
     </AnimatePresence>

@@ -109,8 +109,7 @@ export default function RankOccupationsPage() {
             ))}
           </ol>
 
-          <div className="flex justify-between items-center mt-6">
-            <Button variant="outline" onClick={() => router.back()}>חזור</Button>
+          <div className="flex justify-end items-center mt-6">
             <Button onClick={saveAndContinue} disabled={list.length !== 5}>שמור והמשך</Button>
           </div>
         </CardContent>

@@ -10,13 +10,11 @@ import { STEP11_QUESTIONS } from "@/lib/constants/questions";
 
 interface Step11Props {
   onNext?: () => void;
-  onPrevious: () => void;
   onComplete: () => Promise<void> | void;
 }
 
 export default function Step11({
   onNext,
-  onPrevious,
   onComplete,
 }: Step11Props) {
   const { answers, setAnswer, submitAnswers } = useQuestionnaireStore();
@@ -55,15 +53,6 @@ export default function Step11({
       saveCurrent();
     }
   }, [value, currentQuestion, getInitial, saveCurrent]);
-
-  const handlePrevQuestion = async () => {
-    if (index === 0) {
-      onPrevious();
-      return;
-    }
-    await saveCurrent();
-    setIndex((i) => i - 1);
-  };
 
   const handleNextQuestion = async () => {
     await saveCurrent();
@@ -225,7 +214,7 @@ export default function Step11({
                       </p>
                       <hr className="my-3 border-gray-200" />
                       <p>
-                        התחרטת על התשובה? אין בעיה, אפשר לחזור אחורה ולענות שוב.
+                        בחרו את התשובה שמתאימה לכם ביותר והמשיכו לשאלה הבאה.
                       </p>
                     </div>
                     <div className="flex justify-center mt-6">
@@ -316,10 +305,7 @@ export default function Step11({
                     ))}
                   </motion.div>
                 </div>
-                <div className="flex justify-between mt-6">
-                  <Button variant="outline" onClick={handlePrevQuestion}>
-                    {index === 0 ? "שלב קודם" : "שאלה קודמת"}
-                  </Button>
+                <div className="flex justify-end mt-6">
                   <Button onClick={handleNextQuestion}>
                     {index < STEP11_QUESTIONS.length - 1
                       ? "שאלה הבאה"

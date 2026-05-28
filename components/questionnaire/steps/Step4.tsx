@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 
 interface Step4Props {
   onNext: () => void;
-  onPrevious: () => void;
   onComplete: () => Promise<void> | void;
 }
 
@@ -24,7 +23,7 @@ function initialAnchorValue(value: unknown): number {
   return Number.isNaN(parsed) ? 5 : Math.min(10, Math.max(0, parsed));
 }
 
-export default function Step4({ onNext, onPrevious, onComplete }: Step4Props) {
+export default function Step4({ onNext, onComplete }: Step4Props) {
   const { answers, setAnswer } = useQuestionnaireStore();
   const [current, setCurrent] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
@@ -52,24 +51,6 @@ export default function Step4({ onNext, onPrevious, onComplete }: Step4Props) {
       undefined,
       2
     );
-  };
-
-  const handlePrevious = async () => {
-    setIsSaving(true);
-    setError(null);
-    try {
-      await saveCurrentAnswer();
-      if (current === 0) {
-        onPrevious();
-      } else {
-        setCurrent((index) => index - 1);
-      }
-    } catch (err) {
-      console.error("Error saving Step 4 answer:", err);
-      setError("שגיאה בשמירת התשובה. נסה שנית.");
-    } finally {
-      setIsSaving(false);
-    }
   };
 
   const handleNext = async () => {
@@ -187,14 +168,7 @@ export default function Step4({ onNext, onPrevious, onComplete }: Step4Props) {
       )}
 
       <div className="max-w-xl mx-auto">
-        <div className="flex justify-between items-center mx-4">
-          <Button
-            variant="outline"
-            onClick={handlePrevious}
-            disabled={isSaving}
-          >
-            {current === 0 ? "שלב קודם" : "שאלה קודמת"}
-          </Button>
+        <div className="flex justify-end items-center mx-4">
           <Button onClick={handleNext} disabled={isSaving}>
             {isSaving
               ? "שומר..."

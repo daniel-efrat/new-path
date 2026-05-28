@@ -9,7 +9,6 @@ import { useStep12Store } from "@/lib/stores/step12Store";
 
 interface Step12Props {
   onNext?: () => void;
-  onPrevious: () => void;
   onComplete: () => Promise<void> | void;
 }
 
@@ -19,7 +18,7 @@ interface Occupation {
   occupation_description: string | null;
 }
 
-export default function Step12({ onPrevious }: Step12Props) {
+export default function Step12(_props: Step12Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -116,9 +115,6 @@ export default function Step12({ onPrevious }: Step12Props) {
               נבחרו {selected.length}/5
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={onPrevious}>
-                שלב קודם
-              </Button>
               <Button
                 onClick={() => router.push("/questionnaire/occupation/rank")}
                 disabled={selected.length !== 5}

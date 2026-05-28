@@ -70,14 +70,6 @@ export default function QuestionnairePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onPrevious = () => {
-    if (showHollandResults) {
-      setShowHollandResults(false);
-    } else if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
   const onNext = () => {
     if (currentStep === 3) {
       if (resultsMode) {
@@ -139,7 +131,6 @@ export default function QuestionnairePage() {
   return (
     <div className="container mx-auto p-4">
       <Current
-        onPrevious={onPrevious}
         onNext={showHollandResults ? continueFromHollandResults : onNext}
         onComplete={onComplete}
         resultsMode={resultsMode}

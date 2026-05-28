@@ -7,12 +7,10 @@ import { STEP3_QUESTIONS } from "@/lib/constants/questions";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Fireworks from "react-canvas-confetti";
-import { Answer } from "@/lib/types";
 import { fetchStepAnswers } from "@/lib/utils/answerFetcher";
 
 interface Step3Props {
   onNext: () => void;
-  onPrevious: () => void;
   onComplete: () => Promise<void> | void;
   resultsMode?: boolean;
   onBackToReport?: () => void;
@@ -20,7 +18,6 @@ interface Step3Props {
 
 export default function Step3({
   onNext,
-  onPrevious,
   onComplete,
   resultsMode = false,
   onBackToReport,
@@ -325,27 +322,7 @@ export default function Step3({
             </Card>
           </motion.div>
           {/* Navigation Buttons - Consistent across all steps */}
-          <div className="max-w-xl mx-auto mt-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              className="flex justify-between items-center mx-4"
-            >
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={onPrevious}>
-                  Previous Step
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => window.location.reload()}
-                  className="text-xs"
-                >
-                  🔄 Restart Quiz (Dev)
-                </Button>
-              </div>
-            </motion.div>
-          </div>
+          <div className="max-w-xl mx-auto mt-4" aria-hidden="true" />
         </motion.div>
       )}
     </AnimatePresence>

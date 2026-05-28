@@ -60,6 +60,7 @@ const ABILITY_STEP_BY_LABEL: Record<string, number> = {
 
 const PDF_EXPORT_ELEMENT_ID = "diagnostic-pdf-export";
 const PDF_BLOCK_SELECTOR = "[data-pdf-block='true']";
+const PDF_RESULT_SHEET_SELECTOR = "[data-pdf-result-sheet='true']";
 const PDF_PAGE_MARGIN_MM = 8;
 const PDF_BLOCK_GAP_MM = 5;
 
@@ -114,6 +115,8 @@ export default function QuestionnaireDiagnosticPage() {
   const [pdfError, setPdfError] = useState<string | null>(null);
   const [resultSheets, setResultSheets] = useState<PdfResultSheet[]>([]);
   const [areResultSheetsLoading, setAreResultSheetsLoading] = useState(false);
+  const [userName, setUserName] = useState<string | null>(null);
+  const hasPdfResultSheets = resultSheets.length > 0;
 
   const loadReport = useCallback(async () => {
     setIsLoading(true);
@@ -125,9 +128,12 @@ export default function QuestionnaireDiagnosticPage() {
       } = await supabase.auth.getSession();
 
       if (!session) {
+        setUserName(null);
         router.push("/signin");
         return;
       }
+
+      setUserName(getUserDisplayName(session.user));
 
       const savedOnly =
         typeof window !== "undefined" &&
@@ -201,7 +207,14 @@ export default function QuestionnaireDiagnosticPage() {
   }, [data]);
 
   const handleDownloadPdf = useCallback(async () => {
-    if (!data || isPdfGenerating || areResultSheetsLoading) return;
+    if (
+      !data ||
+      isPdfGenerating ||
+      areResultSheetsLoading ||
+      !hasPdfResultSheets
+    ) {
+      return;
+    }
 
     setIsPdfGenerating(true);
     setPdfError(null);
@@ -243,6 +256,13 @@ export default function QuestionnaireDiagnosticPage() {
       );
       if (blocks.length === 0) {
         throw new Error("PDF export blocks were not found");
+      }
+
+      const resultSheetBlocks = Array.from(
+        exportElement.querySelectorAll<HTMLElement>(PDF_RESULT_SHEET_SELECTOR)
+      );
+      if (resultSheetBlocks.length !== resultSheets.length) {
+        throw new Error("PDF result sheet blocks were not ready");
       }
 
       const pdf = new jsPDF({
@@ -312,7 +332,13 @@ export default function QuestionnaireDiagnosticPage() {
       document.body.style.color = previousBodyColor;
       setIsPdfGenerating(false);
     }
-  }, [areResultSheetsLoading, data, isPdfGenerating]);
+  }, [
+    areResultSheetsLoading,
+    data,
+    hasPdfResultSheets,
+    isPdfGenerating,
+    resultSheets.length,
+  ]);
 
   return (
     <div className="min-h-screen px-4 py-8 sm:px-6" dir="rtl">
@@ -356,7 +382,8 @@ export default function QuestionnaireDiagnosticPage() {
                   isLoading ||
                   Boolean(error) ||
                   isPdfGenerating ||
-                  areResultSheetsLoading
+                  areResultSheetsLoading ||
+                  !hasPdfResultSheets
                 }
                 aria-label="הורדת הדו״ח כקובץ PDF"
               >
@@ -387,7 +414,11 @@ export default function QuestionnaireDiagnosticPage() {
         ) : null}
         {!isLoading && !error && data ? <DiagnosticReportView data={data} /> : null}
         {data ? (
-          <DiagnosticPdfDocument data={data} resultSheets={resultSheets} />
+          <DiagnosticPdfDocument
+            data={data}
+            resultSheets={resultSheets}
+            userName={userName}
+          />
         ) : null}
       </main>
     </div>
@@ -835,9 +866,11 @@ function SectionTitle({ icon, title }: { icon?: ReactNode; title: string }) {
 function DiagnosticPdfDocument({
   data,
   resultSheets,
+  userName,
 }: {
   data: DiagnosticApiResponse;
   resultSheets: PdfResultSheet[];
+  userName: string | null;
 }) {
   const { report } = data;
 
@@ -853,9 +886,16 @@ function DiagnosticPdfDocument({
         <header data-pdf-block="true" className="border-b border-[#d7dee8] pb-6">
           <div className="flex items-start justify-between gap-6">
             <div className="max-w-[520px]">
-              <p className="text-sm font-semibold text-[#0f766e]">
-                דרך חדשה - דו״ח אבחוני תעסוקתי
-              </p>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                <p className="text-sm font-semibold text-[#0f766e]">
+                  דרך חדשה - דו״ח אבחוני תעסוקתי
+                </p>
+                {userName ? (
+                  <p className="text-xl font-semibold text-[#ea580c]">
+                    {userName}
+                  </p>
+                ) : null}
+              </div>
               <h1 className="mt-2 text-4xl font-bold leading-tight text-[#0f172a]">
                 {report.title}
               </h1>
@@ -1077,6 +1117,7 @@ function PdfResultSheetView({ sheet }: { sheet: PdfResultSheet }) {
   return (
     <section
       data-pdf-block="true"
+      data-pdf-result-sheet="true"
       className="rounded-md border border-[#cbd5e1] bg-[#f8fafc] p-5"
     >
       <div className="flex items-start justify-between gap-4">
@@ -1489,6 +1530,28 @@ function coerceAnswerIndex(value: unknown) {
 
   const parsed = Number.parseInt(value, 10);
   return Number.isNaN(parsed) ? null : parsed;
+}
+
+function getUserDisplayName(user: {
+  email?: string | null;
+  user_metadata?: Record<string, unknown> | null;
+}) {
+  const metadata = user.user_metadata || {};
+  const candidate =
+    getStringMetadataValue(metadata.full_name) ||
+    getStringMetadataValue(metadata.name) ||
+    getStringMetadataValue(metadata.display_name);
+
+  if (candidate) return candidate;
+
+  const emailName = user.email?.split("@")[0]?.trim();
+  return emailName || null;
+}
+
+function getStringMetadataValue(value: unknown) {
+  return typeof value === "string" && value.trim().length > 0
+    ? value.trim()
+    : null;
 }
 
 function providerLabel(provider: DiagnosticApiResponse["provider"]) {

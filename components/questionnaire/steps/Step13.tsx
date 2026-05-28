@@ -7,7 +7,6 @@ import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore";
 
 interface Step13Props {
   onNext?: () => void;
-  onPrevious: () => void;
   onComplete: () => Promise<void> | void;
 }
 
@@ -107,7 +106,6 @@ const STEP13_CORE_VALUES_ID = "9d79036e-bf0c-4d65-b06f-f5f4b5f01302";
 
 export default function Step13({
   onNext,
-  onPrevious,
   onComplete,
 }: Step13Props) {
   const setAnswer = useQuestionnaireStore((state) => state.setAnswer);
@@ -417,10 +415,7 @@ export default function Step13({
             </div>
           )}
 
-          <div className="flex justify-between items-center mt-6">
-            <Button variant="outline" onClick={onPrevious}>
-              שלב קודם
-            </Button>
+          <div className="flex justify-end items-center mt-6">
             <Button onClick={handleNext} disabled={!canContinue}>
               המשך
             </Button>
