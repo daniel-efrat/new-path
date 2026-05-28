@@ -128,7 +128,7 @@ export default function Step12FlowPage() {
       await saveDesignationChoices(rows);
       // Mark the designation sentences step completed.
       await setStepCompletion(4, true);
-      router.push("/dashboard");
+      router.push("/questionnaire/guidance");
     } catch (e: any) {
       console.error("Failed to save designation choices", e);
       alert(e?.message || "שמירת הבחירות נכשלה");

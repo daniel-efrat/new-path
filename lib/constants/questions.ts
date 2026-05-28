@@ -1638,6 +1638,422 @@ export const STEP8_QUESTIONS: Question[] = [
   },
 ]
 
+export interface AttentionMemoryQuestion extends Question {
+  category: "קשב" | "סינון מידע" | "זיכרון עבודה"
+  stimulus?: string
+  stimulusSeconds?: number
+}
+
+export const STEP9_QUESTIONS: AttentionMemoryQuestion[] = [
+  {
+    id: "90110000-0000-4000-8000-000000000001",
+    number: 1,
+    level: "קשב חזותי",
+    category: "קשב",
+    question: "כמה פעמים מופיעה האות ק ברצף הבא?",
+    stimulus: "ר ק ב מ ק ת כ ק ש ד ק",
+    options: ["3", "4", "5", "6"],
+    correct_option: 1,
+  },
+  {
+    id: "90110000-0000-4000-8000-000000000002",
+    number: 2,
+    level: "סינון מידע",
+    category: "סינון מידע",
+    question: "איזו רשימה כוללת רק את המספרים הזוגיים הגדולים מ-50?",
+    stimulus: "42, 64, 71, 88, 53, 60",
+    options: ["64, 88, 60", "42, 64, 88, 60", "64, 71, 88", "88, 53, 60"],
+    correct_option: 0,
+  },
+  {
+    id: "90110000-0000-4000-8000-000000000003",
+    number: 3,
+    level: "זיכרון עבודה",
+    category: "זיכרון עבודה",
+    question: "מה היה הרצף בסדר הפוך?",
+    stimulus: "7 - 2 - 9 - 4",
+    stimulusSeconds: 5,
+    options: ["4 - 9 - 2 - 7", "7 - 2 - 9 - 4", "4 - 2 - 9 - 7", "9 - 4 - 7 - 2"],
+    correct_option: 0,
+  },
+  {
+    id: "90110000-0000-4000-8000-000000000004",
+    number: 4,
+    level: "קשב מתמשך",
+    category: "קשב",
+    question: "איזה סימן מופיע הכי הרבה ברצף?",
+    stimulus: "▲ ● ▲ ■ ▲ ● ■ ▲",
+    options: ["▲", "●", "■", "כולם מופיעים אותו מספר פעמים"],
+    correct_option: 0,
+  },
+  {
+    id: "90110000-0000-4000-8000-000000000005",
+    number: 5,
+    level: "סינון מסיחים",
+    category: "סינון מידע",
+    question: "התעלם/י מהמילים. כמה מספרים מופיעים ברצף?",
+    stimulus: "כחול 8 ירוק 3 אדום 9 צהוב",
+    options: ["2", "3", "4", "5"],
+    correct_option: 1,
+  },
+  {
+    id: "90110000-0000-4000-8000-000000000006",
+    number: 6,
+    level: "זיכרון חזותי",
+    category: "זיכרון עבודה",
+    question: "מה הופיע שני ברצף?",
+    stimulus: "עיגול, ריבוע, משולש, כוכב",
+    stimulusSeconds: 5,
+    options: ["עיגול", "ריבוע", "משולש", "כוכב"],
+    correct_option: 1,
+  },
+  {
+    id: "90110000-0000-4000-8000-000000000007",
+    number: 7,
+    level: "קשב לפרטים",
+    category: "קשב",
+    question: "מה שונה ברצף?",
+    stimulus: "ABCD, ABCD, ABDC, ABCD",
+    options: ["ABCD הראשון", "ABCD השני", "ABDC", "ABCD האחרון"],
+    correct_option: 2,
+  },
+  {
+    id: "90110000-0000-4000-8000-000000000008",
+    number: 8,
+    level: "סינון לפי כלל",
+    category: "סינון מידע",
+    question: "בחר/י את הפריט שמתחיל באות מ ומכיל 4 אותיות.",
+    stimulus: "מחשב, מדף, כיסא, מחברת",
+    options: ["מחשב", "מדף", "כיסא", "מחברת"],
+    correct_option: 1,
+  },
+  {
+    id: "90110000-0000-4000-8000-000000000009",
+    number: 9,
+    level: "זיכרון עבודה",
+    category: "זיכרון עבודה",
+    question: "מה היה המספר השלישי ברצף?",
+    stimulus: "3, 6, 2, 8, 1",
+    stimulusSeconds: 5,
+    options: ["3", "6", "2", "8"],
+    correct_option: 2,
+  },
+  {
+    id: "90110000-0000-4000-8000-000000000010",
+    number: 10,
+    level: "קשב מספרי",
+    category: "קשב",
+    question: "כמה מספרים אי-זוגיים מופיעים ברצף?",
+    stimulus: "12, 7, 9, 24, 31, 40",
+    options: ["2", "3", "4", "5"],
+    correct_option: 1,
+  },
+  {
+    id: "90110000-0000-4000-8000-000000000011",
+    number: 11,
+    level: "סינון וחישוב",
+    category: "סינון מידע",
+    question: "התעלם/י מכל מספר קטן מ-5. מה סכום המספרים שנשארו?",
+    stimulus: "2, 8, 4, 6, 1",
+    options: ["10", "12", "14", "16"],
+    correct_option: 2,
+  },
+  {
+    id: "90110000-0000-4000-8000-000000000012",
+    number: 12,
+    level: "זיכרון מילולי",
+    category: "זיכרון עבודה",
+    question: "איזו מילה לא הופיעה ברצף?",
+    stimulus: "חלון, דרך, אור, ספר",
+    stimulusSeconds: 6,
+    options: ["אור", "דרך", "זמן", "ספר"],
+    correct_option: 2,
+  },
+  {
+    id: "90110000-0000-4000-8000-000000000013",
+    number: 13,
+    level: "קשב חזותי",
+    category: "קשב",
+    question: "כמה פעמים מופיע הרצף 13?",
+    stimulus: "131, 213, 134, 513, 31",
+    options: ["2", "3", "4", "5"],
+    correct_option: 2,
+  },
+  {
+    id: "90110000-0000-4000-8000-000000000014",
+    number: 14,
+    level: "עיכוב תגובה",
+    category: "סינון מידע",
+    question: "אם המילה היא שם של צבע, בחר/י כן. אם לא, בחר/י לא.",
+    stimulus: "שולחן",
+    options: ["כן", "לא", "לא ניתן לדעת", "רק אם המילה צבועה"],
+    correct_option: 1,
+  },
+  {
+    id: "90110000-0000-4000-8000-000000000015",
+    number: 15,
+    level: "זיכרון וסדר",
+    category: "זיכרון עבודה",
+    question: "מה הגיע אחרי המילה עבודה?",
+    stimulus: "בוקר > עבודה > שיחה > סיכום",
+    stimulusSeconds: 5,
+    options: ["בוקר", "שיחה", "סיכום", "עבודה"],
+    correct_option: 1,
+  },
+]
+
+export type PersonalityDimension =
+  | "organization"
+  | "social"
+  | "resilience"
+  | "curiosity"
+  | "empathy"
+  | "initiative"
+
+export interface PersonalityQuestion {
+  id: string
+  number: number
+  statement: string
+  category: PersonalityDimension
+  categoryLabel: string
+  reverse?: boolean
+  options: string[]
+  type: "personality"
+}
+
+export const PERSONALITY_SCALE_OPTIONS = [
+  "בכלל לא מתאים לי",
+  "מעט מתאים לי",
+  "במידה בינונית",
+  "מתאים לי",
+  "מתאים לי מאוד",
+]
+
+export const STEP10_QUESTIONS: PersonalityQuestion[] = [
+  {
+    id: "10120000-0000-4000-8000-000000000001",
+    number: 1,
+    statement: "אני מעדיף/ה לתכנן מראש לפני שאני מתחיל/ה משימה.",
+    category: "organization",
+    categoryLabel: "סדר והתמדה",
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+  {
+    id: "10120000-0000-4000-8000-000000000002",
+    number: 2,
+    statement: "קל לי לשמור על סדר גם כשיש הרבה דברים פתוחים.",
+    category: "organization",
+    categoryLabel: "סדר והתמדה",
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+  {
+    id: "10120000-0000-4000-8000-000000000003",
+    number: 3,
+    statement: "אני מסיים/ת משימות גם כשהן פחות מעניינות אותי.",
+    category: "organization",
+    categoryLabel: "סדר והתמדה",
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+  {
+    id: "10120000-0000-4000-8000-000000000004",
+    number: 4,
+    statement: "אני נוטה לדחות משימות עד הרגע האחרון.",
+    category: "organization",
+    categoryLabel: "סדר והתמדה",
+    reverse: true,
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+  {
+    id: "10120000-0000-4000-8000-000000000005",
+    number: 5,
+    statement: "אני נהנה/ית לעבוד עם אנשים חדשים.",
+    category: "social",
+    categoryLabel: "חברתיות ועבודת צוות",
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+  {
+    id: "10120000-0000-4000-8000-000000000006",
+    number: 6,
+    statement: "קל לי לפתוח שיחה גם בסביבה לא מוכרת.",
+    category: "social",
+    categoryLabel: "חברתיות ועבודת צוות",
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+  {
+    id: "10120000-0000-4000-8000-000000000007",
+    number: 7,
+    statement: "עבודה בצוות נותנת לי אנרגיה.",
+    category: "social",
+    categoryLabel: "חברתיות ועבודת צוות",
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+  {
+    id: "10120000-0000-4000-8000-000000000008",
+    number: 8,
+    statement: "אני מעדיף/ה לעבוד לבד רוב הזמן.",
+    category: "social",
+    categoryLabel: "חברתיות ועבודת צוות",
+    reverse: true,
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+  {
+    id: "10120000-0000-4000-8000-000000000009",
+    number: 9,
+    statement: "אני נשאר/ת רגוע/ה יחסית גם תחת לחץ.",
+    category: "resilience",
+    categoryLabel: "יציבות וגמישות",
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+  {
+    id: "10120000-0000-4000-8000-000000000010",
+    number: 10,
+    statement: "ביקורת עוזרת לי להשתפר, גם אם לא נעים לשמוע אותה.",
+    category: "resilience",
+    categoryLabel: "יציבות וגמישות",
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+  {
+    id: "10120000-0000-4000-8000-000000000011",
+    number: 11,
+    statement: "כשיש שינוי בתוכנית, אני מצליח/ה להתאים את עצמי.",
+    category: "resilience",
+    categoryLabel: "יציבות וגמישות",
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+  {
+    id: "10120000-0000-4000-8000-000000000012",
+    number: 12,
+    statement: "עומס או אי-ודאות משבשים אותי במהירות.",
+    category: "resilience",
+    categoryLabel: "יציבות וגמישות",
+    reverse: true,
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+  {
+    id: "10120000-0000-4000-8000-000000000013",
+    number: 13,
+    statement: "אני אוהב/ת ללמוד תחומים חדשים.",
+    category: "curiosity",
+    categoryLabel: "למידה וחדשנות",
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+  {
+    id: "10120000-0000-4000-8000-000000000014",
+    number: 14,
+    statement: "רעיונות לא שגרתיים מסקרנים אותי.",
+    category: "curiosity",
+    categoryLabel: "למידה וחדשנות",
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+  {
+    id: "10120000-0000-4000-8000-000000000015",
+    number: 15,
+    statement: "אני נהנה/ית למצוא דרך חדשה לפתור בעיה.",
+    category: "curiosity",
+    categoryLabel: "למידה וחדשנות",
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+  {
+    id: "10120000-0000-4000-8000-000000000016",
+    number: 16,
+    statement: "אני מעדיף/ה להיצמד לשיטות מוכרות בלבד.",
+    category: "curiosity",
+    categoryLabel: "למידה וחדשנות",
+    reverse: true,
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+  {
+    id: "10120000-0000-4000-8000-000000000017",
+    number: 17,
+    statement: "חשוב לי להבין איך ההחלטות שלי משפיעות על אחרים.",
+    category: "empathy",
+    categoryLabel: "אמפתיה ושיתוף פעולה",
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+  {
+    id: "10120000-0000-4000-8000-000000000018",
+    number: 18,
+    statement: "אני מקשיב/ה היטב גם כשאני לא מסכים/ה.",
+    category: "empathy",
+    categoryLabel: "אמפתיה ושיתוף פעולה",
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+  {
+    id: "10120000-0000-4000-8000-000000000019",
+    number: 19,
+    statement: "קל לי לזהות כשמישהו סביבי צריך עזרה.",
+    category: "empathy",
+    categoryLabel: "אמפתיה ושיתוף פעולה",
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+  {
+    id: "10120000-0000-4000-8000-000000000020",
+    number: 20,
+    statement: "בתחרות, פחות חשוב לי איך אחרים מרגישים.",
+    category: "empathy",
+    categoryLabel: "אמפתיה ושיתוף פעולה",
+    reverse: true,
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+  {
+    id: "10120000-0000-4000-8000-000000000021",
+    number: 21,
+    statement: "אני נוטה לקחת יוזמה בלי שמבקשים ממני.",
+    category: "initiative",
+    categoryLabel: "יוזמה ועצמאות",
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+  {
+    id: "10120000-0000-4000-8000-000000000022",
+    number: 22,
+    statement: "כשאני מזהה בעיה, אני מחפש/ת פתרון ולא מחכה להנחיות.",
+    category: "initiative",
+    categoryLabel: "יוזמה ועצמאות",
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+  {
+    id: "10120000-0000-4000-8000-000000000023",
+    number: 23,
+    statement: "אני מרגיש/ה נוח לקבל החלטות עצמאיות.",
+    category: "initiative",
+    categoryLabel: "יוזמה ועצמאות",
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+  {
+    id: "10120000-0000-4000-8000-000000000024",
+    number: 24,
+    statement: "אני מתקשה לפעול בלי הנחיות ברורות.",
+    category: "initiative",
+    categoryLabel: "יוזמה ועצמאות",
+    reverse: true,
+    options: PERSONALITY_SCALE_OPTIONS,
+    type: "personality",
+  },
+]
+
 export interface HollandQuestion {
   id: string
   text: string
@@ -1864,7 +2280,9 @@ export const STEP11_QUESTIONS: HollandQuestion[] = [
   },
 ]
 
-export const ALL_QUESTIONS: (Trait | Question | AnchorQuestion)[] = [
+type CatalogQuestion = Trait | Question | AnchorQuestion | PersonalityQuestion
+
+export const ALL_QUESTIONS: CatalogQuestion[] = [
   ...STEP1_QUESTIONS,
   ...STEP2_QUESTIONS,
   ...STEP3_QUESTIONS,
@@ -1873,23 +2291,25 @@ export const ALL_QUESTIONS: (Trait | Question | AnchorQuestion)[] = [
   ...STEP6_QUESTIONS,
   ...STEP7_QUESTIONS,
   ...STEP8_QUESTIONS,
+  ...STEP9_QUESTIONS,
+  ...STEP10_QUESTIONS,
 ]
 
-function isTrait(
-  question: Trait | Question | AnchorQuestion
-): question is Trait {
+function isTrait(question: CatalogQuestion): question is Trait {
   return "text" in question && (question as any).type === "trait"
 }
 
-function isAnchorQuestion(
-  question: Trait | Question | AnchorQuestion
-): question is AnchorQuestion {
+function isAnchorQuestion(question: CatalogQuestion): question is AnchorQuestion {
   return "text" in question && (question as any).type === "anchor"
 }
 
-function isQuestion(
-  question: Trait | Question | AnchorQuestion
-): question is Question {
+function isPersonalityQuestion(
+  question: CatalogQuestion
+): question is PersonalityQuestion {
+  return "statement" in question && question.type === "personality"
+}
+
+function isQuestion(question: CatalogQuestion): question is Question {
   return "question" in question
 }
 
@@ -1901,9 +2321,13 @@ export const getQuestionText = (id: string): string | undefined => {
 
   if (isTrait(question) || isAnchorQuestion(question)) {
     return question.text
-  } else {
-    return question.question
   }
+
+  if (isPersonalityQuestion(question)) {
+    return question.statement
+  }
+
+  return question.question
 }
 
 export const RIASEC_MAP = {

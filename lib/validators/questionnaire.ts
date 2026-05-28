@@ -1,4 +1,5 @@
 import type { StepData, ValidationResult } from "@/lib/types/questionnaire";
+import { STEP9_QUESTIONS, STEP10_QUESTIONS } from "@/lib/constants/questions";
 
 // Helper function to create validation result
 export const createValidationResult = (
@@ -139,15 +140,51 @@ export const validateStep8 = (data: StepData): ValidationResult => {
 };
 
 // Step 9 validation (placeholder)
-export const validateStep9 = (_data: StepData): ValidationResult => {
-  // Placeholder step is hidden/skipped; always treat as valid
-  return createValidationResult(true, []);
+export const validateStep9 = (data: StepData): ValidationResult => {
+  const errors: string[] = [];
+  const answeredQuestions = STEP9_QUESTIONS.filter((question) => {
+    const answer = data[question.id];
+    if (!answer || answer.value === undefined || answer.value === null) {
+      return false;
+    }
+
+    const value =
+      typeof answer.value === "string" ? Number(answer.value) : answer.value;
+
+    return (
+      Number.isInteger(value) &&
+      value >= -1 &&
+      value < question.options.length
+    );
+  });
+
+  if (answeredQuestions.length < STEP9_QUESTIONS.length) {
+    errors.push("יש להשלים את מבדק הקשב, סינון המידע והזיכרון.");
+  }
+
+  return createValidationResult(errors.length === 0, errors);
 };
 
-// Step 10 validation (Holland questions - placeholder rule)
-export const validateStep10 = (_data: StepData): ValidationResult => {
-  // Placeholder step is hidden/skipped; always treat as valid
-  return createValidationResult(true, []);
+// Step 10 validation (personality statements)
+export const validateStep10 = (data: StepData): ValidationResult => {
+  const errors: string[] = [];
+  const answeredQuestions = STEP10_QUESTIONS.filter((question) => {
+    const answer = data[question.id];
+    if (!answer || answer.value === undefined || answer.value === null) {
+      return false;
+    }
+
+    const value =
+      typeof answer.value === "string" ? Number(answer.value) : answer.value;
+
+    return Number.isInteger(value) && value >= 1 && value <= 5;
+  });
+
+  if (answeredQuestions.length < STEP10_QUESTIONS.length) {
+    errors.push("יש להשלים את כל היגדי מבחני האישיות.");
+  }
+
+  return createValidationResult(errors.length === 0, errors);
 };
 
 // Step 11 validation (placeholder)

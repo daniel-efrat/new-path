@@ -2,7 +2,7 @@ console.log('--- Script execution started ---');
 import { createClient } from '@supabase/supabase-js';
 import { config } from 'dotenv';
 import path from 'path';
-import { ALL_QUESTIONS, Question, Trait, AnchorQuestion } from '../lib/constants/questions';
+import { ALL_QUESTIONS } from '../lib/constants/questions';
 
 // Load environment variables from .env.local
 config({ path: path.resolve(__dirname, '../.env.local') });
@@ -21,13 +21,19 @@ const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 async function seedQuestions() {
   console.log('Starting to seed questions...');
 
-  const formattedQuestions = ALL_QUESTIONS.map((q: Question | Trait | AnchorQuestion) => {
+  const formattedQuestions = ALL_QUESTIONS.map((q) => {
     // Check if the object is a full Question (has options and a question property)
     if ('question' in q) {
       return {
         id: q.id,
         question_text: q.question,
-        options: (q as Question).options ?? null,
+        options: q.options ?? null,
+      };
+    } else if ('statement' in q) {
+      return {
+        id: q.id,
+        question_text: q.statement,
+        options: q.options ?? null,
       };
     } else if ('text' in q) {
       return {

@@ -22,10 +22,12 @@ export async function GET() {
     console.log('--- Seeding database via API route ---');
 
     const formattedQuestions = ALL_QUESTIONS.map(q => {
-      const isStep1 = 'text' in q;
+      const questionText =
+        'text' in q ? q.text : 'statement' in q ? q.statement : q.question;
+
       return {
         id: q.id,
-        question_text: isStep1 ? q.text : q.question,
+        question_text: questionText,
         options: 'options' in q ? q.options : null,
       };
     });

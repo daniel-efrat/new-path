@@ -10,6 +10,8 @@ import {
   STEP6_QUESTIONS,
   STEP7_QUESTIONS,
   STEP8_QUESTIONS,
+  STEP9_QUESTIONS,
+  STEP10_QUESTIONS,
   STEP11_QUESTIONS,
 } from "@/lib/constants/questions";
 import type {
@@ -295,7 +297,38 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
   updateProgress: () => {
     const { currentStep } = get();
     const stepData = get().getStepData(currentStep);
-    const answeredCount = Object.keys(stepData).length;
+    const answeredCount =
+      currentStep === 11
+        ? STEP9_QUESTIONS.filter((question) => {
+            const answer = stepData[question.id];
+            const value = answer?.value;
+            if (value === undefined || value === null || value === "null") {
+              return false;
+            }
+            const numericValue =
+              typeof value === "string" ? Number(value) : value;
+            return (
+              Number.isInteger(numericValue) &&
+              numericValue >= -1 &&
+              numericValue < question.options.length
+            );
+          }).length
+        : currentStep === 12
+        ? STEP10_QUESTIONS.filter((question) => {
+            const answer = stepData[question.id];
+            const value = answer?.value;
+            if (value === undefined || value === null || value === "null") {
+              return false;
+            }
+            const numericValue =
+              typeof value === "string" ? Number(value) : value;
+            return (
+              Number.isInteger(numericValue) &&
+              numericValue >= 1 &&
+              numericValue <= 5
+            );
+          }).length
+        : Object.keys(stepData).length;
     const totalQuestions =
       currentStep === 1
         ? STEP1_QUESTIONS.length
@@ -315,6 +348,10 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
         ? STEP7_QUESTIONS.length
         : currentStep === 10
         ? STEP8_QUESTIONS.length
+        : currentStep === 11
+        ? STEP9_QUESTIONS.length
+        : currentStep === 12
+        ? STEP10_QUESTIONS.length
         : 0;
 
     const progress = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;
@@ -393,7 +430,7 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
     const answersMap: Record<string, AnswerState> = {};
     answers.forEach((answer) => {
       answersMap[answer.question_id] = {
-        value: answer.answer_value,
+        value: answer.answer_value === "null" ? null : answer.answer_value,
         timestamp: new Date(answer.answered_at),
         step: answer.step,
       };

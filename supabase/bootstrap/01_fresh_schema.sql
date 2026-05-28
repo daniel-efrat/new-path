@@ -110,6 +110,39 @@ CREATE TABLE IF NOT EXISTS public.user_designation_choices (
   UNIQUE (user_id, occupation_serial)
 );
 
+CREATE TABLE IF NOT EXISTS public.guidance_reports (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  submission_id UUID REFERENCES public.questionnaire_submissions(id) ON DELETE SET NULL,
+  input_hash TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'completed' CHECK (status IN ('completed', 'failed')),
+  provider TEXT NOT NULL,
+  model TEXT NOT NULL,
+  input_snapshot JSONB NOT NULL,
+  report_json JSONB,
+  error_message TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (user_id, submission_id, input_hash)
+);
+
+CREATE TABLE IF NOT EXISTS public.diagnostic_reports (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  submission_id UUID REFERENCES public.questionnaire_submissions(id) ON DELETE SET NULL,
+  guidance_report_id UUID REFERENCES public.guidance_reports(id) ON DELETE SET NULL,
+  input_hash TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'completed' CHECK (status IN ('completed', 'failed')),
+  provider TEXT NOT NULL,
+  model TEXT NOT NULL,
+  input_snapshot JSONB NOT NULL,
+  report_json JSONB,
+  error_message TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (user_id, submission_id, input_hash)
+);
+
 -- ---------------------------------------------------------------------------
 -- Indexes
 -- ---------------------------------------------------------------------------
@@ -122,6 +155,13 @@ CREATE INDEX IF NOT EXISTS idx_submissions_questionnaire_id ON public.questionna
 CREATE INDEX IF NOT EXISTS idx_designation_statements_occupation_serial ON public.designation_statements(occupation_serial);
 CREATE INDEX IF NOT EXISTS idx_udc_user_id ON public.user_designation_choices(user_id);
 CREATE INDEX IF NOT EXISTS idx_holland_results_user_id ON public.holland_results(user_id);
+CREATE INDEX IF NOT EXISTS idx_guidance_reports_user_id ON public.guidance_reports(user_id);
+CREATE INDEX IF NOT EXISTS idx_guidance_reports_submission_id ON public.guidance_reports(submission_id);
+CREATE INDEX IF NOT EXISTS idx_guidance_reports_input_hash ON public.guidance_reports(input_hash);
+CREATE INDEX IF NOT EXISTS idx_diagnostic_reports_user_id ON public.diagnostic_reports(user_id);
+CREATE INDEX IF NOT EXISTS idx_diagnostic_reports_submission_id ON public.diagnostic_reports(submission_id);
+CREATE INDEX IF NOT EXISTS idx_diagnostic_reports_guidance_report_id ON public.diagnostic_reports(guidance_report_id);
+CREATE INDEX IF NOT EXISTS idx_diagnostic_reports_input_hash ON public.diagnostic_reports(input_hash);
 
 -- ---------------------------------------------------------------------------
 -- updated_at triggers
@@ -145,6 +185,16 @@ CREATE TRIGGER trg_udc_set_updated_at
   BEFORE UPDATE ON public.user_designation_choices
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
+DROP TRIGGER IF EXISTS trg_guidance_reports_set_updated_at ON public.guidance_reports;
+CREATE TRIGGER trg_guidance_reports_set_updated_at
+  BEFORE UPDATE ON public.guidance_reports
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+DROP TRIGGER IF EXISTS trg_diagnostic_reports_set_updated_at ON public.diagnostic_reports;
+CREATE TRIGGER trg_diagnostic_reports_set_updated_at
+  BEFORE UPDATE ON public.diagnostic_reports
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
 -- ---------------------------------------------------------------------------
 -- Row Level Security
 -- ---------------------------------------------------------------------------
@@ -159,6 +209,8 @@ ALTER TABLE public.holland_questions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.holland_results ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.designation_statements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_designation_choices ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.guidance_reports ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.diagnostic_reports ENABLE ROW LEVEL SECURITY;
 
 -- profiles
 DROP POLICY IF EXISTS "Profiles are viewable by owner" ON public.profiles;
@@ -227,6 +279,22 @@ DROP POLICY IF EXISTS "udc_insert_own" ON public.user_designation_choices;
 CREATE POLICY udc_insert_own ON public.user_designation_choices FOR INSERT WITH CHECK ((SELECT auth.uid()) = user_id);
 DROP POLICY IF EXISTS "udc_update_own" ON public.user_designation_choices;
 CREATE POLICY udc_update_own ON public.user_designation_choices FOR UPDATE USING ((SELECT auth.uid()) = user_id);
+
+-- guidance reports
+DROP POLICY IF EXISTS "Guidance reports select own" ON public.guidance_reports;
+CREATE POLICY "Guidance reports select own" ON public.guidance_reports FOR SELECT USING ((SELECT auth.uid()) = user_id);
+DROP POLICY IF EXISTS "Guidance reports insert own" ON public.guidance_reports;
+CREATE POLICY "Guidance reports insert own" ON public.guidance_reports FOR INSERT WITH CHECK ((SELECT auth.uid()) = user_id);
+DROP POLICY IF EXISTS "Guidance reports update own" ON public.guidance_reports;
+CREATE POLICY "Guidance reports update own" ON public.guidance_reports FOR UPDATE USING ((SELECT auth.uid()) = user_id);
+
+-- diagnostic reports
+DROP POLICY IF EXISTS "Diagnostic reports select own" ON public.diagnostic_reports;
+CREATE POLICY "Diagnostic reports select own" ON public.diagnostic_reports FOR SELECT USING ((SELECT auth.uid()) = user_id);
+DROP POLICY IF EXISTS "Diagnostic reports insert own" ON public.diagnostic_reports;
+CREATE POLICY "Diagnostic reports insert own" ON public.diagnostic_reports FOR INSERT WITH CHECK ((SELECT auth.uid()) = user_id);
+DROP POLICY IF EXISTS "Diagnostic reports update own" ON public.diagnostic_reports;
+CREATE POLICY "Diagnostic reports update own" ON public.diagnostic_reports FOR UPDATE USING ((SELECT auth.uid()) = user_id);
 
 -- ---------------------------------------------------------------------------
 -- Default questionnaire row (hardcoded in app)

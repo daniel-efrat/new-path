@@ -19,6 +19,7 @@ import {
   STEP4_QUESTIONS,
   STEP7_QUESTIONS,
   STEP8_QUESTIONS,
+  STEP10_QUESTIONS,
   STEP11_QUESTIONS,
 } from "@/lib/constants/questions";
 
@@ -137,7 +138,7 @@ export default function QuestionnaireDashboard() {
       id: 12,
       group: "שאלון 2",
       title: "מבחני אישיות",
-      description: "",
+      description: `${STEP10_QUESTIONS.length} היגדים`,
       time: "לא מוגבל בזמן",
     },
     {
@@ -517,6 +518,7 @@ export default function QuestionnaireDashboard() {
             <Button
               disabled={visibleCompletedSteps !== visibleTotalSteps}
               className="dashboard-glass-button dashboard-glass-button--primary gap-2"
+              onClick={() => router.push("/questionnaire/diagnostic")}
             >
               סיים ושלח שאלון
               <Check className="h-4 w-4" />

@@ -71,8 +71,7 @@ export default function QuestionnairePage() {
     if (currentStep === 3) {
       setShowHollandResults(true);
     } else if (currentStep === 13) {
-      // After Step 13, exit to dashboard
-      router.push("/dashboard");
+      router.push("/questionnaire/diagnostic");
     } else {
       setCurrentStep(currentStep + 1);
     }

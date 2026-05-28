@@ -8,6 +8,8 @@ Use these files when the hosted database was deleted and you are standing up **s
 2. `batches/questions_01.sql` - questionnaire question catalog
 3. `batches/holland_seed.sql` - Holland scoring map
 4. `batches/designation_01.sql` through `batches/designation_13.sql` - occupation statements
+5. `batches/attention_memory_questions.sql` - attention, filtering, and working-memory test questions
+6. `batches/personality_questions.sql` - personality statement questionnaire
 
 The batch files are idempotent and are the preferred seed source for a hosted
 Supabase project or MCP-driven bootstrap.
