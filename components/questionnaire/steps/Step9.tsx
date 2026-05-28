@@ -36,6 +36,7 @@ export default function Step9({
   const [score, setScore] = useState(0);
   const [timer, setTimer] = useState(QUESTION_SECONDS);
   const [showResult, setShowResult] = useState(false);
+  const [showIntro, setShowIntro] = useState(!resultsMode);
   const [showStimulus, setShowStimulus] = useState(false);
   const [stimulusLeft, setStimulusLeft] = useState(0);
 
@@ -168,7 +169,11 @@ export default function Step9({
   }, []);
 
   useEffect(() => {
-    if (showResult) return;
+    if (showResult || showIntro) {
+      setShowStimulus(false);
+      setStimulusLeft(0);
+      return;
+    }
 
     setTimer(QUESTION_SECONDS);
     setSelected(null);
@@ -185,11 +190,12 @@ export default function Step9({
     current,
     question.stimulus,
     question.stimulusSeconds,
+    showIntro,
     showResult,
   ]);
 
   useEffect(() => {
-    if (showResult || selected !== null) return;
+    if (showResult || showIntro || selected !== null) return;
     if (timer === 0) {
       handleSkip();
       return;
@@ -200,7 +206,7 @@ export default function Step9({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [handleSkip, selected, showResult, timer]);
+  }, [handleSkip, selected, showIntro, showResult, timer]);
 
   useEffect(() => {
     if (!showStimulus) return;
@@ -225,8 +231,78 @@ export default function Step9({
     onNext?.();
   };
 
+  const handleStartIntro = () => {
+    setShowIntro(false);
+  };
+
   if (isLoadingAnswers) {
     return <div className="p-6 text-center">טוען...</div>;
+  }
+
+  if (showIntro) {
+    return (
+      <AnimatePresence mode="wait">
+        <motion.div
+          key="attention-memory-intro"
+          className="mx-auto max-w-2xl space-y-5 p-4"
+          dir="rtl"
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -18 }}
+        >
+          <div className="text-center">
+            <h1 className="text-2xl font-bold">
+              מבדק קשב, סינון מידע וזיכרון
+            </h1>
+            <p className="mt-2 text-sm text-white/75">
+              לפני שמתחילים, הנה מה שצפוי בשלב הזה
+            </p>
+          </div>
+
+          <Card className="bg-white text-background">
+            <CardContent className="space-y-5 p-5">
+              <div className="space-y-3 text-right">
+                <h2 className="text-xl font-semibold">
+                  איך השלב הזה עובד?
+                </h2>
+                <p className="leading-7 text-gray-700">
+                  בשלב הבא יוצגו 15 שאלות קצרות שבודקות קשב, סינון מידע
+                  וזיכרון עבודה. בחלק מהשאלות יופיע פריט לצפייה למספר שניות,
+                  ולאחר מכן הוא יוסתר.
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-md border bg-gray-50 p-4">
+                  <div className="text-sm font-semibold">זמן לכל שאלה</div>
+                  <div className="mt-2 text-sm leading-6 text-gray-600">
+                    לכל שאלה מוקצות 25 שניות.
+                  </div>
+                </div>
+                <div className="rounded-md border bg-gray-50 p-4">
+                  <div className="text-sm font-semibold">פריטים קצרים</div>
+                  <div className="mt-2 text-sm leading-6 text-gray-600">
+                    כשפריט מופיע, התבוננו בו וענו לאחר שהוא מוסתר.
+                  </div>
+                </div>
+                <div className="rounded-md border bg-gray-50 p-4">
+                  <div className="text-sm font-semibold">בחירת תשובה</div>
+                  <div className="mt-2 text-sm leading-6 text-gray-600">
+                    אם אינכם בטוחים, בחרו את האפשרות הטובה ביותר או דלגו.
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-center pt-2">
+                <Button type="button" onClick={handleStartIntro}>
+                  התחילו את השלב
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </AnimatePresence>
+    );
   }
 
   if (showResult) {
@@ -360,9 +436,11 @@ export default function Step9({
 
             {question.stimulus ? (
               <div className="rounded-md border bg-gray-50 p-4 text-center">
-                <div className="text-xs font-semibold text-gray-500">גירוי</div>
+                <div className="text-xs font-semibold text-gray-500">
+                  {showStimulus ? "התבוננו בפריט" : "זמן הצפייה הסתיים"}
+                </div>
                 <div className="mt-2 text-xl font-semibold tracking-normal">
-                  {showStimulus ? question.stimulus : "הגירוי הוסתר"}
+                  {showStimulus ? question.stimulus : "ענו לפי מה שראיתם"}
                 </div>
                 {showStimulus ? (
                   <div className="mt-2 text-xs text-gray-500">

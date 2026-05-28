@@ -80,13 +80,16 @@ html {
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-gutter: stable;
-  height: 100%;
+  min-height: 100%;
   margin: 0;
 }
 
 body {
   min-height: 100%;
-  overscroll-behavior: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+  overscroll-behavior-y: auto;
   margin: 0;
   color: var(--color-foreground);
   background-color: oklch(from var(--color-background) l c h / 1);

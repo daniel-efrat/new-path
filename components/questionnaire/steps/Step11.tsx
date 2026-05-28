@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,39 @@ interface Step11Props {
   onComplete: () => Promise<void> | void;
 }
 
+const DEFAULT_RATING_VALUE = 3;
+
+const RATING_OPTIONS = [
+  { src: "/slice1.png", label: "אוהב מאוד", val: 5 },
+  { src: "/slice2.png", label: "אוהב", val: 4 },
+  { src: "/slice3.png", label: "לא בטוח", val: 3 },
+  { src: "/slice4.png", label: "לא אוהב", val: 2 },
+  { src: "/slice5.png", label: "לא אוהב בכלל", val: 1 },
+] as const;
+
+const ratingContainer = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08, delayChildren: 0.05 },
+  },
+} as const;
+
+const ratingItem = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } },
+} as const;
+
+function toRatingValue(stored: unknown) {
+  if (stored === undefined || stored === null) return DEFAULT_RATING_VALUE;
+  const numericValue =
+    typeof stored === "string" ? parseInt(stored, 10) : Number(stored);
+
+  return Number.isNaN(numericValue)
+    ? DEFAULT_RATING_VALUE
+    : Math.min(5, Math.max(1, numericValue));
+}
+
 export default function Step11({
   onNext,
   onComplete,
@@ -20,39 +53,66 @@ export default function Step11({
   const { answers, setAnswer, submitAnswers } = useQuestionnaireStore();
   const [index, setIndex] = useState(0);
   const currentQuestion = STEP11_QUESTIONS[index];
+  const currentQuestionId = currentQuestion?.id;
 
   // Intro state: show two instruction cards before the first question
   const [showIntro, setShowIntro] = useState(true);
   const [introIndex, setIntroIndex] = useState<0 | 1>(0); // 0..1
+  const [introValue, setIntroValue] = useState(DEFAULT_RATING_VALUE);
+  const [localValues, setLocalValues] = useState<Record<string, number>>({});
 
-  const getInitial = useCallback(
-    (id: string) => {
-      const stored = answers[id]?.value;
-      if (stored === undefined || stored === null) return 3; // default mid value 1-5
-      const n = typeof stored === "string" ? parseInt(stored) : Number(stored);
-      return isNaN(n) ? 3 : Math.min(5, Math.max(1, n));
-    },
-    [answers]
+  const getQuestionValue = useCallback(
+    (questionId: string) =>
+      localValues[questionId] ?? toRatingValue(answers[questionId]?.value),
+    [answers, localValues]
   );
 
-  const [value, setValue] = useState<number>(getInitial(currentQuestion?.id));
-
   const saveCurrent = useCallback(async () => {
-    const id = STEP11_QUESTIONS[index].id;
-    await setAnswer(id, String(value), undefined, 3);
-  }, [index, setAnswer, value]);
+    if (!currentQuestionId) return;
+    await setAnswer(
+      currentQuestionId,
+      String(getQuestionValue(currentQuestionId)),
+      undefined,
+      3
+    );
+  }, [currentQuestionId, getQuestionValue, setAnswer]);
 
-  useEffect(() => {
-    // when question changes, sync local value from store
-    setValue(getInitial(STEP11_QUESTIONS[index].id));
-  }, [index, getInitial]);
+  const handleRatingSelect = useCallback(
+    (nextValue: number) => {
+      if (!currentQuestionId) return;
+      setLocalValues((previousValues) => ({
+        ...previousValues,
+        [currentQuestionId]: nextValue,
+      }));
+    },
+    [currentQuestionId]
+  );
 
-  useEffect(() => {
-    // when value changes, save to store
-    if (currentQuestion && value !== getInitial(currentQuestion.id)) {
-      saveCurrent();
+  const value = currentQuestionId
+    ? getQuestionValue(currentQuestionId)
+    : DEFAULT_RATING_VALUE;
+
+  const getSubmittedValue = useCallback(
+    (questionId: string) => getQuestionValue(questionId),
+    [getQuestionValue]
+  );
+
+  const handleStart = () => {
+    if (currentQuestionId) {
+      setLocalValues((previousValues) => {
+        if (previousValues[currentQuestionId] !== undefined) {
+          return previousValues;
+        }
+
+        return {
+          ...previousValues,
+          [currentQuestionId]: toRatingValue(answers[currentQuestionId]?.value),
+        };
+      });
     }
-  }, [value, currentQuestion, getInitial, saveCurrent]);
+
+    setShowIntro(false);
+  };
 
   const handleNextQuestion = async () => {
     await saveCurrent();
@@ -62,7 +122,7 @@ export default function Step11({
       // Submit answers to API before proceeding
       const step11Answers = STEP11_QUESTIONS.map((q) => ({
         id: q.id,
-        value: answers[q.id]?.value || 3, // default mid value if not answered
+        value: getSubmittedValue(q.id),
         timestamp: new Date(),
       }));
 
@@ -79,19 +139,6 @@ export default function Step11({
   };
 
   const isFirstIntro = introIndex === 0;
-
-  // Stagger animation for rating buttons
-  const ratingContainer = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.08, delayChildren: 0.05 },
-    },
-  } as const;
-  const ratingItem = {
-    hidden: { opacity: 0, y: 16 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } },
-  } as const;
 
   if (!currentQuestion) {
     return null;
@@ -153,23 +200,17 @@ export default function Step11({
                         initial="hidden"
                         animate="show"
                       >
-                        {[
-                          { src: "/slice1.png", label: "אוהב מאוד", val: 5 },
-                          { src: "/slice2.png", label: "אוהב", val: 4 },
-                          { src: "/slice3.png", label: "לא בטוח", val: 3 },
-                          { src: "/slice4.png", label: "לא אוהב", val: 2 },
-                          { src: "/slice5.png", label: "לא אוהב בכלל", val: 1 },
-                        ].map((opt) => (
+                        {RATING_OPTIONS.map((opt) => (
                           <motion.button
                             key={opt.src}
                             type="button"
-                            onClick={() => setValue(opt.val)}
+                            onClick={() => setIntroValue(opt.val)}
                             className={`flex flex-col items-center p-0.5 sm:p-2 rounded-lg transition-colors focus-visible:outline-none border min-w-[52px] sm:min-w-[80px] ${
-                              value === opt.val
+                              introValue === opt.val
                                 ? "border-primary ring-2 ring-blue-200"
                                 : "border-transparent hover:bg-gray-50"
                             }`}
-                            aria-pressed={value === opt.val}
+                            aria-pressed={introValue === opt.val}
                             aria-label={opt.label}
                             variants={ratingItem}
                           >
@@ -218,9 +259,7 @@ export default function Step11({
                       </p>
                     </div>
                     <div className="flex justify-center mt-6">
-                      <Button onClick={() => setShowIntro(false)}>
-                        בוא נתחיל
-                      </Button>
+                      <Button onClick={handleStart}>בוא נתחיל</Button>
                     </div>
                   </div>
                 )}
@@ -269,17 +308,11 @@ export default function Step11({
                     initial="hidden"
                     animate="show"
                   >
-                    {[
-                      { src: "/slice1.png", label: "אוהב מאוד", val: 5 },
-                      { src: "/slice2.png", label: "אוהב", val: 4 },
-                      { src: "/slice3.png", label: "לא בטוח", val: 3 },
-                      { src: "/slice4.png", label: "לא אוהב", val: 2 },
-                      { src: "/slice5.png", label: "לא אוהב בכלל", val: 1 },
-                    ].map((opt) => (
+                    {RATING_OPTIONS.map((opt) => (
                       <motion.button
                         key={opt.src}
                         type="button"
-                        onClick={() => setValue(opt.val)}
+                        onClick={() => handleRatingSelect(opt.val)}
                         className={`flex flex-col items-center p-0.5 sm:p-2 rounded-lg transition-colors focus-visible:outline-none border min-w-[52px] sm:min-w-[80px] ${
                           value === opt.val
                             ? "border-primary ring-2 ring-blue-200"
