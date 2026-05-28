@@ -198,7 +198,7 @@ export default function QuestionnaireDiagnosticPage() {
     return () => {
       isCancelled = true;
     };
-  }, [data?.inputHash]);
+  }, [data]);
 
   const handleDownloadPdf = useCallback(async () => {
     if (!data || isPdfGenerating || areResultSheetsLoading) return;
