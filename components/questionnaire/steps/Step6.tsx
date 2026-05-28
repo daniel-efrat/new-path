@@ -193,7 +193,7 @@ export default function Step6({
             הניקוד שלך: {score} מתוך {QUESTIONS.length} (
             {Math.round((score / QUESTIONS.length) * 100)}%)
           </div>
-          <div className="w-full max-w-3xl mt-6 p-4 bg-white rounded-sm">
+          <div className="w-full max-w-3xl mx-auto mt-6 p-4 bg-white rounded-sm overflow-x-auto">
             <table className="p-2 w-full border text-right text-sm">
               <thead>
                 <tr className="bg-gray-100">

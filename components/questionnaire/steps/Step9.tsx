@@ -258,49 +258,67 @@ export default function Step9({
           </CardContent>
         </Card>
 
-        <Card className="bg-white text-background">
-          <CardContent className="overflow-x-auto p-4">
-            <table className="w-full min-w-[720px] border text-right text-sm">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border p-2">#</th>
-                  <th className="border p-2">תחום</th>
-                  <th className="border p-2">שאלה</th>
-                  <th className="border p-2">התשובה שלך</th>
-                  <th className="border p-2">תשובה נכונה</th>
-                  <th className="border p-2">ציון</th>
-                </tr>
-              </thead>
-              <tbody>
-                {QUESTIONS.map((item, index) => {
-                  const answer = answers[index];
-                  const isCorrect = answer === item.correct_option;
-                  return (
-                    <tr
-                      key={item.id}
-                      className={isCorrect ? "bg-green-50" : "bg-red-50"}
-                    >
-                      <td className="border p-2 text-center">{item.number}</td>
-                      <td className="border p-2">{item.category}</td>
-                      <td className="border p-2">{item.question}</td>
-                      <td className="border p-2">
-                        {answer !== null && answer >= 0
-                          ? item.options[answer]
-                          : "לא נענה"}
-                      </td>
-                      <td className="border p-2">
-                        {item.options[item.correct_option]}
-                      </td>
-                      <td className="border p-2 text-center">
-                        {isCorrect ? "נכון" : "לא נכון"}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </CardContent>
-        </Card>
+        <div className="w-full max-w-3xl mx-auto mt-6 p-4 bg-white rounded-sm overflow-x-auto">
+          <table className="p-2 w-full border text-right text-sm">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="p-2 border text-background">#</th>
+                <th className="p-2 border text-background">תחום</th>
+                <th className="p-2 border text-background">שאלה</th>
+                <th className="p-2 border text-background">התשובה שלך</th>
+                <th className="p-2 border text-background">תשובה נכונה</th>
+                <th className="p-2 border text-background">ציון</th>
+              </tr>
+            </thead>
+            <tbody>
+              {QUESTIONS.map((item, index) => {
+                const answer = answers[index];
+                const isCorrect = answer === item.correct_option;
+                return (
+                  <tr
+                    key={item.id}
+                    className={isCorrect ? "bg-green-50" : "bg-red-50"}
+                  >
+                    <td className="p-2 border text-background text-center">
+                      {item.number}
+                    </td>
+                    <td className="p-2 border text-background">
+                      {item.category}
+                    </td>
+                    <td className="p-2 border text-background">
+                      {item.question}
+                    </td>
+                    <td className="p-2 border text-background">
+                      {answer !== null && answer >= 0
+                        ? item.options[answer]
+                        : "לא נענה"}
+                    </td>
+                    <td className="p-2 border text-background">
+                      {item.options[item.correct_option]}
+                    </td>
+                    <td className="p-2 border text-background text-center">
+                      {isCorrect ? (
+                        <span
+                          title="נכון"
+                          style={{ color: "#16a34a", fontSize: "1.2em" }}
+                        >
+                          ✓
+                        </span>
+                      ) : (
+                        <span
+                          title="לא נכון"
+                          style={{ color: "#dc2626", fontSize: "1.2em" }}
+                        >
+                          ✗
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
 
         <div className="flex flex-wrap justify-center gap-3">
           <Button onClick={handleContinue}>חזרה לדו״ח הראשי</Button>

@@ -227,97 +227,95 @@ export default function Step7({
             {Math.round((score / STEP7_QUESTIONS.length) * 100)}%)
           </div>
 
-          <div className="w-full max-w-3xl mx-auto mt-6 p-4 bg-white rounded-sm">
-            <div className="overflow-x-auto">
-              <table className="p-2 w-full border text-right text-sm">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="p-2 border text-background">#</th>
-                    <th className="p-2 border text-background">שאלה</th>
-                    <th className="p-2 border text-background">התשובה שלך</th>
-                    <th className="p-2 border text-background">תשובה נכונה</th>
-                    <th className="p-2 border text-background">ציון</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {STEP7_QUESTIONS.map((q, idx) => {
-                    const userAnswer = answers[idx];
-                    const correctIdx = q.correct_option;
-                    const isCorrect = userAnswer === correctIdx;
+          <div className="w-full max-w-3xl mx-auto mt-6 p-4 bg-white rounded-sm overflow-x-auto">
+            <table className="p-2 w-full border text-right text-sm">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="p-2 border text-background">#</th>
+                  <th className="p-2 border text-background">שאלה</th>
+                  <th className="p-2 border text-background">התשובה שלך</th>
+                  <th className="p-2 border text-background">תשובה נכונה</th>
+                  <th className="p-2 border text-background">ציון</th>
+                </tr>
+              </thead>
+              <tbody>
+                {STEP7_QUESTIONS.map((q, idx) => {
+                  const userAnswer = answers[idx];
+                  const correctIdx = q.correct_option;
+                  const isCorrect = userAnswer === correctIdx;
 
-                    return (
-                      <tr
-                        key={q.id}
-                        className={isCorrect ? "bg-green-50" : "bg-red-50"}
-                      >
-                        <td className="p-2 border text-background text-center">
-                          {q.number}
-                        </td>
-                        <td className="p-2 border text-background">
-                          <div className="flex flex-col items-center gap-2">
-                            <span className="text-xs text-gray-600">
-                              {q.level}
-                            </span>
-                            <Image
-                              src={q.question}
-                              alt={`שאלה ${q.number}`}
-                              width={88}
-                              height={88}
-                              className="rounded border bg-white"
-                            />
-                          </div>
-                        </td>
-                        <td className="p-2 border text-background">
-                          {userAnswer !== null ? (
-                            <div className="flex flex-col items-center gap-2">
-                              <Image
-                                src={q.options[userAnswer]}
-                                alt={`התשובה שלך לשאלה ${q.number}`}
-                                width={56}
-                                height={56}
-                                className="rounded border bg-white"
-                              />
-                              <span>אפשרות {userAnswer + 1}</span>
-                            </div>
-                          ) : (
-                            "דילגת"
-                          )}
-                        </td>
-                        <td className="p-2 border text-background">
+                  return (
+                    <tr
+                      key={q.id}
+                      className={isCorrect ? "bg-green-50" : "bg-red-50"}
+                    >
+                      <td className="p-2 border text-background text-center">
+                        {q.number}
+                      </td>
+                      <td className="p-2 border text-background">
+                        <div className="flex flex-col items-center gap-2">
+                          <span className="text-xs text-gray-600">
+                            {q.level}
+                          </span>
+                          <Image
+                            src={q.question}
+                            alt={`שאלה ${q.number}`}
+                            width={88}
+                            height={88}
+                            className="rounded border bg-white"
+                          />
+                        </div>
+                      </td>
+                      <td className="p-2 border text-background">
+                        {userAnswer !== null ? (
                           <div className="flex flex-col items-center gap-2">
                             <Image
-                              src={q.options[correctIdx]}
-                              alt={`התשובה הנכונה לשאלה ${q.number}`}
+                              src={q.options[userAnswer]}
+                              alt={`התשובה שלך לשאלה ${q.number}`}
                               width={56}
                               height={56}
                               className="rounded border bg-white"
                             />
-                            <span>אפשרות {correctIdx + 1}</span>
+                            <span>אפשרות {userAnswer + 1}</span>
                           </div>
-                        </td>
-                        <td className="p-2 border text-background text-center">
-                          {isCorrect ? (
-                            <span
-                              title="Correct"
-                              style={{ color: "#16a34a", fontSize: "1.2em" }}
-                            >
-                              ✓
-                            </span>
-                          ) : (
-                            <span
-                              title="Incorrect"
-                              style={{ color: "#dc2626", fontSize: "1.2em" }}
-                            >
-                              ✗
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                        ) : (
+                          "דילגת"
+                        )}
+                      </td>
+                      <td className="p-2 border text-background">
+                        <div className="flex flex-col items-center gap-2">
+                          <Image
+                            src={q.options[correctIdx]}
+                            alt={`התשובה הנכונה לשאלה ${q.number}`}
+                            width={56}
+                            height={56}
+                            className="rounded border bg-white"
+                          />
+                          <span>אפשרות {correctIdx + 1}</span>
+                        </div>
+                      </td>
+                      <td className="p-2 border text-background text-center">
+                        {isCorrect ? (
+                          <span
+                            title="Correct"
+                            style={{ color: "#16a34a", fontSize: "1.2em" }}
+                          >
+                            ✓
+                          </span>
+                        ) : (
+                          <span
+                            title="Incorrect"
+                            style={{ color: "#dc2626", fontSize: "1.2em" }}
+                          >
+                            ✗
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
 
           <div className="flex justify-center gap-4 mt-8">

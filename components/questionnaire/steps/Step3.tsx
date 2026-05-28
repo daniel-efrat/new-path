@@ -183,15 +183,15 @@ export default function Step3({
               הניקוד שלך: {score} מתוך {QUESTIONS.length} (
               {Math.round((score / QUESTIONS.length) * 100)}%)
             </div>
-            <div className="overflow-x-auto">
-              <table className="p-2 w-full text-right border-collapse">
+            <div className="w-full max-w-3xl mx-auto mt-6 p-4 bg-white rounded-sm overflow-x-auto">
+              <table className="p-2 w-full border text-right text-sm">
                 <thead>
                   <tr className="bg-gray-100">
                     <th className="p-2 border text-background">#</th>
                     <th className="p-2 border text-background">שאלה</th>
-                    <th className="p-2 border text-background">תשובה</th>
+                    <th className="p-2 border text-background">התשובה שלך</th>
                     <th className="p-2 border text-background">תשובה נכונה</th>
-                    <th className="p-2 border text-background">תוצאה</th>
+                    <th className="p-2 border text-background">ציון</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -204,7 +204,7 @@ export default function Step3({
                         key={q.id}
                         className={isCorrect ? "bg-green-50" : "bg-red-50"}
                       >
-                        <td className="p-2 border text-background">
+                        <td className="p-2 border text-background text-center">
                           {index + 1}
                         </td>
                         <td className="p-2 border text-background">

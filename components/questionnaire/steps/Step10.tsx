@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { BarChart3, CheckCircle2 } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import Image from "next/image";
+import { BarChart3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
-  PERSONALITY_SCALE_OPTIONS,
   STEP10_QUESTIONS,
   type PersonalityDimension,
 } from "@/lib/constants/questions";
@@ -15,7 +16,6 @@ import { fetchStepAnswers } from "@/lib/utils/answerFetcher";
 
 interface Step10Props {
   onNext?: () => void;
-  onPrevious: () => void;
   onComplete: () => Promise<void> | void;
   resultsMode?: boolean;
   onBackToReport?: () => void;
@@ -36,7 +36,13 @@ interface DimensionResult extends DimensionCopy {
 
 const STEP_NUMBER = 12;
 const QUESTIONS = STEP10_QUESTIONS;
-const SCALE_VALUES = [1, 2, 3, 4, 5];
+const RATING_OPTIONS = [
+  { src: "/slice1.png", label: "מתאים לי מאוד", value: 5 },
+  { src: "/slice2.png", label: "מתאים לי", value: 4 },
+  { src: "/slice3.png", label: "בינוני", value: 3 },
+  { src: "/slice4.png", label: "מעט מתאים לי", value: 2 },
+  { src: "/slice5.png", label: "בכלל לא מתאים לי", value: 1 },
+];
 
 const DIMENSION_COPY: Record<PersonalityDimension, DimensionCopy> = {
   organization: {
@@ -92,7 +98,6 @@ function getBand(score: number) {
 
 export default function Step10({
   onNext,
-  onPrevious,
   onComplete,
   resultsMode = false,
   onBackToReport,
@@ -101,11 +106,14 @@ export default function Step10({
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [isLoadingAnswers, setIsLoadingAnswers] = useState(true);
   const [showResult, setShowResult] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const answeredCount = QUESTIONS.filter((question) =>
     Number.isInteger(answers[question.id])
   ).length;
   const isComplete = answeredCount === QUESTIONS.length;
+  const currentQuestion = QUESTIONS[currentIndex];
+  const selected = currentQuestion ? answers[currentQuestion.id] : undefined;
 
   const dimensionResults = useMemo<DimensionResult[]>(() => {
     const grouped = QUESTIONS.reduce<
@@ -197,6 +205,17 @@ export default function Step10({
     await setAnswer(questionId, value, undefined, STEP_NUMBER);
   };
 
+  const handleNextQuestion = async () => {
+    if (!Number.isInteger(selected)) return;
+
+    if (currentIndex < QUESTIONS.length - 1) {
+      setCurrentIndex((value) => value + 1);
+      return;
+    }
+
+    await handleShowResult();
+  };
+
   const handleShowResult = async () => {
     if (!isComplete) return;
     if (resultsMode) {
@@ -216,8 +235,25 @@ export default function Step10({
     onNext?.();
   };
 
+  const ratingContainer = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.08, delayChildren: 0.05 },
+    },
+  } as const;
+
+  const ratingItem = {
+    hidden: { opacity: 0, y: 16 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } },
+  } as const;
+
   if (isLoadingAnswers) {
     return <div className="p-6 text-center">טוען...</div>;
+  }
+
+  if (!currentQuestion) {
+    return null;
   }
 
   if (showResult) {
@@ -290,92 +326,108 @@ export default function Step10({
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-4" dir="rtl">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold">מבחני אישיות</h1>
-        <p className="mt-3 text-white/75">
-          דרג/י כל היגד מ-1 עד 5 לפי מידת ההתאמה אליך
-        </p>
-      </div>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      dir="rtl"
+      className="w-full mt-6"
+    >
+      <motion.h1
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1, duration: 0.4 }}
+        className="text-3xl font-bold my-6 text-center"
+      >
+        מבחני אישיות
+      </motion.h1>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-md bg-white/10 px-4 py-3">
-        <div className="text-sm text-white/80">
-          נענו {answeredCount}/{QUESTIONS.length}
-        </div>
-        <div className="flex flex-wrap gap-2 text-xs text-white/80">
-          {PERSONALITY_SCALE_OPTIONS.map((label, index) => (
-            <span key={label}>
-              {index + 1} - {label}
-            </span>
-          ))}
-        </div>
-      </div>
+      <p className="mx-auto mb-6 max-w-2xl text-center text-white/75">
+        דרג/י כל היגד מ-1 עד 5 לפי מידת ההתאמה אליך
+      </p>
 
-      <div className="space-y-3">
-        {QUESTIONS.map((question) => {
-          const selected = answers[question.id];
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentQuestion.id}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card className="max-w-3xl mx-auto bg-white text-background p-2 sm:p-6">
+            <CardHeader className="flex flex-col gap-3 p-2 sm:p-6">
+              <div className="flex w-full items-center justify-between gap-3 text-sm text-gray-700">
+                <span>
+                  שאלה {currentIndex + 1} / {QUESTIONS.length}
+                </span>
+                <span>
+                  נענו {answeredCount}/{QUESTIONS.length}
+                </span>
+              </div>
+              <div className="flex justify-center">
+                <Badge variant="secondary">{currentQuestion.categoryLabel}</Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="p-2 sm:p-6">
+              <div className="mb-4 sm:mb-6 text-right text-xl font-semibold leading-relaxed text-background">
+                {currentQuestion.statement}
+              </div>
 
-          return (
-            <Card key={question.id} className="bg-white text-background">
-              <CardContent className="space-y-4 p-4">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <Badge variant="secondary">{question.categoryLabel}</Badge>
-                    <h2 className="mt-3 text-lg font-semibold leading-8">
-                      {question.number}. {question.statement}
-                    </h2>
-                  </div>
-                  {Number.isInteger(selected) ? (
-                    <CheckCircle2 className="mt-1 h-5 w-5 text-green-700" />
-                  ) : null}
-                </div>
-
-                <div className="grid grid-cols-5 gap-2">
-                  {SCALE_VALUES.map((value) => (
-                    <Button
-                      key={value}
+              <div className="mb-1 sm:mb-2 overflow-hidden">
+                <motion.div
+                  className="flex items-center justify-between gap-0.5 sm:gap-2 overflow-x-auto"
+                  dir="ltr"
+                  variants={ratingContainer}
+                  initial="hidden"
+                  animate="show"
+                >
+                  {RATING_OPTIONS.map((option) => (
+                    <motion.button
+                      key={option.value}
                       type="button"
-                      variant={selected === value ? "default" : "outline"}
-                      className="h-auto min-h-[58px] whitespace-normal px-2 py-2 text-center text-sm"
-                      aria-label={`${question.statement}: ${value}`}
-                      onClick={() => handleSelect(question.id, value)}
+                      onClick={() => handleSelect(currentQuestion.id, option.value)}
+                      className={`flex flex-col items-center p-0.5 sm:p-2 rounded-lg transition-colors focus-visible:outline-none border min-w-[52px] sm:min-w-[80px] ${
+                        selected === option.value
+                          ? "border-primary ring-2 ring-blue-200"
+                          : "border-transparent hover:bg-gray-50"
+                      }`}
+                      aria-pressed={selected === option.value}
+                      aria-label={option.label}
+                      variants={ratingItem}
                     >
-                      <span className="flex flex-col items-center gap-1">
-                        <span className="text-base font-bold">{value}</span>
-                        <span className="text-xs leading-4">
-                          {value === 1
-                            ? "בכלל לא"
-                            : value === 2
-                            ? "מעט"
-                            : value === 3
-                            ? "בינוני"
-                            : value === 4
-                            ? "מתאים"
-                            : "מאוד"}
-                        </span>
+                      <div className="w-[40px] h-[40px] sm:w-[56px] sm:h-[56px] flex items-center justify-center">
+                        <Image
+                          src={option.src}
+                          alt={option.label}
+                          width={56}
+                          height={56}
+                          className="object-contain w-full h-full"
+                        />
+                      </div>
+                      <span className="mt-1 sm:mt-2 text-[10px] sm:text-xs text-gray-700 whitespace-nowrap">
+                        {option.label}
                       </span>
-                    </Button>
+                    </motion.button>
                   ))}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+                </motion.div>
+              </div>
 
-      <div className="sticky bottom-3 z-10 flex flex-wrap items-center justify-between gap-3 rounded-md bg-background/95 p-3 shadow-lg backdrop-blur">
-        <Button variant="outline" onClick={onPrevious}>
-          שלב קודם
-        </Button>
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="text-sm text-white/70">
-            {isComplete ? "כל ההיגדים מולאו" : "יש להשלים את כל ההיגדים"}
-          </span>
-          <Button onClick={handleShowResult} disabled={!isComplete}>
-            {resultsMode ? "הצג סיכום" : "המשך לשלב הבא"}
-          </Button>
-        </div>
-      </div>
-    </div>
+              <div className="flex justify-end mt-6">
+                <Button
+                  onClick={handleNextQuestion}
+                  disabled={!Number.isInteger(selected)}
+                >
+                  {currentIndex < QUESTIONS.length - 1
+                    ? "שאלה הבאה"
+                    : resultsMode
+                    ? "הצג סיכום"
+                    : "סיום השלב"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </AnimatePresence>
+    </motion.div>
   );
 }
