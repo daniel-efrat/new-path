@@ -9,6 +9,10 @@ import Image from "next/image";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 
+const HERO_FEATURE_REVEAL_MARGIN = "0px 0px 35% 0px";
+const HERO_FEATURE_ICON_DELAY = 0.15;
+const HERO_FEATURE_ICON_STAGGER = 0.1;
+
 function HeroIcon({
   src,
   alt,
@@ -23,7 +27,10 @@ function HeroIcon({
   index: number;
 }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const isInView = useInView(ref, {
+    once: true,
+    margin: HERO_FEATURE_REVEAL_MARGIN,
+  });
 
   return (
     <motion.div
@@ -36,7 +43,7 @@ function HeroIcon({
         stiffness: 260,
         damping: 20,
         bounce: 0.5,
-        delay: 0.5 + index * 0.15, // 0.5s after grid appears + staggered delay
+        delay: HERO_FEATURE_ICON_DELAY + index * HERO_FEATURE_ICON_STAGGER,
       }}
     >
       <div
@@ -72,7 +79,10 @@ export function HeroSection() {
     margin: "-100px",
   });
   const isCardInView = useInView(cardRef, { once: true, margin: "-100px" });
-  const isGridInView = useInView(gridRef, { once: true, margin: "-100px" });
+  const isGridInView = useInView(gridRef, {
+    once: true,
+    margin: HERO_FEATURE_REVEAL_MARGIN,
+  });
 
   return (
     <section className="mt-8 relative flex items-center justify-center bg-transparent p-4">
@@ -148,7 +158,7 @@ export function HeroSection() {
           ref={gridRef}
           initial={{ opacity: 0, y: 20 }}
           animate={isGridInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
+          transition={{ duration: 0.5, delay: 0.25 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto mt-12"
         >
           <HeroIcon

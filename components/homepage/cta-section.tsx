@@ -55,7 +55,7 @@ export function CTASection() {
     <LazyMotion features={domAnimation}>
       <m.section
         ref={sectionRef}
-        className="py-20 px-4 relative overflow-hidden"
+        className="pt-8 pb-16 px-4 md:py-20 relative overflow-hidden"
         initial={{ backgroundPosition: "0% 50%" }}
         animate={{
           backgroundPosition: "100% 50%",
