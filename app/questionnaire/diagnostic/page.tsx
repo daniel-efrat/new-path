@@ -347,7 +347,7 @@ export default function QuestionnaireDiagnosticPage() {
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary" className="border-white/20 bg-white/10 text-white">
-                שאלון 2
+                שלב ב׳
               </Badge>
               {data?.cached ? (
                 <Badge variant="outline" className="border-emerald-200/50 text-emerald-100">
@@ -366,7 +366,7 @@ export default function QuestionnaireDiagnosticPage() {
               </h1>
               <p className="mt-2 max-w-3xl text-base leading-7 text-white/80">
                 {data?.report.disclaimer ||
-                  "ניתוח משולב של שאלון 1, מבחני היכולת, האישיות וערכי הליבה."}
+                  "ניתוח משולב של שלב א׳, מבחני היכולת, האישיות וערכי הליבה."}
               </p>
             </div>
           </div>
@@ -433,7 +433,7 @@ function LoadingState() {
         <div>
           <h2 className="text-xl font-semibold">מרכיבים את הדו״ח האבחוני</h2>
           <p className="mt-2 text-sm text-white/70">
-            משלבים את שאלון 1, מבחני היכולת, האישיות וערכי הליבה.
+            משלבים את שלב א׳, מבחני היכולת, האישיות וערכי הליבה.
           </p>
         </div>
       </CardContent>
@@ -933,7 +933,7 @@ function DiagnosticPdfDocument({
           ) : null}
         </PdfSection>
 
-        <PdfSection title="תוצאות שאלון 1">
+        <PdfSection title="תוצאות שלב א׳">
           <PdfChipGrid
             items={report.questionnaire1.topRiasec.map((area) => ({
               label: area.name,

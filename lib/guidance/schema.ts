@@ -165,7 +165,7 @@ export function coerceGuidanceReport(value: unknown): GuidanceReport {
     disclaimer:
       typeof raw.disclaimer === "string"
         ? raw.disclaimer
-        : "זוהי מפת כיוון ראשונית בלבד; האבחון המלא יתגבש לאחר שאלון 2.",
+        : "זוהי מפת כיוון ראשונית בלבד; האבחון המלא יתגבש לאחר שלב ב׳.",
     coreSummary: raw.coreSummary,
     interestAreas: Array.isArray(raw.interestAreas)
       ? raw.interestAreas.slice(0, 3)

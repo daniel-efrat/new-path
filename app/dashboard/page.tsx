@@ -56,28 +56,28 @@ export default function QuestionnaireDashboard() {
   const stepDetails = [
     {
       id: 1,
-      group: "שאלון 1",
+      group: "שלב א׳",
       title: "תכונות ליבה",
       description: "בחר/י עד 10 תכונות מובילות",
       time: "לא מוגבל בזמן",
     },
     {
       id: 2,
-      group: "שאלון 1",
+      group: "שלב א׳",
       title: "עוגני קריירה",
       description: `${STEP4_QUESTIONS.length} שאלות`,
       time: "לא מוגבל בזמן",
     },
     {
       id: 3,
-      group: "שאלון 1",
+      group: "שלב א׳",
       title: "שאלון הולנד",
       description: `${STEP11_QUESTIONS.length} שאלות`,
       time: "לא מוגבל בזמן",
     },
     {
       id: 4,
-      group: "שאלון 1",
+      group: "שלב א׳",
       title: "משפטי ייעוד",
       description:
         "תן/י ציונים לתחומים מקצועיים כלליים (סמן/י עד 5 תחומים כלליים בעדיפות)",
@@ -85,63 +85,63 @@ export default function QuestionnaireDashboard() {
     },
     {
       id: 5,
-      group: "שאלון 2",
+      group: "שלב ב׳",
       title: "מבחן שפה - עברית",
       description: `${STEP2_QUESTIONS.length} שאלות - מבחן אמריקאי`,
       time: "20 שניות לשאלה",
     },
     {
       id: 6,
-      group: "שאלון 2",
+      group: "שלב ב׳",
       title: "מבחן שפה - אנגלית",
       description: `${STEP3_QUESTIONS.length} שאלות - מבחן אמריקאי`,
       time: "40 שניות לשאלה",
     },
     {
       id: 7,
-      group: "שאלון 2",
+      group: "שלב ב׳",
       title: "מבחן לוגיקה",
       description: "20 שאלות לוגיקה",
       time: "90 שניות לשאלה",
     },
     {
       id: 8,
-      group: "שאלון 2",
+      group: "שלב ב׳",
       title: "מבחן מתמטיקה",
       description: "20 שאלות מתמטיקה",
       time: "90 שניות לשאלה",
     },
     {
       id: 9,
-      group: "שאלון 2",
+      group: "שלב ב׳",
       title: "מבחן צורות חזותי",
       description: `${STEP7_QUESTIONS.length} שאלות`,
       time: "45 שניות לשאלה",
     },
     {
       id: 10,
-      group: "שאלון 2",
+      group: "שלב ב׳",
       title: "מבחן ידע בסיסי במחשב",
       description: `${STEP8_QUESTIONS.length} שאלות`,
       time: "45 שניות לשאלה",
     },
     {
       id: 11,
-      group: "שאלון 2",
+      group: "שלב ב׳",
       title: "מבדק קשב, סינון מידע וזיכרון",
       description: "15 שאלות",
       time: "20 שניות לשאלה",
     },
     {
       id: 12,
-      group: "שאלון 2",
+      group: "שלב ב׳",
       title: "מבחני אישיות",
       description: `${STEP10_QUESTIONS.length} היגדים`,
       time: "לא מוגבל בזמן",
     },
     {
       id: 13,
-      group: "שאלון 2",
+      group: "שלב ב׳",
       title: "ליבת הערכים אישיים",
       description: "בחירת ערכים",
       time: "לא מוגבל בזמן",
@@ -330,7 +330,7 @@ export default function QuestionnaireDashboard() {
               return (
                 <div key={details.id}>
                   {showGroupTitle && (
-                    <h2 className="px-1 pt-2 text-xl font-bold text-white/95">
+                    <h2 className="px-1 py-2 text-xl font-bold text-white/95">
                       {details.group}
                     </h2>
                   )}

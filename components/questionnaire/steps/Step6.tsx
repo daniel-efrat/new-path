@@ -320,7 +320,7 @@ export default function Step6({
                     transition={{ delay: 0.6 + idx * 0.1 }}
                   >
                     <Button
-                      className="w-full justify-center p-4 h-auto text-base whitespace-normal hover:bg-gray-100"
+                      className="w-full justify-center p-4 h-auto text-base whitespace-normal text-foreground hover:bg-white/10 disabled:opacity-100"
                       variant="outline"
                       disabled={selected !== null}
                       onClick={() => handleSelect(idx)}

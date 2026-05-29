@@ -85,7 +85,7 @@ export default function QuestionnaireGuidancePage() {
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary" className="border-white/20 bg-white/10 text-white">
-                שאלון 1
+                שלב א׳
               </Badge>
               {data?.cached ? (
                 <Badge variant="outline" className="border-emerald-200/50 text-emerald-100">
@@ -99,7 +99,7 @@ export default function QuestionnaireGuidancePage() {
               </h1>
               <p className="mt-2 max-w-3xl text-base leading-7 text-white/80">
                 {data?.report.disclaimer ||
-                  "זוהי תמונת כיוון קצרה לפני שאלון 2, בלי ציוני התאמה סופיים."}
+                  "זוהי תמונת כיוון קצרה לפני שלב ב׳, בלי ציוני התאמה סופיים."}
               </p>
             </div>
           </div>
@@ -113,7 +113,7 @@ export default function QuestionnaireGuidancePage() {
               חזרה ללוח הבקרה
             </Button>
             <Button onClick={continueToQuestionnaire2}>
-              המשך לשאלון 2
+              המשך לשלב ב׳
               <ArrowLeft className="size-4" />
             </Button>
           </div>
@@ -139,7 +139,7 @@ function LoadingState() {
         <div>
           <h2 className="text-xl font-semibold">מרכיבים את מפת הכיוון</h2>
           <p className="mt-2 text-sm text-white/70">
-            זה לוקח רגע קצר, ואחריו אפשר להמשיך לשאלון 2.
+            זה לוקח רגע קצר, ואחריו אפשר להמשיך לשלב ב׳.
           </p>
         </div>
       </CardContent>
@@ -299,7 +299,7 @@ function GuidanceReportView({
                   {direction.title}
                 </h3>
                 <ReportDetail label="למה זה עשוי להתאים" value={direction.whyItMayFit} />
-                <ReportDetail label="מה לבדוק בשאלון 2" value={direction.whatToCheckNext} />
+                <ReportDetail label="מה לבדוק בשלב ב׳" value={direction.whatToCheckNext} />
                 <ReportDetail label="שאלה להשאיר פתוחה" value={direction.possibleTension} />
               </CardContent>
             </Card>
@@ -312,11 +312,11 @@ function GuidanceReportView({
           <div>
             <h2 className="text-xl font-semibold">{report.nextStep}</h2>
             <p className="mt-1 text-sm text-white/65">
-              הדוח המלא והמדויק יותר ייבנה אחרי שאלון 2.
+              הדוח המלא והמדויק יותר ייבנה אחרי שלב ב׳.
             </p>
           </div>
           <Button onClick={onContinue}>
-            המשך לשאלון 2
+            המשך לשלב ב׳
             <ArrowLeft className="size-4" />
           </Button>
         </CardContent>

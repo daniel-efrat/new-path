@@ -136,14 +136,14 @@ export default function ProfilePage() {
             <ReportCard
               kind="guidance"
               title="מפת כיוון ראשונית"
-              description="תוצאות שאלון 1, תחומי עניין, סדרי עדיפויות וכיוונים ראשוניים."
+              description="תוצאות שלב א׳, תחומי עניין, סדרי עדיפויות וכיוונים ראשוניים."
               report={guidance}
               href="/questionnaire/guidance"
             />
             <ReportCard
               kind="diagnostic"
               title="דו״ח אבחוני תעסוקתי"
-              description="הדוח המלא לאחר שאלון 2, כולל ציוני יכולת, פרופיל אישיות ומקצועות מתאימים."
+              description="הדוח המלא לאחר שלב ב׳, כולל ציוני יכולת, פרופיל אישיות ומקצועות מתאימים."
               report={diagnostic}
               href="/questionnaire/diagnostic"
             />

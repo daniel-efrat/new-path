@@ -1650,7 +1650,7 @@ export const STEP9_QUESTIONS: AttentionMemoryQuestion[] = [
     number: 1,
     level: "קשב חזותי",
     category: "קשב",
-    question: "כמה פעמים מופיעה האות ק ברצף הבא?",
+    question: "כמה פעמים מופיעה האות ק ברצף האותיות?",
     stimulus: "ר ק ב מ ק ת כ ק ש ד ק",
     options: ["3", "4", "5", "6"],
     correct_option: 1,

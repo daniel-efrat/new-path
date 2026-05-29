@@ -1,6 +1,6 @@
 INSERT INTO public.questions (id, step_number, question_text, question_type, answer_options)
 VALUES
-  ('90110000-0000-4000-8000-000000000001'::uuid, 11, 'כמה פעמים מופיעה האות ק ברצף הבא?', 'attention_memory', '{"options":["3","4","5","6"],"correct_option":1,"level":"קשב חזותי","category":"קשב","stimulus":"ר ק ב מ ק ת כ ק ש ד ק"}'::jsonb),
+  ('90110000-0000-4000-8000-000000000001'::uuid, 11, 'כמה פעמים מופיעה האות ק ברצף האותיות?', 'attention_memory', '{"options":["3","4","5","6"],"correct_option":1,"level":"קשב חזותי","category":"קשב","stimulus":"ר ק ב מ ק ת כ ק ש ד ק"}'::jsonb),
   ('90110000-0000-4000-8000-000000000002'::uuid, 11, 'איזו רשימה כוללת רק את המספרים הזוגיים הגדולים מ-50?', 'attention_memory', '{"options":["64, 88, 60","42, 64, 88, 60","64, 71, 88","88, 53, 60"],"correct_option":0,"level":"סינון מידע","category":"סינון מידע","stimulus":"42, 64, 71, 88, 53, 60"}'::jsonb),
   ('90110000-0000-4000-8000-000000000003'::uuid, 11, 'מה היה הרצף בסדר הפוך?', 'attention_memory', '{"options":["4 - 9 - 2 - 7","7 - 2 - 9 - 4","4 - 2 - 9 - 7","9 - 4 - 7 - 2"],"correct_option":0,"level":"זיכרון עבודה","category":"זיכרון עבודה","stimulus":"7 - 2 - 9 - 4","stimulus_seconds":5}'::jsonb),
   ('90110000-0000-4000-8000-000000000004'::uuid, 11, 'איזה סימן מופיע הכי הרבה ברצף?', 'attention_memory', '{"options":["▲","●","■","כולם מופיעים אותו מספר פעמים"],"correct_option":0,"level":"קשב מתמשך","category":"קשב","stimulus":"▲ ● ▲ ■ ▲ ● ■ ▲"}'::jsonb),

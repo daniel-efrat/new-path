@@ -549,7 +549,7 @@ function buildDiagnosticPrompt(input: DiagnosticInput, baseReport: DiagnosticRep
 
   const systemPrompt = [
     "אתה יועץ תעסוקתי מקצועי וזהיר למערכת אבחון קריירה בעברית.",
-    "עליך לכתוב ניתוח אבחוני מפורט אחרי שאלון 2, על בסיס הנתונים והמקצועות המועמדים בלבד.",
+    "עליך לכתוב ניתוח אבחוני מפורט אחרי שלב ב׳, על בסיס הנתונים והמקצועות המועמדים בלבד.",
     "אל תמציא מקצועות, אחוזי התאמה, שכר, מוסדות הכשרה או קישורים. כל אלה נקבעים במערכת.",
     "כתוב בעברית, בטון ברור, אנושי ולא נחרץ מדי. הימנע מאבחון קליני.",
     "הפלט חייב להיות JSON תקין בלבד, בלי Markdown, לפי הסכמה.",
@@ -560,7 +560,7 @@ function buildDiagnosticPrompt(input: DiagnosticInput, baseReport: DiagnosticRep
     JSON.stringify(compactInput, null, 2),
     "הפק JSON בעברית בלבד.",
     "occupationNarratives חייב לכלול רק occupationId מתוך רשימת candidateOccupations.",
-    "shortWhy ו-fitReasons צריכים לנמק התאמה באמצעות שילוב שאלון 1, ציוני יכולת, אישיות וערכי ליבה.",
+    "shortWhy ו-fitReasons צריכים לנמק התאמה באמצעות שילוב שלב א׳, ציוני יכולת, אישיות וערכי ליבה.",
     "possibleTensions צריך להיות זהיר ומעשי: מה לבדוק לפני בחירת מסלול, לא סיבה לפסילה.",
   ].join("\n\n");
 
@@ -976,11 +976,11 @@ function buildFallbackSummary(input: DiagnosticInput): string {
 
   return [
     topRiasec
-      ? `בשאלון 1 בלטו נטיות לכיוון ${topRiasec}.`
-      : "שאלון 1 מצביע על כמה כיוונים רחבים שעדיין דורשים בדיקה.",
+      ? `בשלב א׳ בלטו נטיות לכיוון ${topRiasec}.`
+      : "שלב א׳ מצביע על כמה כיוונים רחבים שעדיין דורשים בדיקה.",
     topAbilities
-      ? `בשאלון 2 נראית נקודת חוזק יחסית ב${topAbilities}.`
-      : "נתוני היכולת בשאלון 2 עדיין חלקיים.",
+      ? `בשלב ב׳ נראית נקודת חוזק יחסית ב${topAbilities}.`
+      : "נתוני היכולת בשלב ב׳ עדיין חלקיים.",
     topPersonality
       ? `בסגנון העבודה בולטים ${topPersonality}, ולכן כדאי לחפש סביבת עבודה שמאפשרת להם לבוא לידי ביטוי.`
       : "פרופיל האישיות עדיין חלקי, ולכן מומלץ לקרוא את ההמלצות בזהירות.",
@@ -1017,7 +1017,7 @@ function buildFallbackProfileInsights(
     developmentAreas:
       developmentAreas.length > 0
         ? developmentAreas
-        : ["כדאי להשלים את כלל חלקי שאלון 2 כדי לזהות מוקדי חיזוק."],
+        : ["כדאי להשלים את כלל חלקי שלב ב׳ כדי לזהות מוקדי חיזוק."],
     workStyle: topWorkStyle
       ? `סגנון העבודה שנראה כרגע נשען על ${topWorkStyle}, עם צורך בסביבה שמייצרת בהירות ומשוב מעשי.`
       : "סגנון העבודה יתבהר לאחר השלמת כלל חלקי השאלון.",

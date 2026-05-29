@@ -62,7 +62,7 @@ export default function KeyboardShortcuts() {
           <Button
             variant="ghost"
             size="sm"
-            className="text-background hover:bg-gray-100 active:bg-gray-200"
+            className="w-full justify-center p-4 h-auto text-base whitespace-normal text-foreground hover:bg-white/10 disabled:opacity-100"
             onClick={() => setIsVisible(false)}
             aria-label="סגור"
           >

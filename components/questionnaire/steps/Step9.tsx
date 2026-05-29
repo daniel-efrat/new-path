@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { STEP9_QUESTIONS } from "@/lib/constants/questions";
@@ -19,6 +18,12 @@ interface Step9Props {
 const QUESTIONS = STEP9_QUESTIONS;
 const STEP_NUMBER = 11;
 const QUESTION_SECONDS = 25;
+const DEFAULT_STIMULUS_SECONDS = 7;
+
+type StimulusState = {
+  questionId: string | null;
+  secondsLeft: number;
+};
 
 export default function Step9({
   onNext,
@@ -37,11 +42,30 @@ export default function Step9({
   const [timer, setTimer] = useState(QUESTION_SECONDS);
   const [showResult, setShowResult] = useState(false);
   const [showIntro, setShowIntro] = useState(!resultsMode);
-  const [showStimulus, setShowStimulus] = useState(false);
-  const [stimulusLeft, setStimulusLeft] = useState(0);
+  const [stimulus, setStimulus] = useState<StimulusState>({
+    questionId: null,
+    secondsLeft: 0,
+  });
 
   const question = QUESTIONS[current];
   const answeredCount = answers.filter((answer) => answer !== null).length;
+  const showStimulus =
+    stimulus.questionId === question.id && stimulus.secondsLeft > 0;
+
+  const prepareQuestion = useCallback(
+    (questionIndex: number) => {
+      const nextQuestion = QUESTIONS[questionIndex];
+      const shouldShowStimulus = Boolean(nextQuestion.stimulus);
+
+      setTimer(QUESTION_SECONDS);
+      setSelected(null);
+      setStimulus({
+        questionId: shouldShowStimulus ? nextQuestion.id : null,
+        secondsLeft: shouldShowStimulus ? DEFAULT_STIMULUS_SECONDS : 0,
+      });
+    },
+    []
+  );
 
   const categoryScores = useMemo(() => {
     return QUESTIONS.reduce<Record<string, { correct: number; total: number }>>(
@@ -166,36 +190,25 @@ export default function Step9({
     };
 
     loadAnswers();
-  }, []);
+  }, [resultsMode]);
 
   useEffect(() => {
-    if (showResult || showIntro) {
-      setShowStimulus(false);
-      setStimulusLeft(0);
+    if (showResult || showIntro || isLoadingAnswers) {
+      setStimulus({ questionId: null, secondsLeft: 0 });
       return;
     }
 
-    setTimer(QUESTION_SECONDS);
-    setSelected(null);
-
-    if (question.stimulus && answers[current] === null) {
-      setShowStimulus(true);
-      setStimulusLeft(question.stimulusSeconds || 5);
-    } else {
-      setShowStimulus(false);
-      setStimulusLeft(0);
-    }
+    prepareQuestion(current);
   }, [
-    answers,
     current,
-    question.stimulus,
-    question.stimulusSeconds,
+    isLoadingAnswers,
+    prepareQuestion,
     showIntro,
     showResult,
   ]);
 
   useEffect(() => {
-    if (showResult || showIntro || selected !== null) return;
+    if (showResult || showIntro || selected !== null || showStimulus) return;
     if (timer === 0) {
       handleSkip();
       return;
@@ -206,21 +219,26 @@ export default function Step9({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [handleSkip, selected, showIntro, showResult, timer]);
+  }, [handleSkip, selected, showIntro, showResult, timer, showStimulus]);
 
   useEffect(() => {
     if (!showStimulus) return;
-    if (stimulusLeft === 0) {
-      setShowStimulus(false);
-      return;
-    }
 
-    const interval = setInterval(() => {
-      setStimulusLeft((value) => Math.max(0, value - 1));
+    const timeout = window.setTimeout(() => {
+      setStimulus((currentStimulus) => {
+        if (currentStimulus.questionId !== question.id) {
+          return currentStimulus;
+        }
+
+        return {
+          ...currentStimulus,
+          secondsLeft: Math.max(0, currentStimulus.secondsLeft - 1),
+        };
+      });
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [showStimulus, stimulusLeft]);
+    return () => window.clearTimeout(timeout);
+  }, [question.id, showStimulus, stimulus.secondsLeft]);
 
   const handleContinue = async () => {
     if (resultsMode) {
@@ -232,6 +250,7 @@ export default function Step9({
   };
 
   const handleStartIntro = () => {
+    prepareQuestion(current);
     setShowIntro(false);
   };
 
@@ -405,87 +424,169 @@ export default function Step9({
     <AnimatePresence mode="wait">
       <motion.div
         key={question.id}
-        className="mx-auto max-w-2xl space-y-5 p-4"
+        className="w-full max-w-2xl mx-auto"
         dir="rtl"
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -18 }}
       >
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">מבדק קשב, סינון מידע וזיכרון</h1>
-          <p className="mt-2 text-sm text-white/75">
-            שאלה {question.number} מתוך {QUESTIONS.length}
-          </p>
+        <h1 className="text-2xl font-bold mb-4 mt-6 text-center">
+          מבדק קשב, סינון מידע וזיכרון
+        </h1>
+        <div className="flex justify-center mb-4">
+          <span className="text-lg font-semibold">
+            שאלה {question.number} / {QUESTIONS.length}
+          </span>
         </div>
 
-        <Card className="bg-white text-background">
-          <CardContent className="space-y-5 p-5">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="secondary">{question.category}</Badge>
-                <span className="text-sm text-gray-600">{question.level}</span>
-              </div>
-              <span
-                className={`font-mono text-lg ${
-                  timer <= 8 ? "text-red-700" : "text-gray-700"
-                }`}
-              >
-                {timer} שניות
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <Card className="max-w-xl mx-auto p-6 mb-6">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm text-muted-foreground">
+                {question.level}
               </span>
-            </div>
-
-            {question.stimulus ? (
-              <div className="rounded-md border bg-gray-50 p-4 text-center">
-                <div className="text-xs font-semibold text-gray-500">
-                  {showStimulus ? "התבוננו בפריט" : "זמן הצפייה הסתיים"}
-                </div>
-                <div className="mt-2 text-xl font-semibold tracking-normal">
-                  {showStimulus ? question.stimulus : "ענו לפי מה שראיתם"}
-                </div>
-                {showStimulus ? (
-                  <div className="mt-2 text-xs text-gray-500">
-                    נשארו {stimulusLeft} שניות לצפייה
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
-
-            <div className="text-lg font-semibold leading-8">
-              {question.question}
-            </div>
-
-            <div className="grid gap-2">
-              {question.options.map((option, index) => (
-                <Button
-                  key={option}
-                  variant="outline"
-                  disabled={showStimulus || selected !== null}
-                  onClick={() => handleSelect(index)}
-                  className={`h-auto justify-center whitespace-normal p-4 text-base disabled:opacity-100 ${
-                    selected !== null
-                      ? index === selected
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "bg-gray-100 text-gray-900"
-                      : ""
+              {!showStimulus ? (
+                <span
+                  className={`font-mono text-lg ${
+                    timer <= 10 ? "text-orange-300" : "text-muted-foreground"
                   }`}
                 >
-                  {option}
-                </Button>
-              ))}
+                  {timer} שניות
+                </span>
+              ) : (
+                <span
+                  className={`font-mono text-lg ${
+                    stimulus.secondsLeft <= 3
+                      ? "text-orange-300"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  {stimulus.secondsLeft} שניות
+                </span>
+              )}
             </div>
 
-          </CardContent>
-        </Card>
+            <AnimatePresence mode="wait">
+              {showStimulus ? (
+                <motion.div
+                  key="stimulus-container"
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.96 }}
+                  transition={{ duration: 0.25 }}
+                  className="flex flex-col items-center justify-center py-6 text-center space-y-6"
+                >
+                  <div className="text-sm text-muted-foreground">
+                    התבוננו בפריט וזכרו אותו:
+                  </div>
 
-        <div className="flex items-center justify-end">
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-white/70">
-              נענו {answeredCount}/{QUESTIONS.length}
-            </span>
-            <Button variant="outline" onClick={handleSkip}>
-              דלג
-            </Button>
-          </div>
+                  <div className="text-3xl md:text-4xl font-bold tracking-wider bg-muted rounded border px-8 py-6 min-w-[200px] select-none">
+                    {question.stimulus}
+                  </div>
+
+                  <div className="relative flex items-center justify-center">
+                    <svg className="w-24 h-24 transform -rotate-90">
+                      <circle
+                        cx="48"
+                        cy="48"
+                        r="38"
+                        className="stroke-slate-200"
+                        strokeWidth="5"
+                        fill="transparent"
+                      />
+                      <motion.circle
+                        cx="48"
+                        cy="48"
+                        r="38"
+                        className={`${
+                          stimulus.secondsLeft <= 3
+                            ? "stroke-orange-400"
+                            : "stroke-primary"
+                        }`}
+                        strokeWidth="5"
+                        fill="transparent"
+                        strokeDasharray={2 * Math.PI * 38}
+                        animate={{
+                          strokeDashoffset:
+                            (2 * Math.PI * 38) *
+                            (1 - stimulus.secondsLeft / DEFAULT_STIMULUS_SECONDS),
+                        }}
+                        transition={{ duration: 0.2, ease: "linear" }}
+                      />
+                    </svg>
+                    <div className="absolute flex flex-col items-center justify-center">
+                      <motion.span
+                        key={stimulus.secondsLeft}
+                        initial={{ scale: 0.8, opacity: 0.5 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className={`text-2xl font-bold font-mono ${
+                          stimulus.secondsLeft <= 3
+                            ? "text-orange-400 animate-pulse"
+                            : "text-foreground"
+                        }`}
+                      >
+                        {stimulus.secondsLeft}
+                      </motion.span>
+                      <span className="text-[10px] font-medium text-muted-foreground">
+                        שניות
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="question-container"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-6"
+                >
+                  <div className="mb-4 font-medium text-lg text-right text-foreground">
+                    {question.question}
+                  </div>
+
+                  <div className="space-y-2">
+                    {question.options.map((option, index) => (
+                      <motion.div
+                        key={`${question.id}-${index}`}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.6 + index * 0.1 }}
+                      >
+                        <Button
+                          variant="outline"
+                          disabled={selected !== null}
+                          onClick={() => handleSelect(index)}
+                          className="w-full justify-center p-4 h-auto text-base whitespace-normal text-foreground hover:bg-white/10 disabled:opacity-100"
+                        >
+                          {option}
+                        </Button>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </Card>
+        </motion.div>
+
+        <div className="flex items-center justify-between px-2 max-w-xl mx-auto">
+          <span className="text-sm text-white/70 font-medium">
+            נענו {answeredCount}/{QUESTIONS.length}
+          </span>
+          <Button
+            variant="outline"
+            onClick={handleSkip}
+            disabled={showStimulus || selected !== null}
+            className="border-white/20 text-white hover:bg-white/10 hover:text-white rounded-lg px-5 disabled:opacity-30"
+          >
+            דלג
+          </Button>
         </div>
       </motion.div>
     </AnimatePresence>
