@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore";
 import { useStepStore } from "@/lib/stores/stepStore";
 import { useStep12Store } from "@/lib/stores/step12Store";
+import { QUESTIONNAIRE_STEP_TITLES } from "@/lib/constants/questionnaire";
+import LevelCompleteModal from "@/components/questionnaire/LevelCompleteModal";
 
 import Step1 from "@/components/questionnaire/steps/Step1";
 import Step2 from "@/components/questionnaire/steps/Step2";
@@ -46,6 +48,10 @@ export default function QuestionnairePage() {
   const [storeReady, setStoreReady] = useState(false);
   const [showHollandResults, setShowHollandResults] = useState(false);
   const [resultsMode, setResultsMode] = useState(false);
+  const [levelComplete, setLevelComplete] = useState<{
+    step: number;
+    questionnaireName: string;
+  } | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -70,18 +76,33 @@ export default function QuestionnairePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onNext = () => {
-    if (currentStep === 3) {
+  const advanceAfterStep = (completedStep: number) => {
+    if (completedStep === 3) {
       if (resultsMode) {
         setShowHollandResults(true);
       } else {
         setCurrentStep(4);
       }
-    } else if (currentStep === 13) {
+    } else if (completedStep === 13) {
       router.push("/questionnaire/diagnostic");
     } else {
-      setCurrentStep(currentStep + 1);
+      setCurrentStep(completedStep + 1);
     }
+  };
+
+  const onNext = () => {
+    setLevelComplete({
+      step: currentStep,
+      questionnaireName:
+        QUESTIONNAIRE_STEP_TITLES[currentStep] ?? `שלב ${currentStep}`,
+    });
+  };
+
+  const continueAfterLevelComplete = () => {
+    if (!levelComplete) return;
+    const completedStep = levelComplete.step;
+    setLevelComplete(null);
+    advanceAfterStep(completedStep);
   };
 
   const continueFromHollandResults = () => {
@@ -129,13 +150,20 @@ export default function QuestionnairePage() {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <Current
-        onNext={showHollandResults ? continueFromHollandResults : onNext}
-        onComplete={onComplete}
-        resultsMode={resultsMode}
-        onBackToReport={onBackToReport}
+    <>
+      <div className="container mx-auto p-4">
+        <Current
+          onNext={showHollandResults ? continueFromHollandResults : onNext}
+          onComplete={onComplete}
+          resultsMode={resultsMode}
+          onBackToReport={onBackToReport}
+        />
+      </div>
+      <LevelCompleteModal
+        isOpen={levelComplete !== null}
+        questionnaireName={levelComplete?.questionnaireName ?? ""}
+        onContinue={continueAfterLevelComplete}
       />
-    </div>
+    </>
   );
 }

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import supabase, { saveDesignationChoices, type DesignationChoiceRow } from "@/lib/supabase";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import LevelCompleteModal from "@/components/questionnaire/LevelCompleteModal";
+import { QUESTIONNAIRE_STEP_TITLES } from "@/lib/constants/questionnaire";
 import { useStep12Store } from "@/lib/stores/step12Store";
 import { useStepStore } from "@/lib/stores/stepStore";
 
@@ -32,6 +34,7 @@ export default function Step12FlowPage() {
   const [error, setError] = useState<string | null>(null);
   const [rows, setRows] = useState<Row[]>([]);
   const [selectedTwo, setSelectedTwo] = useState<Set<number>>(new Set());
+  const [showLevelComplete, setShowLevelComplete] = useState(false);
 
   useEffect(() => {
     ensureStep12User().finally(() => setStoreReady(true));
@@ -121,7 +124,7 @@ export default function Step12FlowPage() {
       await saveDesignationChoices(rows);
       // Mark the designation sentences step completed.
       await setStepCompletion(4, true);
-      router.push("/questionnaire/guidance");
+      setShowLevelComplete(true);
     } catch (e: any) {
       console.error("Failed to save designation choices", e);
       alert(e?.message || "שמירת הבחירות נכשלה");
@@ -133,60 +136,67 @@ export default function Step12FlowPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto" dir="rtl">
-      <h2 className="text-2xl font-bold my-6 text-center">
-        {info.title || `תחום #${currentSerial}`}
-      </h2>
-      {info.desc && (
-        <p className="text-center text-muted-foreground mb-4">{info.desc}</p>
-      )}
+    <>
+      <div className="max-w-3xl mx-auto" dir="rtl">
+        <h2 className="text-2xl font-bold my-6 text-center">
+          {info.title || `תחום #${currentSerial}`}
+        </h2>
+        {info.desc && (
+          <p className="text-center text-muted-foreground mb-4">{info.desc}</p>
+        )}
 
-      <Card className="bg-white text-background">
-        <CardContent className="p-4">
-          <div className="text-sm text-gray-700 mb-3 text-center">
-            תחום {index + 1} מתוך {serials.length} — בחר/י 2 משפטים (נבחרו{" "}
-            {selectedTwo.size}/2)
-          </div>
+        <Card className="bg-white text-background">
+          <CardContent className="p-4">
+            <div className="text-sm text-gray-700 mb-3 text-center">
+              תחום {index + 1} מתוך {serials.length} — בחר/י 2 משפטים (נבחרו{" "}
+              {selectedTwo.size}/2)
+            </div>
 
-          {loading && <p className="text-sm text-gray-600">טוען משפטים...</p>}
-          {error && <p className="text-sm text-destructive">שגיאה: {error}</p>}
+            {loading && <p className="text-sm text-gray-600">טוען משפטים...</p>}
+            {error && <p className="text-sm text-destructive">שגיאה: {error}</p>}
 
-          {!loading && !error && (
-            <ul className="divide-y text-background">
-              {rows.map((r) => {
-                const checked = selectedTwo.has(r.statement_serial);
-                const disabled = !checked && !canToggle(r.statement_serial);
-                return (
-                  <li key={r.statement_serial} className="py-2">
-                    <label
-                      className={`flex items-start gap-3 ${
-                        disabled ? "opacity-50" : ""
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        className="mt-1"
-                        checked={checked}
-                        disabled={disabled}
-                        onChange={() => onToggle(r.statement_serial)}
-                      />
-                      <span className="leading-relaxed">
-                        {r.statement_serial}. {r.statement}
-                      </span>
-                    </label>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
+            {!loading && !error && (
+              <ul className="divide-y text-background">
+                {rows.map((r) => {
+                  const checked = selectedTwo.has(r.statement_serial);
+                  const disabled = !checked && !canToggle(r.statement_serial);
+                  return (
+                    <li key={r.statement_serial} className="py-2">
+                      <label
+                        className={`flex items-start gap-3 ${
+                          disabled ? "opacity-50" : ""
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          className="mt-1"
+                          checked={checked}
+                          disabled={disabled}
+                          onChange={() => onToggle(r.statement_serial)}
+                        />
+                        <span className="leading-relaxed">
+                          {r.statement_serial}. {r.statement}
+                        </span>
+                      </label>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
 
-          <div className="flex justify-end mt-6">
-            <Button onClick={onNext} disabled={selectedTwo.size !== 2}>
-              {index < serials.length - 1 ? "הבא" : "סיום"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+            <div className="flex justify-end mt-6">
+              <Button onClick={onNext} disabled={selectedTwo.size !== 2}>
+                {index < serials.length - 1 ? "הבא" : "סיום"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      <LevelCompleteModal
+        isOpen={showLevelComplete}
+        questionnaireName={QUESTIONNAIRE_STEP_TITLES[4]}
+        onContinue={() => router.push("/questionnaire/guidance")}
+      />
+    </>
   );
 }

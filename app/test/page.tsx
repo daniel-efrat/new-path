@@ -1,11 +1,27 @@
-import React from 'react'
+const iconLayers = [1, 2, 3, 4, 5, 6, 7];
 
 const Test = () => {
   return (
-    <div className='flex justify-center items-center h-screen'>
-        <div className='w-40 h-40 bg-primary rounded-full '></div>
-    </div>
-  )
-}
+    <main className="grid min-h-screen place-items-center p-6">
+      <div className="relative aspect-[1075/988] w-44 max-w-[55vw] sm:w-56 md:w-64">
+        {iconLayers.map((layer, index) => (
+          <div
+            key={layer}
+            className="test-icon-layer absolute inset-0"
+            style={{ animationDelay: `${index * 120}ms` }}
+          >
+            <img
+              src={`/complete/${layer}.png`}
+              alt=""
+              aria-hidden="true"
+              className="block h-full w-full object-contain"
+              draggable={false}
+            />
+          </div>
+        ))}
+      </div>
+    </main>
+  );
+};
 
-export default Test
+export default Test;

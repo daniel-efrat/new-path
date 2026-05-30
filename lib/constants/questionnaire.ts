@@ -5,6 +5,22 @@ export const QUESTIONNAIRE_CONFIG = {
   MAX_ANCHOR_VALUE: 10,
 } as const
 
+export const QUESTIONNAIRE_STEP_TITLES: Record<number, string> = {
+  1: "הערכה מקצועית",
+  2: "עוגני קריירה",
+  3: "הולנד",
+  4: "בחירת תחומי עיסוק",
+  5: "עברית",
+  6: "אנגלית",
+  7: "לוגיקה",
+  8: "מתמטיקה",
+  9: "צורות",
+  10: "ידע בסיסי במחשבים",
+  11: "קשב, סינון מידע וזיכרון",
+  12: "מבחני אישיות",
+  13: "ליבת הערכים האישיים",
+} as const
+
 export const VALIDATION_MESSAGES = {
   TRAITS: {
     REQUIRED: "יש לבחור לפחות תכונה אחת",
