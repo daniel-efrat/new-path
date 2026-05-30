@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "db:seed": "node scripts/seed.js"
+    "db:seed": "tsx scripts/seed-questions.ts"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.2",

@@ -227,7 +227,7 @@ export const STEP1_QUESTIONS: Trait[] = [
   { id: "d6e7f8a9-b0c1-abcd-ef01-456789012345", text: "חמימות", type: "trait" },
   {
     id: "e7f8a9b0-c1d2-bcde-f012-567890123456",
-    text: "יכולת הקשבה",
+    text: "יכולת הכלה",
     type: "trait",
   },
   {
@@ -2424,7 +2424,12 @@ export const STEP11_QUESTIONS: HollandQuestion[] = [
   },
 ]
 
-type CatalogQuestion = Trait | Question | AnchorQuestion | PersonalityQuestion
+type CatalogQuestion =
+  | Trait
+  | Question
+  | AnchorQuestion
+  | PersonalityQuestion
+  | HollandQuestion
 
 export const ALL_QUESTIONS: CatalogQuestion[] = [
   ...STEP1_QUESTIONS,
@@ -2437,6 +2442,7 @@ export const ALL_QUESTIONS: CatalogQuestion[] = [
   ...STEP8_QUESTIONS,
   ...STEP9_QUESTIONS,
   ...STEP10_QUESTIONS,
+  ...STEP11_QUESTIONS,
 ]
 
 function isTrait(question: CatalogQuestion): question is Trait {
@@ -2445,6 +2451,10 @@ function isTrait(question: CatalogQuestion): question is Trait {
 
 function isAnchorQuestion(question: CatalogQuestion): question is AnchorQuestion {
   return "text" in question && (question as any).type === "anchor"
+}
+
+function isHollandQuestion(question: CatalogQuestion): question is HollandQuestion {
+  return "text" in question && (question as any).type === "holland"
 }
 
 function isPersonalityQuestion(
@@ -2463,7 +2473,11 @@ export const getQuestionText = (id: string): string | undefined => {
     return undefined
   }
 
-  if (isTrait(question) || isAnchorQuestion(question)) {
+  if (
+    isTrait(question) ||
+    isAnchorQuestion(question) ||
+    isHollandQuestion(question)
+  ) {
     return question.text
   }
 

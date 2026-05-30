@@ -3,12 +3,12 @@ import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { Answer } from '@/lib/types';
 import { STEP11_QUESTIONS } from '@/lib/constants/questions';
 
 const RIASEC_CODES = ['R', 'I', 'A', 'S', 'E', 'C'] as const;
 type RiasecCode = (typeof RIASEC_CODES)[number];
 type RiasecScores = Record<RiasecCode, number>;
+type HollandAnswer = { id: string; value: number };
 
 function makeRiasecScores(): RiasecScores {
   return { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
@@ -40,10 +40,40 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    const { answers }: { answers: Answer[] } = await request.json();
+    const { answers }: { answers?: Array<{ id?: unknown; value?: unknown }> } =
+      await request.json();
 
     if (!answers || !Array.isArray(answers) || answers.length === 0) {
       return NextResponse.json({ error: 'Invalid answers payload' }, { status: 400 });
+    }
+
+    const expectedQuestionIds = new Set(STEP11_QUESTIONS.map((question) => question.id));
+    const seenQuestionIds = new Set<string>();
+    const sanitizedAnswers: HollandAnswer[] = [];
+
+    for (const answer of answers) {
+      if (typeof answer.id !== 'string' || !expectedQuestionIds.has(answer.id)) {
+        return NextResponse.json({ error: 'Unknown Holland question id' }, { status: 400 });
+      }
+
+      if (seenQuestionIds.has(answer.id)) {
+        return NextResponse.json({ error: 'Duplicate Holland answer' }, { status: 400 });
+      }
+
+      const value = Number(answer.value);
+      if (!Number.isInteger(value) || value < 1 || value > 5) {
+        return NextResponse.json({ error: 'Invalid Holland answer value' }, { status: 400 });
+      }
+
+      seenQuestionIds.add(answer.id);
+      sanitizedAnswers.push({ id: answer.id, value });
+    }
+
+    if (sanitizedAnswers.length !== STEP11_QUESTIONS.length) {
+      return NextResponse.json(
+        { error: 'All Holland questions must be answered before submission' },
+        { status: 400 }
+      );
     }
 
     const idToType = new Map<string, RiasecCode>(
@@ -73,11 +103,11 @@ export async function POST(request: NextRequest) {
     }
 
     const sumByType = makeRiasecScores();
-    for (const a of answers) {
+    for (const a of sanitizedAnswers) {
       const type = idToType.get(a.id);
       if (!type) continue;
 
-      const value = Number(a.value);
+      const value = a.value;
       if (!Number.isFinite(value) || value < 1 || value > 5) continue;
 
       sumByType[type] += value;
@@ -101,7 +131,7 @@ export async function POST(request: NextRequest) {
 
     const { error: insertError } = await supabase.from('holland_results').insert({
       user_id: user.id,
-      answers: answers as any,
+      answers: sanitizedAnswers as any,
       riasec_vector: rawRiasecVector,
       riasec_code: riasec_code,
     });

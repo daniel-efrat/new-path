@@ -23,14 +23,6 @@ import {
   STEP11_QUESTIONS,
 } from "@/lib/constants/questions";
 
-interface Step {
-  id: number;
-  title: string;
-  description: string;
-  isCompleted: boolean;
-  isLocked: boolean;
-}
-
 /** Kill any injected rotate in Framer's composed transform (debug-only) */
 const noRotate = (_props: any, transform: string) =>
   transform
@@ -231,7 +223,7 @@ export default function QuestionnaireDashboard() {
     const step = steps.find((s: any) => s.id === stepId);
     if (step && !step.isLocked) {
       setCurrentStep(stepId);
-      router.push("/questionnaire");
+      router.push(`/questionnaire?step=${stepId}`);
     }
   };
 
@@ -446,13 +438,15 @@ export default function QuestionnaireDashboard() {
                                   e.stopPropagation();
                                   if (step.isCompleted) {
                                     setCurrentStep(details.id);
-                                    router.push("/questionnaire");
+                                    router.push(
+                                      `/questionnaire?step=${details.id}`
+                                    );
                                   } else {
                                     handleStepClick(details.id);
                                   }
                                 }}
                               >
-                                {step.isCompleted ? "תוצאות" : "התחל"}
+                                {step.isCompleted ? "עריכה/צפייה" : "התחל"}
                               </Button>
                             </div>
                           )}

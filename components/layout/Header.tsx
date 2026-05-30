@@ -77,7 +77,7 @@ export default function Header() {
   return (
     <header className="liquid-glass-header fixed top-0 left-0 right-0 z-50 py-4">
       <div className="container mx-auto px-4 flex justify-between items-center">
-        <Link href="/" className="flex items-center">
+        <Link href={user ? "/dashboard" : "/"} className="flex items-center">
           <Image
             src="/logo-white.png"
             alt="Career Diagnosis Logo"

@@ -51,7 +51,7 @@ VALUES
 ('b4c5d6e7-f8a9-89ab-cdef-234567890123'::uuid, 1, 'סקרנות', 'trait', NULL),
 ('c5d6e7f8-a9b0-9abc-def0-345678901234'::uuid, 1, 'זריזות מחשבתית', 'trait', NULL),
 ('d6e7f8a9-b0c1-abcd-ef01-456789012345'::uuid, 1, 'חמימות', 'trait', NULL),
-('e7f8a9b0-c1d2-bcde-f012-567890123456'::uuid, 1, 'יכולת הקשבה', 'trait', NULL),
+('e7f8a9b0-c1d2-bcde-f012-567890123456'::uuid, 1, 'יכולת הכלה', 'trait', NULL),
 ('f8a9b0c1-d2e3-cdef-0123-678901234567'::uuid, 1, 'כשרון אומנותי', 'trait', NULL),
 ('a9b0c1d2-e3f4-def0-1234-789012345678'::uuid, 1, 'בטחון עצמי', 'trait', NULL),
 ('b0c1d2e3-f4a5-ef01-2345-890123456789'::uuid, 1, 'צניעות', 'trait', NULL),

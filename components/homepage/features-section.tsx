@@ -46,7 +46,7 @@ export function FeaturesSection() {
     {
       icon: "/icons/checkmark.png",
       title: "הערכה מקיפה",
-      description: "7 שאלות חכמות שחושפות את הפוטנציאל שלך",
+      description: "13 שלבים חכמים שחושפים את הפוטנציאל שלך",
       color: "text-emerald-600",
     },
     {

@@ -50,7 +50,7 @@ interface QuestionnaireStore extends QuestionnaireState {
     value: any,
     is_correct?: boolean,
     step?: number
-  ) => Promise<void>;
+  ) => Promise<boolean>;
   validateStep: (step: number) => ValidationResult;
   validateCurrentStep: () => ValidationResult;
   getStepData: (step: number) => StepData;
@@ -162,6 +162,8 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
     is_correct?: boolean,
     step?: number
   ) => {
+    let rollbackOptimisticAnswer: (() => void) | null = null;
+
     try {
       const {
         data: { user },
@@ -191,6 +193,27 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
         step: stepNumber,
       };
 
+      const answersBeforeSave = get().answers;
+      const hadPreviousAnswer = Object.prototype.hasOwnProperty.call(
+        answersBeforeSave,
+        questionId
+      );
+      const previousAnswer = answersBeforeSave[questionId];
+
+      rollbackOptimisticAnswer = () => {
+        set((state) => {
+          const nextAnswers = { ...state.answers };
+
+          if (hadPreviousAnswer) {
+            nextAnswers[questionId] = previousAnswer;
+          } else {
+            delete nextAnswers[questionId];
+          }
+
+          return { answers: nextAnswers };
+        });
+      };
+
       set((state) => ({
         answers: {
           ...state.answers,
@@ -218,13 +241,18 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
           details: error.details,
           hint: error.hint,
         });
+        rollbackOptimisticAnswer();
         set({ error: new Error(`Database error: ${error.message}`) });
+        return false;
       } else {
         get().updateProgress();
+        return true;
       }
     } catch (error) {
       console.error("Error in setAnswer:", error);
+      rollbackOptimisticAnswer?.();
       set({ error: error as Error });
+      return false;
     }
   },
 
@@ -238,10 +266,26 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
         throw new Error('Not authenticated');
       }
 
-      // API expects each answer as { id, value }. Ensure numeric values and drop invalid ones
-      const formattedAnswers = answers
-        .map((answer) => ({ id: answer.id, value: Number((answer as any).value) }))
-        .filter((a) => Number.isFinite(a.value));
+      const hollandQuestionIds = new Set(STEP11_QUESTIONS.map((question) => question.id));
+      const formattedAnswers = answers.map((answer) => ({
+        id: answer.id,
+        value: Number((answer as any).value),
+      }));
+      const hasInvalidAnswer =
+        formattedAnswers.length !== STEP11_QUESTIONS.length ||
+        formattedAnswers.some(
+          (answer) =>
+            !hollandQuestionIds.has(answer.id) ||
+            !Number.isInteger(answer.value) ||
+            answer.value < 1 ||
+            answer.value > 5
+        ) ||
+        new Set(formattedAnswers.map((answer) => answer.id)).size !==
+          STEP11_QUESTIONS.length;
+
+      if (hasInvalidAnswer) {
+        throw new Error("יש להשלים את כל שאלון הולנד לפני שליחת התוצאות.");
+      }
 
       const response = await fetch('/api/submit-answers', {
         method: 'POST',

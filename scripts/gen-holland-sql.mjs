@@ -1,14 +1,12 @@
-import { writeFileSync } from "fs";
-import { STEP11_QUESTIONS } from "../lib/constants/questions.ts";
+import { spawnSync } from "node:child_process";
 
-const vals = STEP11_QUESTIONS.map(
-  (q) =>
-    `('${q.id}','${q.text.replace(/'/g, "''")}','${q.riasecType}')`
-).join(",\n");
+const npx = process.platform === "win32" ? "npx.cmd" : "npx";
+const result = spawnSync(npx, ["tsx", "scripts/gen-holland-sql.ts"], {
+  stdio: "inherit",
+});
 
-const sql = `INSERT INTO public.holland_questions (id, text, riasec_type) VALUES
-${vals}
-ON CONFLICT (id) DO UPDATE SET text = EXCLUDED.text, riasec_type = EXCLUDED.riasec_type;`;
+if (result.error) {
+  throw result.error;
+}
 
-writeFileSync("supabase/bootstrap/batches/holland_seed.sql", sql);
-console.log("rows", STEP11_QUESTIONS.length, "chars", sql.length);
+process.exit(result.status ?? 0);

@@ -1,5 +1,9 @@
 import type { StepData, ValidationResult } from "@/lib/types/questionnaire";
-import { STEP9_QUESTIONS, STEP10_QUESTIONS } from "@/lib/constants/questions";
+import {
+  STEP9_QUESTIONS,
+  STEP10_QUESTIONS,
+  STEP11_QUESTIONS,
+} from "@/lib/constants/questions";
 
 // Helper function to create validation result
 export const createValidationResult = (
@@ -187,13 +191,25 @@ export const validateStep10 = (data: StepData): ValidationResult => {
   return createValidationResult(errors.length === 0, errors);
 };
 
-// Step 11 validation (placeholder)
 export const validateStep11 = (data: StepData): ValidationResult => {
   const errors: string[] = [];
-  const hasAnswers = Object.keys(data).length > 0;
-  if (!hasAnswers) {
-    errors.push("At least one question must be answered");
+
+  const answeredQuestions = STEP11_QUESTIONS.filter((question) => {
+    const answer = data[question.id];
+    if (!answer || answer.value === undefined || answer.value === null) {
+      return false;
+    }
+
+    const value =
+      typeof answer.value === "string" ? Number(answer.value) : answer.value;
+
+    return Number.isInteger(value) && value >= 1 && value <= 5;
+  });
+
+  if (answeredQuestions.length < STEP11_QUESTIONS.length) {
+    errors.push("יש להשלים את כל שאלון הולנד.");
   }
+
   return createValidationResult(errors.length === 0, errors);
 };
 

@@ -1,19 +1,29 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
+import { Check, ChevronRight, Loader2 } from "lucide-react";
+
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore";
 import { STEP11_QUESTIONS } from "@/lib/constants/questions";
+import { cn } from "@/lib/utils";
 
 interface Step11Props {
   onNext?: () => void;
   onComplete: () => Promise<void> | void;
 }
 
-const DEFAULT_RATING_VALUE = 3;
+const ANSWER_STEP_NUMBER = 3;
+const AUTO_ADVANCE_MS = 300;
+const INTRO_PREVIEW_VALUE = 3;
+const REQUIRED_ANSWER_MESSAGE = "יש לבחור תשובה לפני המעבר לשאלה הבאה.";
+const SAVE_ERROR_MESSAGE =
+  "לא הצלחנו לשמור את התשובה. בדקו את החיבור ונסו שוב.";
+const SUBMIT_ERROR_MESSAGE = "לא הצלחנו לחשב את תוצאות הולנד. נסו שוב.";
 
 const RATING_OPTIONS = [
   { src: "/slice1.png", label: "אוהב מאוד", val: 5 },
@@ -36,30 +46,101 @@ const ratingItem = {
   show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } },
 } as const;
 
-function toRatingValue(stored: unknown) {
-  if (stored === undefined || stored === null) return DEFAULT_RATING_VALUE;
-  const numericValue =
-    typeof stored === "string" ? parseInt(stored, 10) : Number(stored);
+function toRatingValue(stored: unknown): number | undefined {
+  if (
+    stored === undefined ||
+    stored === null ||
+    stored === "" ||
+    stored === "null"
+  ) {
+    return undefined;
+  }
 
-  return Number.isNaN(numericValue)
-    ? DEFAULT_RATING_VALUE
-    : Math.min(5, Math.max(1, numericValue));
+  const numericValue = Number(stored);
+
+  if (!Number.isInteger(numericValue) || numericValue < 1 || numericValue > 5) {
+    return undefined;
+  }
+
+  return numericValue;
 }
 
-export default function Step11({
-  onNext,
-  onComplete,
-}: Step11Props) {
+export default function Step11({ onNext, onComplete }: Step11Props) {
   const { answers, setAnswer, submitAnswers } = useQuestionnaireStore();
   const [index, setIndex] = useState(0);
+  const [showIntro, setShowIntro] = useState(true);
+  const [resumeChecked, setResumeChecked] = useState(false);
+  const [localValues, setLocalValues] = useState<Record<string, number>>({});
+  const [validationMessage, setValidationMessage] = useState<string | null>(
+    null
+  );
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isFinishing, setIsFinishing] = useState(false);
+  const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const currentQuestion = STEP11_QUESTIONS[index];
   const currentQuestionId = currentQuestion?.id;
 
-  // Intro state: show two instruction cards before the first question
-  const [showIntro, setShowIntro] = useState(true);
-  const [introIndex, setIntroIndex] = useState<0 | 1>(0); // 0..1
-  const [introValue, setIntroValue] = useState(DEFAULT_RATING_VALUE);
-  const [localValues, setLocalValues] = useState<Record<string, number>>({});
+  const savedValues = useMemo(() => {
+    const values: Record<string, number> = {};
+
+    for (const question of STEP11_QUESTIONS) {
+      const rating = toRatingValue(answers[question.id]?.value);
+      if (rating !== undefined) {
+        values[question.id] = rating;
+      }
+    }
+
+    return values;
+  }, [answers]);
+
+  useEffect(() => {
+    setLocalValues((previousValues) => ({
+      ...savedValues,
+      ...previousValues,
+    }));
+  }, [savedValues]);
+
+  useEffect(() => {
+    if (resumeChecked) return;
+
+    const answeredIds = Object.keys(savedValues);
+    if (answeredIds.length > 0) {
+      const firstUnansweredIndex = STEP11_QUESTIONS.findIndex(
+        (question) => savedValues[question.id] === undefined
+      );
+      setIndex(
+        firstUnansweredIndex === -1
+          ? STEP11_QUESTIONS.length - 1
+          : firstUnansweredIndex
+      );
+      setShowIntro(false);
+    }
+
+    setResumeChecked(true);
+  }, [resumeChecked, savedValues]);
+
+  const clearAutoAdvance = useCallback(() => {
+    if (autoAdvanceTimer.current) {
+      clearTimeout(autoAdvanceTimer.current);
+      autoAdvanceTimer.current = null;
+    }
+  }, []);
+
+  useEffect(() => () => clearAutoAdvance(), [clearAutoAdvance]);
+
+  useEffect(() => {
+    if (!isSaving && !isFinishing) return;
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isSaving, isFinishing]);
 
   const getQuestionValue = useCallback(
     (questionId: string) =>
@@ -67,78 +148,152 @@ export default function Step11({
     [answers, localValues]
   );
 
-  const saveCurrent = useCallback(async () => {
-    if (!currentQuestionId) return;
-    await setAnswer(
-      currentQuestionId,
-      String(getQuestionValue(currentQuestionId)),
-      undefined,
-      3
-    );
-  }, [currentQuestionId, getQuestionValue, setAnswer]);
+  const answeredCount = useMemo(
+    () => Object.keys(savedValues).length,
+    [savedValues]
+  );
 
-  const handleRatingSelect = useCallback(
-    (nextValue: number) => {
-      if (!currentQuestionId) return;
-      setLocalValues((previousValues) => ({
-        ...previousValues,
-        [currentQuestionId]: nextValue,
-      }));
-    },
-    [currentQuestionId]
+  const progressPercentage = Math.round(
+    ((index + 1) / STEP11_QUESTIONS.length) * 100
   );
 
   const value = currentQuestionId
     ? getQuestionValue(currentQuestionId)
-    : DEFAULT_RATING_VALUE;
+    : undefined;
 
-  const getSubmittedValue = useCallback(
-    (questionId: string) => getQuestionValue(questionId),
-    [getQuestionValue]
+  const persistAnswer = useCallback(
+    async (questionId: string, nextValue: number) => {
+      setIsSaving(true);
+      setSaveError(null);
+
+      try {
+        const saved = await setAnswer(
+          questionId,
+          String(nextValue),
+          undefined,
+          ANSWER_STEP_NUMBER
+        );
+
+        if (!saved) {
+          setSaveError(SAVE_ERROR_MESSAGE);
+          return false;
+        }
+
+        return true;
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [setAnswer]
   );
 
   const handleStart = () => {
-    if (currentQuestionId) {
-      setLocalValues((previousValues) => {
-        if (previousValues[currentQuestionId] !== undefined) {
-          return previousValues;
-        }
-
-        return {
-          ...previousValues,
-          [currentQuestionId]: toRatingValue(answers[currentQuestionId]?.value),
-        };
-      });
-    }
-
+    setValidationMessage(null);
+    setSaveError(null);
     setShowIntro(false);
   };
 
-  const handleNextQuestion = async () => {
-    await saveCurrent();
-    if (index < STEP11_QUESTIONS.length - 1) {
-      setIndex((i) => i + 1);
-    } else {
-      // Submit answers to API before proceeding
-      const step11Answers = STEP11_QUESTIONS.map((q) => ({
-        id: q.id,
-        value: getSubmittedValue(q.id),
-        timestamp: new Date(),
+  const handlePreviousQuestion = () => {
+    clearAutoAdvance();
+    setValidationMessage(null);
+    setSaveError(null);
+    setIndex((currentIndex) => Math.max(0, currentIndex - 1));
+  };
+
+  const handleRatingSelect = useCallback(
+    async (nextValue: number) => {
+      if (!currentQuestionId) return;
+
+      clearAutoAdvance();
+      setValidationMessage(null);
+      const previousValue = getQuestionValue(currentQuestionId);
+
+      setLocalValues((previousValues) => ({
+        ...previousValues,
+        [currentQuestionId]: nextValue,
       }));
 
-      const results = await submitAnswers(step11Answers);
-      if (results) {
-        // Store results in step store for display
-        const { useStepStore } = await import("@/lib/stores/stepStore");
-        useStepStore.getState().setHollandResults(results);
+      const saved = await persistAnswer(currentQuestionId, nextValue);
+      if (!saved) {
+        setLocalValues((previousValues) => {
+          const nextValues = { ...previousValues };
+          if (previousValue === undefined) {
+            delete nextValues[currentQuestionId];
+          } else {
+            nextValues[currentQuestionId] = previousValue;
+          }
+          return nextValues;
+        });
+        return;
       }
+
+      if (index >= STEP11_QUESTIONS.length - 1) return;
+
+      autoAdvanceTimer.current = setTimeout(() => {
+        setIndex((currentIndex) =>
+          currentIndex === index
+            ? Math.min(currentIndex + 1, STEP11_QUESTIONS.length - 1)
+            : currentIndex
+        );
+      }, AUTO_ADVANCE_MS);
+    },
+    [clearAutoAdvance, currentQuestionId, getQuestionValue, index, persistAnswer]
+  );
+
+  const handleNextQuestion = async () => {
+    clearAutoAdvance();
+
+    if (!currentQuestionId || value === undefined) {
+      setValidationMessage(REQUIRED_ANSWER_MESSAGE);
+      return;
+    }
+
+    setValidationMessage(null);
+    const saved = await persistAnswer(currentQuestionId, value);
+    if (!saved) return;
+
+    if (index < STEP11_QUESTIONS.length - 1) {
+      setIndex((currentIndex) =>
+        Math.min(currentIndex + 1, STEP11_QUESTIONS.length - 1)
+      );
+      return;
+    }
+
+    setIsFinishing(true);
+    try {
+      const step11Answers = STEP11_QUESTIONS.map((question) => ({
+        id: question.id,
+        value: getQuestionValue(question.id),
+        timestamp: new Date(),
+      }));
+      const firstMissingIndex = step11Answers.findIndex(
+        (answer) => answer.value === undefined
+      );
+
+      if (firstMissingIndex !== -1) {
+        setIndex(firstMissingIndex);
+        setValidationMessage(REQUIRED_ANSWER_MESSAGE);
+        return;
+      }
+
+      const results = await submitAnswers(
+        step11Answers as { id: string; value: number; timestamp: Date }[]
+      );
+
+      if (!results) {
+        setSaveError(SUBMIT_ERROR_MESSAGE);
+        return;
+      }
+
+      const { useStepStore } = await import("@/lib/stores/stepStore");
+      useStepStore.getState().setHollandResults(results);
 
       await onComplete?.();
       onNext?.();
+    } finally {
+      setIsFinishing(false);
     }
   };
-
-  const isFirstIntro = introIndex === 0;
 
   if (!currentQuestion) {
     return null;
@@ -155,129 +310,82 @@ export default function Step11({
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1, duration: 0.4 }}
-        className="text-3xl font-bold my-6 text-center"
+        className="my-6 text-center text-3xl font-bold"
       >
         שאלון הולנד
       </motion.h1>
 
-      {/* Intro cards – shown only before the first question */}
       {showIntro && index === 0 ? (
-        <Card className="max-w-3xl mx-auto bg-white text-background p-2 sm:p-6">
+        <Card className="mx-auto max-w-3xl bg-white p-2 text-background sm:p-6">
           <CardContent className="p-2 sm:p-6">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={`intro-${introIndex}`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.25 }}
-              >
-                {isFirstIntro ? (
-                  <div>
-                    <h2 className="text-2xl font-extrabold text-center mb-4 text-background">
-                      איך זה עובד
-                    </h2>
-                    <p className="text-center text-gray-600 leading-relaxed mb-4">
-                      בשאלון יוצגו לך {STEP11_QUESTIONS.length} היגדים מתחומי
-                      עבודה מגוונים, עפ"י{" "}
-                      <a
-                        className="text-blue-800 underline underline-offset-2 hover:text-blue-950"
-                        href="/aboutHolland"
+            <div>
+              <h2 className="mb-4 text-center text-2xl font-extrabold text-background">
+                איך זה עובד
+              </h2>
+              <div className="space-y-3 text-center leading-relaxed text-gray-700">
+                <p>
+                  בשאלון יוצגו לך {STEP11_QUESTIONS.length} היגדים מתחומי
+                  עבודה מגוונים, עפ"י{" "}
+                  <a
+                    className="text-blue-800 underline underline-offset-2 hover:text-blue-950"
+                    href="/aboutHolland"
+                  >
+                    מבחן הולנד
+                  </a>
+                  .
+                </p>
+                <p>לגבי כל היגד סמנו עד כמה הוא מתאים לכם.</p>
+                <p>
+                  זה לא מבחן ואין תשובות נכונות. סמנו את התשובה שמתארת אתכם
+                  באמת.
+                </p>
+              </div>
+
+              <div className="mt-6 overflow-hidden rounded-lg border border-gray-200 bg-gray-50/80 p-3">
+                <div
+                  className="flex items-center justify-between gap-0.5 overflow-x-auto sm:gap-2"
+                  dir="ltr"
+                  aria-hidden="true"
+                >
+                  {RATING_OPTIONS.map((option) => {
+                    const isPreviewSelected = option.val === INTRO_PREVIEW_VALUE;
+                    return (
+                      <div
+                        key={option.src}
+                        className={cn(
+                          "flex min-w-[52px] flex-col items-center rounded-lg border p-0.5 sm:min-w-[80px] sm:p-2",
+                          isPreviewSelected
+                            ? "border-primary bg-primary text-white"
+                            : "border-transparent bg-white"
+                        )}
                       >
-                        מבחן הולנד
-                      </a>
-                      .
-                    </p>
-                    <p className="text-center text-gray-600 leading-relaxed mb-6">
-                      לגבי כל היגד סמן/י עד כמה הוא מתאים לך.
-                    </p>
-                    <div className="mb-2 overflow-hidden">
-                      {/* Image rating buttons (left to right: very like -> not at all) */}
-                      <motion.div
-                        className="flex items-center justify-between gap-0.5 sm:gap-2 overflow-x-auto"
-                        dir="ltr"
-                        variants={ratingContainer}
-                        initial="hidden"
-                        animate="show"
-                      >
-                        {RATING_OPTIONS.map((opt) => (
-                          <motion.button
-                            key={opt.src}
-                            type="button"
-                            onClick={() => setIntroValue(opt.val)}
-                            className={`flex flex-col items-center p-0.5 sm:p-2 rounded-lg transition-colors focus-visible:outline-none border min-w-[52px] sm:min-w-[80px] ${
-                              introValue === opt.val
-                                ? "border-primary ring-2 ring-blue-200"
-                                : "border-transparent hover:bg-gray-50"
-                            }`}
-                            aria-pressed={introValue === opt.val}
-                            aria-label={opt.label}
-                            variants={ratingItem}
-                          >
-                            <div className="w-[40px] h-[40px] sm:w-[56px] sm:h-[56px] flex items-center justify-center">
-                              <Image
-                                src={opt.src}
-                                alt={opt.label}
-                                width={56}
-                                height={56}
-                                className="object-contain w-full h-full"
-                              />
-                            </div>
-                            <span className="mt-1 sm:mt-2 text-[10px] sm:text-xs text-gray-700 whitespace-nowrap">
-                              {opt.label}
-                            </span>
-                          </motion.button>
-                        ))}
-                      </motion.div>
-                    </div>
-                    <div className="flex justify-center mt-6">
-                      <Button onClick={() => setIntroIndex(1)}>
-                        ועוד דבר אחד חשוב
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <h2 className="text-2xl font-extrabold text-center mb-4 text-background">
-                      כשאתם עונים על השאלון
-                    </h2>
-                    <div className="text-center text-gray-700 leading-relaxed space-y-2">
-                      <p>
-                        <span className="font-semibold">זכרו:</span> זה לא מבחן
-                        ואין תשובות נכונות.
-                      </p>
-                      <p>
-                        <span className="font-semibold">אל תחשבו</span> על
-                        תשובה רצויה או נכונה; סמנו את התשובה שמתאימה לכם.
-                      </p>
-                      <p>
-                        התייחסו לאופן שבו הייתם רוצים לעבוד ולהתבטא במקצוע.
-                      </p>
-                      <hr className="my-3 border-gray-200" />
-                      <p>
-                        בחרו את התשובה שמתאימה לכם ביותר והמשיכו לשאלה הבאה.
-                      </p>
-                    </div>
-                    <div className="flex justify-center mt-6">
-                      <Button onClick={handleStart}>בוא נתחיל</Button>
-                    </div>
-                  </div>
-                )}
-                {/* Pagination dots */}
-                <div className="flex justify-center gap-1 my-6" dir="ltr">
-                  <span
-                    className={`h-2 w-8 rounded-full ${
-                      isFirstIntro ? "bg-primary" : "bg-gray-300"
-                    }`}
-                  ></span>
-                  <span
-                    className={`h-2 w-8 rounded-full ${
-                      !isFirstIntro ? "bg-primary" : "bg-gray-300"
-                    }`}
-                  ></span>
+                        <div className="flex h-[40px] w-[40px] items-center justify-center sm:h-[56px] sm:w-[56px]">
+                          <Image
+                            src={option.src}
+                            alt=""
+                            width={56}
+                            height={56}
+                            className="h-full w-full object-contain"
+                          />
+                        </div>
+                        <span
+                          className={cn(
+                            "mt-1 whitespace-nowrap text-[10px] sm:mt-2 sm:text-xs",
+                            isPreviewSelected ? "text-white" : "text-gray-700"
+                          )}
+                        >
+                          {option.label}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
-              </motion.div>
-            </AnimatePresence>
+              </div>
+
+              <div className="mt-6 flex justify-center">
+                <Button onClick={handleStart}>בוא נתחיל</Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
       ) : (
@@ -289,60 +397,126 @@ export default function Step11({
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
           >
-            <Card className="max-w-3xl mx-auto bg-white text-background p-2 sm:p-6">
-              <CardHeader className="flex justify-between items-center p-2 sm:p-6">
-                <div className="text-sm text-gray-700">
-                  שאלה {index + 1} / {STEP11_QUESTIONS.length}
+            <Card className="mx-auto max-w-3xl bg-white p-2 text-background sm:p-6">
+              <CardHeader className="p-2 sm:p-6">
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-gray-700">
+                    <span>
+                      שאלה {index + 1} / {STEP11_QUESTIONS.length}
+                    </span>
+                    <span>{answeredCount} תשובות נשמרו</span>
+                  </div>
+                  <Progress
+                    value={progressPercentage}
+                    className="h-2 bg-gray-200"
+                    aria-label={`התקדמות ${progressPercentage}%`}
+                  />
                 </div>
               </CardHeader>
+
               <CardContent className="p-2 sm:p-6">
-                <div className="mb-4 sm:mb-6 text-right leading-relaxed text-background">
-                  {currentQuestion?.text}
+                <div className="mb-4 text-right text-lg leading-relaxed text-background sm:mb-6">
+                  {currentQuestion.text}
                 </div>
-                <div className="mb-1 sm:mb-2 overflow-hidden">
-                  {/* Image rating buttons (left to right: very like -> not at all) */}
+
+                <div className="mb-1 overflow-hidden sm:mb-2">
                   <motion.div
-                    className="flex items-center justify-between gap-0.5 sm:gap-2 overflow-x-auto"
+                    className="flex items-stretch justify-between gap-1 overflow-x-auto sm:gap-2"
                     dir="ltr"
                     variants={ratingContainer}
                     initial="hidden"
                     animate="show"
                   >
-                    {RATING_OPTIONS.map((opt) => (
-                      <motion.button
-                        key={opt.src}
-                        type="button"
-                        onClick={() => handleRatingSelect(opt.val)}
-                        className={`flex flex-col items-center p-0.5 sm:p-2 rounded-lg transition-colors focus-visible:outline-none border min-w-[52px] sm:min-w-[80px] ${
-                          value === opt.val
-                            ? "border-primary ring-2 ring-blue-200"
-                            : "border-transparent hover:bg-gray-50"
-                        }`}
-                        aria-pressed={value === opt.val}
-                        aria-label={opt.label}
-                        variants={ratingItem}
-                      >
-                        <div className="w-[40px] h-[40px] sm:w-[56px] sm:h-[56px] flex items-center justify-center">
-                          <Image
-                            src={opt.src}
-                            alt={opt.label}
-                            width={56}
-                            height={56}
-                            className="object-contain w-full h-full"
-                          />
-                        </div>
-                        <span className="mt-1 sm:mt-2 text-[10px] sm:text-xs text-gray-700 whitespace-nowrap">
-                          {opt.label}
-                        </span>
-                      </motion.button>
-                    ))}
+                    {RATING_OPTIONS.map((option) => {
+                      const isSelected = value === option.val;
+
+                      return (
+                        <motion.button
+                          key={option.src}
+                          type="button"
+                          onClick={() => handleRatingSelect(option.val)}
+                          className={cn(
+                            "relative flex min-w-[58px] flex-1 flex-col items-center rounded-lg border p-1 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:min-w-[90px] sm:p-2",
+                            isSelected
+                              ? "border-primary bg-primary text-white shadow-lg ring-2 ring-primary/25"
+                              : "border-gray-200 bg-white text-gray-700 hover:border-primary/50 hover:bg-primary/5"
+                          )}
+                          aria-pressed={isSelected}
+                          aria-label={option.label}
+                          variants={ratingItem}
+                        >
+                          {isSelected ? (
+                            <span className="absolute right-1 top-1 flex size-5 items-center justify-center rounded-full bg-white text-primary shadow-sm">
+                              <Check className="size-3.5" aria-hidden="true" />
+                            </span>
+                          ) : null}
+                          <div className="flex h-[42px] w-[42px] items-center justify-center sm:h-[58px] sm:w-[58px]">
+                            <Image
+                              src={option.src}
+                              alt={option.label}
+                              width={58}
+                              height={58}
+                              className="h-full w-full object-contain"
+                            />
+                          </div>
+                          <span
+                            className={cn(
+                              "mt-1 whitespace-nowrap text-[10px] font-semibold sm:mt-2 sm:text-xs",
+                              isSelected ? "text-white" : "text-gray-700"
+                            )}
+                          >
+                            {option.label}
+                          </span>
+                        </motion.button>
+                      );
+                    })}
                   </motion.div>
                 </div>
-                <div className="flex justify-end mt-6">
-                  <Button onClick={handleNextQuestion}>
-                    {index < STEP11_QUESTIONS.length - 1
-                      ? "שאלה הבאה"
-                      : "סיום השלב"}
+
+                <div className="mt-4 min-h-6 text-sm" aria-live="polite">
+                  {validationMessage ? (
+                    <p className="font-medium text-destructive">
+                      {validationMessage}
+                    </p>
+                  ) : saveError ? (
+                    <p className="font-medium text-destructive">{saveError}</p>
+                  ) : isSaving ? (
+                    <p className="flex items-center gap-2 text-gray-600">
+                      <Loader2 className="size-4 animate-spin" />
+                      שומר...
+                    </p>
+                  ) : value !== undefined ? (
+                    <p className="text-emerald-700">נשמר אוטומטית</p>
+                  ) : null}
+                </div>
+
+                <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handlePreviousQuestion}
+                    disabled={index === 0 || isFinishing}
+                    className="gap-2"
+                  >
+                    <ChevronRight className="size-4" />
+                    שאלה קודמת
+                  </Button>
+
+                  <Button
+                    type="button"
+                    onClick={handleNextQuestion}
+                    disabled={isFinishing}
+                  >
+                    {isFinishing ? (
+                      <>
+                        <Loader2 className="size-4 animate-spin" />
+                        מסיים...
+                      </>
+                    ) : index < STEP11_QUESTIONS.length - 1 ? (
+                      "שאלה הבאה"
+                    ) : (
+                      "סיום השלב"
+                    )}
                   </Button>
                 </div>
               </CardContent>
