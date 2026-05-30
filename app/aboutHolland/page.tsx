@@ -335,13 +335,13 @@ export default function AboutHollandPage() {
 
         <Card className="max-w-md mx-auto p-6 shadow-lg border-0 bg-card/80 backdrop-blur-sm">
           <div className="space-y-4">
-            <div className="flex items-center justify-center space-x-4 space-x-reverse text-sm text-muted-foreground">
+            <div className="flex items-center justify-center gap-4 space-x-reverse text-sm text-muted-foreground">
               <div className="flex items-center">
-                <Shield className="w-4 h-4 mr-1" />
+                <Shield className="w-4 h-4 ml-1" />
                 <span>מאובטח</span>
               </div>
               <div className="flex items-center">
-                <Clock className="w-4 h-4 mr-1" />
+                <Clock className="w-4 h-4 mx-1" />
                 <span>10-15 דקות</span>
               </div>
             </div>
@@ -356,9 +356,7 @@ export default function AboutHollandPage() {
               </Button>
             </Link>
 
-            <p className="text-xs text-muted-foreground text-center mt-2">
-              ללא התחייבות • ביטול בכל עת
-            </p>
+            
           </div>
         </Card>
       </div>
