@@ -3,20 +3,9 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export async function middleware(req: NextRequest) {
-  console.log('Middleware called:', { 
-    url: req.url,
-    pathname: req.nextUrl.pathname
-  });
-
   const res = NextResponse.next();
-  
+
   try {
-    console.log('Middleware environment:', {
-      hasSupabaseKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      nodeEnv: process.env.NODE_ENV
-    });
-    
-    console.log('Creating Supabase client in middleware...');
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -32,13 +21,8 @@ export async function middleware(req: NextRequest) {
         },
       }
     );
-    
-    console.log('Getting session in middleware...');
-    const { data: { session }, error } = await supabase.auth.getSession();
-    console.log('Session check result:', { 
-      hasSession: !!session,
-      error: error || 'none'
-    });
+
+    await supabase.auth.getSession();
   } catch (error) {
     console.error('Middleware error:', error);
   }
@@ -53,7 +37,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - files with extensions from public/ or stale dev assets from old tooling
      */
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    '/((?!_next/static|_next/image|favicon.ico|@vite|@react-refresh|.*\\..*).*)',
   ],
 };

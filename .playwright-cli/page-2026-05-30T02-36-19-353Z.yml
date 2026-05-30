@@ -1,0 +1,13 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "Career Diagnosis Logo" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img "Career Diagnosis Logo" [ref=e5]
+      - navigation [ref=e6]:
+        - generic [ref=e7]: טוען...
+  - main [ref=e8]:
+    - paragraph [ref=e10]: טוען שאלון...
+  - button "Open Next.js Dev Tools" [ref=e16] [cursor=pointer]:
+    - img [ref=e17]
+  - alert [ref=e20]

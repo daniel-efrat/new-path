@@ -87,7 +87,7 @@ Create `.env.local` from `.env.example` with your new Supabase URL and **service
 npx tsx scripts/seed-holland-questions.mjs
 ```
 
-This fills `holland_questions` with RIASEC types mapped in order R→I→A→S→E→C (30 questions).
+This fills `holland_questions` with the 60-question RIASEC scoring map.
 
 ---
 
@@ -120,7 +120,7 @@ SELECT count(*) FROM holland_questions;
 SELECT count(*) FROM designation_statements;
 ```
 
-Expected rough counts: `questionnaires` ≥ 1, `questions` hundreds, `holland_questions` = 30, `designation_statements` thousands.
+Expected rough counts: `questionnaires` ≥ 1, `questions` hundreds, `holland_questions` = 60, `designation_statements` thousands.
 
 ---
 
@@ -132,7 +132,7 @@ Expected rough counts: `questionnaires` ≥ 1, `questions` hundreds, `holland_qu
 | RLS errors on insert | User must be logged in; submissions must belong to `auth.uid()` |
 | PostgREST schema cache stale | `NOTIFY pgrst, 'reload schema';` |
 | Auth redirect mismatch | Add exact callback URLs to GoTrue `ADDITIONAL_REDIRECT_URLS` |
-| Holland step fails | Run `seed-holland-questions.mjs`; check `holland_questions` count = 30 |
+| Holland step fails | Run `seed-holland-questions.mjs`; check `holland_questions` count = 60 |
 | Wrong JWT / 401 from API | Regenerate keys with `gen-keys.cjs` using current `SERVICE_PASSWORD_JWT` |
 
 ---
