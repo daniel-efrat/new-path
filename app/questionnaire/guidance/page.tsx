@@ -429,7 +429,11 @@ function GuidanceReportView({
                       {area.score}/100
                     </span>
                   </div>
-                  <Progress value={area.score} className="mt-3 h-2 bg-slate-200" />
+                  <RtlGradientSlider
+                    value={area.score}
+                    tone={area.code}
+                    className="mt-3"
+                  />
                   <p className="mt-3 text-sm leading-6 text-slate-600">
                     {area.summary}
                   </p>
@@ -464,14 +468,14 @@ function GuidanceReportView({
           <CardContent className="space-y-5 p-5 sm:p-6">
             <SectionTitle title="תחומי ייעוד שבחרת" />
             <div className="grid gap-3 md:grid-cols-2">
-              {report.designationDomains.map((domain) => (
+              {report.designationDomains.map((domain, index) => (
                 <div
                   key={`${domain.rank}-${domain.title}`}
                   className="rounded-lg border border-slate-200 bg-slate-50 p-4"
                 >
                   <div className="flex items-start gap-3">
                     <Badge className="bg-teal-100 text-teal-900">
-                      {domain.rank}
+                      {index + 1}
                     </Badge>
                     <div className="min-w-0">
                       <h3 className="font-bold text-slate-950">{domain.title}</h3>
@@ -592,6 +596,69 @@ function ReportDetail({ label, value }: { label: string; value: string }) {
   );
 }
 
+function RtlGradientSlider({
+  value,
+  tone,
+  className,
+}: {
+  value: number;
+  tone: string;
+  className?: string;
+}) {
+  const percent = clampPercent(value);
+  const gradient = getRiasecGradient(tone);
+
+  return (
+    <div
+      className={cn(
+        "relative h-3 overflow-hidden rounded-full bg-white shadow-inner ring-1 ring-slate-100",
+        className
+      )}
+      dir="rtl"
+      aria-label={`ציון ${percent} מתוך 100`}
+      role="meter"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={percent}
+    >
+      <motion.div
+        className={cn(
+          "absolute inset-y-0 right-0 rounded-full bg-gradient-to-l",
+          gradient
+        )}
+        initial={{ width: 0, opacity: 0.65 }}
+        animate={{ width: `${percent}%`, opacity: 1 }}
+        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+      />
+      <motion.div
+        className="absolute inset-y-0 right-0 rounded-full bg-white/25 blur-sm"
+        initial={{ width: 0, x: 16, opacity: 0 }}
+        animate={{ width: `${Math.max(8, Math.min(percent, 24))}%`, x: 0, opacity: 0.75 }}
+        transition={{ delay: 0.18, duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+      />
+    </div>
+  );
+}
+
+function getRiasecGradient(code: string) {
+  switch (code) {
+    case "A":
+      return "from-fuchsia-500 via-violet-500 to-indigo-500";
+    case "C":
+      return "from-emerald-500 via-cyan-500 to-sky-500";
+    case "E":
+      return "from-orange-400 via-amber-400 to-rose-400";
+    case "I":
+      return "from-cyan-500 via-teal-400 to-emerald-400";
+    case "R":
+      return "from-lime-500 via-emerald-500 to-teal-500";
+    case "S":
+      return "from-sky-500 via-cyan-400 to-emerald-400";
+    default:
+      return "from-teal-500 via-cyan-500 to-blue-500";
+  }
+}
+
 function GuidancePdfDocument({ data }: { data: GuidanceApiResponse }) {
   const { report } = data;
 
@@ -684,14 +751,14 @@ function GuidancePdfDocument({ data }: { data: GuidanceApiResponse }) {
         {report.designationDomains.length > 0 ? (
           <GuidancePdfSection title="תחומי ייעוד שבחרת">
             <div className="space-y-4">
-              {report.designationDomains.map((domain) => (
+              {report.designationDomains.map((domain, index) => (
                 <div
                   key={`${domain.rank}-${domain.title}`}
                   className="rounded-md border border-[#d7dee8] p-4"
                 >
                   <div className="flex items-start gap-3">
                     <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-[#e0f2fe] text-sm font-bold text-[#075985]">
-                      {domain.rank}
+                      {index + 1}
                     </span>
                     <div>
                       <h3 className="font-bold text-[#0f172a]">{domain.title}</h3>

@@ -40,6 +40,15 @@ export default function RootLayout({
           <AuthHandler />
           <main className="min-h-screen pt-24 bg-tech">{children}</main>
         </ClientMotionProvider>
+        <script>
+nl_pos = "bl";
+nl_link = "https://new-path.goodstuff.click/accessibility";
+nl_color = "green";
+nl_compact = "1";
+nl_accordion = "1";
+nl_dir = "https://new-path-test.vercel.app/nagishli/nagishli_v3_beta/nagishli_beta.js/";
+</script>
+<script src="https://new-path-test.vercel.app/nagishli/nagishli_v3_beta/nagishli.js?v=3" charSet="utf-8" defer></script>
       </body>
     </html>
   );
