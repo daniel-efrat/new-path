@@ -27,15 +27,12 @@ import {
 import {
   Area,
   AreaChart,
-  PolarAngleAxis,
-  PolarGrid,
-  Radar,
-  RadarChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
+import { BubbleTraitCloud } from "@/components/charts/BubbleTraitCloud";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -983,12 +980,11 @@ function PersonalityProfilePanel({
   title: string;
   scores: ScoreSummary[];
 }) {
-  const radarData = scores.map((score) => ({
-    trait: score.label,
-    score: score.score,
+  const traitCloudData = scores.map((score) => ({
+    label: score.label,
+    value: score.score,
   }));
-  const { ref: radarRef, shouldAnimate: shouldAnimateRadar } =
-    useScrollTriggeredAnimation();
+  const { ref: cloudRef } = useScrollTriggeredAnimation();
 
   return (
     <Reveal>
@@ -1003,40 +999,24 @@ function PersonalityProfilePanel({
         <CardContent className="space-y-6 p-5 sm:p-6">
         <SectionTitle icon={icon} title={title} />
         <motion.div
-          ref={radarRef}
+          ref={cloudRef}
           variants={softItemVariants}
-          className="h-72 rounded-lg border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-2"
+          className="grid min-h-0 overflow-hidden rounded-lg border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-teal-50/50 shadow-inner lg:grid-cols-[0.95fr_1.05fr] lg:divide-x lg:divide-x-reverse lg:divide-slate-200"
         >
-          <ResponsiveContainer width="100%" height="100%">
-            <RadarChart
-              key={shouldAnimateRadar ? "radar-active" : "radar-idle"}
-              data={radarData}
-              outerRadius="72%"
-            >
-              <PolarGrid stroke="#dbeafe" />
-              <PolarAngleAxis
-                dataKey="trait"
-                tick={{ fill: "#475569", fontSize: 12, fontWeight: 700 }}
-              />
-              <Radar
-                dataKey="score"
-                stroke="#14b8a6"
-                fill="#14b8a6"
-                fillOpacity={0.32}
-                isAnimationActive={shouldAnimateRadar}
-                animationBegin={0}
-                animationDuration={950}
-                animationEasing="ease-out"
-              />
-              <Tooltip
-                contentStyle={{
-                  borderRadius: 8,
-                  border: "1px solid #e2e8f0",
-                  direction: "rtl",
-                }}
-              />
-            </RadarChart>
-          </ResponsiveContainer>
+          <div className="border-b border-slate-200 p-4 lg:h-full lg:border-b-0">
+            <BubbleTraitCloud
+              traits={traitCloudData}
+              ariaLabel={`${title}: ענן תכונות לפי ציוני המשתמש`}
+              className="h-72 rounded-none border-0 bg-transparent p-0 shadow-none lg:h-full"
+            />
+          </div>
+          <div className="p-4 lg:h-full">
+            <TraitScoreBars
+              traits={traitCloudData}
+              ariaLabel={`${title}: תרשים עמודות אופקי לפי ציוני המשתמש`}
+              className="flex h-full flex-col justify-center rounded-none border-0 bg-transparent p-0 shadow-none"
+            />
+          </div>
         </motion.div>
         <StaggerGroup className="grid gap-4 sm:grid-cols-2">
           {scores.slice(0, 4).map((score, index) => (
@@ -1046,6 +1026,78 @@ function PersonalityProfilePanel({
         </CardContent>
       </Card>
     </Reveal>
+  );
+}
+
+function TraitScoreBars({
+  traits,
+  ariaLabel,
+  className,
+}: {
+  traits: Array<{ label: string; value: number }>;
+  ariaLabel: string;
+  className?: string;
+}) {
+  const sortedTraits = [...traits].sort((a, b) => b.value - a.value);
+
+  if (sortedTraits.length === 0) {
+    return (
+      <div className="grid h-[clamp(14rem,28vw,24rem)] place-items-center rounded-lg border border-dashed border-slate-300 bg-slate-50 p-5 text-center text-slate-600">
+        אין עדיין נתוני תכונות להצגה.
+      </div>
+    );
+  }
+
+  return (
+    <div
+      role="img"
+      aria-label={ariaLabel}
+      className={cn(
+        "rounded-lg border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4 shadow-inner",
+        className
+      )}
+      dir="rtl"
+    >
+      <div className="grid gap-2.5">
+        {sortedTraits.map((trait, index) => {
+          const value = Math.max(0, Math.min(100, trait.value));
+          const colorClass =
+            index < 2
+              ? "from-teal-400 to-sky-400"
+              : index < 4
+                ? "from-violet-400 to-fuchsia-400"
+                : "from-slate-300 to-slate-400";
+
+          return (
+            <div
+              key={trait.label}
+              className="grid gap-1.5 rounded-md px-2 py-1.5"
+            >
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 text-lg font-semibold leading-7 text-slate-800">
+                <span className="min-w-0 whitespace-normal break-words text-right">
+                  {trait.label}
+                </span>
+                <span className="shrink-0 text-slate-600" dir="ltr">
+                  {Math.round(value)}/100
+                </span>
+              </div>
+              <div
+                className="h-3 overflow-hidden rounded-full bg-slate-100 shadow-inner"
+                aria-hidden="true"
+              >
+                <div
+                  className={cn(
+                    "h-full rounded-full bg-gradient-to-l shadow-sm transition-[width]",
+                    colorClass
+                  )}
+                  style={{ width: `${value}%` }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -1547,12 +1599,11 @@ function InsightCloud({
             key={item}
             variants={softItemVariants}
             className={cn(
-              "rounded-full border px-3 py-2 font-semibold shadow-sm transition hover:-translate-y-0.5 hover:shadow-md",
+              "rounded-full border px-3 py-2 text-lg font-semibold leading-8 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md",
               muted
                 ? "border-slate-500 bg-slate-50 text-slate-800"
                 : "border-teal-100 bg-gradient-to-l from-white to-teal-50 text-teal-700",
-              index === 0 && !muted && "px-5 py-3 text-lg",
-              index === 1 && !muted && "text-base",
+              index === 0 && !muted && "px-5 py-3",
               index > 3 && "opacity-80"
             )}
           >
