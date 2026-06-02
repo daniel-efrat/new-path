@@ -22,22 +22,26 @@ export default function QuestionnaireNotFound() {
           </p>
         </div>
 
-        <div className="space-x-3 rtl:space-x-reverse">
+        <div className="flex flex-wrap justify-center gap-3">
           <Button asChild variant="default" className="min-w-[140px]">
             <Link href="/questionnaire">התחל שאלון חדש</Link>
           </Button>
 
-          <Button asChild variant="outline" className="min-w-[140px]">
+          <Button
+            asChild
+            variant="outline"
+            className="min-w-[140px] border-slate-500 bg-white text-slate-900"
+          >
             <Link href="/">חזרה לדף הבית</Link>
           </Button>
         </div>
 
         {/* Help section */}
-        <div className="pt-8 border-t text-sm text-muted-background ">
+        <div className="border-t border-white/60 pt-8 text-sm font-medium text-white/90">
           <p>צריך עזרה?</p>
           <a
             href="mailto:support@example.com"
-            className="text-white hover:bg-white/10 underline"
+            className="text-white underline decoration-white/80 underline-offset-4 hover:bg-white/10"
           >
             צור קשר עם התמיכה
           </a>

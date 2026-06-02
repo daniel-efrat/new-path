@@ -39,12 +39,12 @@ export function LoginForm({
               <div className="grid gap-3">
                 <div className="flex items-center">
                   <Label htmlFor="password">סיסמה</Label>
-                  <a
-                    href="#"
+                  <Link
+                    href="/signin"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                   >
                     שכחת את הסיסמה?
-                  </a>
+                  </Link>
                 </div>
                 <Input id="password" type="password" required />
               </div>

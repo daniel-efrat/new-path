@@ -14,6 +14,15 @@ flow used by the app's `/auth/callback-client` route. It loads the brand's
 `Assistant` typeface from Google Fonts with Arial/system fallbacks for email
 clients that do not allow remote web fonts.
 
+Use `reset-password.html` in the Supabase Dashboard under **Authentication >
+Email Templates > Reset password**.
+
+Suggested subject:
+
+```text
+איפוס הסיסמה שלך | דרך חדשה
+```
+
 ## Public Assets
 
 The cloud Supabase project has a public `email-assets` bucket containing the

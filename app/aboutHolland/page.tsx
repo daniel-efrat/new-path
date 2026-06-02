@@ -270,9 +270,9 @@ export default function AboutHollandPage() {
         </div>
 
         <div className="text-center">
-          <h1 className="text-4xl font-extrabold text-foreground sm:text-5xl md:text-6xl">
+          <p className="text-4xl font-extrabold text-foreground sm:text-5xl md:text-6xl">
             מצאו את הכיוון המקצועי שלכם עם שאלון הולנד
-          </h1>
+          </p>
         </div>
 
         <div className="mt-8 text-lg text-muted-foreground space-y-6 text-right leading-relaxed">
@@ -346,15 +346,16 @@ export default function AboutHollandPage() {
               </div>
             </div>
 
-            <Link href="/questionnaire">
-              <Button
-                size="lg"
-                className="w-full text-lg font-semibold h-12 bg-primary text-primary-foreground hover:bg-primary/90"
-              >
+            <Button
+              asChild
+              size="lg"
+              className="w-full text-lg font-semibold h-12 bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              <Link href="/questionnaire">
                 למילוי שאלון ההכוונה
                 <ArrowLeft className="w-5 h-5 mr-2" />
-              </Button>
-            </Link>
+              </Link>
+            </Button>
 
             
           </div>

@@ -77,10 +77,14 @@ export default function Header() {
   return (
     <header className="liquid-glass-header fixed top-0 left-0 right-0 z-50 py-4">
       <div className="container mx-auto px-4 flex justify-between items-center">
-        <Link href={user ? "/dashboard" : "/"} className="flex items-center">
+        <Link
+          href={user ? "/dashboard" : "/"}
+          className="flex items-center"
+          aria-label={user ? "דרך חדשה - מעבר לדשבורד" : "דרך חדשה - דף הבית"}
+        >
           <Image
             src="/logo-white.png"
-            alt="Career Diagnosis Logo"
+            alt=""
             width={250}
             height={70}
             className="h-20 w-auto"

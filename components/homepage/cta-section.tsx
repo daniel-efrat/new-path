@@ -92,15 +92,16 @@ export function CTASection() {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <Link href="/dashboard">
-              <Button
-                size="lg"
-                className="w-fit text-lg font-semibold h-12 bg-primary hover:bg-secondary custom-btn"
-              >
+            <Button
+              asChild
+              size="lg"
+              className="w-fit text-lg font-semibold h-12 bg-primary hover:bg-secondary custom-btn"
+            >
+              <Link href="/dashboard">
                 התחל אבחון עכשיו
                 <ArrowLeft className="w-5 h-5 mr-2" />
-              </Button>
-            </Link>
+              </Link>
+            </Button>
 
             <p className="text-sm text-white mt-4">
               <span className="px-2">ללא עלות</span> •{" "}

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeft,
   Compass,
@@ -206,7 +207,7 @@ export default function QuestionnaireGuidancePage() {
 
   return (
     <div className="min-h-screen px-4 py-8 sm:px-6" dir="rtl">
-      <main className="relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-6">
+      <main className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-6">
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-2">
@@ -234,7 +235,7 @@ export default function QuestionnaireGuidancePage() {
             <div className="flex flex-wrap gap-2">
               <Button
                 variant="outline"
-                className="border-white/30 bg-white/10 text-white hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-60"
+                className="border-slate-500 bg-white text-slate-900 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:grayscale disabled:opacity-70"
                 onClick={handleDownloadPdf}
                 disabled={!data || showLoadingState || Boolean(error) || isPdfGenerating}
                 aria-label="הורדת מפת הכיוון כקובץ PDF"
@@ -249,7 +250,7 @@ export default function QuestionnaireGuidancePage() {
               {isDev ? (
                 <Button
                   variant="outline"
-                  className="border-white/30 bg-white/10 text-white hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="border-slate-500 bg-white text-slate-900 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:grayscale disabled:opacity-70"
                   onClick={() => setIsLoadingPreview(true)}
                   disabled={showLoadingState}
                 >
@@ -259,7 +260,7 @@ export default function QuestionnaireGuidancePage() {
               ) : null}
               <Button
                 variant="outline"
-                className="border-white/30 bg-white/10 text-white hover:bg-white/15"
+                className="border-slate-500 bg-white text-slate-900 shadow-sm hover:bg-slate-50"
                 onClick={() => router.push("/dashboard")}
               >
                 חזרה ללוח הבקרה
@@ -275,12 +276,15 @@ export default function QuestionnaireGuidancePage() {
           </div>
         </header>
 
-        {showLoadingState ? (
-          <LoadingState
-            isPreview={isLoadingPreview}
-            onClosePreview={() => setIsLoadingPreview(false)}
-          />
-        ) : null}
+        <AnimatePresence mode="wait">
+          {showLoadingState ? (
+            <LoadingState
+              key="guidance-loading"
+              isPreview={isLoadingPreview}
+              onClosePreview={() => setIsLoadingPreview(false)}
+            />
+          ) : null}
+        </AnimatePresence>
         {!showLoadingState && error ? (
           <ErrorState error={error} onRetry={loadReport} />
         ) : null}
@@ -301,9 +305,20 @@ function LoadingState({
   onClosePreview?: () => void;
 }) {
   return (
-    <Card className="border-white/20 bg-white/10 text-white shadow-xl backdrop-blur-md">
-      <CardContent className="flex min-h-[420px] flex-col items-center justify-center gap-5 p-6 text-center sm:p-8">
-        <div className="relative aspect-square w-full max-w-sm overflow-hidden rounded-lg bg-transparent">
+    <motion.div
+      initial={{ opacity: 0, y: 18, scale: 0.985 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -10, scale: 0.99 }}
+      transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <Card className="border-white/20 bg-white/10 text-white shadow-xl backdrop-blur-md">
+        <CardContent className="flex min-h-[420px] flex-col items-center justify-center gap-5 p-6 text-center sm:p-8">
+        <motion.div
+          className="relative aspect-square w-full max-w-sm overflow-hidden rounded-lg bg-transparent"
+          initial={{ opacity: 0, y: 12, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ delay: 0.14, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        >
           <video
             className="absolute left-1/2 top-1/2 h-[116%] w-[102.5%] -translate-x-1/2 -translate-y-1/2 object-contain"
             style={{
@@ -312,20 +327,24 @@ function LoadingState({
               maskImage:
                 "linear-gradient(to bottom, #000 0 13.5%, transparent 13.5% 15%, #000 15% 84.8%, transparent 84.8% 86.3%, #000 86.3% 100%)",
             }}
-            src="/working2.webm"
+            src="/working3.webm"
             autoPlay
             loop
             muted
             playsInline
             aria-label="גילברט עובד על הכנת מפת הכיוון"
           />
-        </div>
-        <div>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.26, duration: 0.34 }}
+        >
           <h2 className="text-xl font-semibold">מרכיבים את מפת הכיוון</h2>
           <p className="mt-2 text-sm text-white/70">
             גילברט עובד על זה עכשיו. זה לוקח רגע קצר, ואחריו אפשר להמשיך לשלב ב׳.
           </p>
-        </div>
+        </motion.div>
         {isPreview ? (
           <Button
             type="button"
@@ -338,6 +357,7 @@ function LoadingState({
         ) : null}
       </CardContent>
     </Card>
+    </motion.div>
   );
 }
 
@@ -375,55 +395,61 @@ function GuidanceReportView({
 
   return (
     <div className="grid gap-6">
-      <Card className="border-white/25 bg-white/10 text-white shadow-xl backdrop-blur-md">
+      <Card className="border-slate-200 bg-white text-slate-950 shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
         <CardContent className="grid gap-5 p-5 sm:p-6">
-          <div className="flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-md bg-emerald-300/20 text-emerald-100">
-              <Sparkles className="size-5" />
-            </div>
-            <h2 className="text-xl font-semibold">תקציר אישי</h2>
-          </div>
-          <p className="max-w-4xl whitespace-pre-line text-lg leading-8 text-white/85">
+          <SectionTitle icon={<Sparkles className="size-5" />} title="תקציר אישי" />
+          <p className="max-w-5xl whitespace-pre-line text-lg leading-8 text-slate-600">
             {report.coreSummary}
           </p>
         </CardContent>
       </Card>
 
-      <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-        <Card className="border-white/20 bg-white/10 text-white shadow-xl backdrop-blur-md">
+      <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+        <Card className="border-slate-200 bg-white text-slate-950 shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
           <CardContent className="space-y-5 p-5 sm:p-6">
             <SectionTitle icon={<Compass className="size-5" />} title="נטיות הולנד מובילות" />
             <div className="space-y-5">
               {report.interestAreas.map((area) => (
-                <div key={area.code} className="space-y-2">
+                <div
+                  key={area.code}
+                  className="rounded-lg border border-slate-200 bg-slate-50 p-4"
+                >
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-2">
-                      <Badge className="bg-white text-background">{area.code}</Badge>
-                      <span className="font-semibold">{area.name}</span>
+                      <img
+                        src={`/RIASEC/${area.code}.png`}
+                        alt=""
+                        aria-hidden="true"
+                        className="size-10 shrink-0 rounded-md object-contain"
+                        draggable={false}
+                      />
+                      <span className="font-bold text-slate-950">{area.name}</span>
                     </div>
-                    <span className="text-sm tabular-nums text-white/75">
+                    <span className="text-sm font-semibold tabular-nums text-slate-600">
                       {area.score}/100
                     </span>
                   </div>
-                  <Progress value={area.score} className="h-2 bg-white/15" />
-                  <p className="text-sm leading-6 text-white/75">{area.summary}</p>
+                  <Progress value={area.score} className="mt-3 h-2 bg-slate-200" />
+                  <p className="mt-3 text-sm leading-6 text-slate-600">
+                    {area.summary}
+                  </p>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-white/20 bg-white/10 text-white shadow-xl backdrop-blur-md">
+        <Card className="border-slate-200 bg-white text-slate-950 shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
           <CardContent className="space-y-5 p-5 sm:p-6">
             <SectionTitle title="מה נראה שחשוב לך בעבודה" />
             <div className="grid gap-3">
               {report.careerPriorities.map((priority) => (
                 <div
                   key={priority.title}
-                  className="rounded-md border border-white/15 bg-slate-950/20 p-4"
+                  className="rounded-lg border border-sky-100 bg-gradient-to-br from-sky-50 to-white p-4"
                 >
-                  <h3 className="font-semibold text-emerald-100">{priority.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-white/75">
+                  <h3 className="font-bold text-slate-950">{priority.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
                     {priority.evidence}
                   </p>
                 </div>
@@ -434,22 +460,22 @@ function GuidanceReportView({
       </div>
 
       {report.designationDomains.length > 0 ? (
-        <Card className="border-white/20 bg-white/10 text-white shadow-xl backdrop-blur-md">
+        <Card className="border-slate-200 bg-white text-slate-950 shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
           <CardContent className="space-y-5 p-5 sm:p-6">
             <SectionTitle title="תחומי ייעוד שבחרת" />
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 md:grid-cols-2">
               {report.designationDomains.map((domain) => (
                 <div
                   key={`${domain.rank}-${domain.title}`}
-                  className="rounded-md border border-white/15 bg-white/10 p-4"
+                  className="rounded-lg border border-slate-200 bg-slate-50 p-4"
                 >
                   <div className="flex items-start gap-3">
-                    <Badge className="bg-emerald-200 text-slate-950">
+                    <Badge className="bg-teal-100 text-teal-900">
                       {domain.rank}
                     </Badge>
                     <div className="min-w-0">
-                      <h3 className="font-semibold">{domain.title}</h3>
-                      <p className="mt-2 text-sm leading-6 text-white/70">
+                      <h3 className="font-bold text-slate-950">{domain.title}</h3>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">
                         {domain.summary}
                       </p>
                     </div>
@@ -459,7 +485,7 @@ function GuidanceReportView({
                       {domain.selectedStatements.map((statement) => (
                         <span
                           key={statement}
-                          className="rounded-md border border-white/20 bg-slate-950/20 px-2.5 py-1 text-xs leading-5 text-white/80"
+                          className="rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs leading-5 text-slate-600"
                         >
                           {statement}
                         </span>
@@ -474,24 +500,29 @@ function GuidanceReportView({
       ) : null}
 
       <section className="space-y-4">
-        <SectionTitle title="3 כיוונים ראשוניים לבדיקה" />
+        <SectionTitle title="3 כיוונים ראשוניים לבדיקה" tone="light" />
         <div className="grid gap-4 md:grid-cols-3">
           {report.initialDirections.map((direction, index) => (
             <Card
               key={direction.title}
               className={cn(
-                "border-white/20 text-white shadow-xl backdrop-blur-md",
+                "border-slate-200 bg-white text-slate-950 shadow-[0_18px_60px_rgba(15,23,42,0.08)]",
                 index === 0
-                  ? "bg-emerald-300/15"
+                  ? "ring-1 ring-teal-100"
                   : index === 1
-                    ? "bg-cyan-300/15"
-                    : "bg-white/10"
+                    ? "ring-1 ring-sky-100"
+                    : ""
               )}
             >
               <CardContent className="space-y-4 p-5">
-                <h3 className="text-lg font-semibold leading-7">
-                  {direction.title}
-                </h3>
+                <div className="flex items-center gap-3">
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-emerald-50 text-sm font-bold text-emerald-700">
+                    {index + 1}
+                  </span>
+                  <h3 className="text-lg font-bold leading-7 text-slate-950">
+                    {direction.title}
+                  </h3>
+                </div>
                 <ReportDetail label="למה זה עשוי להתאים" value={direction.whyItMayFit} />
                 <ReportDetail label="מה לבדוק בשלב ב׳" value={direction.whatToCheckNext} />
                 <ReportDetail label="שאלה להשאיר פתוחה" value={direction.possibleTension} />
@@ -501,15 +532,15 @@ function GuidanceReportView({
         </div>
       </section>
 
-      <Card className="border-white/20 bg-white/10 text-white shadow-xl backdrop-blur-md">
+      <Card className="border-slate-200 bg-white text-slate-950 shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
         <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-xl font-semibold">{report.nextStep}</h2>
-            <p className="mt-1 text-sm text-white/65">
+            <h2 className="text-xl font-bold">{report.nextStep}</h2>
+            <p className="mt-1 text-sm text-slate-600">
               הדוח המלא והמדויק יותר ייבנה אחרי שלב ב׳.
             </p>
           </div>
-          <Button onClick={onContinue}>
+          <Button onClick={onContinue} className="shadow-sm">
             המשך לשלב ב׳
             <ArrowLeft className="size-4" />
           </Button>
@@ -522,27 +553,41 @@ function GuidanceReportView({
 function SectionTitle({
   title,
   icon,
+  tone = "default",
 }: {
   title: string;
   icon?: ReactNode;
+  tone?: "default" | "light";
 }) {
   return (
-    <div className="flex items-center gap-3 text-white">
+    <div
+      className={cn(
+        "flex items-center gap-3",
+        tone === "light" ? "text-white" : "text-slate-950"
+      )}
+    >
       {icon ? (
-        <div className="flex size-9 items-center justify-center rounded-md bg-white/10">
+        <div
+          className={cn(
+            "flex size-9 items-center justify-center rounded-md",
+            tone === "light"
+              ? "bg-white/10 text-white"
+              : "bg-gradient-to-br from-teal-500 to-emerald-400 text-white"
+          )}
+        >
           {icon}
         </div>
       ) : null}
-      <h2 className="text-xl font-semibold">{title}</h2>
+      <h2 className="text-xl font-extrabold tracking-normal">{title}</h2>
     </div>
   );
 }
 
 function ReportDetail({ label, value }: { label: string; value: string }) {
   return (
-    <div>
-      <div className="text-xs font-semibold text-emerald-100">{label}</div>
-      <p className="mt-1 text-sm leading-6 text-white/75">{value}</p>
+    <div className="rounded-lg border border-slate-100 bg-slate-50 p-3">
+      <div className="text-xs font-bold text-teal-700">{label}</div>
+      <p className="mt-1 text-sm leading-6 text-slate-600">{value}</p>
     </div>
   );
 }

@@ -21,7 +21,7 @@ export interface OccupationFact {
   averageSalary: AverageSalary;
 }
 
-const AVODATA_SOURCE = "עבודאטה, משרד העבודה";
+const LABOR_MARKET_SOURCE = "משרד העבודה";
 const AVODATA_YEAR = 2022;
 
 export const OCCUPATION_FACTS: OccupationFact[] = [
@@ -62,7 +62,7 @@ export const OCCUPATION_FACTS: OccupationFact[] = [
     ],
     averageSalary: {
       monthlyGross: 36211,
-      source: AVODATA_SOURCE,
+      source: LABOR_MARKET_SOURCE,
       sourceYear: AVODATA_YEAR,
       note: "שכר ממוצע בתחום פיתוח תוכנה.",
     },
@@ -105,7 +105,7 @@ export const OCCUPATION_FACTS: OccupationFact[] = [
     ],
     averageSalary: {
       monthlyGross: 26540,
-      source: AVODATA_SOURCE,
+      source: LABOR_MARKET_SOURCE,
       sourceYear: AVODATA_YEAR,
       note: "שכר ממוצע בתחום ניתוח מערכות.",
     },
@@ -147,7 +147,7 @@ export const OCCUPATION_FACTS: OccupationFact[] = [
     ],
     averageSalary: {
       monthlyGross: 21917,
-      source: AVODATA_SOURCE,
+      source: LABOR_MARKET_SOURCE,
       sourceYear: AVODATA_YEAR,
       note: "שכר ממוצע בתחום הבטחת איכות, ניתוח ובדיקת תוכנה.",
     },
@@ -190,7 +190,7 @@ export const OCCUPATION_FACTS: OccupationFact[] = [
     ],
     averageSalary: {
       monthlyGross: 26540,
-      source: AVODATA_SOURCE,
+      source: LABOR_MARKET_SOURCE,
       sourceYear: AVODATA_YEAR,
       note: "שכר ממוצע בתחום ניתוח מערכות.",
     },
@@ -233,7 +233,7 @@ export const OCCUPATION_FACTS: OccupationFact[] = [
     ],
     averageSalary: {
       monthlyGross: 22186,
-      source: AVODATA_SOURCE,
+      source: LABOR_MARKET_SOURCE,
       sourceYear: AVODATA_YEAR,
       note: "שכר ממוצע בתחום כלכלה.",
     },
@@ -276,7 +276,7 @@ export const OCCUPATION_FACTS: OccupationFact[] = [
     ],
     averageSalary: {
       monthlyGross: 14109,
-      source: AVODATA_SOURCE,
+      source: LABOR_MARKET_SOURCE,
       sourceYear: AVODATA_YEAR,
       note: "שכר ממוצע בתחום עיצוב גרפי ועיצוב מולטימדיה.",
     },
@@ -320,7 +320,7 @@ export const OCCUPATION_FACTS: OccupationFact[] = [
     ],
     averageSalary: {
       monthlyGross: 17673,
-      source: AVODATA_SOURCE,
+      source: LABOR_MARKET_SOURCE,
       sourceYear: AVODATA_YEAR,
       note: "שכר ממוצע בתחום מומחיות בשיטות הוראה.",
     },
@@ -363,7 +363,7 @@ export const OCCUPATION_FACTS: OccupationFact[] = [
     ],
     averageSalary: {
       monthlyGross: 11673,
-      source: AVODATA_SOURCE,
+      source: LABOR_MARKET_SOURCE,
       sourceYear: AVODATA_YEAR,
       note: "שכר ממוצע בתחום עבודה סוציאלית וייעוץ בתחומי חברה ורווחה.",
     },
@@ -406,9 +406,9 @@ export const OCCUPATION_FACTS: OccupationFact[] = [
     ],
     averageSalary: {
       monthlyGross: null,
-      source: AVODATA_SOURCE,
+      source: LABOR_MARKET_SOURCE,
       sourceYear: AVODATA_YEAR,
-      note: "מוצג קישור להרחבה בעבודאטה; יש להשלים שכר תחום מעודכן באינטגרציית הנתונים.",
+      note: "יש להשלים שכר תחום מעודכן באינטגרציית הנתונים.",
     },
   },
   {
@@ -450,7 +450,7 @@ export const OCCUPATION_FACTS: OccupationFact[] = [
     ],
     averageSalary: {
       monthlyGross: 36211,
-      source: AVODATA_SOURCE,
+      source: LABOR_MARKET_SOURCE,
       sourceYear: AVODATA_YEAR,
       note: "שכר ממוצע בתחום פיתוח תוכנה.",
     },

@@ -29,7 +29,7 @@ export default function QuestionnaireError({
             לא הצלחנו לטעון את השאלון כראוי. אנא נסה שוב או צור קשר עם התמיכה אם
             הבעיה נמשכת.
           </p>
-          <div className="space-x-3 rtl:space-x-reverse">
+          <div className="flex flex-wrap justify-center gap-3">
             <Button
               onClick={reset}
               variant="destructive"
@@ -40,7 +40,7 @@ export default function QuestionnaireError({
             <Button
               onClick={() => (window.location.href = "/")}
               variant="outline"
-              className="min-w-[120px]"
+              className="min-w-[120px] border-slate-500 bg-white text-slate-900"
             >
               חזרה לדף הבית
             </Button>
@@ -62,11 +62,11 @@ export default function QuestionnaireError({
         )}
 
         {/* Support contact */}
-        <div className="text-center text-sm text-muted-background ">
+        <div className="text-center text-sm font-medium text-white/90">
           <p>צריך עזרה?</p>
           <a
             href="mailto:support@example.com"
-            className="text-white hover:bg-white/10 underline"
+            className="text-white underline decoration-white/80 underline-offset-4 hover:bg-white/10"
           >
             support@example.com
           </a>

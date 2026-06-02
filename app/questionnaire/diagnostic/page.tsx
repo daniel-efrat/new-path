@@ -9,13 +9,13 @@ import {
   type ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
 import {
   BarChart3,
   BriefcaseBusiness,
   Brain,
+  ChartNoAxesCombined,
   ChevronDown,
-  ExternalLink,
   FileDown,
   GraduationCap,
   Loader2,
@@ -24,10 +24,21 @@ import {
   Target,
   WalletCards,
 } from "lucide-react";
+import {
+  Area,
+  AreaChart,
+  PolarAngleAxis,
+  PolarGrid,
+  Radar,
+  RadarChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import {
   STEP2_QUESTIONS,
   STEP3_QUESTIONS,
@@ -75,6 +86,54 @@ const OCCUPATION_SCORE_LABELS: Record<
   domain: "תחום מקצועי",
 };
 
+const ACCENT_GRADIENTS = [
+  "from-emerald-400 via-teal-400 to-cyan-400",
+  "from-violet-500 via-fuchsia-500 to-pink-400",
+  "from-sky-400 via-cyan-400 to-emerald-400",
+  "from-rose-400 via-orange-300 to-amber-300",
+  "from-indigo-500 via-violet-500 to-teal-400",
+  "from-lime-400 via-emerald-400 to-teal-500",
+];
+
+const OCCUPATION_TABS = [
+  { id: "skillGap", label: "פערי מיומנויות" },
+  { id: "education", label: "דרישות לימודים" },
+  { id: "salary", label: "נתוני שכר" },
+] as const;
+
+type OccupationTab = (typeof OCCUPATION_TABS)[number]["id"];
+
+const SCROLL_TRIGGER_MARGIN = "0px 0px -20% 0px";
+
+const revealVariants: Variants = {
+  hidden: { opacity: 0, y: 28, scale: 0.985 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.58, ease: "easeOut" },
+  },
+};
+
+const staggerContainerVariants: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.075,
+      delayChildren: 0.04,
+    },
+  },
+};
+
+const softItemVariants: Variants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.42, ease: "easeOut" },
+  },
+};
+
 interface PdfResultRow {
   number: number;
   category?: string;
@@ -116,7 +175,10 @@ export default function QuestionnaireDiagnosticPage() {
   const [resultSheets, setResultSheets] = useState<PdfResultSheet[]>([]);
   const [areResultSheetsLoading, setAreResultSheetsLoading] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const hasPdfResultSheets = resultSheets.length > 0;
+  const isDev = process.env.NODE_ENV === "development";
+  const showLoadingState = isLoading || isLoadingPreview;
 
   const loadReport = useCallback(async () => {
     setIsLoading(true);
@@ -341,45 +403,63 @@ export default function QuestionnaireDiagnosticPage() {
   ]);
 
   return (
-    <div className="min-h-screen px-4 py-8 sm:px-6" dir="rtl">
+    <div className="min-h-screen px-4 py-8 text-slate-950 sm:px-6" dir="rtl">
       <main className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-6">
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="secondary" className="border-white/20 bg-white/10 text-white">
-                שלב ב׳
-              </Badge>
-              {data?.cached ? (
-                <Badge variant="outline" className="border-emerald-200/50 text-emerald-100">
-                  נשמר עבורך
+        <motion.header
+          variants={staggerContainerVariants}
+          initial="hidden"
+          animate="visible"
+          className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
+        >
+          <motion.div variants={staggerContainerVariants} className="space-y-3">
+            <motion.div variants={staggerContainerVariants} className="flex flex-wrap items-center gap-2">
+              <motion.div variants={softItemVariants}>
+                <Badge variant="secondary" className="border-teal-100 bg-teal-50 text-teal-700">
+                  שלב ב׳
                 </Badge>
+              </motion.div>
+              {data?.cached ? (
+                <motion.div variants={softItemVariants}>
+                  <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">
+                    נשמר עבורך
+                  </Badge>
+                </motion.div>
               ) : null}
               {data ? (
-                <Badge variant="outline" className="border-white/25 text-white/75">
-                  {providerLabel(data.provider)}
-                </Badge>
+                <motion.div variants={softItemVariants}>
+                  <Badge variant="outline" className="border-violet-200 bg-violet-50 text-violet-700">
+                    {providerLabel(data.provider)}
+                  </Badge>
+                </motion.div>
               ) : null}
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold tracking-normal text-white sm:text-4xl">
+            </motion.div>
+            <motion.div variants={staggerContainerVariants}>
+              <motion.h1
+                variants={softItemVariants}
+                className="text-4xl font-extrabold tracking-normal text-white drop-shadow-[0_2px_10px_rgba(3,7,18,0.45)] sm:text-5xl"
+              >
                 {data?.report.title || "דו״ח אבחוני תעסוקתי"}
-              </h1>
-              <p className="mt-2 max-w-3xl text-base leading-7 text-white/80">
+              </motion.h1>
+              <motion.p
+                variants={softItemVariants}
+                className="mt-3 max-w-3xl text-lg leading-8 text-white/90 drop-shadow-[0_1px_6px_rgba(3,7,18,0.35)]"
+              >
                 {data?.report.disclaimer ||
                   "ניתוח משולב של שלב א׳, מבחני היכולת, האישיות וערכי הליבה."}
-              </p>
-            </div>
-          </div>
+              </motion.p>
+            </motion.div>
+          </motion.div>
 
-          <div className="flex flex-col items-start gap-2 sm:items-end">
-            <div className="flex flex-wrap gap-2">
-              <Button
+          <motion.div variants={staggerContainerVariants} className="flex flex-col items-start gap-2 sm:items-end">
+            <motion.div variants={staggerContainerVariants} className="flex flex-wrap gap-2">
+              <motion.div variants={softItemVariants}>
+                <Button
                 variant="outline"
-                className="border-white/30 bg-white/10 text-white hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-60"
+                className="border-slate-500 bg-white text-slate-900 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:grayscale disabled:opacity-70"
                 onClick={handleDownloadPdf}
                 disabled={
                   !data ||
-                  isLoading ||
+                  showLoadingState ||
                   Boolean(error) ||
                   isPdfGenerating ||
                   areResultSheetsLoading ||
@@ -394,25 +474,56 @@ export default function QuestionnaireDiagnosticPage() {
                 )}
                 PDF
               </Button>
-              <Button
+              </motion.div>
+              {isDev ? (
+                <motion.div variants={softItemVariants}>
+                  <Button
+                  variant="outline"
+                  className="border-slate-500 bg-white text-slate-900 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:grayscale disabled:opacity-70"
+                  onClick={() => setIsLoadingPreview(true)}
+                  disabled={showLoadingState}
+                >
+                  <Loader2 className="size-4" />
+                  הצג טעינה
+                </Button>
+                </motion.div>
+              ) : null}
+              <motion.div variants={softItemVariants}>
+                <Button
                 variant="outline"
-                className="border-white/30 bg-white/10 text-white hover:bg-white/15"
+                className="border-slate-500 bg-white text-slate-900 shadow-sm hover:bg-slate-50"
                 onClick={() => router.push("/dashboard")}
               >
                 חזרה ללוח הבקרה
               </Button>
-            </div>
+              </motion.div>
+            </motion.div>
             {pdfError ? (
-              <p className="text-sm leading-6 text-red-100">{pdfError}</p>
+              <motion.p
+                variants={softItemVariants}
+                className="text-sm font-semibold leading-6 text-rose-100 drop-shadow-[0_1px_4px_rgba(127,29,29,0.8)]"
+              >
+                {pdfError}
+              </motion.p>
             ) : null}
-          </div>
-        </header>
+          </motion.div>
+        </motion.header>
 
-        {isLoading ? <LoadingState /> : null}
-        {!isLoading && error ? (
+        <AnimatePresence mode="wait">
+          {showLoadingState ? (
+            <LoadingState
+              key="diagnostic-loading"
+              isPreview={isLoadingPreview}
+              onClosePreview={() => setIsLoadingPreview(false)}
+            />
+          ) : null}
+        </AnimatePresence>
+        {!showLoadingState && error ? (
           <ErrorState error={error} onRetry={loadReport} />
         ) : null}
-        {!isLoading && !error && data ? <DiagnosticReportView data={data} /> : null}
+        {!showLoadingState && !error && data ? (
+          <DiagnosticReportView data={data} />
+        ) : null}
         {data ? (
           <DiagnosticPdfDocument
             data={data}
@@ -425,11 +536,28 @@ export default function QuestionnaireDiagnosticPage() {
   );
 }
 
-function LoadingState() {
+function LoadingState({
+  isPreview = false,
+  onClosePreview,
+}: {
+  isPreview?: boolean;
+  onClosePreview?: () => void;
+}) {
   return (
-    <Card className="border-white/20 bg-white/10 text-white shadow-xl backdrop-blur-md">
-      <CardContent className="flex min-h-[420px] flex-col items-center justify-center gap-5 p-6 text-center sm:p-8">
-        <div className="relative aspect-square w-full max-w-sm overflow-hidden rounded-lg bg-transparent">
+    <motion.div
+      initial={{ opacity: 0, y: 18, scale: 0.985 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -10, scale: 0.99 }}
+      transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <Card className="border-slate-200 bg-white text-slate-950 shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
+        <CardContent className="flex min-h-[420px] flex-col items-center justify-center gap-5 p-6 text-center sm:p-8">
+        <motion.div
+          className="relative aspect-square w-full max-w-sm overflow-hidden rounded-lg bg-transparent"
+          initial={{ opacity: 0, y: 12, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ delay: 0.14, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        >
           <video
             className="absolute left-1/2 top-1/2 h-[116%] w-[102.5%] -translate-x-1/2 -translate-y-1/2 object-contain"
             style={{
@@ -438,23 +566,118 @@ function LoadingState() {
               maskImage:
                 "linear-gradient(to bottom, #000 0 13.5%, transparent 13.5% 15%, #000 15% 84.8%, transparent 84.8% 86.3%, #000 86.3% 100%)",
             }}
-            src="/working2.webm"
+            src="/working3.webm"
             autoPlay
             loop
             muted
             playsInline
             aria-label="גילברט עובד על הכנת הדוח האבחוני"
           />
-        </div>
-        <div>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.26, duration: 0.34 }}
+        >
           <h2 className="text-xl font-semibold">מרכיבים את הדו״ח האבחוני</h2>
-          <p className="mt-2 text-sm text-white/70">
+          <p className="mt-2 text-sm text-slate-600">
             גילברט עובד על זה עכשיו. משלבים את שלב א׳, מבחני היכולת, האישיות וערכי הליבה.
           </p>
-        </div>
-      </CardContent>
-    </Card>
+        </motion.div>
+        {isPreview ? (
+          <Button
+            type="button"
+            variant="outline"
+            className="border-slate-500 bg-white text-slate-900 hover:bg-slate-50"
+            onClick={onClosePreview}
+          >
+            חזרה לדוח
+          </Button>
+        ) : null}
+        </CardContent>
+      </Card>
+    </motion.div>
   );
+}
+
+function Reveal({
+  children,
+  className,
+  delay = 0,
+}: {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+}) {
+  return (
+    <motion.div
+      className={className}
+      variants={revealVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.01, margin: SCROLL_TRIGGER_MARGIN }}
+      transition={{ delay }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function StaggerGroup({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      className={className}
+      variants={staggerContainerVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.01, margin: SCROLL_TRIGGER_MARGIN }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function useScrollTriggeredAnimation() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [shouldAnimate, setShouldAnimate] = useState(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element || typeof window === "undefined") return;
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    if (prefersReducedMotion || !("IntersectionObserver" in window)) {
+      setShouldAnimate(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
+        setShouldAnimate(true);
+        observer.disconnect();
+      },
+      {
+        root: null,
+        rootMargin: SCROLL_TRIGGER_MARGIN,
+        threshold: 0.01,
+      }
+    );
+
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, []);
+
+  return { ref, shouldAnimate };
 }
 
 function ErrorState({
@@ -465,13 +688,17 @@ function ErrorState({
   onRetry: () => void;
 }) {
   return (
-    <Card className="border-red-200/40 bg-red-950/24 text-white shadow-xl backdrop-blur-md">
+    <Card className="border-rose-200 bg-white text-slate-950 shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
       <CardContent className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-xl font-semibold">לא הצלחנו ליצור דו״ח אבחוני</h2>
-          <p className="mt-2 text-sm leading-6 text-white/75">{error}</p>
+          <p className="mt-2 text-sm leading-6 text-slate-600">{error}</p>
         </div>
-        <Button onClick={onRetry} variant="outline" className="border-white/30 bg-white/10 text-white">
+        <Button
+          onClick={onRetry}
+          variant="outline"
+          className="border-slate-500 bg-white text-slate-900"
+        >
           <RefreshCw className="size-4" />
           נסה שוב
         </Button>
@@ -485,32 +712,44 @@ function DiagnosticReportView({ data }: { data: DiagnosticApiResponse }) {
   const [openOccupationId, setOpenOccupationId] = useState(
     report.topOccupations[0]?.id || null
   );
+  const [showAllOccupations, setShowAllOccupations] = useState(false);
+  const visibleOccupations = showAllOccupations
+    ? report.topOccupations
+    : report.topOccupations.slice(0, 4);
+  const hiddenOccupationCount = Math.max(0, report.topOccupations.length - 4);
 
   return (
-    <div className="grid gap-6">
-      <Card className="border-white/25 bg-white/10 text-white shadow-xl backdrop-blur-md">
-        <CardContent className="grid gap-5 p-5 sm:p-6">
+    <StaggerGroup className="grid gap-6">
+      <Reveal>
+        <Card className="border-slate-200 bg-white text-slate-950 shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
+          <CardContent className="grid gap-5 p-5 sm:p-6">
           <SectionTitle icon={<Sparkles className="size-5" />} title="תקציר אבחוני" />
-          <p className="max-w-5xl whitespace-pre-line text-lg leading-8 text-white/85">
+          <motion.p
+            variants={softItemVariants}
+            className="max-w-5xl whitespace-pre-line text-lg leading-8 text-slate-600"
+          >
             {report.summary}
-          </p>
+          </motion.p>
           {report.questionnaire1.topRiasec.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
+            <motion.div variants={staggerContainerVariants} className="flex flex-wrap gap-2">
               {report.questionnaire1.topRiasec.map((area) => (
-                <Badge
+                <motion.div key={area.code} variants={softItemVariants}>
+                  <Badge
                   key={area.code}
-                  className="border-white/20 bg-white text-background"
+                  className="border-teal-100 bg-gradient-to-l from-teal-500 to-emerald-400 text-white shadow-sm"
                 >
                   {area.name} {area.score}/100
                 </Badge>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           ) : null}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </Reveal>
 
       <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-        <ScorePanel
+        <AbilityScoresPanel
           icon={<BarChart3 className="size-5" />}
           title="ציוני יכולת"
           scores={report.abilityScores}
@@ -519,38 +758,46 @@ function DiagnosticReportView({ data }: { data: DiagnosticApiResponse }) {
             return step ? `/questionnaire?step=${step}&results=1` : null;
           }}
         />
-        <ScorePanel
+        <PersonalityProfilePanel
           icon={<Brain className="size-5" />}
           title="פרופיל אישיות"
           scores={report.personalityScores}
         />
       </div>
 
-      <Card className="border-white/20 bg-white/10 text-white shadow-xl backdrop-blur-md">
-        <CardContent className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[0.95fr_1.05fr]">
+      <Reveal>
+        <Card className="border-slate-200 bg-white text-slate-950 shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
+          <CardContent className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[0.95fr_1.05fr]">
           <div className="space-y-4">
             <SectionTitle icon={<Target className="size-5" />} title="חוזקות ומוקדי בדיקה" />
-            <InsightList title="חוזקות בולטות" items={report.profileInsights.strengths} />
-            <InsightList title="מוקדי התפתחות" items={report.profileInsights.developmentAreas} />
+            <InsightCloud title="חוזקות בולטות" items={report.profileInsights.strengths} />
+            <InsightCloud title="מוקדי התפתחות" items={report.profileInsights.developmentAreas} muted />
           </div>
-          <div className="rounded-md border border-white/15 bg-slate-950/20 p-4">
-            <h3 className="font-semibold text-emerald-100">סגנון עבודה משוער</h3>
-            <p className="mt-3 text-sm leading-7 text-white/78">
+          <motion.div
+            variants={softItemVariants}
+            className="rounded-lg border border-sky-100 bg-gradient-to-br from-sky-50 to-white p-5"
+          >
+            <h3 className="font-bold text-slate-950">סגנון עבודה משוער</h3>
+            <p className="mt-3 text-base leading-7 text-slate-600">
               {report.profileInsights.workStyle}
             </p>
-          </div>
-        </CardContent>
-      </Card>
+          </motion.div>
+          </CardContent>
+        </Card>
+      </Reveal>
 
-      <section className="grid gap-4">
-        <div className="flex items-center justify-between gap-3">
+      <Reveal>
+        <section className="grid gap-4">
+        <motion.div variants={softItemVariants} className="flex items-center justify-between gap-3">
           <SectionTitle
             icon={<BriefcaseBusiness className="size-5" />}
             title="מקצועות שמתאימים לך"
+            tone="light"
           />
-        </div>
-        <div className="grid gap-3">
-          {report.topOccupations.map((occupation) => (
+        </motion.div>
+        <StaggerGroup className="grid gap-3">
+          <AnimatePresence initial={false}>
+          {visibleOccupations.map((occupation) => (
             <OccupationDisclosure
               key={occupation.id}
               occupation={occupation}
@@ -562,29 +809,48 @@ function DiagnosticReportView({ data }: { data: DiagnosticApiResponse }) {
               }
             />
           ))}
-        </div>
-      </section>
+          </AnimatePresence>
+        </StaggerGroup>
+        {hiddenOccupationCount > 0 ? (
+          <motion.div variants={softItemVariants} className="flex justify-center">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowAllOccupations((current) => !current)}
+              className="border-teal-700 bg-white text-teal-800 shadow-sm hover:bg-teal-50"
+            >
+              {showAllOccupations
+                ? "הצג פחות"
+                : `הצג עוד ${hiddenOccupationCount} מקצועות`}
+            </Button>
+          </motion.div>
+        ) : null}
+        </section>
+      </Reveal>
 
-      <Card className="border-white/20 bg-white/10 text-white shadow-xl backdrop-blur-md">
-        <CardContent className="space-y-4 p-5 sm:p-6">
+      <Reveal>
+        <Card className="border-slate-200 bg-white text-slate-950 shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
+          <CardContent className="space-y-4 p-5 sm:p-6">
           <SectionTitle title="צעדים מומלצים להמשך" />
-          <ul className="grid gap-3 sm:grid-cols-3">
+          <motion.ul variants={staggerContainerVariants} className="grid gap-3 sm:grid-cols-3">
             {report.nextSteps.map((step) => (
-              <li
+              <motion.li
                 key={step}
-                className="rounded-md border border-white/15 bg-white/10 p-4 text-sm leading-6 text-white/80"
+                variants={softItemVariants}
+                className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-600"
               >
                 {step}
-              </li>
+              </motion.li>
             ))}
-          </ul>
-        </CardContent>
-      </Card>
-    </div>
+          </motion.ul>
+          </CardContent>
+        </Card>
+      </Reveal>
+    </StaggerGroup>
   );
 }
 
-function ScorePanel({
+function AbilityScoresPanel({
   icon,
   title,
   scores,
@@ -596,48 +862,233 @@ function ScorePanel({
   getResultHref?: (score: ScoreSummary) => string | null;
 }) {
   return (
-    <Card className="border-white/20 bg-white/10 text-white shadow-xl backdrop-blur-md">
-      <CardContent className="space-y-5 p-5 sm:p-6">
-        <SectionTitle icon={icon} title={title} />
-        <div className="grid gap-4 sm:grid-cols-2">
-          {scores.map((score) => {
+    <Reveal>
+      <Card className="relative overflow-hidden border-slate-200 bg-white text-slate-950 shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
+        <motion.div
+          initial={{ scaleX: 0 }}
+          whileInView={{ scaleX: 1 }}
+          viewport={{ once: true, amount: 0.01, margin: SCROLL_TRIGGER_MARGIN }}
+          transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute left-0 top-0 h-1 w-full origin-right bg-gradient-to-l from-emerald-400 via-teal-400 to-violet-500"
+        />
+        <CardContent className="space-y-5 p-5 sm:p-6">
+        <div className="flex items-center justify-between gap-3">
+          <SectionTitle icon={icon} title={title} />
+          <motion.div variants={softItemVariants}>
+            <Button
+            type="button"
+            variant="outline"
+            className="border-sky-700 bg-sky-50 text-sky-900 shadow-sm hover:bg-sky-100"
+          >
+            <ChartNoAxesCombined className="size-4" />
+            השוואה
+          </Button>
+          </motion.div>
+        </div>
+        <StaggerGroup className="grid gap-4 sm:grid-cols-2">
+          {scores.map((score, index) => {
             const href = getResultHref?.(score) || null;
-            const content = (
-              <>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="font-semibold">{score.label}</span>
-                  <span className="text-sm tabular-nums text-white/75">
-                    {score.score}/100
-                  </span>
-                </div>
-                <Progress value={score.score} className="h-2 bg-white/15" />
-                <p className="text-xs text-white/62">
-                  {score.answered}/{score.total} תשובות
-                </p>
-              </>
-            );
+            const gradient = ACCENT_GRADIENTS[index % ACCENT_GRADIENTS.length];
 
-            return href ? (
-              <Link
+            return (
+              <AnimatedAbilityScoreItem
                 key={score.label}
+                score={score}
                 href={href}
-                className="block w-full cursor-pointer space-y-2 rounded-md border border-white/15 bg-white/10 p-4 text-right transition hover:border-white/35 hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-                aria-label={`פתח תוצאות ${score.label}`}
-              >
-                {content}
-              </Link>
-            ) : (
-              <div
-                key={score.label}
-                className="space-y-2 rounded-md border border-white/15 bg-white/10 p-4"
-              >
-                {content}
-              </div>
+                gradient={gradient}
+              />
             );
           })}
-        </div>
-      </CardContent>
-    </Card>
+        </StaggerGroup>
+        </CardContent>
+      </Card>
+    </Reveal>
+  );
+}
+
+function AnimatedAbilityScoreItem({
+  score,
+  href,
+  gradient,
+}: {
+  score: ScoreSummary;
+  href: string | null;
+  gradient: string;
+}) {
+  const { ref, shouldAnimate } = useScrollTriggeredAnimation();
+  const content = (
+    <>
+      <div className="flex items-center justify-between gap-3">
+        <span className="font-bold text-slate-950">{score.label}</span>
+        <motion.span
+          variants={softItemVariants}
+          className="text-sm font-semibold tabular-nums text-slate-700"
+        >
+          {score.score}/100
+        </motion.span>
+      </div>
+      <div className="relative h-3 overflow-hidden rounded-full bg-slate-100">
+        <motion.div
+          className={cn(
+            "h-full rounded-full bg-gradient-to-l shadow-[0_0_18px_rgba(20,184,166,0.28)]",
+            gradient
+          )}
+          initial={{ width: 0 }}
+          animate={{ width: shouldAnimate ? `${score.score}%` : 0 }}
+          transition={{ duration: 0.82, ease: [0.22, 1, 0.36, 1] }}
+        />
+        <motion.span
+          className="absolute top-1/2 size-5 -translate-y-1/2 rounded-full border-2 border-white bg-slate-950 shadow-md"
+          initial={{ opacity: 0, right: "-0.625rem" }}
+          animate={{
+            opacity: shouldAnimate ? 1 : 0,
+            right: shouldAnimate ? `calc(${score.score}% - 0.625rem)` : "-0.625rem",
+          }}
+          transition={{ duration: 0.82, ease: [0.22, 1, 0.36, 1] }}
+        />
+      </div>
+      <motion.p variants={softItemVariants} className="text-xs text-slate-700">
+        {score.answered}/{score.total} תשובות
+      </motion.p>
+    </>
+  );
+
+  return href ? (
+    <motion.div ref={ref} variants={softItemVariants}>
+      <Link
+        href={href}
+        className="block w-full cursor-pointer space-y-3 rounded-lg border border-slate-500 bg-slate-50 p-4 text-right transition hover:-translate-y-0.5 hover:border-teal-700 hover:bg-white hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-700"
+        aria-label={`פתח תוצאות ${score.label}`}
+      >
+        {content}
+      </Link>
+    </motion.div>
+  ) : (
+    <motion.div
+      ref={ref}
+      variants={softItemVariants}
+      className="space-y-3 rounded-lg border border-slate-300 bg-slate-50 p-4"
+    >
+      {content}
+    </motion.div>
+  );
+}
+
+function PersonalityProfilePanel({
+  icon,
+  title,
+  scores,
+}: {
+  icon: ReactNode;
+  title: string;
+  scores: ScoreSummary[];
+}) {
+  const radarData = scores.map((score) => ({
+    trait: score.label,
+    score: score.score,
+  }));
+  const { ref: radarRef, shouldAnimate: shouldAnimateRadar } =
+    useScrollTriggeredAnimation();
+
+  return (
+    <Reveal>
+      <Card className="relative overflow-hidden border-slate-200 bg-white text-slate-950 shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
+        <motion.div
+          initial={{ scaleX: 0 }}
+          whileInView={{ scaleX: 1 }}
+          viewport={{ once: true, amount: 0.01, margin: SCROLL_TRIGGER_MARGIN }}
+          transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute left-0 top-0 h-1 w-full origin-right bg-gradient-to-l from-violet-500 via-fuchsia-500 to-teal-400"
+        />
+        <CardContent className="space-y-6 p-5 sm:p-6">
+        <SectionTitle icon={icon} title={title} />
+        <motion.div
+          ref={radarRef}
+          variants={softItemVariants}
+          className="h-72 rounded-lg border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-2"
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <RadarChart
+              key={shouldAnimateRadar ? "radar-active" : "radar-idle"}
+              data={radarData}
+              outerRadius="72%"
+            >
+              <PolarGrid stroke="#dbeafe" />
+              <PolarAngleAxis
+                dataKey="trait"
+                tick={{ fill: "#475569", fontSize: 12, fontWeight: 700 }}
+              />
+              <Radar
+                dataKey="score"
+                stroke="#14b8a6"
+                fill="#14b8a6"
+                fillOpacity={0.32}
+                isAnimationActive={shouldAnimateRadar}
+                animationBegin={0}
+                animationDuration={950}
+                animationEasing="ease-out"
+              />
+              <Tooltip
+                contentStyle={{
+                  borderRadius: 8,
+                  border: "1px solid #e2e8f0",
+                  direction: "rtl",
+                }}
+              />
+            </RadarChart>
+          </ResponsiveContainer>
+        </motion.div>
+        <StaggerGroup className="grid gap-4 sm:grid-cols-2">
+          {scores.slice(0, 4).map((score, index) => (
+            <GaugeMeter key={score.label} score={score} index={index} />
+          ))}
+        </StaggerGroup>
+        </CardContent>
+      </Card>
+    </Reveal>
+  );
+}
+
+function GaugeMeter({ score, index }: { score: ScoreSummary; index: number }) {
+  const rotation = -90 + score.score * 1.8;
+  const { ref, shouldAnimate } = useScrollTriggeredAnimation();
+
+  return (
+    <motion.div
+      ref={ref}
+      variants={softItemVariants}
+      className="rounded-lg border border-slate-200 bg-slate-50 p-4"
+    >
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="font-bold text-slate-950">{score.label}</h3>
+        <span className="text-sm font-semibold tabular-nums text-slate-700">
+          {score.score}/100
+        </span>
+      </div>
+      <div className="relative mx-auto mt-4 h-24 w-40 overflow-hidden">
+        <div className="absolute inset-x-0 bottom-0 h-20 rounded-t-full border-[14px] border-b-0 border-slate-200" />
+        <motion.div
+          className={cn(
+            "absolute inset-x-0 bottom-0 h-20 rounded-t-full border-[14px] border-b-0 border-transparent bg-clip-border",
+            index % 2 === 0 ? "border-t-teal-400 border-l-violet-400" : "border-t-emerald-400 border-l-pink-400"
+          )}
+          initial={{ clipPath: "inset(0 100% 0 0)" }}
+          animate={{
+            clipPath: shouldAnimate
+              ? `inset(0 ${100 - score.score}% 0 0)`
+              : "inset(0 100% 0 0)",
+          }}
+          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+        />
+        <motion.div
+          className="absolute bottom-2 left-1/2 z-10 h-16 w-1 origin-bottom -translate-x-1/2 rounded-full bg-slate-900 shadow-lg"
+          initial={{ rotate: -90, opacity: 0 }}
+          animate={{ rotate: shouldAnimate ? rotation : -90, opacity: shouldAnimate ? 1 : 0 }}
+          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+        />
+        <div className="absolute bottom-0 left-1/2 z-20 size-4 -translate-x-1/2 rounded-full border-2 border-white bg-slate-900" />
+      </div>
+    </motion.div>
   );
 }
 
@@ -650,54 +1101,40 @@ function OccupationDisclosure({
   isOpen: boolean;
   onToggle: () => void;
 }) {
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const scrollFrame = requestAnimationFrame(() => {
-      scrollCardBelowFixedHeader(cardRef.current, "smooth");
-    });
-    const settleScroll = window.setTimeout(() => {
-      scrollCardBelowFixedHeader(cardRef.current, "smooth");
-    }, 320);
-
-    return () => {
-      cancelAnimationFrame(scrollFrame);
-      window.clearTimeout(settleScroll);
-    };
-  }, [isOpen]);
+  const [activeTab, setActiveTab] = useState<OccupationTab>("skillGap");
 
   return (
-    <Card
-      ref={cardRef}
-      className="overflow-hidden border-white/20 bg-white/10 text-white shadow-xl backdrop-blur-md"
-    >
+    <motion.div variants={softItemVariants}>
+      <Card
+        className="overflow-hidden border-slate-200 bg-white text-slate-950 shadow-[0_18px_60px_rgba(15,23,42,0.08)]"
+      >
       <button
         type="button"
         onClick={onToggle}
         aria-expanded={isOpen}
-        className="flex w-full flex-col gap-4 p-5 text-right transition-colors hover:bg-white/10 sm:flex-row sm:items-center sm:justify-between"
+        className="flex w-full flex-col gap-4 bg-gradient-to-l from-white to-slate-50 p-5 text-right transition-colors hover:from-teal-50 hover:to-white sm:flex-row sm:items-center sm:justify-between"
       >
         <div className="flex min-w-0 items-start gap-3">
-          <div className="flex size-11 shrink-0 items-center justify-center rounded-md bg-emerald-300/18 text-emerald-100">
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-700">
             <BriefcaseBusiness className="size-5" />
           </div>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-xl font-semibold">{occupation.title}</h3>
-              <Badge className="bg-white text-background">
+              <h3 className="text-2xl font-extrabold tracking-normal text-slate-950">
+                {occupation.title}
+              </h3>
+              <Badge className="bg-emerald-500 text-white shadow-sm">
                 {occupation.matchPercent}% התאמה
               </Badge>
             </div>
-            <p className="mt-2 max-w-4xl text-sm leading-6 text-white/75">
+            <p className="mt-2 max-w-4xl text-base leading-7 text-slate-600">
               {occupation.shortWhy}
             </p>
           </div>
         </div>
         <ChevronDown
           className={cn(
-            "size-5 shrink-0 text-white/70 transition-transform duration-300 ease-out",
+            "size-5 shrink-0 text-slate-700 transition-transform duration-300 ease-out",
             isOpen && "rotate-180"
           )}
         />
@@ -714,37 +1151,42 @@ function OccupationDisclosure({
               duration: 0.28,
               ease: [0.22, 1, 0.36, 1],
             }}
-            onAnimationComplete={() => {
-              if (isOpen) {
-                scrollCardBelowFixedHeader(cardRef.current, "auto");
-              }
-            }}
             className="overflow-hidden"
           >
-            <div className="border-t border-white/12 px-5 pb-5 pt-1">
+            <motion.div
+              variants={staggerContainerVariants}
+              initial="hidden"
+              animate="visible"
+              className="border-t border-slate-100 px-5 pb-5 pt-5"
+            >
               <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
-                <div className="space-y-5">
-                  <div>
-                    <h4 className="font-semibold text-emerald-100">
+                <motion.div variants={staggerContainerVariants} className="space-y-5">
+                  <motion.div variants={softItemVariants}>
+                    <h4 className="font-bold text-slate-950">
                       תיאור המקצוע
                     </h4>
-                    <p className="mt-2 text-sm leading-7 text-white/78">
+                    <p className="mt-2 text-base leading-7 text-slate-600">
                       {occupation.description}
                     </p>
-                  </div>
+                  </motion.div>
                   <TextList title="נימוקי התאמה" items={occupation.fitReasons} />
                   <TextList
                     title="מה כדאי לבדוק"
                     items={occupation.possibleTensions}
                   />
-                </div>
+                  <OccupationTabs
+                    occupation={occupation}
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
+                  />
+                </motion.div>
 
-                <div className="space-y-4">
+                <motion.div variants={staggerContainerVariants} className="space-y-4">
                   <DetailBox
                     icon={<GraduationCap className="size-5" />}
                     title="הכשרה נדרשת"
                   >
-                    <ul className="space-y-2 text-sm leading-6 text-white/78">
+                    <ul className="space-y-2 text-sm leading-6 text-slate-600">
                       {occupation.requiredTraining.map((item) => (
                         <li key={item}>{item}</li>
                       ))}
@@ -756,12 +1198,12 @@ function OccupationDisclosure({
                       {occupation.trainingPlaces.map((place) => (
                         <div
                           key={`${place.name}-${place.type}`}
-                          className="rounded-md border border-white/12 bg-white/10 p-3"
+                          className="rounded-lg border border-slate-200 bg-slate-50 p-3"
                         >
-                          <div className="text-sm font-semibold">
+                          <div className="text-sm font-bold text-slate-950">
                             {place.name}
                           </div>
-                          <div className="text-xs text-white/60">
+                          <div className="text-xs text-slate-700">
                             {place.type}
                           </div>
                         </div>
@@ -774,42 +1216,267 @@ function OccupationDisclosure({
                     title="שכר ממוצע במשק"
                   >
                     <div className="space-y-2">
-                      <div className="text-2xl font-bold">
+                      <div className="text-3xl font-extrabold text-slate-950">
                         {formatSalary(occupation.averageSalary.monthlyGross)}
                       </div>
-                      <p className="text-xs leading-5 text-white/62">
-                        {occupation.averageSalary.source}
-                        {occupation.averageSalary.sourceYear
-                          ? `, ${occupation.averageSalary.sourceYear}`
-                          : ""}
-                        {occupation.averageSalary.note
-                          ? ` · ${occupation.averageSalary.note}`
-                          : ""}
+                      <p className="text-xs leading-5 text-slate-700">
+                        {formatSalaryDetails(occupation.averageSalary)}
                       </p>
                     </div>
                   </DetailBox>
 
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="w-full border-white/25 bg-white/10 text-white hover:bg-white/15"
-                  >
-                    <Link
-                      href={occupation.avodataUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      להרחבה בעבודאטה
-                      <ExternalLink className="size-4" />
-                    </Link>
-                  </Button>
-                </div>
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         ) : null}
       </AnimatePresence>
-    </Card>
+      </Card>
+    </motion.div>
+  );
+}
+
+function OccupationTabs({
+  occupation,
+  activeTab,
+  onTabChange,
+}: {
+  occupation: DiagnosticOccupation;
+  activeTab: OccupationTab;
+  onTabChange: (tab: OccupationTab) => void;
+}) {
+  return (
+    <motion.div
+      variants={softItemVariants}
+      className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+    >
+      <motion.div variants={staggerContainerVariants} className="flex flex-wrap gap-2 border-b border-slate-100 pb-3">
+        {OCCUPATION_TABS.map((tab) => (
+          <motion.button
+            key={tab.id}
+            variants={softItemVariants}
+            type="button"
+            onClick={() => onTabChange(tab.id)}
+            className={cn(
+              "rounded-full border px-4 py-2 text-sm font-bold transition",
+              activeTab === tab.id
+                ? "border-slate-950 bg-slate-950 text-white shadow-md"
+                : "border-slate-500 bg-slate-50 text-slate-800 hover:bg-slate-100 hover:text-slate-950"
+            )}
+          >
+            {tab.label}
+          </motion.button>
+        ))}
+      </motion.div>
+      <div className="pt-4">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 18, scale: 0.985 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, amount: 0.01, margin: SCROLL_TRIGGER_MARGIN }}
+            exit={{ opacity: 0, y: -10, scale: 0.99 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {activeTab === "skillGap" ? (
+              <SkillGapTab occupation={occupation} />
+            ) : null}
+            {activeTab === "education" ? (
+              <EducationTab occupation={occupation} />
+            ) : null}
+            {activeTab === "salary" ? (
+              <SalaryTab occupation={occupation} />
+            ) : null}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    </motion.div>
+  );
+}
+
+function SkillGapTab({ occupation }: { occupation: DiagnosticOccupation }) {
+  const entries = Object.entries(occupation.scoreBreakdown) as Array<
+    [keyof DiagnosticOccupation["scoreBreakdown"], number]
+  >;
+
+  return (
+    <motion.div
+      variants={staggerContainerVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.01, margin: SCROLL_TRIGGER_MARGIN }}
+      className="grid gap-3 sm:grid-cols-2"
+    >
+      {entries.map(([key, value], index) => (
+        <SkillGapScore
+          key={key}
+          label={OCCUPATION_SCORE_LABELS[key]}
+          value={value}
+          gradient={ACCENT_GRADIENTS[index % ACCENT_GRADIENTS.length]}
+        />
+      ))}
+    </motion.div>
+  );
+}
+
+function SkillGapScore({
+  label,
+  value,
+  gradient,
+}: {
+  label: string;
+  value: number;
+  gradient: string;
+}) {
+  const { ref, shouldAnimate } = useScrollTriggeredAnimation();
+
+  return (
+    <motion.div
+      ref={ref}
+      variants={softItemVariants}
+      className="rounded-lg border border-slate-200 bg-slate-50 p-3"
+    >
+      <div className="flex items-center justify-between gap-3">
+        <span className="font-bold text-slate-900">{label}</span>
+        <span className="text-sm font-semibold tabular-nums text-slate-700">
+          {value}/100
+        </span>
+      </div>
+      <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
+        <motion.div
+          className={cn("h-full rounded-full bg-gradient-to-l", gradient)}
+          initial={{ width: 0 }}
+          animate={{ width: shouldAnimate ? `${value}%` : 0 }}
+          transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
+        />
+      </div>
+    </motion.div>
+  );
+}
+
+function EducationTab({ occupation }: { occupation: DiagnosticOccupation }) {
+  const pathItems = occupation.requiredTraining.slice(0, 4);
+
+  return (
+    <div className="grid gap-4 md:grid-cols-[0.85fr_1.15fr]">
+      <motion.div
+        variants={staggerContainerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.01, margin: SCROLL_TRIGGER_MARGIN }}
+        className="space-y-3"
+      >
+        {pathItems.map((item, index) => (
+          <motion.div key={item} variants={softItemVariants} className="flex gap-3">
+            <div className="flex flex-col items-center">
+              <motion.div
+                initial={{ scale: 0.4, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                viewport={{ once: true, amount: 0.01, margin: SCROLL_TRIGGER_MARGIN }}
+                transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+                className="flex size-9 items-center justify-center rounded-full bg-gradient-to-br from-teal-400 to-violet-500 text-sm font-extrabold text-white"
+              >
+                {index + 1}
+              </motion.div>
+              {index < pathItems.length - 1 ? (
+                <motion.div
+                  initial={{ scaleY: 0 }}
+                  whileInView={{ scaleY: 1 }}
+                  viewport={{ once: true, amount: 0.01, margin: SCROLL_TRIGGER_MARGIN }}
+                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  className="h-full min-h-8 w-px origin-top bg-slate-200"
+                />
+              ) : null}
+            </div>
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm font-semibold leading-6 text-slate-600">
+              {item}
+            </div>
+          </motion.div>
+        ))}
+      </motion.div>
+      <motion.div
+        variants={staggerContainerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.01, margin: SCROLL_TRIGGER_MARGIN }}
+        className="grid grid-cols-2 gap-2"
+      >
+        {occupation.trainingPlaces.slice(0, 4).map((place, index) => (
+          <motion.div
+            key={`${place.name}-${place.type}-matrix`}
+            variants={softItemVariants}
+            className={cn(
+              "rounded-lg border p-3",
+              index % 2 === 0
+                ? "border-teal-100 bg-teal-50 text-teal-800"
+                : "border-violet-100 bg-violet-50 text-violet-800"
+            )}
+          >
+            <div className="text-sm font-extrabold">{place.name}</div>
+            <div className="mt-1 text-xs opacity-75">{place.type}</div>
+          </motion.div>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
+
+function SalaryTab({ occupation }: { occupation: DiagnosticOccupation }) {
+  const base = occupation.averageSalary.monthlyGross || 12000;
+  const salaryData = [
+    { level: "כניסה", salary: Math.round(base * 0.72) },
+    { level: "שנה 2", salary: Math.round(base * 0.9) },
+    { level: "מנוסה", salary: base },
+    { level: "בכיר", salary: Math.round(base * 1.18) },
+  ];
+  const { ref: salaryRef, shouldAnimate: shouldAnimateSalary } =
+    useScrollTriggeredAnimation();
+
+  return (
+    <motion.div
+      ref={salaryRef}
+      variants={softItemVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.01, margin: SCROLL_TRIGGER_MARGIN }}
+      className="h-56 rounded-lg border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-3"
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart
+          key={shouldAnimateSalary ? `salary-${occupation.id}-active` : `salary-${occupation.id}-idle`}
+          data={salaryData}
+          margin={{ left: 0, right: 0, top: 12, bottom: 0 }}
+        >
+          <defs>
+            <linearGradient id={`salary-${occupation.id}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.44} />
+              <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.04} />
+            </linearGradient>
+          </defs>
+          <XAxis dataKey="level" tick={{ fill: "#64748b", fontSize: 12 }} />
+          <YAxis tick={{ fill: "#64748b", fontSize: 12 }} width={42} />
+          <Tooltip
+            formatter={(value) => formatSalary(Number(value))}
+            contentStyle={{
+              borderRadius: 8,
+              border: "1px solid #e2e8f0",
+              direction: "rtl",
+            }}
+          />
+          <Area
+            type="monotone"
+            dataKey="salary"
+            stroke="#14b8a6"
+            strokeWidth={3}
+            fill={`url(#salary-${occupation.id})`}
+            isAnimationActive={shouldAnimateSalary}
+            animationBegin={0}
+            animationDuration={950}
+            animationEasing="ease-out"
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </motion.div>
   );
 }
 
@@ -823,59 +1490,124 @@ function DetailBox({
   children: ReactNode;
 }) {
   return (
-    <div className="rounded-md border border-white/15 bg-slate-950/20 p-4">
-      <div className="flex items-center gap-2 font-semibold text-emerald-100">
+    <motion.div
+      variants={softItemVariants}
+      className="rounded-lg border border-slate-200 bg-slate-50 p-4"
+    >
+      <div className="flex items-center gap-2 font-bold text-slate-950">
         {icon}
         {title}
       </div>
       <div className="mt-3">{children}</div>
-    </div>
+    </motion.div>
   );
 }
 
 function TextList({ title, items }: { title: string; items: string[] }) {
   return (
-    <div>
-      <h4 className="font-semibold text-emerald-100">{title}</h4>
-      <ul className="mt-3 grid gap-2 text-sm leading-6 text-white/78">
+    <motion.div variants={softItemVariants}>
+      <h4 className="font-bold text-slate-950">{title}</h4>
+      <motion.ul variants={staggerContainerVariants} className="mt-3 grid gap-2 text-sm leading-6 text-slate-600">
         {items.map((item) => (
-          <li key={item} className="rounded-md border border-white/12 bg-white/10 p-3">
-            {item}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function InsightList({ title, items }: { title: string; items: string[] }) {
-  return (
-    <div>
-      <h3 className="font-semibold text-emerald-100">{title}</h3>
-      <ul className="mt-3 flex flex-wrap gap-2">
-        {items.map((item) => (
-          <li
+          <motion.li
             key={item}
-            className="rounded-md border border-white/15 bg-white/10 px-3 py-2 text-sm text-white/80"
+            variants={softItemVariants}
+            className="rounded-lg border border-slate-200 bg-slate-50 p-3"
           >
             {item}
-          </li>
+          </motion.li>
         ))}
-      </ul>
-    </div>
+      </motion.ul>
+    </motion.div>
   );
 }
 
-function SectionTitle({ icon, title }: { icon?: ReactNode; title: string }) {
+function InsightCloud({
+  title,
+  items,
+  muted = false,
+}: {
+  title: string;
+  items: string[];
+  muted?: boolean;
+}) {
   return (
-    <div className="flex items-center gap-3 text-white">
+    <motion.div
+      variants={softItemVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.01, margin: SCROLL_TRIGGER_MARGIN }}
+    >
+      <motion.h3 variants={softItemVariants} className="font-bold text-slate-950">
+        {title}
+      </motion.h3>
+      <motion.ul variants={staggerContainerVariants} className="mt-3 flex flex-wrap items-center gap-2">
+        {items.map((item, index) => (
+          <motion.li
+            key={item}
+            variants={softItemVariants}
+            className={cn(
+              "rounded-full border px-3 py-2 font-semibold shadow-sm transition hover:-translate-y-0.5 hover:shadow-md",
+              muted
+                ? "border-slate-500 bg-slate-50 text-slate-800"
+                : "border-teal-100 bg-gradient-to-l from-white to-teal-50 text-teal-700",
+              index === 0 && !muted && "px-5 py-3 text-lg",
+              index === 1 && !muted && "text-base",
+              index > 3 && "opacity-80"
+            )}
+          >
+            {item}
+          </motion.li>
+        ))}
+      </motion.ul>
+    </motion.div>
+  );
+}
+
+function SectionTitle({
+  icon,
+  title,
+  tone = "dark",
+}: {
+  icon?: ReactNode;
+  title: string;
+  tone?: "dark" | "light";
+}) {
+  const isLight = tone === "light";
+
+  return (
+    <motion.div
+      variants={softItemVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.01, margin: SCROLL_TRIGGER_MARGIN }}
+      className={cn(
+        "flex items-center gap-3",
+        isLight
+          ? "text-white drop-shadow-[0_2px_8px_rgba(3,7,18,0.55)]"
+          : "text-slate-950"
+      )}
+    >
       {icon ? (
-        <div className="flex size-10 items-center justify-center rounded-md bg-emerald-300/18 text-emerald-100">
+        <motion.div
+          initial={{ scale: 0.6, rotate: -8, opacity: 0 }}
+          whileInView={{ scale: 1, rotate: 0, opacity: 1 }}
+          viewport={{ once: true, amount: 0.01, margin: SCROLL_TRIGGER_MARGIN }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className={cn(
+            "flex size-10 items-center justify-center rounded-lg",
+            isLight
+              ? "border border-white/80 bg-white/15 text-white backdrop-blur"
+              : "bg-gradient-to-br from-teal-100 to-violet-100 text-teal-700"
+          )}
+        >
           {icon}
-        </div>
+        </motion.div>
       ) : null}
-      <h2 className="text-xl font-semibold">{title}</h2>
-    </div>
+      <motion.h2 variants={softItemVariants} className="text-2xl font-extrabold tracking-normal">
+        {title}
+      </motion.h2>
+    </motion.div>
   );
 }
 
@@ -1314,13 +2046,7 @@ function PdfOccupation({
             {formatSalary(occupation.averageSalary.monthlyGross)}
           </div>
           <p className="mt-2 text-xs leading-5 text-[#64748b]">
-            {occupation.averageSalary.source}
-            {occupation.averageSalary.sourceYear
-              ? `, ${occupation.averageSalary.sourceYear}`
-              : ""}
-            {occupation.averageSalary.note
-              ? ` · ${occupation.averageSalary.note}`
-              : ""}
+            {formatSalaryDetails(occupation.averageSalary)}
           </p>
         </div>
 
@@ -1349,9 +2075,6 @@ function PdfOccupation({
                 </div>
               );
             })}
-          </div>
-          <div className="mt-3 break-all text-xs text-[#0f766e]">
-            {occupation.avodataUrl}
           </div>
         </div>
       </div>
@@ -1588,30 +2311,6 @@ function waitForPdfRender() {
   });
 }
 
-function scrollCardBelowFixedHeader(
-  element: HTMLElement | null,
-  behavior: ScrollBehavior
-) {
-  if (!element || typeof window === "undefined") return;
-
-  const fixedHeader = document.querySelector<HTMLElement>(
-    "header.liquid-glass-header"
-  );
-  const headerOffset = fixedHeader
-    ? Math.max(0, Math.ceil(fixedHeader.getBoundingClientRect().bottom))
-    : 0;
-  const viewportGap = 12;
-  const elementTop = element.getBoundingClientRect().top + window.scrollY;
-  const prefersReducedMotion = window.matchMedia(
-    "(prefers-reduced-motion: reduce)"
-  ).matches;
-
-  window.scrollTo({
-    top: Math.max(0, elementTop - headerOffset - viewportGap),
-    behavior: prefersReducedMotion ? "auto" : behavior,
-  });
-}
-
 function getDiagnosticPdfFilename(generatedAt: string) {
   const date = new Date(generatedAt);
   const isoDate = Number.isNaN(date.getTime())
@@ -1638,4 +2337,20 @@ function formatSalary(value: number | null) {
     currency: "ILS",
     maximumFractionDigits: 0,
   }).format(value);
+}
+
+function formatSalaryDetails(
+  salary: DiagnosticOccupation["averageSalary"]
+) {
+  const source = salary.source.replace(/^.*?,\s*/, "").trim();
+  const note = salary.note
+    ?.replace(/^מוצג קישור להרחבה.*?;\s*/, "")
+    .trim();
+  const parts = [
+    source,
+    salary.sourceYear ? String(salary.sourceYear) : "",
+    note,
+  ].filter(Boolean);
+
+  return parts.join(" · ");
 }

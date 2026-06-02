@@ -137,15 +137,16 @@ export function HeroSection() {
             <div className="space-y-4">
               <div className="flex items-center justify-center space-x-4 space-x-reverse text-sm text-muted-foreground"></div>
 
-              <Link href="/dashboard">
-                <Button
-                  size="lg"
-                  className="w-full text-lg font-semibold h-12 bg-primary hover:bg-secondary custom-btn"
-                >
+              <Button
+                asChild
+                size="lg"
+                className="w-full text-lg font-semibold h-12 bg-primary hover:bg-secondary custom-btn"
+              >
+                <Link href="/dashboard">
                   התחל אבחון
                   <ArrowLeft className="w-5 h-5 mr-2" />
-                </Button>
-              </Link>
+                </Link>
+              </Button>
 
               <p className="text-xs text-muted-foreground text-center mt-4">
                 ללא התחייבות • ביטול בכל עת
