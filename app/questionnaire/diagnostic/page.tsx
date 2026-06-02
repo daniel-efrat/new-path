@@ -428,12 +428,28 @@ export default function QuestionnaireDiagnosticPage() {
 function LoadingState() {
   return (
     <Card className="border-white/20 bg-white/10 text-white shadow-xl backdrop-blur-md">
-      <CardContent className="flex min-h-[360px] flex-col items-center justify-center gap-4 p-8 text-center">
-        <Loader2 className="size-9 animate-spin text-emerald-100" />
+      <CardContent className="flex min-h-[420px] flex-col items-center justify-center gap-5 p-6 text-center sm:p-8">
+        <div className="relative aspect-square w-full max-w-sm overflow-hidden rounded-lg bg-transparent">
+          <video
+            className="absolute left-1/2 top-1/2 h-[116%] w-[102.5%] -translate-x-1/2 -translate-y-1/2 object-contain"
+            style={{
+              WebkitMaskImage:
+                "linear-gradient(to bottom, #000 0 13.5%, transparent 13.5% 15%, #000 15% 84.8%, transparent 84.8% 86.3%, #000 86.3% 100%)",
+              maskImage:
+                "linear-gradient(to bottom, #000 0 13.5%, transparent 13.5% 15%, #000 15% 84.8%, transparent 84.8% 86.3%, #000 86.3% 100%)",
+            }}
+            src="/working2.webm"
+            autoPlay
+            loop
+            muted
+            playsInline
+            aria-label="גילברט עובד על הכנת הדוח האבחוני"
+          />
+        </div>
         <div>
           <h2 className="text-xl font-semibold">מרכיבים את הדו״ח האבחוני</h2>
           <p className="mt-2 text-sm text-white/70">
-            משלבים את שלב א׳, מבחני היכולת, האישיות וערכי הליבה.
+            גילברט עובד על זה עכשיו. משלבים את שלב א׳, מבחני היכולת, האישיות וערכי הליבה.
           </p>
         </div>
       </CardContent>

@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import Image from "next/image";
-import { BarChart3 } from "lucide-react";
+import { BarChart3, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { RatingScale } from "@/components/questionnaire/RatingScale";
 import {
   STEP10_QUESTIONS,
   type PersonalityDimension,
@@ -36,13 +37,9 @@ interface DimensionResult extends DimensionCopy {
 
 const STEP_NUMBER = 12;
 const QUESTIONS = STEP10_QUESTIONS;
-const RATING_OPTIONS = [
-  { src: "/slice1.png", label: "מתאים לי מאוד", value: 5 },
-  { src: "/slice2.png", label: "מתאים לי", value: 4 },
-  { src: "/slice3.png", label: "בינוני", value: 3 },
-  { src: "/slice4.png", label: "מעט מתאים לי", value: 2 },
-  { src: "/slice5.png", label: "בכלל לא מתאים לי", value: 1 },
-];
+const AUTO_ADVANCE_MS = 300;
+const SAVE_ERROR_MESSAGE =
+  "לא הצלחנו לשמור את התשובה. בדקו את החיבור ונסו שוב.";
 
 const DIMENSION_COPY: Record<PersonalityDimension, DimensionCopy> = {
   organization: {
@@ -105,8 +102,11 @@ export default function Step10({
   const { setAnswer } = useQuestionnaireStore();
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [isLoadingAnswers, setIsLoadingAnswers] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const answeredCount = QUESTIONS.filter((question) =>
     Number.isInteger(answers[question.id])
@@ -114,6 +114,9 @@ export default function Step10({
   const isComplete = answeredCount === QUESTIONS.length;
   const currentQuestion = QUESTIONS[currentIndex];
   const selected = currentQuestion ? answers[currentQuestion.id] : undefined;
+  const progressPercentage = Math.round(
+    ((currentIndex + 1) / QUESTIONS.length) * 100
+  );
 
   const dimensionResults = useMemo<DimensionResult[]>(() => {
     const grouped = QUESTIONS.reduce<
@@ -186,7 +189,12 @@ export default function Step10({
           {}
         );
 
+        const firstUnansweredIndex = QUESTIONS.findIndex(
+          (question) => nextAnswers[question.id] === undefined
+        );
+
         setAnswers(nextAnswers);
+        setCurrentIndex(firstUnansweredIndex === -1 ? 0 : firstUnansweredIndex);
         setShowResult(
           resultsMode && Object.keys(nextAnswers).length === QUESTIONS.length
         );
@@ -198,14 +206,72 @@ export default function Step10({
     };
 
     loadAnswers();
+  }, [resultsMode]);
+
+  const clearAutoAdvance = useCallback(() => {
+    if (autoAdvanceTimer.current) {
+      clearTimeout(autoAdvanceTimer.current);
+      autoAdvanceTimer.current = null;
+    }
   }, []);
 
-  const handleSelect = async (questionId: string, value: number) => {
-    setAnswers((current) => ({ ...current, [questionId]: value }));
-    await setAnswer(questionId, value, undefined, STEP_NUMBER);
-  };
+  useEffect(() => () => clearAutoAdvance(), [clearAutoAdvance]);
+
+  const persistAnswer = useCallback(
+    async (questionId: string, value: number) => {
+      setIsSaving(true);
+      setSaveError(null);
+
+      try {
+        const saved = await setAnswer(questionId, value, undefined, STEP_NUMBER);
+        if (!saved) {
+          setSaveError(SAVE_ERROR_MESSAGE);
+          return false;
+        }
+
+        return true;
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [setAnswer]
+  );
+
+  const handleSelect = useCallback(
+    async (questionId: string, value: number) => {
+      clearAutoAdvance();
+      const previousValue = answers[questionId];
+
+      setAnswers((current) => ({ ...current, [questionId]: value }));
+      const saved = await persistAnswer(questionId, value);
+
+      if (!saved) {
+        setAnswers((current) => {
+          const nextAnswers = { ...current };
+          if (previousValue === undefined) {
+            delete nextAnswers[questionId];
+          } else {
+            nextAnswers[questionId] = previousValue;
+          }
+          return nextAnswers;
+        });
+        return;
+      }
+
+      if (currentIndex >= QUESTIONS.length - 1) return;
+
+      autoAdvanceTimer.current = setTimeout(() => {
+        setCurrentIndex((index) =>
+          index === currentIndex ? Math.min(index + 1, QUESTIONS.length - 1) : index
+        );
+      }, AUTO_ADVANCE_MS);
+    },
+    [answers, clearAutoAdvance, currentIndex, persistAnswer]
+  );
 
   const handleNextQuestion = async () => {
+    clearAutoAdvance();
+
     if (!Number.isInteger(selected)) return;
 
     if (currentIndex < QUESTIONS.length - 1) {
@@ -216,7 +282,14 @@ export default function Step10({
     await handleShowResult();
   };
 
+  const handlePreviousQuestion = () => {
+    clearAutoAdvance();
+    setSaveError(null);
+    setCurrentIndex((value) => Math.max(0, value - 1));
+  };
+
   const handleShowResult = async () => {
+    clearAutoAdvance();
     if (!isComplete) return;
     if (resultsMode) {
       setShowResult(true);
@@ -226,6 +299,7 @@ export default function Step10({
   };
 
   const handleContinue = async () => {
+    clearAutoAdvance();
     if (resultsMode) {
       onBackToReport?.();
       return;
@@ -234,19 +308,6 @@ export default function Step10({
     await onComplete?.();
     onNext?.();
   };
-
-  const ratingContainer = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.08, delayChildren: 0.05 },
-    },
-  } as const;
-
-  const ratingItem = {
-    hidden: { opacity: 0, y: 16 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } },
-  } as const;
 
   if (isLoadingAnswers) {
     return <div className="p-6 text-center">טוען...</div>;
@@ -355,73 +416,69 @@ export default function Step10({
           transition={{ duration: 0.3 }}
         >
           <Card className="max-w-3xl mx-auto bg-white text-background p-2 sm:p-6">
-            <CardHeader className="flex flex-col gap-3 p-2 sm:p-6">
-              <div className="flex w-full items-center justify-between gap-3 text-sm text-gray-700">
-                <span>
-                  שאלה {currentIndex + 1} / {QUESTIONS.length}
-                </span>
-                <span>
-                  נענו {answeredCount}/{QUESTIONS.length}
-                </span>
-              </div>
-              <div className="flex justify-center">
-                <Badge variant="secondary">{currentQuestion.categoryLabel}</Badge>
+            <CardHeader className="p-2 sm:p-6">
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-gray-700">
+                  <span>
+                    שאלה {currentIndex + 1} / {QUESTIONS.length}
+                  </span>
+                </div>
+                <Progress
+                  value={progressPercentage}
+                  className="h-2 bg-gray-200"
+                  aria-label={`התקדמות ${progressPercentage}%`}
+                />
               </div>
             </CardHeader>
             <CardContent className="p-2 sm:p-6">
-              <div className="mb-4 sm:mb-6 text-right text-xl font-semibold leading-relaxed text-background">
+              <div className="mb-4 text-right text-lg leading-relaxed text-background sm:mb-6">
                 {currentQuestion.statement}
               </div>
 
-              <div className="mb-1 sm:mb-2 overflow-hidden">
-                <motion.div
-                  className="flex items-center justify-between gap-0.5 sm:gap-2 overflow-x-auto"
-                  dir="ltr"
-                  variants={ratingContainer}
-                  initial="hidden"
-                  animate="show"
-                >
-                  {RATING_OPTIONS.map((option) => (
-                    <motion.button
-                      key={option.value}
-                      type="button"
-                      onClick={() => handleSelect(currentQuestion.id, option.value)}
-                      className={`flex flex-col items-center p-0.5 sm:p-2 rounded-lg transition-colors focus-visible:outline-none border min-w-[52px] sm:min-w-[80px] ${
-                        selected === option.value
-                          ? "border-primary ring-2 ring-blue-200"
-                          : "border-transparent hover:bg-gray-50"
-                      }`}
-                      aria-pressed={selected === option.value}
-                      aria-label={option.label}
-                      variants={ratingItem}
-                    >
-                      <div className="w-[40px] h-[40px] sm:w-[56px] sm:h-[56px] flex items-center justify-center">
-                        <Image
-                          src={option.src}
-                          alt={option.label}
-                          width={56}
-                          height={56}
-                          className="object-contain w-full h-full"
-                        />
-                      </div>
-                      <span className="mt-1 sm:mt-2 text-[10px] sm:text-xs text-gray-700 whitespace-nowrap">
-                        {option.label}
-                      </span>
-                    </motion.button>
-                  ))}
-                </motion.div>
+              <RatingScale
+                value={selected}
+                onSelect={(value) => handleSelect(currentQuestion.id, value)}
+                disabled={isSaving}
+              />
+
+              <div className="mt-4 min-h-6 text-sm" aria-live="polite">
+                {saveError ? (
+                  <p className="font-medium text-destructive">{saveError}</p>
+                ) : isSaving ? (
+                  <p className="text-gray-600">שומר...</p>
+                ) : selected !== undefined ? (
+                  <p className="text-emerald-700">נשמר אוטומטית</p>
+                ) : null}
               </div>
 
-              <div className="flex justify-end mt-6">
+              <div className="mt-6 flex items-center justify-between gap-3">
                 <Button
-                  onClick={handleNextQuestion}
-                  disabled={!Number.isInteger(selected)}
+                  type="button"
+                  variant="outline"
+                  onClick={handlePreviousQuestion}
+                  disabled={currentIndex === 0 || isSaving}
+                  className="gap-2"
                 >
-                  {currentIndex < QUESTIONS.length - 1
-                    ? "שאלה הבאה"
-                    : resultsMode
-                    ? "הצג סיכום"
-                    : "סיום השלב"}
+                  <ChevronRight className="size-4" />
+                  שאלה קודמת
+                </Button>
+
+                <Button
+                  type="button"
+                  onClick={handleNextQuestion}
+                  disabled={!Number.isInteger(selected) || isSaving}
+                  className="gap-2"
+                >
+                  {currentIndex < QUESTIONS.length - 1 ? (
+                    <>
+                      שאלה הבאה
+                      <ChevronLeft className="size-4" />
+                    </>
+                  ) : resultsMode ? (
+                    "הצג סיכום"
+                  ) : (
+                    "סיום השלב"
+                  )}
                 </Button>
               </div>
             </CardContent>
