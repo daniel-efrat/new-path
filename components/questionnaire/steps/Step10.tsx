@@ -35,7 +35,7 @@ interface DimensionResult extends DimensionCopy {
   total: number;
 }
 
-const STEP_NUMBER = 12;
+const STEP_NUMBER = 9;
 const QUESTIONS = STEP10_QUESTIONS;
 const AUTO_ADVANCE_MS = 300;
 const SAVE_ERROR_MESSAGE =

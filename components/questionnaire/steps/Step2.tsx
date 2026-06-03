@@ -24,6 +24,20 @@ interface Step2Props {
   onBackToReport?: () => void;
 }
 
+const HEBREW_EXTENDED_TIME_QUESTIONS = new Set([4, 13, 14, 16]);
+
+function getQuestionTimeLimit(question: Question) {
+  return HEBREW_EXTENDED_TIME_QUESTIONS.has(question.number ?? 0) ? 30 : 20;
+}
+
+function getHebrewGrade(score: number) {
+  if (score >= 18) return "טוב מאד";
+  if (score >= 15) return "טוב";
+  if (score >= 12) return "בינוני";
+  if (score >= 9) return "חלש";
+  return "חלש מאד";
+}
+
 export default function Step2({
   onNext,
   onComplete,
@@ -40,7 +54,9 @@ export default function Step2({
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [score, setScore] = useState(0);
-  const [timer, setTimer] = useState(40);
+  const [timer, setTimer] = useState(() =>
+    getQuestionTimeLimit(QUESTIONS[0])
+  );
   const [showResult, setShowResult] = useState(false);
   const [answers, setAnswers] = useState<(number | null)[]>(() =>
     Array(QUESTIONS.length).fill(null)
@@ -48,7 +64,7 @@ export default function Step2({
   const [animationKey, setAnimationKey] = useState(0);
   const [fireworksConductor, setFireworksConductor] = useState<any>(null);
 
-  const passed = score / QUESTIONS.length >= 0.7;
+  const passed = score >= 15;
 
   useEffect(() => {
     const loadStepAnswers = async () => {
@@ -110,7 +126,7 @@ export default function Step2({
   }, [timer, showResult]);
 
   useEffect(() => {
-    setTimer(40);
+    setTimer(getQuestionTimeLimit(QUESTIONS[current]));
     setSelected(null);
   }, [current]);
 
@@ -145,7 +161,7 @@ export default function Step2({
     if (isCorrect) setScore((s) => s + 1);
 
     try {
-      await setAnswer(question.id, idx, isCorrect, 5);
+      await setAnswer(question.id, idx, isCorrect, 2);
       setStepAnswers((prev) => ({
         ...prev,
         [question.id]: { value: String(idx), timestamp: new Date() },
@@ -208,8 +224,8 @@ export default function Step2({
           />
           <h1 className="text-3xl font-bold my-6">תוצאות המבחן</h1>
           <div className="text-xl mb-8">
-            הניקוד שלך: {score} מתוך {QUESTIONS.length} (
-            {Math.round((score / QUESTIONS.length) * 100)}%)
+            הניקוד שלך: {score} מתוך {QUESTIONS.length} -{" "}
+            {getHebrewGrade(score)}
           </div>
           <div className="w-full max-w-3xl mx-auto mt-6 p-4 bg-white rounded-sm overflow-x-auto">
             <table className="p-2 w-full border text-right text-sm">

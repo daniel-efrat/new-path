@@ -36,8 +36,8 @@ function HeroIcon({
     <motion.div
       ref={ref}
       className="text-center space-y-2"
-      initial={{ scale: 0 }}
-      animate={isInView ? { scale: 1 } : { scale: 0 }}
+      initial={{ scale: 1 }}
+      animate={isInView ? { scale: 1 } : { scale: 1 }}
       transition={{
         type: "spring",
         stiffness: 260,
@@ -90,9 +90,9 @@ export function HeroSection() {
         <div className="space-y-4">
           <motion.div
             ref={badgeRef}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 1, y: 0 }}
             animate={
-              isBadgeInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }
+              isBadgeInView ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }
             }
             transition={{ duration: 0.5, delay: 0.1 }}
           >
@@ -104,9 +104,9 @@ export function HeroSection() {
 
           <motion.h1
             ref={headingRef}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 1, y: 0 }}
             animate={
-              isHeadingInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }
+              isHeadingInView ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }
             }
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-4xl md:text-6xl font-bold text-foreground leading-tight"
@@ -116,9 +116,9 @@ export function HeroSection() {
 
           <motion.p
             ref={descriptionRef}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 1, y: 0 }}
             animate={
-              isDescriptionInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }
+              isDescriptionInView ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }
             }
             transition={{ duration: 0.5, delay: 0.3 }}
             className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
@@ -129,8 +129,8 @@ export function HeroSection() {
 
         <motion.div
           ref={cardRef}
-          initial={{ opacity: 0, y: 20 }}
-          animate={isCardInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          initial={{ opacity: 1, y: 0 }}
+          animate={isCardInView ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
         >
           <Card className="max-w-md mx-auto p-6 shadow-lg border-0 bg-card/80 backdrop-blur-sm">
@@ -157,8 +157,8 @@ export function HeroSection() {
 
         <motion.div
           ref={gridRef}
-          initial={{ opacity: 0, y: 20 }}
-          animate={isGridInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          initial={{ opacity: 1, y: 0 }}
+          animate={isGridInView ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.25 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto mt-12"
         >

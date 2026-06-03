@@ -27,8 +27,8 @@ function StatIcon({
     <m.div
       ref={ref}
       className="text-center"
-      initial={{ scale: 0 }}
-      animate={isInView ? { scale: 1 } : { scale: 0 }}
+      initial={{ scale: 1 }}
+      animate={isInView ? { scale: 1 } : { scale: 1 }}
       transition={{
         type: "spring",
         stiffness: 260,
@@ -74,8 +74,8 @@ export function CTASection() {
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <m.div
             className="space-y-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            initial={{ opacity: 1, y: 0 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             <h2 className="text-3xl md:text-4xl font-bold text-white">
@@ -88,8 +88,8 @@ export function CTASection() {
 
           <m.div
             className="space-y-4 flex flex-col items-center justify-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            initial={{ opacity: 1, y: 0 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
             <Button
@@ -112,8 +112,8 @@ export function CTASection() {
 
           <m.div
             className="flex justify-center items-center gap-8 pt-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            initial={{ opacity: 1, y: 0 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
           >
             <StatIcon

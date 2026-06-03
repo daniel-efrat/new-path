@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore";
+import { QUESTIONNAIRE_CONFIG } from "@/lib/constants/questionnaire";
 import { STEP1_QUESTIONS } from "@/lib/constants/questions";
 import { fetchStep1Answers } from "@/lib/utils/answerFetcher";
 import { cn } from "@/lib/utils";
@@ -13,7 +14,7 @@ interface TraitsSelectorProps {
   questions: { id: string; text: string }[];
   selectedTraitIds: string[];
   toggleTrait: (questionId: string) => Promise<void>;
-  isLoading: boolean;
+  pendingTraitIds: Set<string>;
 }
 
 interface Step1Props {
@@ -29,7 +30,9 @@ export default function Step1({ onNext, onComplete }: Step1Props) {
     {}
   );
   const [isLoadingAnswers, setIsLoadingAnswers] = useState(true);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [pendingTraitIds, setPendingTraitIds] = useState<Set<string>>(
+    () => new Set()
+  );
   const [error, setError] = useState<string | null>(null);
 
   // Fetch answers directly from Supabase on component mount
@@ -61,54 +64,66 @@ export default function Step1({ onNext, onComplete }: Step1Props) {
       return value === "true" || value === true;
     }).map((q) => q.id);
 
-    // Debug logging
-    console.log("Step1 - stepAnswers:", stepAnswers);
-    console.log("Step1 - selectedTraitIds:", selected);
-
     return selected;
   }, [stepAnswers]);
 
   const traitsCount = selectedTraitIds.length;
-  const totalProgress = Math.min(Math.round((traitsCount / 10) * 100), 100);
+  const maxTraits = QUESTIONNAIRE_CONFIG.MAX_TRAITS;
+  const totalProgress = Math.min(
+    Math.round((traitsCount / maxTraits) * 100),
+    100
+  );
   const canContinue =
     traitsCount > 0 &&
-    traitsCount <= 10 &&
+    traitsCount <= maxTraits &&
     !storeLoading &&
-    !isUpdating &&
+    pendingTraitIds.size === 0 &&
     !isLoadingAnswers;
 
   // Centralized function to handle trait toggling
   const toggleTrait = async (questionId: string) => {
-    if (isUpdating) return;
+    if (pendingTraitIds.has(questionId)) return;
+
+    const isCurrentlySelected = selectedTraitIds.includes(questionId);
+
+    if (selectedTraitIds.length >= maxTraits && !isCurrentlySelected) {
+      setError(`ניתן לבחור עד ${maxTraits} תכונות בלבד`);
+      return;
+    }
+
+    const previousAnswer = stepAnswers[questionId];
+    const newValue = !isCurrentlySelected;
+
+    setError(null);
+    setPendingTraitIds((prev) => new Set(prev).add(questionId));
+    setStepAnswers((prev) => ({
+      ...prev,
+      [questionId]: { value: String(newValue), timestamp: new Date() },
+    }));
 
     try {
-      setIsUpdating(true);
-      setError(null);
-
-      const isCurrentlySelected = selectedTraitIds.includes(questionId);
-
-      if (selectedTraitIds.length >= 10 && !isCurrentlySelected) {
-        setError("ניתן לבחור עד 10 תכונות בלבד");
-        return;
-      }
-
-      // The new value will be the opposite of the current selection state.
-      const newValue = !isCurrentlySelected;
       await setAnswer(questionId, String(newValue), undefined, 1);
-
-      // Update local state immediately for better UX
-      setStepAnswers((prev) => ({
-        ...prev,
-        [questionId]: { value: String(newValue), timestamp: new Date() },
-      }));
     } catch (err) {
       setError("שגיאה בשמירת הבחירה. נסה שנית.");
+      setStepAnswers((prev) => {
+        const next = { ...prev };
+        if (previousAnswer) {
+          next[questionId] = previousAnswer;
+        } else {
+          delete next[questionId];
+        }
+        return next;
+      });
       console.error(
         `Error toggling trait for ID ${questionId}:`,
         JSON.stringify(err, Object.getOwnPropertyNames(err))
       );
     } finally {
-      setIsUpdating(false);
+      setPendingTraitIds((prev) => {
+        const next = new Set(prev);
+        next.delete(questionId);
+        return next;
+      });
     }
   };
 
@@ -133,10 +148,10 @@ export default function Step1({ onNext, onComplete }: Step1Props) {
           className="mb-8"
         >
           <h1 className="text-3xl font-bold mt-6 mb-4 text-center">
-            שלב 1: הערכה מקצועית
+            שלב 1: תכונות ליבה
           </h1>
           <p className="text-lg text-center max-w-2xl mx-auto text-[color:var(--muted-foreground)]">
-            בחר את התכונות המאפיינות אותך וענה על שאלון הקריירה
+            סמנ/י את החוזקות האישיות המובילות שלך
           </p>
           {totalProgress > 0 && (
             <div className="mt-4 text-sm text-center text-[color:var(--muted-foreground)]">
@@ -155,7 +170,7 @@ export default function Step1({ onNext, onComplete }: Step1Props) {
             questions={STEP1_QUESTIONS}
             selectedTraitIds={selectedTraitIds}
             toggleTrait={toggleTrait}
-            isLoading={isUpdating}
+            pendingTraitIds={pendingTraitIds}
           />
 
           {/* Status Messages */}
@@ -259,10 +274,13 @@ function TraitsSelector({
   questions,
   selectedTraitIds,
   toggleTrait,
-  isLoading,
+  pendingTraitIds,
 }: TraitsSelectorProps) {
   const [mounted, setMounted] = useState(false);
   const [focusedTrait, setFocusedTrait] = useState<number>(-1);
+  const selectedTraits = questions.filter((question) =>
+    selectedTraitIds.includes(question.id)
+  );
 
   useEffect(() => {
     setMounted(true);
@@ -270,11 +288,12 @@ function TraitsSelector({
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      if (isLoading) return;
-
       if ((e.key === " " || e.key === "Enter") && focusedTrait !== -1) {
         e.preventDefault();
-        toggleTrait(questions[focusedTrait].id);
+        const questionId = questions[focusedTrait].id;
+        if (!pendingTraitIds.has(questionId)) {
+          toggleTrait(questionId);
+        }
       }
 
       if (e.key === "ArrowDown" || e.key === "ArrowRight") {
@@ -289,62 +308,94 @@ function TraitsSelector({
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [focusedTrait, isLoading, toggleTrait]);
+  }, [focusedTrait, pendingTraitIds, questions, toggleTrait]);
 
   return (
     <section className="space-y-10" dir="rtl">
       <div className="space-y-4" role="region" aria-label="בחירת תכונות">
         <h2 className="text-xl font-semibold text-right">
-          בחר/י עד 10 תכונות המתארות אותך
+          בחר/י עד {QUESTIONNAIRE_CONFIG.MAX_TRAITS} תכונות המתארות אותך
         </h2>
         <p
           className="text-sm text-muted-foreground text-right"
           aria-live="polite"
         >
-          נבחרו {selectedTraitIds.length} מתוך 10 תכונות אפשריות
+          נבחרו {selectedTraitIds.length} מתוך {QUESTIONNAIRE_CONFIG.MAX_TRAITS} תכונות אפשריות
         </p>
+        {selectedTraits.length > 0 && (
+          <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-right">
+            <div className="mb-2 text-sm font-semibold text-primary">
+              התכונות שבחרת
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {selectedTraits.map((trait) => {
+                const isPending = pendingTraitIds.has(trait.id);
+                return (
+                  <button
+                    key={trait.id}
+                    type="button"
+                    onClick={() => toggleTrait(trait.id)}
+                    disabled={isPending}
+                    className={cn(
+                      "rounded-full border border-primary/40 bg-background px-3 py-1 text-sm text-foreground transition-colors hover:bg-primary/10",
+                      isPending && "cursor-wait opacity-60"
+                    )}
+                  >
+                    {trait.text}
+                    <span className="mr-2 text-muted-foreground">הסר</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
         <div className="text-xs text-muted-foreground mb-2">
           ניתן ללחוץ על החץ למעלה/למטה לניווט, SPACE לבחירה
         </div>
         <div
-          className={cn(
-            "grid gap-4 transition-opacity duration-200",
-            isLoading && "opacity-50"
-          )}
+          className="grid gap-4 transition-opacity duration-200"
           style={{
             gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
           }}
         >
-          {questions.map((question, index) => (
-            <Card
-              key={question.id}
-              className={cn(
-                "cursor-pointer transition-all duration-200",
-                selectedTraitIds.includes(question.id)
-                  ? "ring-2 ring-primary bg-primary/5"
-                  : "hover:shadow-md hover:scale-[1.02]",
-                focusedTrait === index && "ring-2 ring-primary",
-                !mounted && "opacity-0"
-              )}
-              onClick={() => toggleTrait(question.id)}
-              onFocus={() => setFocusedTrait(index)}
-              onBlur={() => setFocusedTrait(-1)}
-              tabIndex={0}
-              role="checkbox"
-              aria-checked={selectedTraitIds.includes(question.id)}
-            >
-              <CardHeader className="flex items-center justify-between p-4">
-                <span>{question.text}</span>
-                <Checkbox
-                  checked={selectedTraitIds.includes(question.id)}
-                  tabIndex={-1}
-                  aria-hidden="true"
-                  className="pointer-events-none"
-                  disabled={isLoading}
-                />
-              </CardHeader>
-            </Card>
-          ))}
+          {questions.map((question, index) => {
+            const isSelected = selectedTraitIds.includes(question.id);
+            const isPending = pendingTraitIds.has(question.id);
+            return (
+              <Card
+                key={question.id}
+                className={cn(
+                  "cursor-pointer transition-all duration-200",
+                  isSelected
+                    ? "ring-2 ring-primary bg-primary/5"
+                    : "hover:shadow-md hover:scale-[1.02]",
+                  focusedTrait === index && "ring-2 ring-primary",
+                  isPending && "cursor-wait opacity-60",
+                  !mounted && "opacity-0"
+                )}
+                onClick={() => {
+                  if (!isPending) toggleTrait(question.id);
+                }}
+                onFocus={() => setFocusedTrait(index)}
+                onBlur={() => setFocusedTrait(-1)}
+                tabIndex={0}
+                role="checkbox"
+                aria-checked={isSelected}
+                aria-busy={isPending}
+              >
+                <CardHeader className="flex items-center justify-between p-4">
+                  <span>{question.text}</span>
+                  <Checkbox
+                    checked={isSelected}
+                    tabIndex={-1}
+                    aria-hidden="true"
+                    className="pointer-events-none"
+                    disabled={isPending}
+                  />
+                </CardHeader>
+              </Card>
+            );
+          })}
         </div>
       </div>
     </section>

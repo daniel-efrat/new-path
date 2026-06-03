@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm run kill:dev-port && next dev -p 3000",
+    "dev": "npm run kill:dev-port && npm run clean:next && WATCHPACK_POLLING=true next dev -H 127.0.0.1 -p 3000",
     "kill:dev-port": "lsof -ti tcp:3000 | xargs kill -9 2>/dev/null || true",
+    "clean:next": "node -e \"require('fs').rmSync('.next', { recursive: true, force: true })\"",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

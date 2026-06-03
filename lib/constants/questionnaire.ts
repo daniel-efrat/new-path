@@ -1,31 +1,31 @@
 export const QUESTIONNAIRE_CONFIG = {
-  MAX_TRAITS: 10,
+  MAX_TRAITS: 8,
   TOTAL_ANCHORS: 18,
   MIN_ANCHOR_VALUE: 0,
   MAX_ANCHOR_VALUE: 10,
 } as const
 
 export const QUESTIONNAIRE_STEP_TITLES: Record<number, string> = {
-  1: "הערכה מקצועית",
-  2: "עוגני קריירה",
-  3: "הולנד",
-  4: "בחירת תחומי עיסוק",
-  5: "עברית",
-  6: "אנגלית",
-  7: "לוגיקה",
-  8: "מתמטיקה",
-  9: "צורות",
-  10: "ידע בסיסי במחשבים",
-  11: "קשב, סינון מידע וזיכרון",
-  12: "מבחני אישיות",
-  13: "ליבת הערכים האישיים",
+  1: "תכונות ליבה",
+  2: "עברית",
+  3: "אנגלית",
+  4: "עוגני קריירה",
+  5: "לוגיקה ומתמטיקה",
+  6: "צורות חזותיות",
+  7: "ידע בסיסי במחשב",
+  8: "קשב, סינון מידע וזיכרון",
+  9: "מבחני אישיות",
+  10: "שאלון הולנד",
+  11: "נטיות לב כלליות",
+  12: "ליבת ערכים אישית",
+  13: "ייעוד אישי",
 } as const
 
 export const VALIDATION_MESSAGES = {
   TRAITS: {
-    REQUIRED: "יש לבחור לפחות תכונה אחת",
-    TOO_MANY: "ניתן לבחור עד 10 תכונות",
-    NONE_SELECTED: "נא לבחור לפחות תכונה אחת המאפיינת אותך",
+    REQUIRED: "יש לבחור לפחות חוזקה אחת",
+    TOO_MANY: `ניתן לבחור עד ${QUESTIONNAIRE_CONFIG.MAX_TRAITS} חוזקות`,
+    NONE_SELECTED: "נא לבחור לפחות חוזקה אחת המאפיינת אותך",
   },
   ANCHORS: {
     INCOMPLETE: "יש להשלים את כל שאלון עוגני הקריירה",
@@ -69,7 +69,7 @@ export const KEYBOARD_SHORTCUTS = {
 export const QUESTIONNAIRE_SECTIONS = {
   TRAITS: {
     TITLE: "תכונות אישיות",
-    DESCRIPTION: "בחר/י עד 10 תכונות המתארות אותך",
+    DESCRIPTION: `בחר/י עד ${QUESTIONNAIRE_CONFIG.MAX_TRAITS} חוזקות המתארות אותך`,
     INSTRUCTION: "ניתן ללחוץ על החץ למעלה/למטה לניווט, SPACE לבחירה",
   },
   ANCHORS: {

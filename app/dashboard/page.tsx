@@ -13,12 +13,16 @@ import QuestionnaireProgress from "@/components/ui/QuestionnaireProgress";
 import { Check, Play, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, MotionConfig } from "framer-motion";
+import { QUESTIONNAIRE_CONFIG } from "@/lib/constants/questionnaire";
 import {
   STEP2_QUESTIONS,
   STEP3_QUESTIONS,
   STEP4_QUESTIONS,
+  STEP5_QUESTIONS,
+  STEP6_QUESTIONS,
   STEP7_QUESTIONS,
   STEP8_QUESTIONS,
+  STEP9_QUESTIONS,
   STEP10_QUESTIONS,
   STEP11_QUESTIONS,
 } from "@/lib/constants/questions";
@@ -48,94 +52,93 @@ export default function QuestionnaireDashboard() {
   const stepDetails = [
     {
       id: 1,
-      group: "שלב א׳",
+      group: "חלק א׳ - אבחון עצמאי",
       title: "תכונות ליבה",
-      description: "בחר/י עד 10 תכונות מובילות",
+      description: `סימון ${QUESTIONNAIRE_CONFIG.MAX_TRAITS} חוזקות אישיות מובילות`,
       time: "לא מוגבל בזמן",
     },
     {
       id: 2,
-      group: "שלב א׳",
-      title: "עוגני קריירה",
-      description: `${STEP4_QUESTIONS.length} שאלות`,
-      time: "לא מוגבל בזמן",
+      group: "חלק א׳ - אבחון עצמאי",
+      title: "מבחן שפה - עברית",
+      description: `${STEP2_QUESTIONS.length} שאלות - מבחן אמריקאי`,
+      time: "30 שניות לשאלה",
     },
     {
       id: 3,
-      group: "שלב א׳",
-      title: "שאלון הולנד",
-      description: `${STEP11_QUESTIONS.length} שאלות`,
-      time: "לא מוגבל בזמן",
-    },
-    {
-      id: 4,
-      group: "שלב א׳",
-      title: "משפטי ייעוד",
-      description:
-        "תן/י ציונים לתחומים מקצועיים כלליים (סמן/י עד 5 תחומים כלליים בעדיפות)",
-      time: "לא מוגבל בזמן",
-    },
-    {
-      id: 5,
-      group: "שלב ב׳",
-      title: "מבחן שפה - עברית",
-      description: `${STEP2_QUESTIONS.length} שאלות - מבחן אמריקאי`,
-      time: "20 שניות לשאלה",
-    },
-    {
-      id: 6,
-      group: "שלב ב׳",
+      group: "חלק א׳ - אבחון עצמאי",
       title: "מבחן שפה - אנגלית",
       description: `${STEP3_QUESTIONS.length} שאלות - מבחן אמריקאי`,
       time: "40 שניות לשאלה",
     },
     {
-      id: 7,
-      group: "שלב ב׳",
-      title: "מבחן לוגיקה",
-      description: "20 שאלות לוגיקה",
+      id: 4,
+      group: "חלק א׳ - אבחון עצמאי",
+      title: "עוגני קריירה",
+      description: `${STEP4_QUESTIONS.length} שאלות`,
+      time: "לא מוגבל בזמן",
+    },
+    {
+      id: 5,
+      group: "חלק א׳ - אבחון עצמאי",
+      title: "מבחן לוגיקה ומתמטיקה",
+      description: `${STEP5_QUESTIONS.length + STEP6_QUESTIONS.length} שאלות`,
       time: "90 שניות לשאלה",
     },
     {
-      id: 8,
-      group: "שלב ב׳",
-      title: "מבחן מתמטיקה",
-      description: "20 שאלות מתמטיקה",
-      time: "90 שניות לשאלה",
-    },
-    {
-      id: 9,
-      group: "שלב ב׳",
+      id: 6,
+      group: "חלק א׳ - אבחון עצמאי",
       title: "מבחן צורות חזותי",
       description: `${STEP7_QUESTIONS.length} שאלות`,
       time: "45 שניות לשאלה",
     },
     {
-      id: 10,
-      group: "שלב ב׳",
+      id: 7,
+      group: "חלק א׳ - אבחון עצמאי",
       title: "מבחן ידע בסיסי במחשב",
       description: `${STEP8_QUESTIONS.length} שאלות`,
       time: "45 שניות לשאלה",
     },
     {
-      id: 11,
-      group: "שלב ב׳",
+      id: 8,
+      group: "חלק א׳ - אבחון עצמאי",
       title: "מבדק קשב, סינון מידע וזיכרון",
-      description: "15 שאלות",
-      time: "20 שניות לשאלה",
+      description: `${STEP9_QUESTIONS.length} שאלות`,
+      time: "30 שניות לתשובה",
     },
     {
-      id: 12,
-      group: "שלב ב׳",
+      id: 9,
+      group: "חלק א׳ - אבחון עצמאי",
       title: "מבחני אישיות",
       description: `${STEP10_QUESTIONS.length} היגדים`,
       time: "לא מוגבל בזמן",
     },
     {
+      id: 10,
+      group: "חלק א׳ - אבחון עצמאי",
+      title: "שאלון הולנד",
+      description: `${STEP11_QUESTIONS.length} היגדים`,
+      time: "לא מוגבל בזמן",
+    },
+    {
+      id: 11,
+      group: "חלק א׳ - אבחון עצמאי",
+      title: "נטיות לב כלליות",
+      description: "בחירת עד 5 תחומים מקצועיים כלליים בעדיפות",
+      time: "לא מוגבל בזמן",
+    },
+    {
+      id: 12,
+      group: "חלק ב׳ - עם יועץ קריירה",
+      title: "ליבת ערכים אישית",
+      description: "בחירת 4-6 ערכים מובילים כחלק מתעודת הזהות",
+      time: "לא מוגבל בזמן",
+    },
+    {
       id: 13,
-      group: "שלב ב׳",
-      title: "ליבת הערכים אישיים",
-      description: "בחירת ערכים",
+      group: "חלק ב׳ - עם יועץ קריירה",
+      title: "ייעוד אישי",
+      description: "בחירת 1-5 משפטי ייעוד מתוך התחומים שסומנו",
       time: "לא מוגבל בזמן",
     },
   ];
@@ -280,10 +283,10 @@ export default function QuestionnaireDashboard() {
           >
             <div>
               <h1 className="text-3xl font-bold text-white/95 mt-6 tracking-tight">
-                שאלון הערכה מקצועית
+                אבחון תעסוקתי - מסע מלא
               </h1>
               <p className="text-white/90 mt-1">
-                השלים/י את כל השלבים כדי לקבל המלצות מותאמות אישית
+                חלק א׳ עצמאי, חלק ב׳ עם יועץ קריירה, ואז ניתוח AI מותאם
               </p>
             </div>
           </motion.div>

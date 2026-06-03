@@ -723,7 +723,7 @@ export interface AnchorQuestion {
 export const STEP4_QUESTIONS: AnchorQuestion[] = [
   {
     id: "12345678-1234-5678-9abc-124456789001",
-    text: "אני פורח כשיש לי אתגר קשה מדי ועלי האחריות לפצח ולפתור אותו.",
+    text: "אני פורח כשיש לי אתגר קשה ועלי האחריות לפצח ולפתור אותו.",
     type: "anchor",
   },
   {
@@ -1075,15 +1075,15 @@ export const STEP6_QUESTIONS: Question[] = [
     id: "a5b6c7d8-90e1-4f23-b456-7890abc41104",
     number: 4,
     level: "שברים",
-    question: "מהו השבר הפשוט ביותר של 24/18?",
-    options: ["4/3", "2/3", "1/2", "4/6"],
-    correct_option: 0,
+    question: "מהו השבר הפשוט ביותר של 18/24?",
+    options: ["4/3", "3/4", "1/2", "4/6"],
+    correct_option: 1,
   },
   {
     id: "2a8d2c0a-0c7d-4b8a-9f4b-3b0b5f0f1105",
     number: 5,
     level: "חזקות ופעולות",
-    question: "מהי תוצאת הביטוי: 5^2 + 3?",
+    question: "מהי תוצאת הביטוי: 5 בחזקת 2 + 3 = ____",
     options: ["22", "20", "18", "28"],
     correct_option: 3,
   },

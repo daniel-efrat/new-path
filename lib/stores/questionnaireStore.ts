@@ -342,7 +342,7 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
     const { currentStep } = get();
     const stepData = get().getStepData(currentStep);
     const answeredCount =
-      currentStep === 11
+      currentStep === 8
         ? STEP9_QUESTIONS.filter((question) => {
             const answer = stepData[question.id];
             const value = answer?.value;
@@ -357,7 +357,7 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
               numericValue < question.options.length
             );
           }).length
-        : currentStep === 12
+        : currentStep === 9
         ? STEP10_QUESTIONS.filter((question) => {
             const answer = stepData[question.id];
             const value = answer?.value;
@@ -377,25 +377,23 @@ export const useQuestionnaireStore = create<QuestionnaireStore>()((set, get) => 
       currentStep === 1
         ? STEP1_QUESTIONS.length
         : currentStep === 2
-        ? STEP4_QUESTIONS.length
-        : currentStep === 3
-        ? STEP11_QUESTIONS.length
-        : currentStep === 5
         ? STEP2_QUESTIONS.length
-        : currentStep === 6
+        : currentStep === 3
         ? STEP3_QUESTIONS.length
-        : currentStep === 7
-        ? STEP5_QUESTIONS.length
-        : currentStep === 8
-        ? STEP6_QUESTIONS.length
-        : currentStep === 9
+        : currentStep === 4
+        ? STEP4_QUESTIONS.length
+        : currentStep === 5
+        ? STEP5_QUESTIONS.length + STEP6_QUESTIONS.length
+        : currentStep === 6
         ? STEP7_QUESTIONS.length
-        : currentStep === 10
+        : currentStep === 7
         ? STEP8_QUESTIONS.length
-        : currentStep === 11
+        : currentStep === 8
         ? STEP9_QUESTIONS.length
-        : currentStep === 12
+        : currentStep === 9
         ? STEP10_QUESTIONS.length
+        : currentStep === 10
+        ? STEP11_QUESTIONS.length
         : 0;
 
     const progress = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;

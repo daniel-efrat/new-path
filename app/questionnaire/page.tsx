@@ -15,8 +15,6 @@ import Step1 from "@/components/questionnaire/steps/Step1";
 import Step2 from "@/components/questionnaire/steps/Step2";
 import Step3 from "@/components/questionnaire/steps/Step3";
 import Step4 from "@/components/questionnaire/steps/Step4";
-import Step5 from "@/components/questionnaire/steps/Step5";
-import Step6 from "@/components/questionnaire/steps/Step6";
 import Step7 from "@/components/questionnaire/steps/Step7";
 import Step8 from "@/components/questionnaire/steps/Step8";
 import Step9 from "@/components/questionnaire/steps/Step9";
@@ -25,21 +23,23 @@ import Step11 from "@/components/questionnaire/steps/Step11";
 import HollandResults from "@/components/questionnaire/steps/HollandResults";
 import Step12 from "@/components/questionnaire/steps/Step12";
 import Step13 from "@/components/questionnaire/steps/Step13";
+import Step14 from "@/components/questionnaire/steps/Step14";
+import Step5Combined from "@/components/questionnaire/steps/Step5Combined";
 
 const stepComponents: Record<number, any> = {
   1: Step1,
-  2: Step4,
-  3: Step11,
-  4: Step12,
-  5: Step2,
-  6: Step3,
-  7: Step5,
-  8: Step6,
-  9: Step7,
-  10: Step8,
-  11: Step9,
-  12: Step10,
-  13: Step13,
+  2: Step2,
+  3: Step3,
+  4: Step4,
+  5: Step5Combined,
+  6: Step7,
+  7: Step8,
+  8: Step9,
+  9: Step10,
+  10: Step11,
+  11: Step12,
+  12: Step13,
+  13: Step14,
 };
 
 const gilbertStepIntros: Record<number, GilbertPopupCopy> = {
@@ -48,35 +48,46 @@ const gilbertStepIntros: Record<number, GilbertPopupCopy> = {
     message:
       "שלום, אני גילברט פיינשטיין. אין פה מבחן באלגברה, רק כמה סימנים שיעזרו להבין מה מתאים לך. אני עם הלוח, אתם עם הכנות.",
   },
-  3: {
+  10: {
     title: "רגע לפני הולנד",
     message:
       "השאלון הזה מחפש נטיות, לא תוויות. אם משהו מרגיש בערך נכון, זה כבר מידע טוב. מדע מדויק עם מקום לאינטואיציה, כמו שאני אוהב.",
   },
-  5: {
+  11: {
+    title: "נטיות לב כלליות",
+    message:
+      "בחרו 5 תחומי עיסוק מהרשימה. אלה יהיו התחומים שתדרגו ותעמיקו בהם בהמשך.",
+    cta: "לבחירת 5 תחומים",
+  },
+  2: {
     title: "עברית, אבל בלי דקדוק על הראש",
     message:
       "נכנסים לכמה שאלות זריזות. לקרוא לאט, לבחור בשקט, ולא לתת לשעון לעשות פרצופים. את זה אני עושה מספיק בשביל כולנו.",
   },
-  8: {
+  5: {
     title: "מתמטיקה באה לביקור",
     message:
       "אם המספרים נראים דרמטיים, תזכרו שהם רק מספרים. הם לא יודעים לפתוח דלת, ואתם כן. נושמים ובוחרים.",
   },
-  10: {
+  7: {
     title: "ידע מחשבים, לא ראיון עבודה",
     message:
       "כאן בודקים היכרות בסיסית, לא האם בניתם שרת בחניה. תשובה טובה היא תשובה שקולה, גם אם היא באה אחרי גירוד קטן בראש.",
   },
-  12: {
+  9: {
     title: "שאלות אישיות יותר לפנינו",
     message:
       "פה אין תשובות נוצצות במיוחד. יש תשובות שלכם. גילברט מאשר לענות בכנות, גם כשזה פחות מתאים לפוסטר השראה.",
   },
-  13: {
-    title: "ערכים בליבה",
+  12: {
+    title: "שלב ב׳: ערכים בליבה",
     message:
-      "הגענו לחלק שמנסה להבין מה באמת חשוב לכם. לא צריך להישמע עמוק. לפעמים הדבר הכי מדויק הוא פשוט הדבר שהייתם בוחרים גם ביום עמוס.",
+      "מכאן נכנסים לחלק עם יועץ קריירה. מתחילים בערכים האישיים, כי לפעמים הדבר הכי מדויק הוא מה שהייתם בוחרים גם ביום עמוס.",
+  },
+  13: {
+    title: "משפטי הייעוד האישיים",
+    message:
+      "בשלב הזה בוחרים עם היועץ משפטים שמזקקים למה שמושך אתכם בתחומים שסימנתם. קצר, ממוקד, ומאוד שימושי לדוח.",
   },
 };
 
@@ -87,25 +98,27 @@ const gilbertMidStepCopy: Record<number, GilbertPopupCopy> = {
       "למתוח כתפיים, למצמץ, ולהיזכר שאתם לא טופס אקסל. כבר נאספים פה רמזים יפים.",
     cta: "חוזרים לבחור",
   },
-  5: {
+  2: {
     title: "בדיקת דופק לשונית",
     message:
       "אם עברית התחילה להרגיש כמו חדר בריחה, הכול תקין. לקרוא שוב זה לא חולשה, זו אסטרטגיה עם משקפיים.",
     cta: "ממשיכים",
   },
-  8: {
+  5: {
     title: "המספרים תחת שליטה",
     message:
       "גם אם שאלה אחת עיקמה גבה, לא עושים ממנה קריירה. עוברים לשאלה הבאה וממשיכים לאסוף נקודות בהדרגה.",
     cta: "יאללה לשאלה",
   },
-  12: {
+  9: {
     title: "לא חייבים להגדיר את כל האישיות",
     message:
       "מספיק לענות מה הכי קרוב כרגע. גם לגילברט יש ימים של 'תלוי אם שתיתי קפה', וזה עדיין מידע.",
     cta: "חוזרים לשאלון",
   },
 };
+
+const TIMED_STEP_IDS = new Set([2, 3, 5, 6, 7, 8]);
 
 function getSessionFlag(key: string) {
   if (typeof window === "undefined") return false;
@@ -133,6 +146,7 @@ export default function QuestionnairePage() {
   const [gilbertPopup, setGilbertPopup] = useState<GilbertPopupCopy | null>(
     null
   );
+  const [isIntroBlockingStep, setIsIntroBlockingStep] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -158,11 +172,11 @@ export default function QuestionnairePage() {
   }, []);
 
   const advanceAfterStep = (completedStep: number) => {
-    if (completedStep === 3) {
+    if (completedStep === 10) {
       if (resultsMode) {
         setShowHollandResults(true);
       } else {
-        setCurrentStep(4);
+        setCurrentStep(11);
       }
     } else if (completedStep === 13) {
       router.push("/questionnaire/diagnostic");
@@ -188,7 +202,7 @@ export default function QuestionnairePage() {
 
   const continueFromHollandResults = () => {
     setShowHollandResults(false);
-    setCurrentStep(4);
+    setCurrentStep(11);
   };
 
   const onComplete = async () => {
@@ -214,6 +228,9 @@ export default function QuestionnairePage() {
 
     const timer = window.setTimeout(() => {
       setSessionFlag(storageKey);
+      if (TIMED_STEP_IDS.has(currentStep)) {
+        setIsIntroBlockingStep(true);
+      }
       setGilbertPopup(introCopy);
     }, 650);
 
@@ -224,6 +241,8 @@ export default function QuestionnairePage() {
     if (!storeReady || showHollandResults || levelComplete || gilbertPopup) {
       return;
     }
+
+    if (TIMED_STEP_IDS.has(currentStep)) return;
 
     const midCopy = gilbertMidStepCopy[currentStep];
     if (!midCopy) return;
@@ -276,12 +295,18 @@ export default function QuestionnairePage() {
   return (
     <>
       <div className="container mx-auto p-4">
-        <Current
-          onNext={showHollandResults ? continueFromHollandResults : onNext}
-          onComplete={onComplete}
-          resultsMode={resultsMode}
-          onBackToReport={onBackToReport}
-        />
+        {isIntroBlockingStep ? (
+          <div className="flex min-h-[360px] items-center justify-center text-center text-muted-foreground">
+            מתכוננים לשלב הבא...
+          </div>
+        ) : (
+          <Current
+            onNext={showHollandResults ? continueFromHollandResults : onNext}
+            onComplete={onComplete}
+            resultsMode={resultsMode}
+            onBackToReport={onBackToReport}
+          />
+        )}
       </div>
       <LevelCompleteModal
         isOpen={levelComplete !== null}
@@ -294,7 +319,10 @@ export default function QuestionnairePage() {
         message={gilbertPopup?.message ?? ""}
         cta={gilbertPopup?.cta}
         eyebrow={gilbertPopup?.eyebrow}
-        onClose={() => setGilbertPopup(null)}
+        onClose={() => {
+          setGilbertPopup(null);
+          setIsIntroBlockingStep(false);
+        }}
       />
     </>
   );

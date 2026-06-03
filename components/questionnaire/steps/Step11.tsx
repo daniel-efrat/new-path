@@ -16,7 +16,7 @@ interface Step11Props {
   onComplete: () => Promise<void> | void;
 }
 
-const ANSWER_STEP_NUMBER = 3;
+const ANSWER_STEP_NUMBER = 10;
 const AUTO_ADVANCE_MS = 300;
 const INTRO_PREVIEW_VALUE = 3;
 const REQUIRED_ANSWER_MESSAGE = "יש לבחור תשובה לפני המעבר לשאלה הבאה.";

@@ -76,7 +76,7 @@ export const diagnosticNarrativeJsonSchema = {
     nextSteps: {
       type: "array",
       minItems: 2,
-      maxItems: 5,
+      maxItems: 6,
       items: { type: "string" },
     },
   },
@@ -123,7 +123,7 @@ export function coerceDiagnosticNarrativeResponse(
           : "",
     },
     occupationNarratives,
-    nextSteps: sanitizeStringArray(raw.nextSteps, 5),
+    nextSteps: sanitizeStringArray(raw.nextSteps, 6),
   };
 }
 

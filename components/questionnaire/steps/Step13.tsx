@@ -1,8 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore";
 
 interface Step13Props {
@@ -103,6 +107,13 @@ const MIN_CORE_VALUES = 4;
 const MAX_CORE_VALUES = 6;
 const STEP13_SELECTED_VALUES_ID = "9d79036e-bf0c-4d65-b06f-f5f4b5f01301";
 const STEP13_CORE_VALUES_ID = "9d79036e-bf0c-4d65-b06f-f5f4b5f01302";
+const STORY_STEPS = [
+  "פתיחה",
+  "העולם המושלם",
+  "בחירת ערכים",
+  "ערכי ליבה",
+  "ביטוי היום",
+];
 
 export default function Step13({
   onNext,
@@ -118,6 +129,7 @@ export default function Step13({
 
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
   const [coreValues, setCoreValues] = useState<CoreValueRow[]>([]);
+  const [storyIndex, setStoryIndex] = useState(0);
 
   useEffect(() => {
     if (selectedAnswer?.value && Array.isArray(selectedAnswer.value)) {
@@ -166,7 +178,7 @@ export default function Step13({
 
     setSelectedValues(nextSelectedValues);
     setCoreValues(nextCoreValues);
-    setAnswer(STEP13_SELECTED_VALUES_ID, nextSelectedValues, false, 13);
+    setAnswer(STEP13_SELECTED_VALUES_ID, nextSelectedValues, false, 12);
     if (nextCoreValues.length !== coreValues.length) {
       persistCoreValues(nextCoreValues);
     }
@@ -194,7 +206,7 @@ export default function Step13({
       score: row.score === "" ? null : row.score,
       missing: row.missing,
     }));
-    setAnswer(STEP13_CORE_VALUES_ID, JSON.stringify(payload), false, 13);
+    setAnswer(STEP13_CORE_VALUES_ID, JSON.stringify(payload), false, 12);
   };
 
   const handleScoreChange = (name: string, value: string) => {
@@ -228,200 +240,338 @@ export default function Step13({
   }, [coreValues]);
 
   const handleNext = async () => {
+    if (!canContinue) return;
     await onComplete?.();
-    if (canContinue) {
-      onNext?.();
+    onNext?.();
+  };
+
+  const storyProgress = Math.round(((storyIndex + 1) / STORY_STEPS.length) * 100);
+  const isLastStoryStep = storyIndex === STORY_STEPS.length - 1;
+
+  const canMoveForward = useMemo(() => {
+    if (storyIndex === 2) {
+      return selectedValues.length > 0;
+    }
+    if (storyIndex === 3) {
+      return coreValues.length >= MIN_CORE_VALUES;
+    }
+    if (storyIndex === 4) {
+      return canContinue;
+    }
+    return true;
+  }, [canContinue, coreValues.length, selectedValues.length, storyIndex]);
+
+  const goToPreviousStory = () => {
+    setStoryIndex((current) => Math.max(0, current - 1));
+  };
+
+  const goToNextStory = () => {
+    if (isLastStoryStep) {
+      void handleNext();
+      return;
+    }
+    setStoryIndex((current) => Math.min(STORY_STEPS.length - 1, current + 1));
+  };
+
+  const handleStoryDragEnd = (_: unknown, info: { offset: { x: number } }) => {
+    const swipeDistance = 80;
+    if (info.offset.x > swipeDistance && storyIndex > 0) {
+      goToPreviousStory();
+    }
+    if (info.offset.x < -swipeDistance && !isLastStoryStep && canMoveForward) {
+      goToNextStory();
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto" dir="rtl">
-      <h2 className="text-2xl font-bold my-6 text-center">
-        ליבת הערכים אישיים
-      </h2>
+    <div className="mx-auto max-w-4xl" dir="rtl">
+      <div className="mb-5 text-center text-white">
+        <p className="text-sm font-semibold text-cyan-100">שלב ב׳ עם יועץ קריירה</p>
+        <h2 className="mt-1 text-3xl font-extrabold tracking-normal">
+          ליבת הערכים האישיים
+        </h2>
+      </div>
 
-      <Card className="mb-6 bg-white">
-        <CardContent className="space-y-3 leading-relaxed text-background">
-          <p className="font-semibold text-center">
-            תרגיל למתענייני קורס מומחי קריירה ולחיים בכלל
-          </p>
-          <p>
-            יש כאלה שמכנים את הערכים האישיים המנועים הפנימיים שלנו, ה-ד.נ.א של
-            הנשמה או המצפן שמראה שאנו במקום המדוייק לנו. מימוש הערכים האישיים
-            בנסיבות חיינו מתרחש דרך יחסי הגומלין שלנו עם המציאות החיצונית – מקום
-            עבודה ותחום עיסוק, יחסים חברתיים, משפחה, סביבת מגורים, שעות פנאי
-            ועוד.
-          </p>
-          <p>
-            כשהערכים שלנו מקבלים ביטוי מלא באותה סביבה, זה אומר שאנו בסביבה
-            הטבעית שלנו, חווים תחושת איזון ושביעות רצון, מקבלים אנרגיה והפרייה
-            מהסביבה. במצב כזה, יש בנו את הרצון והכח להעניק בחזרה. אנו במיטבנו
-            ויש לנו את היכולת לממש את ייעודנו, להשאיר חותם והשפעה חיובית
-            בסביבתנו.
-          </p>
-          <p className="text-sm text-gray-700">
-            (זוהי רק קטגוריה אחת מתוך 7 הקטגוריות שבאמצעותן אנו בונים בשיטת
-            האבחון פורצת הדרך של חממת "דרך חדשה" את תעודת הזהות התעסוקתית המולדת
-            של המאובחן)
-          </p>
-        </CardContent>
-      </Card>
+      <div className="mb-4 rounded-lg border border-white/20 bg-white/10 p-3 shadow-lg backdrop-blur">
+        <div className="mb-2 flex items-center justify-between gap-3 text-sm font-medium text-white">
+          <span>
+            {storyIndex + 1} / {STORY_STEPS.length}
+          </span>
+          <span>{STORY_STEPS[storyIndex]}</span>
+        </div>
+        <Progress
+          value={storyProgress}
+          className="h-2 bg-white/20"
+          aria-label={`התקדמות ${storyProgress}%`}
+        />
+      </div>
 
-      <Card className="mb-6 bg-white">
-        <CardContent className="space-y-3 text-background">
-          <h3 className="text-xl font-semibold mb-2 text-center">
-            קמת לעולם מושלם מבחינה תעסוקתית – בחירת ערכים
-          </h3>
-          <p>
-            בעולם הזה כולם מרוויחים 100 אלף ₪ נטו בחודש. אין מעמדות מקצועיים:
-            מוכר במכולת, מורה בבית ספר, מנכ"ל חברה, צלם, מורה דרך, שומר יערות,
-            מהנדס תוכנה, מנקה רחובות – לכולם מעמד זהה ומהות המקצוע היא לא אישיו.
-          </p>
-          <p>
-            ניתן לפי רצונך להחליף מקצוע כל שנתיים, והכי חשוב – כל אחד בוחר את
-            המקצוע המועדף עליו בכל שלב.
-          </p>
-          <p>
-            בעולם אופטימלי זה, בחרו מהרשימה שבהמשך {MAX_INITIAL_SELECTION} ערכים
-            שמרגישים לכם החשובים ביותר. ערכים שחשוב לכם שישרו בסביבת העבודה,
-            באינטראקציה שלכם עם האנשים ובעולם התוכן שבחרתם לעסוק בו. ערכים
-            שיהפכו את החוויה שלכם למהנה, מפרה ובעיקר טבעית.
-          </p>
-          <div className="text-sm text-gray-700 mb-2">
-            נבחרו {selectedValues.length}/{MAX_INITIAL_SELECTION}
-          </div>
-          <div className="flex flex-wrap gap-2 max-h-64 overflow-y-auto border rounded-md p-3">
-            {ALL_VALUES.map((v) => {
-              const isSelected = selectedValues.includes(v);
-              return (
-                <button
-                  key={v}
-                  type="button"
-                  onClick={() => toggleSelected(v)}
-                  className={`px-3 py-1 rounded-full text-sm border transition-colors whitespace-nowrap ${
-                    isSelected
-                      ? "bg-primary text-white border-primary"
-                      : "bg-white text-background hover:bg-gray-50"
-                  }`}
-                >
-                  {v}
-                </button>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="mb-6 bg-white">
-        <CardContent className="space-y-3 text-background">
-          <h3 className="text-xl font-semibold mb-2 text-center">
-            צמצום ל- {MIN_CORE_VALUES}-{MAX_CORE_VALUES} ערכי ליבה
-          </h3>
-          <p>
-            לאחר שבחרתם {MAX_INITIAL_SELECTION} ערכים, צמצמו ל-{" "}
-            {MIN_CORE_VALUES}-{MAX_CORE_VALUES} ערכים החשובים לכם ביותר, שהם
-            תנאי לעיסוק ולסביבת עבודה מהנים ומספקים עבורכם.
-          </p>
-          <div className="text-sm text-gray-700 mb-2">
-            ערכי ליבה שנבחרו: {coreValues.length}/{MAX_CORE_VALUES}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {selectedValues.map((v) => {
-              const isCore = coreValues.some((row) => row.name === v);
-              return (
-                <button
-                  key={v}
-                  type="button"
-                  onClick={() => toggleCoreValue(v)}
-                  className={`px-3 py-1 rounded-full text-sm border transition-colors whitespace-nowrap ${
-                    isCore
-                      ? "bg-emerald-600 text-white border-emerald-600"
-                      : "bg-white text-background hover:bg-gray-50"
-                  }`}
-                >
-                  {v}
-                </button>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-white">
-        <CardContent className="space-y-3 text-background">
-          <h3 className="text-xl font-semibold mb-2 text-center">
-            טבלת ציונים לרמת ביטוי הערכים החשובים שלכם בעיסוקכם כיום
-          </h3>
-          <p>
-            התבוננו בעיסוקכם הנוכחי וחישבו מהו הציון בין 1 ל-10 שאתם נותנים לרמת
-            ביטוי של כל אחד מערכי הליבה החשובים ביותר שלכם. חישבו מה חסר שם שהיה
-            יכול לקדם את הערך לציון גבוה בהרבה.
-          </p>
-
-          {coreValues.length === 0 ? (
-            <p className="text-sm text-gray-600">
-              תחילה בחרו {MIN_CORE_VALUES}-{MAX_CORE_VALUES} ערכי ליבה בשלב ב'.
-            </p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm border border-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="border px-2 py-1 text-right w-32">הערך</th>
-                    <th className="border px-2 py-1 text-center w-24">ציון</th>
-                    <th className="border px-2 py-1 text-right">
-                      מה חסר כדי לקדם את הערך לציון 9–10?
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {coreValues.map((row) => (
-                    <tr key={row.name}>
-                      <td className="border px-2 py-1 text-right align-top">
-                        {row.name}
-                      </td>
-                      <td className="border px-2 py-1 text-center align-top">
-                        <select
-                          className="border rounded-md px-1 py-0.5 text-center w-full"
-                          value={row.score === "" ? "" : String(row.score)}
-                          onChange={(e) =>
-                            handleScoreChange(row.name, e.target.value)
-                          }
-                        >
-                          <option value="">בחרו</option>
-                          {Array.from({ length: 10 }, (_, i) => i + 1).map(
-                            (n) => (
-                              <option key={n} value={n}>
-                                {n}
-                              </option>
-                            )
-                          )}
-                        </select>
-                      </td>
-                      <td className="border px-2 py-1 align-top">
-                        <textarea
-                          className="w-full border rounded-md px-2 py-1 min-h-[60px] text-sm"
-                          value={row.missing}
-                          onChange={(e) =>
-                            handleMissingChange(row.name, e.target.value)
-                          }
-                          placeholder="מה חסר היום בעיסוק / בסביבה כדי שהערך יקבל ציון 9–10?"
-                        />
-                      </td>
-                    </tr>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={storyIndex}
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.18}
+          onDragEnd={handleStoryDragEnd}
+          initial={{ opacity: 0, x: 28 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -28 }}
+          transition={{ duration: 0.28 }}
+        >
+          <Card className="overflow-hidden border-white/40 bg-white text-background shadow-2xl">
+            <CardHeader className="border-b border-slate-100 bg-slate-50/80 px-5 py-4 sm:px-7">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h3 className="text-xl font-bold text-slate-950">
+                  {STORY_STEPS[storyIndex]}
+                </h3>
+                <div className="flex gap-1" aria-hidden="true">
+                  {STORY_STEPS.map((step, index) => (
+                    <span
+                      key={step}
+                      className={`h-2.5 w-2.5 rounded-full transition-colors ${
+                        index === storyIndex ? "bg-teal-500" : "bg-slate-300"
+                      }`}
+                    />
                   ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                </div>
+              </div>
+            </CardHeader>
 
-          <div className="flex justify-end items-center mt-6">
-            <Button onClick={handleNext} disabled={!canContinue}>
-              המשך
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+            <CardContent className="min-h-[520px] space-y-5 p-5 leading-relaxed sm:p-7">
+              {storyIndex === 0 ? (
+                <div className="space-y-5 text-lg">
+                  <p className="font-semibold text-slate-950">
+                    תרגיל למתענייני קורס מומחי קריירה ולחיים בכלל
+                  </p>
+                  <p>
+                    יש כאלה שמכנים את הערכים האישיים המנועים הפנימיים שלנו,
+                    ה-ד.נ.א של הנשמה או המצפן שמראה שאנו במקום המדוייק לנו.
+                    מימוש הערכים האישיים בנסיבות חיינו מתרחש דרך יחסי הגומלין
+                    שלנו עם המציאות החיצונית: מקום עבודה ותחום עיסוק, יחסים
+                    חברתיים, משפחה, סביבת מגורים, שעות פנאי ועוד.
+                  </p>
+                  <p>
+                    כשהערכים שלנו מקבלים ביטוי מלא באותה סביבה, זה אומר שאנו
+                    בסביבה הטבעית שלנו, חווים תחושת איזון ושביעות רצון, מקבלים
+                    אנרגיה והפרייה מהסביבה. במצב כזה יש בנו רצון וכוח להעניק
+                    בחזרה, לממש את ייעודנו ולהשאיר חותם חיובי.
+                  </p>
+                  <p className="rounded-md bg-cyan-50 p-4 text-base text-slate-700">
+                    זוהי קטגוריה אחת מתוך 7 הקטגוריות שבאמצעותן נבנית תעודת
+                    הזהות התעסוקתית המולדת של המאובחן.
+                  </p>
+                </div>
+              ) : null}
+
+              {storyIndex === 1 ? (
+                <div className="space-y-5 text-lg">
+                  <p className="font-semibold text-slate-950">
+                    קמת לעולם מושלם מבחינה תעסוקתית.
+                  </p>
+                  <p>
+                    בעולם הזה כולם מרוויחים 100 אלף ₪ נטו בחודש. אין מעמדות
+                    מקצועיים: מוכר במכולת, מורה בבית ספר, מנכ"ל חברה, צלם,
+                    מורה דרך, שומר יערות, מהנדס תוכנה ומנקה רחובות מקבלים יחס
+                    זהה, ומהות המקצוע היא לא אישיו.
+                  </p>
+                  <p>
+                    ניתן לפי רצונך להחליף מקצוע כל שנתיים, והכי חשוב: כל אחד
+                    בוחר את המקצוע המועדף עליו בכל שלב.
+                  </p>
+                  <p className="rounded-md bg-emerald-50 p-4 text-base text-slate-700">
+                    בשלב הבא בוחרים ערכים שיהפכו את חוויית העבודה למהנה,
+                    מפרה ובעיקר טבעית.
+                  </p>
+                </div>
+              ) : null}
+
+              {storyIndex === 2 ? (
+                <div className="space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <p className="text-lg">
+                      בחרו עד {MAX_INITIAL_SELECTION} ערכים שחשוב לכם שישרו
+                      בסביבת העבודה ובאינטראקציה עם האנשים.
+                    </p>
+                    <span className="rounded-full bg-teal-100 px-3 py-1 text-sm font-bold text-teal-800">
+                      נבחרו {selectedValues.length}/{MAX_INITIAL_SELECTION}
+                    </span>
+                  </div>
+                  <div className="max-h-[360px] overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <div className="flex flex-wrap gap-2">
+                      {ALL_VALUES.map((v) => {
+                        const isSelected = selectedValues.includes(v);
+                        return (
+                          <button
+                            key={v}
+                            type="button"
+                            onClick={() => toggleSelected(v)}
+                            className={`rounded-full border px-3 py-2 text-sm font-medium transition-colors ${
+                              isSelected
+                                ? "border-teal-500 bg-teal-500 text-white shadow-sm"
+                                : "border-slate-200 bg-white text-slate-800 hover:bg-slate-100"
+                            }`}
+                          >
+                            {v}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  {selectedValues.length === 0 ? (
+                    <p className="text-sm font-medium text-amber-700">
+                      בחרו לפחות ערך אחד כדי להמשיך לסיפור הבא.
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {storyIndex === 3 ? (
+                <div className="space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <p className="text-lg">
+                      עכשיו מצמצמים ל-{MIN_CORE_VALUES}-{MAX_CORE_VALUES} ערכי
+                      ליבה: הערכים שהם תנאי לעיסוק ולסביבת עבודה מספקים עבורכם.
+                    </p>
+                    <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-bold text-emerald-800">
+                      ליבה {coreValues.length}/{MAX_CORE_VALUES}
+                    </span>
+                  </div>
+
+                  {selectedValues.length === 0 ? (
+                    <p className="rounded-md bg-amber-50 p-4 text-sm font-medium text-amber-800">
+                      חזרו קלף אחד אחורה ובחרו קודם את הערכים הראשוניים.
+                    </p>
+                  ) : (
+                    <div className="flex flex-wrap gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
+                      {selectedValues.map((v) => {
+                        const isCore = coreValues.some((row) => row.name === v);
+                        return (
+                          <button
+                            key={v}
+                            type="button"
+                            onClick={() => toggleCoreValue(v)}
+                            className={`rounded-full border px-3 py-2 text-sm font-medium transition-colors ${
+                              isCore
+                                ? "border-emerald-600 bg-emerald-600 text-white shadow-sm"
+                                : "border-slate-200 bg-white text-slate-800 hover:bg-slate-100"
+                            }`}
+                          >
+                            {v}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {coreValues.length < MIN_CORE_VALUES ? (
+                    <p className="text-sm font-medium text-amber-700">
+                      בחרו לפחות {MIN_CORE_VALUES} ערכי ליבה כדי להמשיך.
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {storyIndex === 4 ? (
+                <div className="space-y-4">
+                  <p className="text-lg">
+                    התבוננו בעיסוקכם הנוכחי ותנו לכל ערך ליבה ציון בין 1 ל-10
+                    לפי רמת הביטוי שלו היום. לאחר מכן כתבו מה חסר כדי לקרב אותו
+                    לציון 9-10.
+                  </p>
+
+                  {coreValues.length === 0 ? (
+                    <p className="rounded-md bg-amber-50 p-4 text-sm font-medium text-amber-800">
+                      תחילה בחרו {MIN_CORE_VALUES}-{MAX_CORE_VALUES} ערכי ליבה.
+                    </p>
+                  ) : (
+                    <div className="grid gap-3">
+                      {coreValues.map((row) => (
+                        <div
+                          key={row.name}
+                          className="grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 sm:grid-cols-[140px_110px_1fr]"
+                        >
+                          <div>
+                            <p className="text-xs font-semibold text-slate-500">
+                              הערך
+                            </p>
+                            <p className="text-base font-bold text-slate-950">
+                              {row.name}
+                            </p>
+                          </div>
+                          <label className="grid gap-1">
+                            <span className="text-xs font-semibold text-slate-500">
+                              ציון
+                            </span>
+                            <select
+                              className="h-10 rounded-md border border-slate-300 bg-white px-2 text-center"
+                              value={row.score === "" ? "" : String(row.score)}
+                              onChange={(e) =>
+                                handleScoreChange(row.name, e.target.value)
+                              }
+                            >
+                              <option value="">בחרו</option>
+                              {Array.from({ length: 10 }, (_, i) => i + 1).map(
+                                (n) => (
+                                  <option key={n} value={n}>
+                                    {n}
+                                  </option>
+                                )
+                              )}
+                            </select>
+                          </label>
+                          <label className="grid gap-1">
+                            <span className="text-xs font-semibold text-slate-500">
+                              מה חסר כדי לקדם את הערך?
+                            </span>
+                            <textarea
+                              className="min-h-[76px] rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
+                              value={row.missing}
+                              onChange={(e) =>
+                                handleMissingChange(row.name, e.target.value)
+                              }
+                              placeholder="מה חסר היום בעיסוק או בסביבה?"
+                            />
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {!canContinue ? (
+                    <p className="text-sm font-medium text-amber-700">
+                      כדי לסיים, בחרו {MIN_CORE_VALUES}-{MAX_CORE_VALUES} ערכי
+                      ליבה ותנו לכל אחד ציון.
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
+            </CardContent>
+          </Card>
+        </motion.div>
+      </AnimatePresence>
+
+      <div className="mt-5 flex items-center justify-between gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={goToPreviousStory}
+          disabled={storyIndex === 0}
+          className="gap-2 bg-white"
+        >
+          <ChevronRight className="size-4" />
+          הקודם
+        </Button>
+
+        <Button
+          type="button"
+          onClick={goToNextStory}
+          disabled={!canMoveForward}
+          className="gap-2"
+        >
+          {isLastStoryStep ? "סיום השלב" : "הבא"}
+          {!isLastStoryStep ? <ChevronLeft className="size-4" /> : null}
+        </Button>
+      </div>
     </div>
   );
 }

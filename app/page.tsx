@@ -21,7 +21,7 @@ export default function Home() {
       <footer className="py-8 text-center border-t border-border/60 bg-transparent">
         <div className="container mx-auto">
           <p className="text-muted-foreground text-sm">
-            © {new Date().getFullYear()} דרך חדשה | כל הזכויות שמורות
+            © {new Date().getFullYear()} איציק רצימור – דרך חדשה. כל הזכויות שמורות
           </p>
           <div className="mt-4 flex justify-center gap-4 space-x-reverse">
             <Link

@@ -34,6 +34,8 @@ import {
 import type { GuidanceReport } from "@/lib/guidance/types";
 
 const CORE_VALUES_ANSWER_ID = "9d79036e-bf0c-4d65-b06f-f5f4b5f01302";
+const FINAL_RECOMMENDATION =
+  "לסיום, מומלץ לפנות ליועצי הקריירה של \"דרך חדשה\" כדי לעבור יחד על התוצאות, או להמשיך להתייעץ באופן עצמאי עם ה-AI הפרטי שלך. בשלב זה לא נפתח צ׳אט חופשי בתוך המערכת משיקולי תקציב.";
 
 const ABILITY_LABELS: Record<AbilityKey, string> = {
   hebrew: "שפה עברית",
@@ -169,27 +171,9 @@ export async function generateDiagnosticReport(
 ): Promise<DiagnosticGenerationResult> {
   const baseReport = buildDeterministicReport(input);
   const { systemPrompt, userPrompt } = buildDiagnosticPrompt(input, baseReport);
-  const geminiModel = process.env.GEMINI_MODEL || "gemini-3.5-flash";
-
-  try {
-    const narrative = await generateWithGemini(
-      systemPrompt,
-      userPrompt,
-      geminiModel,
-      input.candidateOccupations.map((occupation) => occupation.id)
-    );
-    return {
-      report: mergeNarrative(baseReport, narrative),
-      provider: "gemini",
-      model: geminiModel,
-    };
-  } catch (geminiError) {
-    console.warn("Gemini diagnostic generation failed; trying OpenRouter.", {
-      message:
-        geminiError instanceof Error ? geminiError.message : String(geminiError),
-    });
-  }
-
+  const candidateIds = input.candidateOccupations.map(
+    (occupation) => occupation.id
+  );
   const openRouterModel =
     process.env.OPENROUTER_MODEL || "deepseek/deepseek-v4-pro";
 
@@ -198,7 +182,7 @@ export async function generateDiagnosticReport(
       systemPrompt,
       userPrompt,
       openRouterModel,
-      input.candidateOccupations.map((occupation) => occupation.id)
+      candidateIds
     );
     return {
       report: mergeNarrative(baseReport, narrative),
@@ -206,11 +190,32 @@ export async function generateDiagnosticReport(
       model: openRouterModel,
     };
   } catch (openRouterError) {
-    console.warn("OpenRouter diagnostic generation failed; using fallback.", {
+    console.warn("OpenRouter diagnostic generation failed; trying Gemini.", {
       message:
         openRouterError instanceof Error
           ? openRouterError.message
           : String(openRouterError),
+    });
+  }
+
+  const geminiModel = process.env.GEMINI_MODEL || "gemini-3.5-flash";
+
+  try {
+    const narrative = await generateWithGemini(
+      systemPrompt,
+      userPrompt,
+      geminiModel,
+      candidateIds
+    );
+    return {
+      report: mergeNarrative(baseReport, narrative),
+      provider: "gemini",
+      model: geminiModel,
+    };
+  } catch (geminiError) {
+    console.warn("Gemini diagnostic generation failed; using fallback.", {
+      message:
+        geminiError instanceof Error ? geminiError.message : String(geminiError),
     });
   }
 
@@ -515,6 +520,7 @@ function buildDeterministicReport(input: DiagnosticInput): DiagnosticReport {
       "לפתוח את המקצועות בעלי ההתאמה הגבוהה ולבדוק את נימוקי ההתאמה מול תחושת הבטן שלך.",
       "להשוות בין דרישות ההכשרה לבין הזמן, התקציב ורמת המחויבות שמתאימים לך כרגע.",
       "לבדוק מידע עדכני על שכר, ביקוש ומסלולי לימוד במקורות רשמיים נוספים.",
+      FINAL_RECOMMENDATION,
     ],
   };
 }
@@ -564,6 +570,7 @@ function buildDiagnosticPrompt(input: DiagnosticInput, baseReport: DiagnosticRep
     "shortWhy ו-fitReasons צריכים לנמק התאמה באמצעות שילוב שלב א׳, ציוני יכולת, אישיות וערכי ליבה.",
     "לשקלל קודם כל את התשוקה והערכים (הרוח), ורק אז להצליב אותם עם הכישורים האנליטיים כדי לקבוע את אחוזי ההתאמה (כך שאם למשל נדרשת מתמטיקה גבוהה והציון של המשתמש נמוך, המקצוע ייפסל).",
     "possibleTensions צריך להיות זהיר ומעשי: מה לבדוק לפני בחירת מסלול, לא סיבה לפסילה.",
+    `nextSteps חייב לכלול כפסקת סיום את ההמלצה הזו בדיוק: ${FINAL_RECOMMENDATION}`,
   ].join("\n\n");
 
   return { systemPrompt, userPrompt };
@@ -719,8 +726,17 @@ function mergeNarrative(
             : occupation.possibleTensions,
       };
     }),
-    nextSteps: narrative.nextSteps.length > 0 ? narrative.nextSteps : report.nextSteps,
+    nextSteps: ensureFinalRecommendation(
+      narrative.nextSteps.length > 0 ? narrative.nextSteps : report.nextSteps
+    ),
   };
+}
+
+function ensureFinalRecommendation(nextSteps: string[]) {
+  const withoutDuplicate = nextSteps.filter(
+    (step) => step.trim() !== FINAL_RECOMMENDATION
+  );
+  return [...withoutDuplicate.slice(0, 5), FINAL_RECOMMENDATION];
 }
 
 function parseNarrativePayload(

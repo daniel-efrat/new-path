@@ -17,7 +17,7 @@ BEGIN
       selected_statements statement_index_int[] NOT NULL,
       created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-      CONSTRAINT selected_statements_length CHECK (cardinality(selected_statements) = 2),
+      CONSTRAINT selected_statements_length CHECK (cardinality(selected_statements) BETWEEN 1 AND 2),
       UNIQUE (user_id, occupation_serial)
     );
   END IF;

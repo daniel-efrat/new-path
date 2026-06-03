@@ -28,6 +28,10 @@ export default function Header() {
       return;
     }
 
+    const loadingFallback = window.setTimeout(() => {
+      setLoading(false);
+    }, 3000);
+
     // Get initial session
     const getSession = async () => {
       try {
@@ -40,6 +44,7 @@ export default function Header() {
       } catch (error) {
         console.error("Error getting session:", error);
       } finally {
+        window.clearTimeout(loadingFallback);
         setLoading(false);
       }
     };
@@ -56,6 +61,7 @@ export default function Header() {
     );
 
     return () => {
+      window.clearTimeout(loadingFallback);
       if (subscription) subscription.unsubscribe();
     };
   }, []);
@@ -83,10 +89,10 @@ export default function Header() {
           aria-label={user ? "דרך חדשה - מעבר לדשבורד" : "דרך חדשה - דף הבית"}
         >
           <Image
-            src="/logo-white.png"
+            src="/logo-inline-white.svg"
             alt=""
-            width={250}
-            height={70}
+            width={200}
+            height={40}
             className="h-20 w-auto"
             priority
           />

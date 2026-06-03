@@ -172,26 +172,28 @@ export async function generateGuidanceReport(
   input: GuidanceInput
 ): Promise<GuidanceGenerationResult> {
   const { systemPrompt, userPrompt } = buildGuidancePrompt(input);
-  const geminiModel = process.env.GEMINI_MODEL || "gemini-3.5-flash";
+  const openRouterModel =
+    process.env.OPENROUTER_MODEL || "deepseek/deepseek-v4-pro";
 
   try {
-    const report = await generateWithGemini(systemPrompt, userPrompt, geminiModel);
-    return { report, provider: "gemini", model: geminiModel };
-  } catch (geminiError) {
-    console.warn("Gemini guidance generation failed; trying OpenRouter.", {
+    const report = await generateWithOpenRouter(
+      systemPrompt,
+      userPrompt,
+      openRouterModel
+    );
+    return { report, provider: "openrouter", model: openRouterModel };
+  } catch (openRouterError) {
+    console.warn("OpenRouter guidance generation failed; trying Gemini.", {
       message:
-        geminiError instanceof Error ? geminiError.message : String(geminiError),
+        openRouterError instanceof Error
+          ? openRouterError.message
+          : String(openRouterError),
     });
   }
 
-  const openRouterModel =
-    process.env.OPENROUTER_MODEL || "deepseek/deepseek-v4-pro";
-  const report = await generateWithOpenRouter(
-    systemPrompt,
-    userPrompt,
-    openRouterModel
-  );
-  return { report, provider: "openrouter", model: openRouterModel };
+  const geminiModel = process.env.GEMINI_MODEL || "gemini-3.5-flash";
+  const report = await generateWithGemini(systemPrompt, userPrompt, geminiModel);
+  return { report, provider: "gemini", model: geminiModel };
 }
 
 async function loadHollandData(

@@ -1,4 +1,5 @@
 import type { StepData, ValidationResult } from "@/lib/types/questionnaire";
+import { QUESTIONNAIRE_CONFIG } from "@/lib/constants/questionnaire";
 import {
   STEP9_QUESTIONS,
   STEP10_QUESTIONS,
@@ -46,9 +47,11 @@ export const validateStep1 = (data: StepData): ValidationResult => {
     errors.push("At least one trait must be selected");
   }
 
-  // Check if not more than 10 traits are selected
-  if (selectedTraits.length > 10) {
-    errors.push("Maximum 10 traits can be selected");
+  // Check if not more than the client-approved core strengths are selected
+  if (selectedTraits.length > QUESTIONNAIRE_CONFIG.MAX_TRAITS) {
+    errors.push(
+      `Maximum ${QUESTIONNAIRE_CONFIG.MAX_TRAITS} traits can be selected`
+    );
   }
 
   return createValidationResult(errors.length === 0, errors);
@@ -272,16 +275,16 @@ export const stepValidators: Record<
   (data: StepData) => ValidationResult
 > = {
   1: validateStep1,
-  2: validateStep4,
-  3: validateStep11,
-  4: validateStep12,
-  5: validateStep2,
-  6: validateStep3,
-  7: validateStep5,
-  8: validateStep6,
-  9: validateStep7,
-  10: validateStep8,
-  11: validateStep9,
-  12: validateStep10,
-  13: validateStep13,
+  2: validateStep2,
+  3: validateStep3,
+  4: validateStep4,
+  5: validateStep5,
+  6: validateStep7,
+  7: validateStep8,
+  8: validateStep9,
+  9: validateStep10,
+  10: validateStep11,
+  11: validateStep12,
+  12: validateStep13,
+  13: validateStep12,
 };

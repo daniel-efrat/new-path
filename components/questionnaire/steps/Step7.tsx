@@ -148,7 +148,7 @@ export default function Step7({
 
     // Store the answer (only store the selected shape ID)
     try {
-      await setAnswer(currentQ.id, shapeId, undefined, 9);
+      await setAnswer(currentQ.id, shapeId, undefined, 6);
     } catch (error) {
       console.warn("Failed to save Step7 answer to database:", error);
       // Continue without database storage - answers are still tracked locally
@@ -299,6 +299,8 @@ export default function Step7({
     );
   }
 
+  const questionLabel = `שאלה ${currentQuestion + 1} מתוך ${STEP7_QUESTIONS.length}`;
+
   return (
     <div dir="rtl" className="max-w-4xl mx-auto">
       <AnimatePresence mode="wait">
@@ -376,7 +378,7 @@ export default function Step7({
                 >
                   <Image
                     src={currentQ.question}
-                    alt="דפוס לזיהוי"
+                    alt={`דפוס חזותי לזיהוי, ${questionLabel}`}
                     width={300}
                     height={300}
                     className="rounded border"
@@ -401,14 +403,17 @@ export default function Step7({
               className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto"
               dir="ltr"
             >
-              {currentQ.options.map((optionSrc, idx) => (
-                <div
-                  key={`${currentQ.id}-${idx}-${animationKey}`}
-                  className="relative"
-                >
+              {currentQ.options.map((optionSrc, idx) => {
+                const optionLabel = `אפשרות ${idx + 1} עבור ${questionLabel}`;
+                return (
+                  <div
+                    key={`${currentQ.id}-${idx}-${animationKey}`}
+                    className="relative"
+                  >
                   <motion.button
                     onClick={() => handleShapeSelect(idx)}
                     disabled={selectedShape !== null}
+                    aria-label={optionLabel}
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{
@@ -426,7 +431,7 @@ export default function Step7({
                   >
                     <Image
                       src={optionSrc}
-                      alt={`Shape option ${idx + 1}`}
+                      alt={optionLabel}
                       width={100}
                       height={100}
                       className="mx-auto"
@@ -439,7 +444,8 @@ export default function Step7({
 
                   </motion.button>
                 </div>
-              ))}
+                );
+              })}
             </div>
 
           </Card>

@@ -15,8 +15,8 @@ function FeatureCard({ feature, index }: { feature: any; index: number }) {
         <motion.div
           ref={ref}
           className={`w-16 h-16 rounded-full bg-muted/30 flex items-center justify-center mx-auto ${feature.color}`}
-          initial={{ scale: 0 }}
-          animate={isInView ? { scale: 1 } : { scale: 0 }}
+          initial={{ scale: 1 }}
+          animate={isInView ? { scale: 1 } : { scale: 1 }}
           transition={{
             type: "spring",
             stiffness: 260,

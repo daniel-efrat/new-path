@@ -6,6 +6,7 @@ interface Step {
   id: number;
   isCompleted: boolean;
   isLocked: boolean;
+  flowVersion?: number;
 }
 
 interface StepState {
@@ -32,21 +33,55 @@ interface StepState {
   fetchUserProgress: (userId: string) => Promise<void>;
 }
 
-const makeInitialSteps = () => [
-  { id: 1, isCompleted: false, isLocked: false },
-  { id: 2, isCompleted: false, isLocked: true },
-  { id: 3, isCompleted: false, isLocked: true },
-  { id: 4, isCompleted: false, isLocked: true },
-  { id: 5, isCompleted: false, isLocked: true },
-  { id: 6, isCompleted: false, isLocked: true },
-  { id: 7, isCompleted: false, isLocked: true },
-  { id: 8, isCompleted: false, isLocked: true },
-  { id: 9, isCompleted: false, isLocked: true },
-  { id: 10, isCompleted: false, isLocked: true },
-  { id: 11, isCompleted: false, isLocked: true },
-  { id: 12, isCompleted: false, isLocked: true },
-  { id: 13, isCompleted: false, isLocked: true },
-];
+const CURRENT_FLOW_VERSION = 5;
+
+const makeInitialSteps = () =>
+  Array.from({ length: 13 }, (_, index) => ({
+    id: index + 1,
+    isCompleted: false,
+    isLocked: index > 0,
+    flowVersion: CURRENT_FLOW_VERSION,
+  }));
+
+function remapLegacySteps(persistedSteps: Step[]) {
+  if (
+    persistedSteps.length > 0 &&
+    persistedSteps.every((step) => step.flowVersion === CURRENT_FLOW_VERSION)
+  ) {
+    return persistedSteps;
+  }
+
+  const byOldId = new Map(persistedSteps.map((step) => [step.id, step]));
+  const isOldComplete = (id: number) => byOldId.get(id)?.isCompleted === true;
+
+  const completedByNewStep: Record<number, boolean> = {
+    1: isOldComplete(1),
+    2: isOldComplete(5),
+    3: isOldComplete(6),
+    4: isOldComplete(2),
+    5: isOldComplete(7) && isOldComplete(8),
+    6: isOldComplete(9),
+    7: isOldComplete(10),
+    8: isOldComplete(11),
+    9: isOldComplete(12),
+    10: isOldComplete(3),
+    11: isOldComplete(4),
+    12: isOldComplete(13),
+    13: false,
+  };
+
+  let locked = false;
+  return makeInitialSteps().map((step) => {
+    const isCompleted = completedByNewStep[step.id] === true;
+    const next = {
+      ...step,
+      isCompleted,
+      isLocked: step.id === 1 ? false : locked,
+    };
+    if (!isCompleted) locked = true;
+    return next;
+  });
+}
 
 export const useStepStore = create<StepState>()(
   persist(
@@ -218,7 +253,7 @@ export const useStepStore = create<StepState>()(
             .maybeSingle();
 
           if (data && data.steps_progress) {
-            const persistedSteps = data.steps_progress as Step[];
+            const persistedSteps = remapLegacySteps(data.steps_progress as Step[]);
             const defaultSteps = makeInitialSteps();
 
             // Merge persisted steps with defaults so newly added steps

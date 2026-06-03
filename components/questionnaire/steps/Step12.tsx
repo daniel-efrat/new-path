@@ -18,6 +18,26 @@ interface Occupation {
   occupation_description: string | null;
 }
 
+function normalizeOccupationTitle(title: string) {
+  return title
+    .replace(/\([^)]*\)/g, "")
+    .replace(/[״׳"'`,:;.!?]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+function dedupeOccupations(occupations: Occupation[]) {
+  const seenTitles = new Set<string>();
+  return occupations.filter((occupation) => {
+    const key = normalizeOccupationTitle(occupation.occupation_title);
+    if (!key) return true;
+    if (seenTitles.has(key)) return false;
+    seenTitles.add(key);
+    return true;
+  });
+}
+
 export default function Step12(_props: Step12Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -41,7 +61,7 @@ export default function Step12(_props: Step12Props) {
         setLoading(false);
         return;
       }
-      setOccupations((data || []) as Occupation[]);
+      setOccupations(dedupeOccupations((data || []) as Occupation[]));
       setLoading(false);
     };
     loadOccupations();
@@ -60,7 +80,13 @@ export default function Step12(_props: Step12Props) {
 
   return (
     <div className="max-w-3xl mx-auto" dir="rtl">
-      <h2 className="text-2xl font-bold my-6 text-center">בחירת תחום עיסוק</h2>
+      <div className="my-6 text-center">
+        <p className="text-sm font-semibold text-cyan-100">חלק א׳ - אבחון עצמאי</p>
+        <h2 className="mt-1 text-2xl font-bold">נטיות לב כלליות</h2>
+        <p className="mt-2 text-base font-semibold text-white/85">
+          בחרו 5 תחומי עיסוק כלליים בעדיפות
+        </p>
+      </div>
 
       <Card className="bg-white text-background">
         <CardContent className="p-4">

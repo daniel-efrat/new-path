@@ -16,7 +16,7 @@ interface Step9Props {
 }
 
 const QUESTIONS = STEP9_QUESTIONS;
-const STEP_NUMBER = 11;
+const STEP_NUMBER = 8;
 const QUESTION_SECONDS = 25;
 const DEFAULT_STIMULUS_SECONDS = 7;
 

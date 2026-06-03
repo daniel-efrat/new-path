@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useStepStore } from "@/lib/stores/stepStore";
 import { RIASEC_MAP } from "@/lib/constants/questions";
+import supabase from "@/lib/supabase";
 
 interface HollandResultsProps {
   onNext?: () => void;
@@ -22,16 +23,62 @@ export default function HollandResults({
     riasec_vector: Record<string, number>;
     riasec_code: string;
   } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const hollandResults = useStepStore((state) => state.hollandResults);
 
   useEffect(() => {
     if (hollandResults) {
       setResults(hollandResults);
+      setIsLoading(false);
+      return;
     }
+
+    const loadLatestResults = async () => {
+      setIsLoading(true);
+      setLoadError(null);
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user) {
+          setLoadError("לא נמצאו תוצאות הולנד שמורות.");
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from("holland_results")
+          .select("riasec_vector, riasec_code")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (error) {
+          setLoadError("לא הצלחנו לטעון את תוצאות הולנד.");
+          return;
+        }
+
+        if (!data) {
+          setLoadError("לא נמצאו תוצאות הולנד שמורות.");
+          return;
+        }
+
+        setResults({
+          riasec_vector: data.riasec_vector as Record<string, number>,
+          riasec_code: data.riasec_code,
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    void loadLatestResults();
   }, [hollandResults]);
 
-  if (!results) {
+  if (isLoading || !results) {
     return (
       <motion.div
         initial={{ opacity: 0 }}
@@ -41,7 +88,9 @@ export default function HollandResults({
         <Card className="max-w-3xl mx-auto bg-white text-background p-6">
           <CardContent>
             <p className="text-center text-gray-600">
-              No Holland results available. Please complete Step 11 first.
+              {isLoading
+                ? "טוען תוצאות הולנד..."
+                : loadError ?? "לא נמצאו תוצאות הולנד שמורות."}
             </p>
           </CardContent>
         </Card>
@@ -53,9 +102,9 @@ export default function HollandResults({
   const topThree = riasec_code.split("").slice(0, 3);
 
   // Get full descriptions for top 3 codes
-  const descriptions = topThree.map(
-    (code) => RIASEC_MAP[code as keyof typeof RIASEC_MAP]
-  );
+  const descriptions = topThree
+    .map((code) => RIASEC_MAP[code as keyof typeof RIASEC_MAP])
+    .filter(Boolean);
 
   return (
     <motion.div

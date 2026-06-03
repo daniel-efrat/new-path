@@ -16,6 +16,14 @@ interface Step3Props {
   onBackToReport?: () => void;
 }
 
+function getEnglishGrade(score: number) {
+  if (score >= 14) return "טוב מאד";
+  if (score >= 12) return "טוב";
+  if (score >= 9) return "בינוני";
+  if (score >= 6) return "חלש";
+  return "חלש מאד";
+}
+
 export default function Step3({
   onNext,
   onComplete,
@@ -42,7 +50,7 @@ export default function Step3({
   const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [animationKey, setAnimationKey] = useState(0);
 
-  const passed = score / QUESTIONS.length >= 0.7;
+  const passed = score >= 12;
 
   useEffect(() => {
     const loadAnswers = async () => {
@@ -67,8 +75,6 @@ export default function Step3({
         const answeredCount = Object.keys(localAnswers).length;
         if (answeredCount === STEP3_QUESTIONS.length && resultsMode) {
           setIsFinished(true);
-        } else if (answeredCount > 0) {
-          setCurrent(answeredCount);
         }
       } catch (error) {
         console.error("Error fetching Step 3 answers:", error);
@@ -128,7 +134,7 @@ export default function Step3({
     if (isCorrect) {
       setScore((s) => s + 1);
     }
-    await setAnswer(question.id, option, isCorrect, 6);
+    await setAnswer(question.id, option, isCorrect, 3);
     setAnswers((prev) => ({ ...prev, [question.id]: option }));
     await handleNext(false);
   };
@@ -177,8 +183,8 @@ export default function Step3({
           <div className="w-full max-w-4xl" dir="rtl">
             <h1 className="text-3xl font-bold my-6">תוצאות המבחן</h1>
             <div className="text-xl mb-8">
-              הניקוד שלך: {score} מתוך {QUESTIONS.length} (
-              {Math.round((score / QUESTIONS.length) * 100)}%)
+              הניקוד שלך: {score} מתוך {QUESTIONS.length} -{" "}
+              {getEnglishGrade(score)}
             </div>
             <div className="w-full max-w-3xl mx-auto mt-6 p-4 bg-white rounded-sm overflow-x-auto">
               <table className="p-2 w-full border text-right text-sm">

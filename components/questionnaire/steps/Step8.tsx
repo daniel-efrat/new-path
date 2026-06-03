@@ -24,6 +24,14 @@ interface Step8Props {
   onBackToReport?: () => void;
 }
 
+function getGrade(score: number) {
+  if (score >= 18) return "טוב מאד";
+  if (score >= 15) return "טוב";
+  if (score >= 12) return "בינוני";
+  if (score >= 9) return "חלש";
+  return "חלש מאד";
+}
+
 export default function Step8({
   onNext,
   onComplete,
@@ -40,7 +48,7 @@ export default function Step8({
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [score, setScore] = useState(0);
-  const [timer, setTimer] = useState(40);
+  const [timer, setTimer] = useState(25);
   const [showResult, setShowResult] = useState(false);
   const [answers, setAnswers] = useState<(number | null)[]>(() =>
     Array(QUESTIONS.length).fill(null)
@@ -48,7 +56,7 @@ export default function Step8({
   const [animationKey, setAnimationKey] = useState(0);
   const [fireworksConductor, setFireworksConductor] = useState<any>(null);
 
-  const passed = score / QUESTIONS.length >= 0.7;
+  const passed = score >= 15;
 
   useEffect(() => {
     const loadStepAnswers = async () => {
@@ -110,7 +118,7 @@ export default function Step8({
   }, [timer, showResult]);
 
   useEffect(() => {
-    setTimer(40);
+    setTimer(25);
     setSelected(null);
   }, [current]);
 
@@ -129,12 +137,16 @@ export default function Step8({
 
     const question = QUESTIONS[current];
     const isCorrect = idx === question.correct_option;
+    const previousAnswer = answers[current];
+    const wasCorrect = previousAnswer === question.correct_option;
 
     setSelected(idx);
-    if (isCorrect) setScore((s) => s + 1);
+    if (isCorrect !== wasCorrect) {
+      setScore((s) => s + (isCorrect ? 1 : -1));
+    }
 
     try {
-      await setAnswer(question.id, idx, isCorrect, 10);
+      await setAnswer(question.id, idx, isCorrect, 7);
       const newAnswers = [...answers];
       newAnswers[current] = idx;
       setAnswers(newAnswers);
@@ -148,6 +160,8 @@ export default function Step8({
   const handleNext = async (skipped: boolean) => {
     if (skipped) {
       const newAnswers = [...answers];
+      const wasCorrect = newAnswers[current] === QUESTIONS[current].correct_option;
+      if (wasCorrect) setScore((s) => s - 1);
       newAnswers[current] = -1; // Using -1 to denote skipped
       setAnswers(newAnswers);
     }
@@ -196,8 +210,8 @@ export default function Step8({
           />
           <h1 className="text-3xl font-bold my-6">תוצאות המבחן</h1>
           <div className="text-xl mb-8">
-            הניקוד שלך: {score} מתוך {QUESTIONS.length} (
-            {Math.round((score / QUESTIONS.length) * 100)}%)
+            הניקוד שלך: {Math.min(score, QUESTIONS.length)} מתוך{" "}
+            {QUESTIONS.length} - {getGrade(Math.min(score, QUESTIONS.length))}
           </div>
           <div className="w-full max-w-3xl mx-auto mt-6 p-4 bg-white rounded-sm overflow-x-auto">
             <table className="p-2 w-full border text-right text-sm">

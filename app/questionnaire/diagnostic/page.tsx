@@ -71,6 +71,8 @@ const PDF_BLOCK_SELECTOR = "[data-pdf-block='true']";
 const PDF_RESULT_SHEET_SELECTOR = "[data-pdf-result-sheet='true']";
 const PDF_PAGE_MARGIN_MM = 8;
 const PDF_BLOCK_GAP_MM = 5;
+const FINAL_RECOMMENDATION =
+  "לסיום, מומלץ לפנות ליועצי הקריירה של \"דרך חדשה\" כדי לעבור יחד על התוצאות, או להמשיך להתייעץ באופן עצמאי עם ה-AI הפרטי שלך. בשלב זה לא נפתח צ׳אט חופשי בתוך המערכת משיקולי תקציב.";
 
 const OCCUPATION_SCORE_LABELS: Record<
   keyof DiagnosticOccupation["scoreBreakdown"],
@@ -830,7 +832,9 @@ function DiagnosticReportView({ data }: { data: DiagnosticApiResponse }) {
           <CardContent className="space-y-4 p-5 sm:p-6">
           <SectionTitle title="צעדים מומלצים להמשך" />
           <motion.ul variants={staggerContainerVariants} className="grid gap-3 sm:grid-cols-3">
-            {report.nextSteps.map((step) => (
+            {report.nextSteps
+              .filter((step) => step.trim() !== FINAL_RECOMMENDATION)
+              .map((step) => (
               <motion.li
                 key={step}
                 variants={softItemVariants}
@@ -840,6 +844,9 @@ function DiagnosticReportView({ data }: { data: DiagnosticApiResponse }) {
               </motion.li>
             ))}
           </motion.ul>
+          <div className="rounded-lg border border-teal-200 bg-teal-50 p-4 text-sm leading-7 text-teal-950">
+            {FINAL_RECOMMENDATION}
+          </div>
           </CardContent>
         </Card>
       </Reveal>
@@ -1781,7 +1788,14 @@ function DiagnosticPdfDocument({
         </PdfSection>
 
         <PdfSection title="צעדים מומלצים להמשך">
-          <PdfTextList items={report.nextSteps} />
+          <PdfTextList
+            items={report.nextSteps.filter(
+              (step) => step.trim() !== FINAL_RECOMMENDATION
+            )}
+          />
+          <p className="mt-4 rounded-md border border-[#99f6e4] bg-[#f0fdfa] p-4 text-sm leading-7 text-[#134e4a]">
+            {FINAL_RECOMMENDATION}
+          </p>
         </PdfSection>
 
         {resultSheets.length > 0 ? <PdfResultSheets sheets={resultSheets} /> : null}
@@ -2345,8 +2359,7 @@ function getStringMetadataValue(value: unknown) {
 }
 
 function providerLabel(provider: DiagnosticApiResponse["provider"]) {
-  if (provider === "gemini") return "Gemini";
-  if (provider === "openrouter") return "OpenRouter";
+  void provider;
   return "חישוב מקומי";
 }
 

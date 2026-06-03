@@ -16,6 +16,20 @@ interface Step6Props {
   onBackToReport?: () => void;
 }
 
+const MATH_EXTENDED_TIME_QUESTIONS = new Set([2, 7, 12, 20]);
+
+function getQuestionTimeLimit(question: Question) {
+  return MATH_EXTENDED_TIME_QUESTIONS.has(question.number ?? 0) ? 30 : 20;
+}
+
+function getGrade(score: number) {
+  if (score >= 18) return "טוב מאד";
+  if (score >= 15) return "טוב";
+  if (score >= 12) return "בינוני";
+  if (score >= 9) return "חלש";
+  return "חלש מאד";
+}
+
 export default function Step6({
   onNext,
   onComplete,
@@ -29,7 +43,9 @@ export default function Step6({
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [score, setScore] = useState(0);
-  const [timer, setTimer] = useState(90);
+  const [timer, setTimer] = useState(() =>
+    getQuestionTimeLimit(QUESTIONS[0])
+  );
   const [showResult, setShowResult] = useState(false);
   const [answers, setAnswers] = useState<(number | null)[]>(() =>
     Array(QUESTIONS.length).fill(null)
@@ -37,7 +53,7 @@ export default function Step6({
   const [animationKey, setAnimationKey] = useState(0);
   const [fireworksConductor, setFireworksConductor] = useState<any>(null);
 
-  const passed = score / QUESTIONS.length >= 0.7;
+  const passed = score >= 15;
 
   useEffect(() => {
     const loadStepAnswers = async () => {
@@ -92,7 +108,7 @@ export default function Step6({
   }, [timer, showResult]);
 
   useEffect(() => {
-    setTimer(90);
+    setTimer(getQuestionTimeLimit(QUESTIONS[current]));
     setSelected(null);
   }, [current]);
 
@@ -112,9 +128,13 @@ export default function Step6({
   const handleSelect = async (idx: number) => {
     if (selected !== null) return;
     const isCorrect = idx === QUESTIONS[current].correct_option;
+    const previousAnswer = answers[current];
+    const wasCorrect = previousAnswer === QUESTIONS[current].correct_option;
     setSelected(idx);
-    if (isCorrect) setScore((s) => s + 1);
-    await setAnswer(QUESTIONS[current].id, idx, isCorrect, 8);
+    if (isCorrect !== wasCorrect) {
+      setScore((s) => s + (isCorrect ? 1 : -1));
+    }
+    await setAnswer(QUESTIONS[current].id, idx, isCorrect, 5);
     const newAnswers = [...answers];
     newAnswers[current] = idx;
     setAnswers(newAnswers);
@@ -124,7 +144,10 @@ export default function Step6({
   const handleNext = async (skipped: boolean = false, force: boolean = false) => {
     if (!skipped && !force && selected === null) return;
     if (skipped && selected === null) {
-      setAnswer(QUESTIONS[current].id, null, false, 8);
+      if (answers[current] === QUESTIONS[current].correct_option) {
+        setScore((s) => s - 1);
+      }
+      setAnswer(QUESTIONS[current].id, null, false, 5);
     }
     if (current < QUESTIONS.length - 1) {
       setCurrent((c) => c + 1);
@@ -176,8 +199,8 @@ export default function Step6({
           />
           <h1 className="text-3xl font-bold my-6">תוצאות המבחן</h1>
           <div className="text-xl mb-8">
-            הניקוד שלך: {score} מתוך {QUESTIONS.length} (
-            {Math.round((score / QUESTIONS.length) * 100)}%)
+            הניקוד שלך: {Math.min(score, QUESTIONS.length)} מתוך{" "}
+            {QUESTIONS.length} - {getGrade(Math.min(score, QUESTIONS.length))}
           </div>
           <div className="w-full max-w-3xl mx-auto mt-6 p-4 bg-white rounded-sm overflow-x-auto">
             <table className="p-2 w-full border text-right text-sm">
@@ -280,7 +303,7 @@ export default function Step6({
                 <div className="text-right leading-relaxed text-gray-800 bg-white p-4 rounded border">
                   פתרו את השאלות המתמטיות הבאות. השתמשו בידע שלכם במתמטיקה
                   בסיסית כולל אחוזים, שברים, אלגברה, גאומטריה וחשבון יומיומי. יש
-                  לכם 90 שניות לכל שאלה.
+                  לכם 20 שניות לכל שאלה.
                 </div>
               </div>
             </Card>
