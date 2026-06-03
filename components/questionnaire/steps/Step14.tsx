@@ -256,7 +256,6 @@ export default function Step14({ onNext, onComplete }: Step14Props) {
             <div className="flex gap-2">
               <Button
                 type="button"
-                variant="outline"
                 onClick={() => setActiveIndex((index) => Math.max(0, index - 1))}
                 disabled={activeIndex === 0}
               >

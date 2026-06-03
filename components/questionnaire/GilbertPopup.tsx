@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 
 export interface GilbertPopupCopy {
@@ -28,6 +29,11 @@ export default function GilbertPopup({
   onClose,
 }: GilbertPopupProps) {
   const [visibleCharacters, setVisibleCharacters] = useState(0);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!isOpen) {
@@ -50,16 +56,29 @@ export default function GilbertPopup({
     return () => window.clearInterval(interval);
   }, [isOpen, message]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen]);
+
   const typedMessage = useMemo(
     () => message.slice(0, visibleCharacters),
     [message, visibleCharacters]
   );
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/70 px-4 py-5 backdrop-blur-sm"
+          className="fixed inset-0 z-[9999] grid place-items-center overflow-y-auto bg-slate-950/70 px-4 py-5 backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -71,7 +90,7 @@ export default function GilbertPopup({
             aria-labelledby="gilbert-title"
             aria-describedby="gilbert-message"
             dir="rtl"
-            className="relative grid w-full max-w-3xl overflow-hidden rounded-lg border border-white/25 bg-white text-slate-950 shadow-2xl sm:grid-cols-[minmax(0,1fr)_260px]"
+            className="relative my-auto grid max-h-[calc(100vh-2.5rem)] w-full max-w-3xl overflow-hidden rounded-lg border border-white/25 bg-white text-slate-950 shadow-2xl sm:grid-cols-[minmax(0,1fr)_260px]"
             initial={{ opacity: 0, y: 30, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.98 }}
@@ -147,5 +166,7 @@ export default function GilbertPopup({
         </motion.div>
       )}
     </AnimatePresence>
+    ,
+    document.body
   );
 }

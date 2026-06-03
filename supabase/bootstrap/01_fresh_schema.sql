@@ -143,6 +143,17 @@ CREATE TABLE IF NOT EXISTS public.diagnostic_reports (
   UNIQUE (user_id, submission_id, input_hash)
 );
 
+CREATE TABLE IF NOT EXISTS public.contact_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT,
+  message TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'emailed', 'email_failed')),
+  email_error TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- ---------------------------------------------------------------------------
 -- Indexes
 -- ---------------------------------------------------------------------------
@@ -162,6 +173,7 @@ CREATE INDEX IF NOT EXISTS idx_diagnostic_reports_user_id ON public.diagnostic_r
 CREATE INDEX IF NOT EXISTS idx_diagnostic_reports_submission_id ON public.diagnostic_reports(submission_id);
 CREATE INDEX IF NOT EXISTS idx_diagnostic_reports_guidance_report_id ON public.diagnostic_reports(guidance_report_id);
 CREATE INDEX IF NOT EXISTS idx_diagnostic_reports_input_hash ON public.diagnostic_reports(input_hash);
+CREATE INDEX IF NOT EXISTS idx_contact_messages_created_at ON public.contact_messages(created_at DESC);
 
 -- ---------------------------------------------------------------------------
 -- updated_at triggers
@@ -211,6 +223,7 @@ ALTER TABLE public.designation_statements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_designation_choices ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.guidance_reports ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.diagnostic_reports ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
 
 -- profiles
 DROP POLICY IF EXISTS "Profiles are viewable by owner" ON public.profiles;
@@ -295,6 +308,14 @@ DROP POLICY IF EXISTS "Diagnostic reports insert own" ON public.diagnostic_repor
 CREATE POLICY "Diagnostic reports insert own" ON public.diagnostic_reports FOR INSERT WITH CHECK ((SELECT auth.uid()) = user_id);
 DROP POLICY IF EXISTS "Diagnostic reports update own" ON public.diagnostic_reports;
 CREATE POLICY "Diagnostic reports update own" ON public.diagnostic_reports FOR UPDATE USING ((SELECT auth.uid()) = user_id);
+
+-- contact messages are written by server service role only
+DROP POLICY IF EXISTS "Contact messages are service-role only" ON public.contact_messages;
+CREATE POLICY "Contact messages are service-role only"
+  ON public.contact_messages
+  FOR ALL
+  USING (false)
+  WITH CHECK (false);
 
 -- ---------------------------------------------------------------------------
 -- Default questionnaire row (hardcoded in app)

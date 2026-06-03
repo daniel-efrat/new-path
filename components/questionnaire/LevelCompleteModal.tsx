@@ -1,6 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 
 const iconLayers = [1, 2, 3, 4, 5, 6, 7];
@@ -33,12 +35,30 @@ export default function LevelCompleteModal({
   onContinue,
 }: LevelCompleteModalProps) {
   const completionLine = getCompletionLine(questionnaireName);
+  const [mounted, setMounted] = useState(false);
 
-  return (
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen]);
+
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="level-complete fixed inset-0 z-50 grid place-items-center bg-slate-950/70 px-4 py-6 backdrop-blur-sm"
+          className="level-complete fixed inset-0 z-[9999] grid place-items-center overflow-y-auto bg-slate-950/70 px-4 py-6 backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -48,7 +68,7 @@ export default function LevelCompleteModal({
             role="dialog"
             aria-modal="true"
             aria-labelledby="level-complete-title"
-            className="grid w-full max-w-2xl overflow-hidden rounded-lg border border-white/20 bg-white text-slate-950 shadow-2xl sm:grid-cols-[1fr_210px]"
+            className="my-auto grid max-h-[calc(100vh-3rem)] w-full max-w-2xl overflow-hidden rounded-lg border border-white/20 bg-white text-slate-950 shadow-2xl sm:grid-cols-[1fr_210px]"
             dir="rtl"
             initial={{ opacity: 0, y: 24, scale: 0.94 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -121,5 +141,7 @@ export default function LevelCompleteModal({
         </motion.div>
       )}
     </AnimatePresence>
+    ,
+    document.body
   );
 }

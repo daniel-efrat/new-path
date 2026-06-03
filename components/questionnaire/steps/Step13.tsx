@@ -553,10 +553,9 @@ export default function Step13({
       <div className="mt-5 flex items-center justify-between gap-3">
         <Button
           type="button"
-          variant="outline"
           onClick={goToPreviousStory}
           disabled={storyIndex === 0}
-          className="gap-2 bg-white"
+          className="gap-2 disabled:border-white/70 disabled:bg-white/90 disabled:text-slate-600 disabled:opacity-100"
         >
           <ChevronRight className="size-4" />
           הקודם

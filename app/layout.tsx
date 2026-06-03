@@ -1,6 +1,7 @@
 import "./globals.css";
 import { assistant } from "./fonts";
 import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
 import AuthHandler from "@/components/auth/AuthHandler";
 import type { Metadata } from "next";
 import ClientMotionProvider from "@/components/ClientMotionProvider"; // ← חדש
@@ -34,11 +35,12 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="apple-mobile-web-app-title" content="דרך חדשה" />
       </head>
-      <body className={`${assistant.className} bg-background text-foreground`}>
+      <body className={`${assistant.className} flex min-h-screen flex-col bg-background text-foreground`}>
         <ClientMotionProvider>
           <Header />
           <AuthHandler />
-          <main className="min-h-screen pt-24 bg-tech">{children}</main>
+          <main className="flex-1 pt-24 bg-tech">{children}</main>
+          <Footer />
         </ClientMotionProvider>
         <script>
 nl_pos = "bl";

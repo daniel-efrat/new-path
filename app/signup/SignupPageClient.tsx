@@ -19,11 +19,19 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
 
   const handleGoogleSignup = async (e: React.MouseEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setError(null);
+
+    if (!acceptedTerms || !acceptedPrivacy) {
+      setError("יש לאשר את תנאי השימוש ומדיניות הפרטיות לפני ההרשמה");
+      return;
+    }
+
+    setIsLoading(true);
 
     try {
       const base = window.location.origin;
@@ -65,6 +73,8 @@ export default function SignupPage() {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const confirmPassword = formData.get("confirm-password") as string;
+    const termsAccepted = formData.get("terms") === "on";
+    const privacyAccepted = formData.get("privacy") === "on";
 
     // Validation
     if (!name || !email || !password || !confirmPassword) {
@@ -81,6 +91,12 @@ export default function SignupPage() {
 
     if (password.length < 6) {
       setError("הסיסמה חייבת להכיל לפחות 6 תווים");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!termsAccepted || !privacyAccepted) {
+      setError("יש לאשר את תנאי השימוש ומדיניות הפרטיות לפני ההרשמה");
       setIsLoading(false);
       return;
     }
@@ -206,6 +222,62 @@ export default function SignupPage() {
                       aria-invalid={error ? true : undefined}
                       required
                     />
+                  </div>
+                  <div className="grid gap-3 rounded-md border border-border/70 bg-background/60 p-3 text-sm">
+                    <label
+                      htmlFor="terms"
+                      className="flex cursor-pointer items-start gap-3 text-right leading-6"
+                    >
+                      <input
+                        id="terms"
+                        name="terms"
+                        type="checkbox"
+                        checked={acceptedTerms}
+                        onChange={(event) =>
+                          setAcceptedTerms(event.target.checked)
+                        }
+                        className="mt-1 size-4"
+                        aria-describedby={error ? "signup-error" : undefined}
+                        required
+                      />
+                      <span>
+                        קראתי ואני מסכים/ה ל{" "}
+                        <Link
+                          href="/terms"
+                          className="underline underline-offset-4"
+                          target="_blank"
+                        >
+                          תנאי השימוש
+                        </Link>
+                      </span>
+                    </label>
+                    <label
+                      htmlFor="privacy"
+                      className="flex cursor-pointer items-start gap-3 text-right leading-6"
+                    >
+                      <input
+                        id="privacy"
+                        name="privacy"
+                        type="checkbox"
+                        checked={acceptedPrivacy}
+                        onChange={(event) =>
+                          setAcceptedPrivacy(event.target.checked)
+                        }
+                        className="mt-1 size-4"
+                        aria-describedby={error ? "signup-error" : undefined}
+                        required
+                      />
+                      <span>
+                        קראתי ואני מסכים/ה ל{" "}
+                        <Link
+                          href="/privacy"
+                          className="underline underline-offset-4"
+                          target="_blank"
+                        >
+                          מדיניות הפרטיות
+                        </Link>
+                      </span>
+                    </label>
                   </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? "יוצר חשבון..." : "צור חשבון"}
