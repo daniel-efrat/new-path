@@ -23,6 +23,7 @@ import type {
   DiagnosticProfileInsights,
   DiagnosticProvider,
   DiagnosticReport,
+  DiagnosticTokenUsage,
   PersonalityKey,
   ScoreSummary,
 } from "@/lib/diagnostic/types";
@@ -35,7 +36,7 @@ import type { GuidanceReport } from "@/lib/guidance/types";
 
 const CORE_VALUES_ANSWER_ID = "9d79036e-bf0c-4d65-b06f-f5f4b5f01302";
 const FINAL_RECOMMENDATION =
-  "לסיום, מומלץ לפנות ליועצי הקריירה של \"דרך חדשה\" כדי לעבור יחד על התוצאות, או להמשיך להתייעץ באופן עצמאי עם ה-AI הפרטי שלך. בשלב זה לא נפתח צ׳אט חופשי בתוך המערכת משיקולי תקציב.";
+  "לסיום, מומלץ לפנות ליועצי הקריירה של \"דרך חדשה\" כדי לעבור יחד על התוצאות, או להמשיך להתייעץ באופן עצמאי עם ה-AI הפרטי שלך.";
 
 const ABILITY_LABELS: Record<AbilityKey, string> = {
   hebrew: "שפה עברית",
@@ -74,6 +75,12 @@ export interface DiagnosticGenerationResult {
   report: DiagnosticReport;
   provider: DiagnosticProvider;
   model: string;
+  tokenUsage?: DiagnosticTokenUsage | null;
+}
+
+interface DiagnosticNarrativeGeneration {
+  narrative: DiagnosticNarrativeResponse;
+  tokenUsage?: DiagnosticTokenUsage | null;
 }
 
 export async function loadDiagnosticInput(
@@ -174,20 +181,45 @@ export async function generateDiagnosticReport(
   const candidateIds = input.candidateOccupations.map(
     (occupation) => occupation.id
   );
+  const openAiModel = process.env.OPENAI_MODEL || "gpt-5.4-mini";
+
+  try {
+    const generation = await generateWithOpenAI(
+      systemPrompt,
+      userPrompt,
+      openAiModel,
+      candidateIds
+    );
+    const report = mergeNarrative(baseReport, generation.narrative);
+    return {
+      report: attachTokenUsage(report, generation.tokenUsage),
+      provider: "openai",
+      model: openAiModel,
+      tokenUsage: generation.tokenUsage,
+    };
+  } catch (openAiError) {
+    console.warn("OpenAI diagnostic generation failed; trying OpenRouter.", {
+      message:
+        openAiError instanceof Error ? openAiError.message : String(openAiError),
+    });
+  }
+
   const openRouterModel =
     process.env.OPENROUTER_MODEL || "deepseek/deepseek-v4-pro";
 
   try {
-    const narrative = await generateWithOpenRouter(
+    const generation = await generateWithOpenRouter(
       systemPrompt,
       userPrompt,
       openRouterModel,
       candidateIds
     );
+    const report = mergeNarrative(baseReport, generation.narrative);
     return {
-      report: mergeNarrative(baseReport, narrative),
+      report: attachTokenUsage(report, generation.tokenUsage),
       provider: "openrouter",
       model: openRouterModel,
+      tokenUsage: generation.tokenUsage,
     };
   } catch (openRouterError) {
     console.warn("OpenRouter diagnostic generation failed; trying Gemini.", {
@@ -201,16 +233,18 @@ export async function generateDiagnosticReport(
   const geminiModel = process.env.GEMINI_MODEL || "gemini-3.5-flash";
 
   try {
-    const narrative = await generateWithGemini(
+    const generation = await generateWithGemini(
       systemPrompt,
       userPrompt,
       geminiModel,
       candidateIds
     );
+    const report = mergeNarrative(baseReport, generation.narrative);
     return {
-      report: mergeNarrative(baseReport, narrative),
+      report: attachTokenUsage(report, generation.tokenUsage),
       provider: "gemini",
       model: geminiModel,
+      tokenUsage: generation.tokenUsage,
     };
   } catch (geminiError) {
     console.warn("Gemini diagnostic generation failed; using fallback.", {
@@ -581,7 +615,7 @@ async function generateWithGemini(
   userPrompt: string,
   model: string,
   candidateIds: string[]
-): Promise<DiagnosticNarrativeResponse> {
+): Promise<DiagnosticNarrativeGeneration> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error("Missing GEMINI_API_KEY.");
@@ -627,7 +661,14 @@ async function generateWithGemini(
     );
   }
 
-  return parseNarrativePayload(extractGeminiText(payload), payload, candidateIds);
+  return {
+    narrative: parseNarrativePayload(
+      extractGeminiText(payload),
+      payload,
+      candidateIds
+    ),
+    tokenUsage: extractGeminiTokenUsage(payload),
+  };
 }
 
 async function generateWithOpenRouter(
@@ -635,7 +676,7 @@ async function generateWithOpenRouter(
   userPrompt: string,
   model: string,
   candidateIds: string[]
-): Promise<DiagnosticNarrativeResponse> {
+): Promise<DiagnosticNarrativeGeneration> {
   const apiKey =
     process.env.OPENROUTER_API_KEY ||
     process.env.OPENROUTER_KEY ||
@@ -680,11 +721,67 @@ async function generateWithOpenRouter(
     );
   }
 
-  return parseNarrativePayload(
-    extractOpenRouterText(payload),
-    payload,
-    candidateIds
-  );
+  return {
+    narrative: parseNarrativePayload(
+      extractOpenRouterText(payload),
+      payload,
+      candidateIds
+    ),
+    tokenUsage: extractOpenRouterTokenUsage(payload),
+  };
+}
+
+async function generateWithOpenAI(
+  systemPrompt: string,
+  userPrompt: string,
+  model: string,
+  candidateIds: string[]
+): Promise<DiagnosticNarrativeGeneration> {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error("Missing OPENAI_API_KEY.");
+  }
+
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model,
+      input: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      text: {
+        format: {
+          type: "json_schema",
+          name: "diagnostic_narrative",
+          schema: diagnosticNarrativeJsonSchema,
+          strict: true,
+        },
+      },
+      reasoning: { effort: "low" },
+      max_output_tokens: 6000,
+    }),
+  });
+
+  const payload = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error(
+      payload?.error?.message || `OpenAI request failed with ${response.status}.`
+    );
+  }
+
+  return {
+    narrative: parseNarrativePayload(
+      extractOpenAIText(payload),
+      payload,
+      candidateIds
+    ),
+    tokenUsage: extractOpenAITokenUsage(payload),
+  };
 }
 
 function mergeNarrative(
@@ -730,6 +827,13 @@ function mergeNarrative(
       narrative.nextSteps.length > 0 ? narrative.nextSteps : report.nextSteps
     ),
   };
+}
+
+function attachTokenUsage(
+  report: DiagnosticReport,
+  tokenUsage?: DiagnosticTokenUsage | null
+): DiagnosticReport {
+  return tokenUsage ? { ...report, tokenUsage } : report;
 }
 
 function ensureFinalRecommendation(nextSteps: string[]) {
@@ -780,6 +884,69 @@ function extractOpenRouterText(payload: any): string {
       .join("");
   }
   return "";
+}
+
+function extractOpenAIText(payload: any): string {
+  if (typeof payload?.output_text === "string") return payload.output_text;
+
+  const output = payload?.output;
+  if (!Array.isArray(output)) return "";
+
+  return output
+    .flatMap((item) => (Array.isArray(item?.content) ? item.content : []))
+    .map((part) => {
+      if (typeof part?.text === "string") return part.text;
+      if (typeof part?.content === "string") return part.content;
+      return "";
+    })
+    .join("");
+}
+
+function extractOpenAITokenUsage(payload: any): DiagnosticTokenUsage | null {
+  return normalizeTokenUsage(
+    payload?.usage?.input_tokens,
+    payload?.usage?.output_tokens,
+    payload?.usage?.total_tokens
+  );
+}
+
+function extractOpenRouterTokenUsage(payload: any): DiagnosticTokenUsage | null {
+  return normalizeTokenUsage(
+    payload?.usage?.prompt_tokens,
+    payload?.usage?.completion_tokens,
+    payload?.usage?.total_tokens
+  );
+}
+
+function extractGeminiTokenUsage(payload: any): DiagnosticTokenUsage | null {
+  return normalizeTokenUsage(
+    payload?.usageMetadata?.promptTokenCount,
+    payload?.usageMetadata?.candidatesTokenCount,
+    payload?.usageMetadata?.totalTokenCount
+  );
+}
+
+function normalizeTokenUsage(
+  queryTokens: unknown,
+  answerTokens: unknown,
+  totalTokens: unknown
+): DiagnosticTokenUsage | null {
+  const query = toFiniteTokenCount(queryTokens);
+  const answer = toFiniteTokenCount(answerTokens);
+
+  if (query === null || answer === null) return null;
+  const total = toFiniteTokenCount(totalTokens) ?? query + answer;
+
+  return {
+    queryTokens: query,
+    answerTokens: answer,
+    totalTokens: total,
+  };
+}
+
+function toFiniteTokenCount(value: unknown): number | null {
+  if (typeof value !== "number" || !Number.isFinite(value)) return null;
+  return Math.max(0, Math.round(value));
 }
 
 function parseJsonObject(text: string): unknown {

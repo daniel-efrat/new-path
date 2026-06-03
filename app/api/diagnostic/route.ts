@@ -108,7 +108,11 @@ export async function POST(
       );
     }
 
-    if (cached?.report_json) {
+    if (
+      cached?.report_json &&
+      cached.provider === "openai" &&
+      cached.model === (process.env.OPENAI_MODEL || "gpt-5.4-mini")
+    ) {
       return NextResponse.json(toResponse(cached as DiagnosticReportRow, true));
     }
 
@@ -157,13 +161,16 @@ function toResponse(
   row: DiagnosticReportRow,
   cached: boolean
 ): DiagnosticApiResponse {
+  const report = row.report_json as DiagnosticReport;
+
   return {
-    report: row.report_json as DiagnosticReport,
+    report,
     reportId: row.id,
     inputHash: row.input_hash,
     provider: row.provider,
     model: row.model,
     cached,
+    tokenUsage: report.tokenUsage ?? null,
   };
 }
 

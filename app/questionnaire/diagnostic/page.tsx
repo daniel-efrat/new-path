@@ -72,7 +72,7 @@ const PDF_RESULT_SHEET_SELECTOR = "[data-pdf-result-sheet='true']";
 const PDF_PAGE_MARGIN_MM = 8;
 const PDF_BLOCK_GAP_MM = 5;
 const FINAL_RECOMMENDATION =
-  "לסיום, מומלץ לפנות ליועצי הקריירה של \"דרך חדשה\" כדי לעבור יחד על התוצאות, או להמשיך להתייעץ באופן עצמאי עם ה-AI הפרטי שלך. בשלב זה לא נפתח צ׳אט חופשי בתוך המערכת משיקולי תקציב.";
+  "לסיום, מומלץ לפנות ליועצי הקריירה של \"דרך חדשה\" כדי לעבור יחד על התוצאות, או להמשיך להתייעץ באופן עצמאי עם ה-AI הפרטי שלך.";
 
 const OCCUPATION_SCORE_LABELS: Record<
   keyof DiagnosticOccupation["scoreBreakdown"],
@@ -428,6 +428,14 @@ export default function QuestionnaireDiagnosticPage() {
                 <motion.div variants={softItemVariants}>
                   <Badge variant="outline" className="border-violet-200 bg-violet-50 text-violet-700">
                     {providerLabel(data.provider)}
+                  </Badge>
+                </motion.div>
+              ) : null}
+              {data?.tokenUsage ? (
+                <motion.div variants={softItemVariants}>
+                  <Badge variant="outline" className="border-sky-200 bg-sky-50 text-sky-700">
+                    קלט {formatTokenCount(data.tokenUsage.queryTokens)} · פלט{" "}
+                    {formatTokenCount(data.tokenUsage.answerTokens)} טוקנים
                   </Badge>
                 </motion.div>
               ) : null}
@@ -2359,8 +2367,17 @@ function getStringMetadataValue(value: unknown) {
 }
 
 function providerLabel(provider: DiagnosticApiResponse["provider"]) {
-  void provider;
-  return "חישוב מקומי";
+  const labels: Record<DiagnosticApiResponse["provider"], string> = {
+    openai: "GPT",
+    openrouter: "OpenRouter",
+    gemini: "Gemini",
+    deterministic: "חישוב מקומי",
+  };
+  return labels[provider] || "חישוב מקומי";
+}
+
+function formatTokenCount(value: number) {
+  return new Intl.NumberFormat("he-IL").format(value);
 }
 
 function clampPercent(value: number) {

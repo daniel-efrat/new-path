@@ -83,7 +83,7 @@ export default function LevelCompleteModal({
                 id="level-complete-title"
                 className="text-2xl font-bold leading-tight"
               >
-                סיימת את השאלון {questionnaireName}
+                סיימת את השאלון "{questionnaireName}"!
               </h2>
               <p className="mx-auto mt-4 max-w-md text-base leading-7 text-slate-700">
                 {completionLine}

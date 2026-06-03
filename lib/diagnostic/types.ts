@@ -1,6 +1,10 @@
 import type { GuidanceReport, RiasecCode } from "@/lib/guidance/types";
 
-export type DiagnosticProvider = "gemini" | "openrouter" | "deterministic";
+export type DiagnosticProvider =
+  | "openai"
+  | "gemini"
+  | "openrouter"
+  | "deterministic";
 
 export type AbilityKey =
   | "hebrew"
@@ -83,6 +87,13 @@ export interface DiagnosticReport {
   profileInsights: DiagnosticProfileInsights;
   topOccupations: DiagnosticOccupation[];
   nextSteps: string[];
+  tokenUsage?: DiagnosticTokenUsage | null;
+}
+
+export interface DiagnosticTokenUsage {
+  queryTokens: number;
+  answerTokens: number;
+  totalTokens: number;
 }
 
 export interface DiagnosticApiResponse {
@@ -92,6 +103,7 @@ export interface DiagnosticApiResponse {
   provider: DiagnosticProvider;
   model: string;
   cached: boolean;
+  tokenUsage?: DiagnosticTokenUsage | null;
 }
 
 export interface DiagnosticApiError {
