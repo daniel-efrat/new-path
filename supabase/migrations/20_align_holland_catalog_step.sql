@@ -1,6 +1,6 @@
--- Ensure Holland answers can be saved through the normalized answers table.
--- The answers.question_id foreign key points at public.questions, while the
--- Holland scoring map lives in public.holland_questions.
+-- Keep Holland catalog rows aligned with the current questionnaire order.
+-- The app now exposes Holland as dashboard/questionnaire step 10; answers still
+-- depend on these ids existing in public.questions for the foreign key.
 
 INSERT INTO public.questions (
   id,
@@ -21,8 +21,3 @@ SET step_number = EXCLUDED.step_number,
     question_text = EXCLUDED.question_text,
     question_type = EXCLUDED.question_type,
     answer_options = EXCLUDED.answer_options;
-
-UPDATE public.questions
-SET question_text = 'יכולת הכלה'
-WHERE id = 'e7f8a9b0-c1d2-bcde-f012-567890123456'::uuid
-  AND question_text = 'יכולת הקשבה';

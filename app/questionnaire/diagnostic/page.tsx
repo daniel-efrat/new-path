@@ -415,35 +415,6 @@ export default function QuestionnaireDiagnosticPage() {
           className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
         >
           <motion.div variants={staggerContainerVariants} className="space-y-3">
-            <motion.div variants={staggerContainerVariants} className="flex flex-wrap items-center gap-2">
-              <motion.div variants={softItemVariants}>
-                <Badge variant="secondary" className="border-teal-100 bg-teal-50 text-teal-700">
-                  שלב ב׳
-                </Badge>
-              </motion.div>
-              {data?.cached ? (
-                <motion.div variants={softItemVariants}>
-                  <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">
-                    נשמר עבורך
-                  </Badge>
-                </motion.div>
-              ) : null}
-              {data ? (
-                <motion.div variants={softItemVariants}>
-                  <Badge variant="outline" className="border-violet-200 bg-violet-50 text-violet-700">
-                    {providerLabel(data.provider)}
-                  </Badge>
-                </motion.div>
-              ) : null}
-              {data?.tokenUsage && userId === TOKEN_USAGE_VISIBLE_USER_ID ? (
-                <motion.div variants={softItemVariants}>
-                  <Badge variant="outline" className="border-sky-200 bg-sky-50 text-sky-700">
-                    קלט {formatTokenCount(data.tokenUsage.queryTokens)} · פלט{" "}
-                    {formatTokenCount(data.tokenUsage.answerTokens)} טוקנים
-                  </Badge>
-                </motion.div>
-              ) : null}
-            </motion.div>
             <motion.div variants={staggerContainerVariants}>
               <motion.h1
                 variants={softItemVariants}
@@ -774,6 +745,23 @@ function DiagnosticReportView({ data }: { data: DiagnosticApiResponse }) {
           </CardContent>
         </Card>
       </Reveal>
+
+      <motion.div
+        variants={softItemVariants}
+        className="flex justify-center"
+        aria-hidden="true"
+      >
+        <div className="inline-flex flex-col items-center gap-1 rounded-full border border-white/30 bg-white/15 px-6 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-950/20 backdrop-blur">
+          <motion.span
+            animate={{ y: [0, 6, 0] }}
+            transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+            className="flex size-7 items-center justify-center rounded-full bg-white/20"
+          >
+            <ChevronDown className="size-5" />
+          </motion.span>
+          <span>גללו למטה</span>
+        </div>
+      </motion.div>
 
       <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
         <AbilityScoresPanel

@@ -23,6 +23,8 @@ const REQUIRED_ANSWER_MESSAGE = "יש לבחור תשובה לפני המעבר 
 const SAVE_ERROR_MESSAGE =
   "לא הצלחנו לשמור את התשובה. בדקו את החיבור ונסו שוב.";
 const SUBMIT_ERROR_MESSAGE = "לא הצלחנו לחשב את תוצאות הולנד. נסו שוב.";
+const PENDING_NAVIGATION_MESSAGE =
+  "התשובה עדיין נשמרת. לצאת מהשאלון בכל זאת?";
 
 function toRatingValue(stored: unknown): number | undefined {
   if (
@@ -118,6 +120,29 @@ export default function Step11({ onNext, onComplete }: Step11Props) {
 
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isSaving, isFinishing]);
+
+  useEffect(() => {
+    if (!isSaving && !isFinishing) return;
+
+    const handleDocumentClick = (event: MouseEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+
+      const link = target.closest("a[href]");
+      if (!(link instanceof HTMLAnchorElement)) return;
+      if (link.target && link.target !== "_self") return;
+      if (link.origin !== window.location.origin) return;
+
+      event.preventDefault();
+      if (window.confirm(PENDING_NAVIGATION_MESSAGE)) {
+        window.location.href = link.href;
+      }
+    };
+
+    document.addEventListener("click", handleDocumentClick, true);
+    return () =>
+      document.removeEventListener("click", handleDocumentClick, true);
   }, [isSaving, isFinishing]);
 
   const getQuestionValue = useCallback(

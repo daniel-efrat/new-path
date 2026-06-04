@@ -60,7 +60,7 @@ export function RatingScale({ value, onSelect, disabled }: RatingScaleProps) {
               </div>
               <span
                 className={cn(
-                  "mt-1 whitespace-nowrap text-[10px] font-semibold sm:mt-2 sm:text-xs",
+                  "mt-1 min-h-6 w-full px-1 text-center text-[10px] font-semibold leading-tight sm:mt-2 sm:text-[12px]",
                   isSelected ? "text-white" : "text-gray-700"
                 )}
               >
@@ -110,7 +110,7 @@ export function RatingScalePreview({ selectedValue }: RatingScalePreviewProps) {
               </div>
               <span
                 className={cn(
-                  "mt-1 whitespace-nowrap text-[10px] sm:mt-2 sm:text-xs",
+                  "mt-1 min-h-6 w-full px-1 text-center text-[10px] leading-tight sm:mt-2 sm:text-[12px]",
                   isSelected ? "text-white" : "text-gray-700"
                 )}
               >

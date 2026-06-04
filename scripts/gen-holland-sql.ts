@@ -1,6 +1,8 @@
 import { writeFileSync } from "fs";
 import { STEP11_QUESTIONS } from "../lib/constants/questions";
 
+const HOLLAND_STEP_NUMBER = 10;
+
 const vals = STEP11_QUESTIONS.map(
   (q) =>
     `('${q.id}','${q.text.replace(/'/g, "''")}','${q.riasecType}')`
@@ -13,7 +15,7 @@ ON CONFLICT (id) DO UPDATE SET text = EXCLUDED.text, riasec_type = EXCLUDED.rias
 INSERT INTO public.questions (id, step_number, question_text, question_type, answer_options) VALUES
 ${STEP11_QUESTIONS.map(
   (q) =>
-    `('${q.id}'::uuid, 11, '${q.text.replace(/'/g, "''")}', 'holland', NULL)`
+    `('${q.id}'::uuid, ${HOLLAND_STEP_NUMBER}, '${q.text.replace(/'/g, "''")}', 'holland', NULL)`
 ).join(",\n")}
 ON CONFLICT (id) DO UPDATE
 SET step_number = EXCLUDED.step_number,

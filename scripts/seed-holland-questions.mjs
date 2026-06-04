@@ -14,6 +14,8 @@ import { fileURLToPath } from "url";
 import { createClient } from "@supabase/supabase-js";
 import { STEP11_QUESTIONS } from "../lib/constants/questions.ts";
 
+const HOLLAND_STEP_NUMBER = 10;
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 config({ path: path.resolve(__dirname, "../.env.local") });
 
@@ -39,6 +41,23 @@ async function main() {
 
   if (error) {
     console.error("Upsert failed:", error.message);
+    process.exit(1);
+  }
+
+  const catalogRows = STEP11_QUESTIONS.map((q) => ({
+    id: q.id,
+    step_number: HOLLAND_STEP_NUMBER,
+    question_text: q.text,
+    question_type: "holland",
+    answer_options: null,
+  }));
+
+  const { error: catalogError } = await supabase
+    .from("questions")
+    .upsert(catalogRows, { onConflict: "id" });
+
+  if (catalogError) {
+    console.error("Catalog upsert failed:", catalogError.message);
     process.exit(1);
   }
 

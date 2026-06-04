@@ -118,7 +118,7 @@ const gilbertMidStepCopy: Record<number, GilbertPopupCopy> = {
   },
 };
 
-const TIMED_STEP_IDS = new Set([2, 3, 5, 6, 7, 8]);
+type GilbertIntroPhase = "idle" | "open" | "dismissed";
 
 function getSessionFlag(key: string) {
   if (typeof window === "undefined") return false;
@@ -146,7 +146,7 @@ export default function QuestionnairePage() {
   const [gilbertPopup, setGilbertPopup] = useState<GilbertPopupCopy | null>(
     null
   );
-  const [isIntroBlockingStep, setIsIntroBlockingStep] = useState(false);
+  const [introPhase, setIntroPhase] = useState<GilbertIntroPhase>("idle");
 
   useEffect(() => {
     (async () => {
@@ -215,6 +215,8 @@ export default function QuestionnairePage() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    setGilbertPopup(null);
+    setIntroPhase("idle");
   }, [currentStep, showHollandResults]);
 
   useEffect(() => {
@@ -222,27 +224,27 @@ export default function QuestionnairePage() {
 
     const introCopy = gilbertStepIntros[currentStep];
     if (!introCopy) return;
+    if (introPhase !== "idle") return;
 
-    const storageKey = `gilbert-intro-step-${currentStep}`;
-    if (getSessionFlag(storageKey)) return;
-
-    const timer = window.setTimeout(() => {
-      setSessionFlag(storageKey);
-      if (TIMED_STEP_IDS.has(currentStep)) {
-        setIsIntroBlockingStep(true);
-      }
-      setGilbertPopup(introCopy);
-    }, 650);
-
-    return () => window.clearTimeout(timer);
-  }, [currentStep, levelComplete, showHollandResults, storeReady]);
+    setGilbertPopup(introCopy);
+    setIntroPhase("open");
+  }, [
+    currentStep,
+    introPhase,
+    levelComplete,
+    showHollandResults,
+    storeReady,
+  ]);
 
   useEffect(() => {
     if (!storeReady || showHollandResults || levelComplete || gilbertPopup) {
       return;
     }
 
-    if (TIMED_STEP_IDS.has(currentStep)) return;
+    const introCopy = gilbertStepIntros[currentStep];
+    if (introCopy && introPhase !== "dismissed") {
+      return;
+    }
 
     const midCopy = gilbertMidStepCopy[currentStep];
     if (!midCopy) return;
@@ -260,6 +262,7 @@ export default function QuestionnairePage() {
   }, [
     currentStep,
     gilbertPopup,
+    introPhase,
     levelComplete,
     showHollandResults,
     storeReady,
@@ -268,6 +271,12 @@ export default function QuestionnairePage() {
   const Current = showHollandResults
     ? HollandResults
     : stepComponents[currentStep];
+  const shouldBlockForGilbertIntro =
+    storeReady &&
+    !showHollandResults &&
+    !levelComplete &&
+    Boolean(gilbertStepIntros[currentStep]) &&
+    introPhase !== "dismissed";
 
   if (!storeReady) {
     return (
@@ -295,7 +304,7 @@ export default function QuestionnairePage() {
   return (
     <>
       <div className="container mx-auto p-4">
-        {isIntroBlockingStep ? (
+        {shouldBlockForGilbertIntro ? (
           <div className="flex min-h-[360px] items-center justify-center text-center text-muted-foreground">
             מתכוננים לשלב הבא...
           </div>
@@ -321,7 +330,7 @@ export default function QuestionnairePage() {
         eyebrow={gilbertPopup?.eyebrow}
         onClose={() => {
           setGilbertPopup(null);
-          setIsIntroBlockingStep(false);
+          setIntroPhase("dismissed");
         }}
       />
     </>

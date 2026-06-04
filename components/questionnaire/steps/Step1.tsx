@@ -8,6 +8,7 @@ import { STEP1_QUESTIONS } from "@/lib/constants/questions";
 import { fetchStep1Answers } from "@/lib/utils/answerFetcher";
 import { cn } from "@/lib/utils";
 import type { AnswerState } from "@/lib/types/questionnaire";
+import { X } from "lucide-react";
 
 // Define props for the selector to receive state and actions
 interface TraitsSelectorProps {
@@ -161,8 +162,8 @@ export default function Step1({ onNext, onComplete }: Step1Props) {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.5 }}
           className="max-w-4xl mx-auto bg-[color:var(--card)] rounded-lg shadow-lg p-6"
         >
@@ -311,47 +312,57 @@ function TraitsSelector({
   }, [focusedTrait, pendingTraitIds, questions, toggleTrait]);
 
   return (
-    <section className="space-y-10" dir="rtl">
+    <section className="space-y-4" dir="rtl">
       <div className="space-y-4" role="region" aria-label="בחירת תכונות">
-        <h2 className="text-xl font-semibold text-right">
-          בחר/י עד {QUESTIONNAIRE_CONFIG.MAX_TRAITS} תכונות המתארות אותך
-        </h2>
-        <p
-          className="text-sm text-muted-foreground text-right"
-          aria-live="polite"
-        >
-          נבחרו {selectedTraitIds.length} מתוך {QUESTIONNAIRE_CONFIG.MAX_TRAITS} תכונות אפשריות
-        </p>
-        {selectedTraits.length > 0 && (
-          <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-right">
-            <div className="mb-2 text-sm font-semibold text-primary">
-              התכונות שבחרת
+        <div className="fixed left-1/2 top-32 z-40 max-h-[42vh] w-[calc(100%-2rem)] max-w-4xl -translate-x-1/2 overflow-y-auto rounded-lg border border-primary/20 bg-card/95 p-3 text-right shadow-lg shadow-blue-950/10 backdrop-blur">
+          <h2 className="text-xl font-semibold">
+            בחר/י עד {QUESTIONNAIRE_CONFIG.MAX_TRAITS} תכונות המתארות אותך
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground" aria-live="polite">
+            נבחרו {selectedTraitIds.length} מתוך{" "}
+            {QUESTIONNAIRE_CONFIG.MAX_TRAITS} תכונות אפשריות
+          </p>
+          {selectedTraits.length > 0 && (
+            <div className="mt-3 rounded-lg border border-primary/30 bg-primary/5 p-3">
+              <div className="mb-2 text-sm font-semibold text-primary">
+                התכונות שבחרת
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {selectedTraits.map((trait) => {
+                  const isPending = pendingTraitIds.has(trait.id);
+                  return (
+                    <button
+                      key={trait.id}
+                      type="button"
+                      onClick={() => toggleTrait(trait.id)}
+                      disabled={isPending}
+                      className={cn(
+                        "inline-flex items-center gap-2 rounded-full border border-primary/40 bg-background px-3 py-1 text-sm text-foreground transition-colors hover:bg-primary/10",
+                        isPending && "cursor-wait opacity-60"
+                      )}
+                      aria-label={`הסר ${trait.text}`}
+                    >
+                      {trait.text}
+                      <span
+                        aria-hidden="true"
+                        className="inline-flex size-4 items-center justify-center rounded-full text-muted-foreground"
+                      >
+                        <X className="size-3.5" strokeWidth={2.5} />
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {selectedTraits.map((trait) => {
-                const isPending = pendingTraitIds.has(trait.id);
-                return (
-                  <button
-                    key={trait.id}
-                    type="button"
-                    onClick={() => toggleTrait(trait.id)}
-                    disabled={isPending}
-                    className={cn(
-                      "rounded-full border border-primary/40 bg-background px-3 py-1 text-sm text-foreground transition-colors hover:bg-primary/10",
-                      isPending && "cursor-wait opacity-60"
-                    )}
-                  >
-                    {trait.text}
-                    <span className="mr-2 text-muted-foreground">הסר</span>
-                  </button>
-                );
-              })}
-            </div>
+          )}
+          <div className="mt-3 text-xs text-muted-foreground">
+            ניתן ללחוץ על החץ למעלה/למטה לניווט, SPACE לבחירה
           </div>
-        )}
-        <div className="text-xs text-muted-foreground mb-2">
-          ניתן ללחוץ על החץ למעלה/למטה לניווט, SPACE לבחירה
         </div>
+        <div
+          aria-hidden="true"
+          className={selectedTraits.length > 0 ? "h-40 sm:h-36" : "h-28"}
+        />
         <div
           className="grid gap-4 transition-opacity duration-200"
           style={{
