@@ -15,7 +15,6 @@ import {
   BarChart3,
   BriefcaseBusiness,
   Brain,
-  ChartNoAxesCombined,
   ChevronDown,
   FileDown,
   GraduationCap,
@@ -104,6 +103,7 @@ const OCCUPATION_TABS = [
 type OccupationTab = (typeof OCCUPATION_TABS)[number]["id"];
 
 const SCROLL_TRIGGER_MARGIN = "0px 0px -20% 0px";
+const TOKEN_USAGE_VISIBLE_USER_ID = "ce396e19-da03-4676-b287-908edf149fdb";
 
 const revealVariants: Variants = {
   hidden: { opacity: 0, y: 28, scale: 0.985 },
@@ -175,6 +175,7 @@ export default function QuestionnaireDiagnosticPage() {
   const [resultSheets, setResultSheets] = useState<PdfResultSheet[]>([]);
   const [areResultSheetsLoading, setAreResultSheetsLoading] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const hasPdfResultSheets = resultSheets.length > 0;
   const isDev = process.env.NODE_ENV === "development";
@@ -191,10 +192,12 @@ export default function QuestionnaireDiagnosticPage() {
 
       if (!session) {
         setUserName(null);
+        setUserId(null);
         router.push("/signin");
         return;
       }
 
+      setUserId(session.user.id);
       setUserName(getUserDisplayName(session.user));
 
       const savedOnly =
@@ -432,7 +435,7 @@ export default function QuestionnaireDiagnosticPage() {
                   </Badge>
                 </motion.div>
               ) : null}
-              {data?.tokenUsage ? (
+              {data?.tokenUsage && userId === TOKEN_USAGE_VISIBLE_USER_ID ? (
                 <motion.div variants={softItemVariants}>
                   <Badge variant="outline" className="border-sky-200 bg-sky-50 text-sky-700">
                     קלט {formatTokenCount(data.tokenUsage.queryTokens)} · פלט{" "}
@@ -483,7 +486,7 @@ export default function QuestionnaireDiagnosticPage() {
                 PDF
               </Button>
               </motion.div>
-              {isDev ? (
+              {isDev && userId === TOKEN_USAGE_VISIBLE_USER_ID ? (
                 <motion.div variants={softItemVariants}>
                   <Button
                   variant="outline"
@@ -752,7 +755,7 @@ function DiagnosticReportView({ data }: { data: DiagnosticApiResponse }) {
             variants={softItemVariants}
             className="max-w-5xl whitespace-pre-line text-lg leading-8 text-slate-600"
           >
-            {report.summary}
+            {normalizeDiagnosticText(report.summary)}
           </motion.p>
           {report.questionnaire1.topRiasec.length > 0 ? (
             <motion.div variants={staggerContainerVariants} className="flex flex-wrap gap-2">
@@ -912,16 +915,6 @@ function AbilityScoresPanel({
         <CardContent className="space-y-5 p-5 sm:p-6">
         <div className="flex items-center justify-between gap-3">
           <SectionTitle icon={icon} title={title} />
-          <motion.div variants={softItemVariants}>
-            <Button
-            type="button"
-            variant="outline"
-            className="border-sky-700 bg-sky-50 text-sky-900 shadow-sm hover:bg-sky-100"
-          >
-            <ChartNoAxesCombined className="size-4" />
-            השוואה
-          </Button>
-          </motion.div>
         </div>
         <StaggerGroup className="grid gap-4 sm:grid-cols-2">
           {scores.map((score, index) => {
@@ -1756,7 +1749,7 @@ function DiagnosticPdfDocument({
 
         <PdfSection title="תקציר אבחוני">
           <p className="whitespace-pre-line text-base leading-8 text-[#334155]">
-            {report.summary}
+            {normalizeDiagnosticText(report.summary)}
           </p>
           {report.questionnaire1.guidanceTitle ||
           report.questionnaire1.guidanceSummary ? (
@@ -2406,6 +2399,10 @@ function providerLabel(provider: DiagnosticApiResponse["provider"]) {
 
 function formatTokenCount(value: number) {
   return new Intl.NumberFormat("he-IL").format(value);
+}
+
+function normalizeDiagnosticText(value: string) {
+  return value.replace(/\\n/g, "\n");
 }
 
 function clampPercent(value: number) {
