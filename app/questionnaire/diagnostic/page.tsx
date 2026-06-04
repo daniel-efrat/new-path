@@ -6,6 +6,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type Ref,
   type ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
@@ -720,10 +721,26 @@ function DiagnosticReportView({ data }: { data: DiagnosticApiResponse }) {
     report.topOccupations[0]?.id || null
   );
   const [showAllOccupations, setShowAllOccupations] = useState(false);
+  const firstRevealedOccupationRef = useRef<HTMLDivElement | null>(null);
+  const shouldScrollToRevealedOccupationsRef = useRef(false);
   const visibleOccupations = showAllOccupations
     ? report.topOccupations
     : report.topOccupations.slice(0, 4);
   const hiddenOccupationCount = Math.max(0, report.topOccupations.length - 4);
+
+  useEffect(() => {
+    if (!showAllOccupations || !shouldScrollToRevealedOccupationsRef.current) {
+      return;
+    }
+
+    shouldScrollToRevealedOccupationsRef.current = false;
+    requestAnimationFrame(() => {
+      firstRevealedOccupationRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  }, [showAllOccupations]);
 
   return (
     <StaggerGroup className="grid gap-6">
@@ -804,11 +821,14 @@ function DiagnosticReportView({ data }: { data: DiagnosticApiResponse }) {
         </motion.div>
         <StaggerGroup className="grid gap-3">
           <AnimatePresence initial={false}>
-          {visibleOccupations.map((occupation) => (
+          {visibleOccupations.map((occupation, index) => (
             <OccupationDisclosure
               key={occupation.id}
               occupation={occupation}
               isOpen={openOccupationId === occupation.id}
+              containerRef={
+                index === 4 ? firstRevealedOccupationRef : undefined
+              }
               onToggle={() =>
                 setOpenOccupationId((current) =>
                   current === occupation.id ? null : occupation.id
@@ -823,7 +843,13 @@ function DiagnosticReportView({ data }: { data: DiagnosticApiResponse }) {
             <Button
               type="button"
               variant="outline"
-              onClick={() => setShowAllOccupations((current) => !current)}
+              onClick={() =>
+                setShowAllOccupations((current) => {
+                  const next = !current;
+                  shouldScrollToRevealedOccupationsRef.current = next;
+                  return next;
+                })
+              }
               className="border-teal-700 bg-white text-teal-800 shadow-sm hover:bg-teal-50"
             >
               {showAllOccupations
@@ -1162,16 +1188,23 @@ function GaugeMeter({ score, index }: { score: ScoreSummary; index: number }) {
 function OccupationDisclosure({
   occupation,
   isOpen,
+  containerRef,
   onToggle,
 }: {
   occupation: DiagnosticOccupation;
   isOpen: boolean;
+  containerRef?: Ref<HTMLDivElement>;
   onToggle: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<OccupationTab>("skillGap");
 
   return (
-    <motion.div variants={softItemVariants}>
+    <motion.div
+      ref={containerRef}
+      variants={softItemVariants}
+      initial="hidden"
+      animate="visible"
+    >
       <Card
         className="overflow-hidden border-slate-200 bg-white text-slate-950 shadow-[0_18px_60px_rgba(15,23,42,0.08)]"
       >

@@ -65,15 +65,22 @@ export const useStep12Store = create<Step12State>()(
     }),
     {
       name: 'step12-store',
-      version: 2,
-      // Selections are user data and should not be hydrated into another session.
-      partialize: (state) => ({ userId: state.userId }),
-      migrate: () => ({
-        userId: undefined,
-        selected: [],
-        order: [],
-        selectionsBySerial: {},
+      version: 3,
+      partialize: (state) => ({
+        userId: state.userId,
+        selected: state.selected,
+        order: state.order,
+        selectionsBySerial: state.selectionsBySerial,
       }),
+      migrate: (persisted) => {
+        const state = persisted as Partial<Step12State> | undefined;
+        return {
+          userId: state?.userId,
+          selected: state?.selected ?? [],
+          order: state?.order ?? [],
+          selectionsBySerial: state?.selectionsBySerial ?? {},
+        };
+      },
     }
   )
 )

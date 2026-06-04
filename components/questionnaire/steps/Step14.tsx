@@ -160,16 +160,19 @@ export default function Step14({ onNext, onComplete }: Step14Props) {
 
   if (!orderedDomains.length) {
     return (
-      <div className="mx-auto max-w-2xl text-center" dir="rtl">
+      <div
+        className="mx-auto flex min-h-screen max-w-2xl items-center justify-center py-12 text-center"
+        dir="rtl"
+      >
         <Card className="bg-white text-background">
-          <CardContent className="space-y-4 p-6">
+          <CardContent className="space-y-5 p-8 sm:p-10">
             <h2 className="text-2xl font-bold">ייעוד אישי</h2>
             <p>
-              לפני בחירת משפטי הייעוד יש להשלים את נטיות הלב הכלליות ולדרג 5
-              תחומי עיסוק.
+              לא נמצאו תחומי העיסוק שדורגו בנטיות הלב הכלליות. כדי לבחור משפטי
+              ייעוד יש לטעון או לבחור מחדש את 5 התחומים המדורגים.
             </p>
             <Button asChild>
-              <a href="/questionnaire?step=11">חזרה לנטיות לב כלליות</a>
+              <a href="/questionnaire?step=11">חזרה לתחומי העיסוק</a>
             </Button>
           </CardContent>
         </Card>

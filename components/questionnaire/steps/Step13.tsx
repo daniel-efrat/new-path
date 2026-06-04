@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -103,6 +103,7 @@ const ALL_VALUES: string[] = [
 ];
 
 const MAX_INITIAL_SELECTION = 12;
+const MIN_INITIAL_SELECTION = 8;
 const MIN_CORE_VALUES = 4;
 const MAX_CORE_VALUES = 6;
 const STEP13_SELECTED_VALUES_ID = "9d79036e-bf0c-4d65-b06f-f5f4b5f01301";
@@ -130,6 +131,8 @@ export default function Step13({
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
   const [coreValues, setCoreValues] = useState<CoreValueRow[]>([]);
   const [storyIndex, setStoryIndex] = useState(0);
+  const worldVideoRef = useRef<HTMLVideoElement | null>(null);
+  const worldReplayTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (selectedAnswer?.value && Array.isArray(selectedAnswer.value)) {
@@ -159,6 +162,35 @@ export default function Step13({
       }
     }
   }, [selectedAnswer?.value, coreValuesAnswer?.value]);
+
+  useEffect(() => {
+    return () => {
+      if (worldReplayTimeoutRef.current !== null) {
+        window.clearTimeout(worldReplayTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (storyIndex === 1) return;
+    if (worldReplayTimeoutRef.current !== null) {
+      window.clearTimeout(worldReplayTimeoutRef.current);
+      worldReplayTimeoutRef.current = null;
+    }
+  }, [storyIndex]);
+
+  const handleWorldVideoEnded = () => {
+    if (worldReplayTimeoutRef.current !== null) {
+      window.clearTimeout(worldReplayTimeoutRef.current);
+    }
+
+    worldReplayTimeoutRef.current = window.setTimeout(() => {
+      const video = worldVideoRef.current;
+      if (!video) return;
+      video.currentTime = 0;
+      void video.play();
+    }, 3000);
+  };
 
   const toggleSelected = (value: string) => {
     const exists = selectedValues.includes(value);
@@ -250,7 +282,7 @@ export default function Step13({
 
   const canMoveForward = useMemo(() => {
     if (storyIndex === 2) {
-      return selectedValues.length > 0;
+      return selectedValues.length >= MIN_INITIAL_SELECTION;
     }
     if (storyIndex === 3) {
       return coreValues.length >= MIN_CORE_VALUES;
@@ -337,7 +369,7 @@ export default function Step13({
               </div>
             </CardHeader>
 
-            <CardContent className="min-h-[520px] space-y-5 p-5 leading-relaxed sm:p-7">
+            <CardContent className="space-y-5 p-5 leading-relaxed sm:p-7">
               {storyIndex === 0 ? (
                 <div className="space-y-5 text-lg">
                   <p className="font-semibold text-slate-950">
@@ -364,24 +396,43 @@ export default function Step13({
               ) : null}
 
               {storyIndex === 1 ? (
-                <div className="space-y-5 text-lg">
-                  <p className="font-semibold text-slate-950">
-                    קמת לעולם מושלם מבחינה תעסוקתית.
-                  </p>
-                  <p>
-                    בעולם הזה כולם מרוויחים 100 אלף ₪ נטו בחודש. אין מעמדות
-                    מקצועיים: מוכר במכולת, מורה בבית ספר, מנכ"ל חברה, צלם,
-                    מורה דרך, שומר יערות, מהנדס תוכנה ומנקה רחובות מקבלים יחס
-                    זהה, ומהות המקצוע היא לא אישיו.
-                  </p>
-                  <p>
-                    ניתן לפי רצונך להחליף מקצוע כל שנתיים, והכי חשוב: כל אחד
-                    בוחר את המקצוע המועדף עליו בכל שלב.
-                  </p>
-                  <p className="rounded-md bg-emerald-50 p-4 text-base text-slate-700">
-                    בשלב הבא בוחרים ערכים שיהפכו את חוויית העבודה למהנה,
-                    מפרה ובעיקר טבעית.
-                  </p>
+                <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                  <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(260px,0.85fr)] lg:items-start">
+                    <div className="text-lg">
+                      <div className="space-y-5">
+                        <p className="font-semibold text-slate-950">
+                          קמת לעולם מושלם מבחינה תעסוקתית.
+                        </p>
+                        <p>
+                          בעולם הזה כולם מרוויחים 100 אלף ₪ נטו בחודש. אין
+                          מעמדות מקצועיים: מוכר במכולת, מורה בבית ספר, מנכ"ל
+                          חברה, צלם, מורה דרך, שומר יערות, מהנדס תוכנה ומנקה
+                          רחובות מקבלים יחס זהה, ומהות המקצוע היא לא אישיו.
+                        </p>
+                        <p>
+                          ניתן לפי רצונך להחליף מקצוע כל שנתיים, והכי חשוב: כל
+                          אחד בוחר את המקצוע המועדף עליו בכל שלב.
+                        </p>
+                        <p className="rounded-md bg-emerald-50 p-4 text-base text-slate-700">
+                          בשלב הבא בוחרים ערכים שיהפכו את חוויית העבודה למהנה,
+                          מפרה ובעיקר טבעית.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="relative isolate overflow-hidden">
+                      <video
+                        ref={worldVideoRef}
+                        src="/world.webm"
+                        className="mx-auto block h-auto w-[70%]"
+                        autoPlay
+                        muted
+                        playsInline
+                        onEnded={handleWorldVideoEnded}
+                        aria-label="סרטון המחשה לעולם התעסוקה המושלם"
+                      />
+                    </div>
+                  </div>
                 </div>
               ) : null}
 
@@ -389,8 +440,8 @@ export default function Step13({
                 <div className="space-y-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <p className="text-lg">
-                      בחרו עד {MAX_INITIAL_SELECTION} ערכים שחשוב לכם שישרו
-                      בסביבת העבודה ובאינטראקציה עם האנשים.
+                      בחרו {MIN_INITIAL_SELECTION}-{MAX_INITIAL_SELECTION} ערכים
+                      שחשוב לכם שישרו בסביבת העבודה ובאינטראקציה עם האנשים.
                     </p>
                     <span className="rounded-full bg-teal-100 px-3 py-1 text-sm font-bold text-teal-800">
                       נבחרו {selectedValues.length}/{MAX_INITIAL_SELECTION}
@@ -417,9 +468,10 @@ export default function Step13({
                       })}
                     </div>
                   </div>
-                  {selectedValues.length === 0 ? (
+                  {selectedValues.length < MIN_INITIAL_SELECTION ? (
                     <p className="text-sm font-medium text-amber-700">
-                      בחרו לפחות ערך אחד כדי להמשיך לסיפור הבא.
+                      בחרו לפחות {MIN_INITIAL_SELECTION} ערכים כדי להמשיך לסיפור
+                      הבא.
                     </p>
                   ) : null}
                 </div>
