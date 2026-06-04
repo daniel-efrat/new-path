@@ -1199,12 +1199,7 @@ function OccupationDisclosure({
   const [activeTab, setActiveTab] = useState<OccupationTab>("skillGap");
 
   return (
-    <motion.div
-      ref={containerRef}
-      variants={softItemVariants}
-      initial="hidden"
-      animate="visible"
-    >
+    <div ref={containerRef}>
       <Card
         className="overflow-hidden border-slate-200 bg-white text-slate-950 shadow-[0_18px_60px_rgba(15,23,42,0.08)]"
       >
@@ -1332,7 +1327,7 @@ function OccupationDisclosure({
         ) : null}
       </AnimatePresence>
       </Card>
-    </motion.div>
+    </div>
   );
 }
 
