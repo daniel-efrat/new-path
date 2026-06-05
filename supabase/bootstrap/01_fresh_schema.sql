@@ -11,6 +11,7 @@ BEGIN;
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name TEXT,
+  permissions TEXT NOT NULL DEFAULT 'User' CHECK (permissions IN ('Admin', 'Advisor', 'User')),
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
@@ -186,6 +187,26 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SET search_path = '';
+
+CREATE OR REPLACE FUNCTION public.prevent_client_profile_permission_changes()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF current_user IN ('anon', 'authenticated') THEN
+    IF TG_OP = 'INSERT' THEN
+      NEW.permissions := 'User';
+    ELSIF NEW.permissions IS DISTINCT FROM OLD.permissions THEN
+      RAISE EXCEPTION 'Profile permissions cannot be changed from the client';
+    END IF;
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SET search_path = '';
+
+DROP TRIGGER IF EXISTS trg_prevent_client_profile_permission_changes ON public.profiles;
+CREATE TRIGGER trg_prevent_client_profile_permission_changes
+  BEFORE INSERT OR UPDATE OF permissions ON public.profiles
+  FOR EACH ROW EXECUTE FUNCTION public.prevent_client_profile_permission_changes();
 
 DROP TRIGGER IF EXISTS trg_submissions_set_updated_at ON public.questionnaire_submissions;
 CREATE TRIGGER trg_submissions_set_updated_at
