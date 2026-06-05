@@ -22,6 +22,8 @@ interface Step2Props {
   onComplete: () => Promise<void> | void;
   resultsMode?: boolean;
   onBackToReport?: () => void;
+  waitForBreakReminderIfDue?: () => Promise<void>;
+  pauseQuestionTimer?: boolean;
 }
 
 const HEBREW_EXTENDED_TIME_QUESTIONS = new Set([4, 13, 14, 16]);
@@ -43,6 +45,8 @@ export default function Step2({
   onComplete,
   resultsMode = false,
   onBackToReport,
+  waitForBreakReminderIfDue,
+  pauseQuestionTimer = false,
 }: Step2Props) {
   const QUESTIONS: Question[] = STEP2_QUESTIONS;
 
@@ -114,7 +118,7 @@ export default function Step2({
   }, []);
 
   useEffect(() => {
-    if (showResult) return;
+    if (showResult || pauseQuestionTimer) return;
     if (timer === 0) {
       void handleNext(true);
       return;
@@ -123,7 +127,7 @@ export default function Step2({
       setTimer((t) => (t > 0 ? t - 1 : 0));
     }, 1000);
     return () => clearInterval(interval);
-  }, [timer, showResult]);
+  }, [timer, showResult, pauseQuestionTimer]);
 
   useEffect(() => {
     setTimer(getQuestionTimeLimit(QUESTIONS[current]));
@@ -185,13 +189,16 @@ export default function Step2({
       });
     }
     if (current < QUESTIONS.length - 1) {
+      await waitForBreakReminderIfDue?.();
       setCurrent((c) => c + 1);
       setAnimationKey((prev) => prev + 1);
     } else {
       if (resultsMode) {
+        await waitForBreakReminderIfDue?.();
         setShowResult(true);
         setAnimationKey((prev) => prev + 1);
       } else {
+        await waitForBreakReminderIfDue?.();
         await onComplete();
         onNext();
       }

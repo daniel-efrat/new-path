@@ -10,6 +10,8 @@ interface Step5CombinedProps {
   onComplete: () => Promise<void>;
   resultsMode?: boolean;
   onBackToReport?: () => void;
+  waitForBreakReminderIfDue?: () => Promise<void>;
+  pauseQuestionTimer?: boolean;
 }
 
 export default function Step5Combined({
@@ -17,6 +19,8 @@ export default function Step5Combined({
   onComplete,
   resultsMode = false,
   onBackToReport,
+  waitForBreakReminderIfDue,
+  pauseQuestionTimer = false,
 }: Step5CombinedProps) {
   const [part, setPart] = useState<"logic" | "math">("logic");
 
@@ -27,6 +31,8 @@ export default function Step5Combined({
         onNext={() => setPart("math")}
         resultsMode={resultsMode}
         onBackToReport={onBackToReport}
+        waitForBreakReminderIfDue={waitForBreakReminderIfDue}
+        pauseQuestionTimer={pauseQuestionTimer}
       />
     );
   }
@@ -37,6 +43,8 @@ export default function Step5Combined({
       onNext={onNext}
       resultsMode={resultsMode}
       onBackToReport={onBackToReport}
+      waitForBreakReminderIfDue={waitForBreakReminderIfDue}
+      pauseQuestionTimer={pauseQuestionTimer}
     />
   );
 }

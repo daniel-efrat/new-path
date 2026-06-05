@@ -22,6 +22,8 @@ interface Step8Props {
   onComplete?: () => Promise<void> | void;
   resultsMode?: boolean;
   onBackToReport?: () => void;
+  waitForBreakReminderIfDue?: () => Promise<void>;
+  pauseQuestionTimer?: boolean;
 }
 
 function getGrade(score: number) {
@@ -37,6 +39,8 @@ export default function Step8({
   onComplete,
   resultsMode = false,
   onBackToReport,
+  waitForBreakReminderIfDue,
+  pauseQuestionTimer = false,
 }: Step8Props) {
   const QUESTIONS: Question[] = STEP8_QUESTIONS;
 
@@ -106,7 +110,7 @@ export default function Step8({
   }, []);
 
   useEffect(() => {
-    if (showResult) return;
+    if (showResult || pauseQuestionTimer) return;
     if (timer === 0) {
       void handleNext(true);
       return;
@@ -115,7 +119,7 @@ export default function Step8({
       setTimer((t) => (t > 0 ? t - 1 : 0));
     }, 1000);
     return () => clearInterval(interval);
-  }, [timer, showResult]);
+  }, [timer, showResult, pauseQuestionTimer]);
 
   useEffect(() => {
     setTimer(25);
@@ -167,14 +171,17 @@ export default function Step8({
     }
 
     if (current < QUESTIONS.length - 1) {
+      await waitForBreakReminderIfDue?.();
       setCurrent(current + 1);
       setSelected(null);
       setAnimationKey((prev) => prev + 1);
     } else {
       if (resultsMode) {
+        await waitForBreakReminderIfDue?.();
         setShowResult(true);
         setAnimationKey((prev) => prev + 1);
       } else {
+        await waitForBreakReminderIfDue?.();
         if (onComplete) await onComplete();
         onNext();
       }

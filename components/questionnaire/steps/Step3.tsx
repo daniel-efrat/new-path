@@ -14,6 +14,8 @@ interface Step3Props {
   onComplete: () => Promise<void> | void;
   resultsMode?: boolean;
   onBackToReport?: () => void;
+  waitForBreakReminderIfDue?: () => Promise<void>;
+  pauseQuestionTimer?: boolean;
 }
 
 function getEnglishGrade(score: number) {
@@ -29,6 +31,8 @@ export default function Step3({
   onComplete,
   resultsMode = false,
   onBackToReport,
+  waitForBreakReminderIfDue,
+  pauseQuestionTimer = false,
 }: Step3Props) {
   const {
     setAnswer,
@@ -84,7 +88,7 @@ export default function Step3({
   }, []);
 
   useEffect(() => {
-    if (isFinished) return;
+    if (isFinished || pauseQuestionTimer) return;
     if (timer === 0) {
       void handleNext(true);
       return;
@@ -93,7 +97,7 @@ export default function Step3({
       setTimer((t) => (t > 0 ? t - 1 : 0));
     }, 1000);
     return () => clearInterval(interval);
-  }, [timer, isFinished]);
+  }, [timer, isFinished, pauseQuestionTimer]);
 
   useEffect(() => {
     setTimer(30);
@@ -115,11 +119,14 @@ export default function Step3({
       }));
     }
     if (current < QUESTIONS.length - 1) {
+      await waitForBreakReminderIfDue?.();
       setCurrent((c) => c + 1);
     } else {
       if (resultsMode) {
+        await waitForBreakReminderIfDue?.();
         setIsFinished(true);
       } else {
+        await waitForBreakReminderIfDue?.();
         await handleSubmit();
       }
     }

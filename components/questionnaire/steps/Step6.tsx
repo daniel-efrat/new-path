@@ -14,6 +14,8 @@ interface Step6Props {
   onComplete: () => Promise<void>;
   resultsMode?: boolean;
   onBackToReport?: () => void;
+  waitForBreakReminderIfDue?: () => Promise<void>;
+  pauseQuestionTimer?: boolean;
 }
 
 const MATH_EXTENDED_TIME_QUESTIONS = new Set([2, 7, 12, 20]);
@@ -35,6 +37,8 @@ export default function Step6({
   onComplete,
   resultsMode = false,
   onBackToReport,
+  waitForBreakReminderIfDue,
+  pauseQuestionTimer = false,
 }: Step6Props) {
   const QUESTIONS: Question[] = STEP6_QUESTIONS;
 
@@ -95,7 +99,7 @@ export default function Step6({
   }, []);
 
   useEffect(() => {
-    if (showResult) return;
+    if (showResult || pauseQuestionTimer) return;
     if (timer === 0) {
       void handleNext(true);
       return;
@@ -105,7 +109,7 @@ export default function Step6({
       1000
     );
     return () => clearInterval(interval);
-  }, [timer, showResult]);
+  }, [timer, showResult, pauseQuestionTimer]);
 
   useEffect(() => {
     setTimer(getQuestionTimeLimit(QUESTIONS[current]));
@@ -150,13 +154,16 @@ export default function Step6({
       setAnswer(QUESTIONS[current].id, null, false, 5);
     }
     if (current < QUESTIONS.length - 1) {
+      await waitForBreakReminderIfDue?.();
       setCurrent((c) => c + 1);
       setAnimationKey((prev) => prev + 1);
     } else {
       if (resultsMode) {
+        await waitForBreakReminderIfDue?.();
         setShowResult(true);
         setAnimationKey((prev) => prev + 1);
       } else {
+        await waitForBreakReminderIfDue?.();
         await onComplete();
         onNext?.();
       }

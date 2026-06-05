@@ -14,6 +14,8 @@ interface Step7Props {
   onComplete: () => Promise<void>;
   resultsMode?: boolean;
   onBackToReport?: () => void;
+  waitForBreakReminderIfDue?: () => Promise<void>;
+  pauseQuestionTimer?: boolean;
 }
 
 export default function Step7({
@@ -21,6 +23,8 @@ export default function Step7({
   onComplete,
   resultsMode = false,
   onBackToReport,
+  waitForBreakReminderIfDue,
+  pauseQuestionTimer = false,
 }: Step7Props) {
   const { setAnswer } = useQuestionnaireStore();
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -112,7 +116,7 @@ export default function Step7({
 
   // Timer effect - auto advance when timer reaches 0
   useEffect(() => {
-    if (showResults) return;
+    if (showResults || pauseQuestionTimer) return;
     if (timer === 0) {
       // Auto-advance to next question when timer runs out
       void handleNextQuestion();
@@ -122,7 +126,7 @@ export default function Step7({
       setTimer((t) => (t > 0 ? t - 1 : 0));
     }, 1000);
     return () => clearInterval(interval);
-  }, [timer, showResults]);
+  }, [timer, showResults, pauseQuestionTimer]);
 
   // Reset timer when changing questions
   useEffect(() => {
@@ -159,6 +163,7 @@ export default function Step7({
 
   const handleNextQuestion = async () => {
     if (currentQuestion < STEP7_QUESTIONS.length - 1) {
+      await waitForBreakReminderIfDue?.();
       setCurrentQuestion((prev) => prev + 1);
       setSelectedShape(null);
       setTimer(45); // Reset timer for new question
@@ -166,8 +171,10 @@ export default function Step7({
     } else {
       // All questions completed
       if (resultsMode) {
+        await waitForBreakReminderIfDue?.();
         setShowResults(true);
       } else {
+        await waitForBreakReminderIfDue?.();
         await onComplete();
         if (onNext) onNext();
       }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore";
 import { useStepStore } from "@/lib/stores/stepStore";
@@ -118,6 +118,20 @@ const gilbertMidStepCopy: Record<number, GilbertPopupCopy> = {
   },
 };
 
+const BREAK_REMINDER_INTERVAL_MS = 30 * 60 * 1000;
+const IDLE_BREAK_INTERVAL_MS = 5 * 60 * 1000;
+const TIMED_QUESTION_STEPS = new Set([2, 3, 5, 6, 7, 8]);
+
+const gilbertBreakReminderCopy: GilbertPopupCopy = {
+  eyebrow: "גילברט מזכיר לנשום",
+  title: "כבר 30 דקות ברצף",
+  message:
+    "עבדתם יפה ובריכוז. עכשיו כדאי לקחת הפסקה קצרה: לקום, לשתות מים, למתוח כתפיים, ולחזור עם עיניים קצת יותר טריות. השאלון יחכה כאן בסבלנות.",
+  cta: "לקחתי רגע, חוזרים",
+  videoSrc: "/break.mp4",
+  videoLabel: "גילברט ממליץ לקחת הפסקה קצרה",
+};
+
 type GilbertIntroPhase = "idle" | "open" | "dismissed";
 
 function getSessionFlag(key: string) {
@@ -147,6 +161,13 @@ export default function QuestionnairePage() {
     null
   );
   const [introPhase, setIntroPhase] = useState<GilbertIntroPhase>("idle");
+  const [pageVisible, setPageVisible] = useState(true);
+  const [userRecentlyActive, setUserRecentlyActive] = useState(true);
+  const [pendingBreakReminder, setPendingBreakReminder] = useState(false);
+  const breakReminderRemainingRef = useRef(BREAK_REMINDER_INTERVAL_MS);
+  const breakReminderStartedAtRef = useRef<number | null>(null);
+  const idleBreakTimerRef = useRef<number | null>(null);
+  const breakReminderResolverRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -220,6 +241,63 @@ export default function QuestionnairePage() {
   }, [currentStep, showHollandResults]);
 
   useEffect(() => {
+    const updatePageVisibility = () => {
+      setPageVisible(document.visibilityState === "visible");
+    };
+
+    updatePageVisibility();
+    document.addEventListener("visibilitychange", updatePageVisibility);
+
+    return () => {
+      document.removeEventListener("visibilitychange", updatePageVisibility);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!userRecentlyActive) {
+      breakReminderRemainingRef.current = BREAK_REMINDER_INTERVAL_MS;
+      breakReminderStartedAtRef.current = null;
+      setPendingBreakReminder(false);
+    }
+  }, [userRecentlyActive]);
+
+  useEffect(() => {
+    const resetIdleBreakTimer = () => {
+      if (idleBreakTimerRef.current !== null) {
+        window.clearTimeout(idleBreakTimerRef.current);
+      }
+
+      setUserRecentlyActive(true);
+      idleBreakTimerRef.current = window.setTimeout(() => {
+        setUserRecentlyActive(false);
+      }, IDLE_BREAK_INTERVAL_MS);
+    };
+
+    const activityEvents: Array<keyof WindowEventMap> = [
+      "keydown",
+      "pointerdown",
+      "pointermove",
+      "scroll",
+      "touchstart",
+    ];
+
+    resetIdleBreakTimer();
+    activityEvents.forEach((eventName) => {
+      window.addEventListener(eventName, resetIdleBreakTimer, { passive: true });
+    });
+
+    return () => {
+      if (idleBreakTimerRef.current !== null) {
+        window.clearTimeout(idleBreakTimerRef.current);
+      }
+
+      activityEvents.forEach((eventName) => {
+        window.removeEventListener(eventName, resetIdleBreakTimer);
+      });
+    };
+  }, []);
+
+  useEffect(() => {
     if (!storeReady || showHollandResults || levelComplete) return;
 
     const introCopy = gilbertStepIntros[currentStep];
@@ -268,6 +346,66 @@ export default function QuestionnairePage() {
     storeReady,
   ]);
 
+  const openBreakReminder = useCallback(() => {
+    setPendingBreakReminder(false);
+    setGilbertPopup(gilbertBreakReminderCopy);
+  }, []);
+
+  const waitForBreakReminderIfDue = useCallback(() => {
+    if (!pendingBreakReminder || gilbertPopup) {
+      return Promise.resolve();
+    }
+
+    return new Promise<void>((resolve) => {
+      breakReminderResolverRef.current = resolve;
+      openBreakReminder();
+    });
+  }, [gilbertPopup, openBreakReminder, pendingBreakReminder]);
+
+  const shouldRunBreakReminderTimer =
+    storeReady &&
+    pageVisible &&
+    userRecentlyActive &&
+    !pendingBreakReminder &&
+    !showHollandResults &&
+    !levelComplete &&
+    !gilbertPopup;
+
+  useEffect(() => {
+    if (!shouldRunBreakReminderTimer) {
+      return;
+    }
+
+    breakReminderStartedAtRef.current = Date.now();
+
+    const timer = window.setTimeout(() => {
+      breakReminderStartedAtRef.current = null;
+      breakReminderRemainingRef.current = BREAK_REMINDER_INTERVAL_MS;
+      if (TIMED_QUESTION_STEPS.has(currentStep)) {
+        setPendingBreakReminder(true);
+      } else {
+        openBreakReminder();
+      }
+    }, breakReminderRemainingRef.current);
+
+    return () => {
+      window.clearTimeout(timer);
+
+      if (breakReminderStartedAtRef.current === null) {
+        return;
+      }
+
+      const elapsed = Date.now() - breakReminderStartedAtRef.current;
+      breakReminderRemainingRef.current = Math.max(
+        0,
+        breakReminderRemainingRef.current - elapsed
+      );
+      breakReminderStartedAtRef.current = null;
+    };
+  }, [currentStep, openBreakReminder, shouldRunBreakReminderTimer]);
+
+  const pauseQuestionTimer = gilbertPopup === gilbertBreakReminderCopy;
+
   const Current = showHollandResults
     ? HollandResults
     : stepComponents[currentStep];
@@ -314,6 +452,8 @@ export default function QuestionnairePage() {
             onComplete={onComplete}
             resultsMode={resultsMode}
             onBackToReport={onBackToReport}
+            waitForBreakReminderIfDue={waitForBreakReminderIfDue}
+            pauseQuestionTimer={pauseQuestionTimer}
           />
         )}
       </div>
@@ -328,9 +468,16 @@ export default function QuestionnairePage() {
         message={gilbertPopup?.message ?? ""}
         cta={gilbertPopup?.cta}
         eyebrow={gilbertPopup?.eyebrow}
+        videoSrc={gilbertPopup?.videoSrc}
+        videoLabel={gilbertPopup?.videoLabel}
         onClose={() => {
+          const shouldDismissIntro = gilbertPopup === gilbertStepIntros[currentStep];
           setGilbertPopup(null);
-          setIntroPhase("dismissed");
+          if (shouldDismissIntro) {
+            setIntroPhase("dismissed");
+          }
+          breakReminderResolverRef.current?.();
+          breakReminderResolverRef.current = null;
         }}
       />
     </>

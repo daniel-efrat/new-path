@@ -13,6 +13,8 @@ interface Step9Props {
   onComplete: () => Promise<void> | void;
   resultsMode?: boolean;
   onBackToReport?: () => void;
+  waitForBreakReminderIfDue?: () => Promise<void>;
+  pauseQuestionTimer?: boolean;
 }
 
 const QUESTIONS = STEP9_QUESTIONS;
@@ -30,6 +32,8 @@ export default function Step9({
   onComplete,
   resultsMode = false,
   onBackToReport,
+  waitForBreakReminderIfDue,
+  pauseQuestionTimer = false,
 }: Step9Props) {
   const { setAnswer } = useQuestionnaireStore();
   const [isLoadingAnswers, setIsLoadingAnswers] = useState(true);
@@ -83,7 +87,9 @@ export default function Step9({
   }, [answers]);
 
   const completeOrAdvance = useCallback(
-    (nextAnswers: (number | null)[]) => {
+    async (nextAnswers: (number | null)[]) => {
+      await waitForBreakReminderIfDue?.();
+
       if (current < QUESTIONS.length - 1) {
         setCurrent((value) => value + 1);
         return;
@@ -99,18 +105,16 @@ export default function Step9({
       if (resultsMode) {
         setShowResult(true);
       } else {
-        void (async () => {
-          await onComplete?.();
-          onNext?.();
-        })();
+        await onComplete?.();
+        onNext?.();
       }
     },
-    [current, onComplete, onNext, resultsMode]
+    [current, onComplete, onNext, resultsMode, waitForBreakReminderIfDue]
   );
 
   const handleSkip = useCallback(async () => {
     if (answers[current] !== null) {
-      completeOrAdvance(answers);
+      await completeOrAdvance(answers);
       return;
     }
 
@@ -118,7 +122,7 @@ export default function Step9({
     nextAnswers[current] = -1;
     setAnswers(nextAnswers);
     await setAnswer(question.id, -1, false, STEP_NUMBER);
-    completeOrAdvance(nextAnswers);
+    await completeOrAdvance(nextAnswers);
   }, [answers, completeOrAdvance, current, question.id, setAnswer]);
 
   const handleSelect = useCallback(
@@ -141,7 +145,7 @@ export default function Step9({
 
       await setAnswer(question.id, optionIndex, isCorrect, STEP_NUMBER);
       setSelected(null);
-      completeOrAdvance(nextAnswers);
+      await completeOrAdvance(nextAnswers);
     },
     [
       answers,
@@ -208,7 +212,15 @@ export default function Step9({
   ]);
 
   useEffect(() => {
-    if (showResult || showIntro || selected !== null || showStimulus) return;
+    if (
+      showResult ||
+      showIntro ||
+      selected !== null ||
+      showStimulus ||
+      pauseQuestionTimer
+    ) {
+      return;
+    }
     if (timer === 0) {
       handleSkip();
       return;
@@ -219,10 +231,18 @@ export default function Step9({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [handleSkip, selected, showIntro, showResult, timer, showStimulus]);
+  }, [
+    handleSkip,
+    pauseQuestionTimer,
+    selected,
+    showIntro,
+    showResult,
+    timer,
+    showStimulus,
+  ]);
 
   useEffect(() => {
-    if (!showStimulus) return;
+    if (!showStimulus || pauseQuestionTimer) return;
 
     const timeout = window.setTimeout(() => {
       setStimulus((currentStimulus) => {
@@ -238,7 +258,7 @@ export default function Step9({
     }, 1000);
 
     return () => window.clearTimeout(timeout);
-  }, [question.id, showStimulus, stimulus.secondsLeft]);
+  }, [pauseQuestionTimer, question.id, showStimulus, stimulus.secondsLeft]);
 
   const handleContinue = async () => {
     if (resultsMode) {

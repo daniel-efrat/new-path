@@ -285,9 +285,6 @@ export default function QuestionnaireDashboard() {
               <h1 className="text-3xl font-bold text-white/95 mt-6 tracking-tight">
                 אבחון תעסוקתי - מסע מלא
               </h1>
-              <p className="text-white/90 mt-1">
-                חלק א׳ עצמאי, חלק ב׳ עם יועץ קריירה, ואז ניתוח AI מותאם
-              </p>
             </div>
           </motion.div>
 

@@ -11,6 +11,8 @@ export interface GilbertPopupCopy {
   title: string;
   message: string;
   cta?: string;
+  videoSrc?: string;
+  videoLabel?: string;
 }
 
 interface GilbertPopupProps extends GilbertPopupCopy {
@@ -26,6 +28,8 @@ export default function GilbertPopup({
   title,
   message,
   cta = "הבנתי, ממשיכים",
+  videoSrc,
+  videoLabel = "סרטון המלצה להפסקה קצרה",
   onClose,
 }: GilbertPopupProps) {
   const [visibleCharacters, setVisibleCharacters] = useState(0);
@@ -147,20 +151,37 @@ export default function GilbertPopup({
             </div>
 
             <div className="relative order-1 min-h-60 overflow-hidden bg-gradient-to-b from-sky-50 via-blue-50 to-amber-50 sm:order-2 sm:min-h-full">
-              <motion.div
-                className="absolute right-6 top-6 h-14 w-14 rounded-full bg-amber-300/70 blur-xl"
-                animate={{ scale: [1, 1.18, 1], opacity: [0.7, 1, 0.7] }}
-                transition={{ duration: 2.4, repeat: Infinity }}
-              />
-              <motion.img
-                src="/gilbert.png"
-                alt="גילברט פיינשטיין"
-                className="absolute bottom-0 left-1/2 h-[112%] max-h-[430px] -translate-x-1/2 object-contain drop-shadow-2xl"
-                draggable={false}
-                initial={{ y: 28, rotate: -2, opacity: 0 }}
-                animate={{ y: 0, rotate: 0, opacity: 1 }}
-                transition={{ delay: 0.1, type: "spring", stiffness: 180, damping: 18 }}
-              />
+              {videoSrc ? (
+                <motion.video
+                  src={videoSrc}
+                  aria-label={videoLabel}
+                  className="h-full min-h-60 w-full object-cover"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  initial={{ opacity: 0, scale: 1.02 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.1, duration: 0.28 }}
+                />
+              ) : (
+                <>
+                  <motion.div
+                    className="absolute right-6 top-6 h-14 w-14 rounded-full bg-amber-300/70 blur-xl"
+                    animate={{ scale: [1, 1.18, 1], opacity: [0.7, 1, 0.7] }}
+                    transition={{ duration: 2.4, repeat: Infinity }}
+                  />
+                  <motion.img
+                    src="/gilbert.png"
+                    alt="גילברט פיינשטיין"
+                    className="absolute bottom-0 left-1/2 h-[112%] max-h-[430px] -translate-x-1/2 object-contain drop-shadow-2xl"
+                    draggable={false}
+                    initial={{ y: 28, rotate: -2, opacity: 0 }}
+                    animate={{ y: 0, rotate: 0, opacity: 1 }}
+                    transition={{ delay: 0.1, type: "spring", stiffness: 180, damping: 18 }}
+                  />
+                </>
+              )}
             </div>
           </motion.div>
         </motion.div>

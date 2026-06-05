@@ -1,0 +1,4 @@
+interface:
+  display_name: "Supabase MCP Workaround"
+  short_description: "Use .env.local token for Supabase MCP"
+  default_prompt: "Use $supabase-mcp-workaround to connect to the Supabase MCP server with the repo token."
