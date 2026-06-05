@@ -51,6 +51,44 @@ nl_accordion = "1";
 nl_dir = "https://new-path-test.vercel.app/nagishli/nagishli_v3_beta/nagishli_beta.js/";
 </script>
 <script src="https://new-path-test.vercel.app/nagishli/nagishli_v3_beta/nagishli.js?v=3" charSet="utf-8" defer></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+(function () {
+  var cleanupTasks = [];
+
+  if ("serviceWorker" in navigator) {
+    cleanupTasks.push(navigator.serviceWorker.getRegistrations()
+      .then(function (registrations) {
+        return Promise.all(registrations.map(function (registration) {
+          return registration.unregister();
+        }));
+      })
+      .catch(function () {}));
+  }
+
+  if ("caches" in window) {
+    cleanupTasks.push(caches.keys()
+      .then(function (keys) {
+        return Promise.all(keys.map(function (key) {
+          return caches.delete(key);
+        }));
+      })
+      .catch(function () {}));
+  }
+
+  Promise.all(cleanupTasks).then(function () {
+    try {
+      if (sessionStorage.getItem("asset-cache-cleaned") !== "1") {
+        sessionStorage.setItem("asset-cache-cleaned", "1");
+        window.location.reload();
+      }
+    } catch (error) {}
+  });
+})();
+            `,
+          }}
+        />
       </body>
     </html>
   );
