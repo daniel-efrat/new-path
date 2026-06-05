@@ -133,6 +133,7 @@ export default function Step4({ onNext, onComplete }: Step4Props) {
                   </span>
                 </div>
                 <Slider
+                  dir="rtl"
                   min={0}
                   max={10}
                   step={1}
@@ -143,7 +144,7 @@ export default function Step4({ onNext, onComplete }: Step4Props) {
                 />
                 <ol
                   className="flex justify-between text-[11px] mt-2 text-gray-600"
-                  dir="ltr"
+                  dir="rtl"
                 >
                   {Array.from({ length: 11 }, (_, value) => (
                     <li key={value} className="w-4 text-center">
@@ -151,9 +152,12 @@ export default function Step4({ onNext, onComplete }: Step4Props) {
                     </li>
                   ))}
                 </ol>
-                <div className="flex justify-between text-xs mt-3 text-gray-700">
-                  <span>נכון מאוד</span>
+                <div
+                  className="flex justify-between text-xs mt-3 text-gray-700"
+                  dir="rtl"
+                >
                   <span>בכלל לא נכון</span>
+                  <span>נכון מאוד</span>
                 </div>
               </div>
             </CardContent>

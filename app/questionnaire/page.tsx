@@ -60,14 +60,15 @@ const gilbertStepIntros: Record<number, GilbertPopupCopy> = {
     cta: "לבחירת 5 תחומים",
   },
   2: {
-    title: "עברית, אבל בלי דקדוק על הראש",
+    title: "עברית, אבל בלי לשבור את הראש",
     message:
       "נכנסים לכמה שאלות זריזות. לקרוא לאט, לבחור בשקט, ולא לתת לשעון לעשות פרצופים. את זה אני עושה מספיק בשביל כולנו.",
   },
   5: {
     title: "מתמטיקה באה לביקור",
     message:
-      "אם המספרים נראים דרמטיים, תזכרו שהם רק מספרים. הם לא יודעים לפתוח דלת, ואתם כן. נושמים ובוחרים.",
+      `החדשות הטובות: המספרים לא שופטים אתכם.
+הם פשוט יושבים שם ומחכים שתבינו מה הם רוצים.`,
   },
   7: {
     title: "ידע מחשבים, לא ראיון עבודה",
@@ -441,7 +442,7 @@ export default function QuestionnairePage() {
 
   return (
     <>
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto p-4 md:pb-32">
         {shouldBlockForGilbertIntro ? (
           <div className="flex min-h-[360px] items-center justify-center text-center text-muted-foreground">
             מתכוננים לשלב הבא...

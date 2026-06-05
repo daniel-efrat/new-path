@@ -5,6 +5,7 @@ import { useQuestionnaireStore } from "@/lib/stores/questionnaireStore";
 import { fetchStep8Answers } from "@/lib/utils/answerFetcher";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 import Fireworks from "react-canvas-confetti";
 import type { AnswerState } from "@/lib/types/questionnaire";
 
@@ -32,6 +33,28 @@ function getGrade(score: number) {
   if (score >= 12) return "בינוני";
   if (score >= 9) return "חלש";
   return "חלש מאד";
+}
+
+function renderQuestionText(question: string) {
+  const trashIconToken = "<Trash2 />";
+
+  if (!question.includes(trashIconToken)) {
+    return question;
+  }
+
+  const [before, after] = question.split(trashIconToken);
+
+  return (
+    <>
+      {before}
+      <Trash2
+        aria-label="סמל פח אשפה"
+        className="mx-1 inline-block size-5 align-[-0.125em]"
+        strokeWidth={2.4}
+      />
+      {after}
+    </>
+  );
 }
 
 export default function Step8({
@@ -332,7 +355,7 @@ export default function Step8({
                 transition={{ delay: 0.5 }}
                 className="mb-4 font-medium text-lg text-right"
               >
-                {q.question}
+                {renderQuestionText(q.question)}
               </motion.div>
               <div className="space-y-2">
                 {q.options.map((opt, idx) => (

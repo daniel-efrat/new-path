@@ -174,7 +174,7 @@ export default function GilbertPopup({
                   <motion.img
                     src="/assets/questionnaire/gilbert.png"
                     alt="גילברט פיינשטיין"
-                    className="absolute bottom-0 left-1/2 h-[112%] max-h-[430px] -translate-x-1/2 object-contain drop-shadow-2xl"
+                    className="absolute bottom-0 left-1/2 h-full max-h-[430px] -translate-x-1/2 object-contain drop-shadow-2xl sm:h-[112%]"
                     draggable={false}
                     initial={{ y: 28, rotate: -2, opacity: 0 }}
                     animate={{ y: 0, rotate: 0, opacity: 1 }}
