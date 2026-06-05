@@ -6,11 +6,11 @@ import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const RATING_OPTIONS = [
-  { src: "/slice1.png", label: "מתאים לי מאוד", value: 5 },
-  { src: "/slice2.png", label: "מתאים לי", value: 4 },
-  { src: "/slice3.png", label: "לא בטוח", value: 3 },
-  { src: "/slice4.png", label: "מעט מתאים לי", value: 2 },
-  { src: "/slice5.png", label: "בכלל לא מתאים לי", value: 1 },
+  { src: "/assets/questionnaire/rating/slice1.png", label: "מתאים לי מאוד", value: 5 },
+  { src: "/assets/questionnaire/rating/slice2.png", label: "מתאים לי", value: 4 },
+  { src: "/assets/questionnaire/rating/slice3.png", label: "לא בטוח", value: 3 },
+  { src: "/assets/questionnaire/rating/slice4.png", label: "מעט מתאים לי", value: 2 },
+  { src: "/assets/questionnaire/rating/slice5.png", label: "בכלל לא מתאים לי", value: 1 },
 ] as const;
 
 interface RatingScaleProps {

@@ -573,7 +573,7 @@ function LoadingState({
               maskImage:
                 "linear-gradient(to bottom, #000 0 13.5%, transparent 13.5% 15%, #000 15% 84.8%, transparent 84.8% 86.3%, #000 86.3% 100%)",
             }}
-            src="/working3.webm"
+            src="/assets/media/working3.webm"
             autoPlay
             loop
             muted

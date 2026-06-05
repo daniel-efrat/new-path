@@ -11,7 +11,7 @@ const Test = () => {
             style={{ animationDelay: `${index * 120}ms` }}
           >
             <img
-              src={`/complete/${layer}.png`}
+              src={`/assets/questionnaire/complete/${layer}.png`}
               alt=""
               aria-hidden="true"
               className="block h-full w-full object-contain"

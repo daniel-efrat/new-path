@@ -423,7 +423,7 @@ export default function Step13({
                     <div className="relative isolate overflow-hidden">
                       <video
                         ref={worldVideoRef}
-                        src="/world.webm"
+                        src="/assets/media/world.webm"
                         className="mx-auto block h-auto w-[70%]"
                         autoPlay
                         muted

@@ -117,7 +117,7 @@ export function CTASection() {
             transition={{ duration: 0.5, delay: 0.5 }}
           >
             <StatIcon
-              src="/icons/checklist.png"
+              src="/assets/home/icons/checklist.png"
               alt="Checklist icon"
               bgColor="bg-white/20"
               index={0}
@@ -127,7 +127,7 @@ export function CTASection() {
             </StatIcon>
 
             <StatIcon
-              src="/icons/star.png"
+              src="/assets/home/icons/star.png"
               alt="Star icon"
               bgColor="bg-white/20"
               index={1}
@@ -137,7 +137,7 @@ export function CTASection() {
             </StatIcon>
 
             <StatIcon
-              src="/icons/college.png"
+              src="/assets/home/icons/college.png"
               alt="College icon"
               bgColor="bg-white/20"
               index={2}

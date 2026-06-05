@@ -351,7 +351,7 @@ function LoadingState({
               maskImage:
                 "linear-gradient(to bottom, #000 0 13.5%, transparent 13.5% 15%, #000 15% 84.8%, transparent 84.8% 86.3%, #000 86.3% 100%)",
             }}
-            src="/working3.webm"
+            src="/assets/media/working3.webm"
             autoPlay
             loop
             muted
@@ -441,7 +441,7 @@ function GuidanceReportView({
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-2">
                       <img
-                        src={`/RIASEC/${area.code}.png`}
+                        src={`/assets/questionnaire/riasec/${area.code}.png`}
                         alt=""
                         aria-hidden="true"
                         className="size-10 shrink-0 rounded-md object-contain"

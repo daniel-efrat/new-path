@@ -163,7 +163,7 @@ export function HeroSection() {
           className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto mt-12"
         >
           <HeroIcon
-            src="/icons/target.png"
+            src="/assets/home/icons/target.png"
             alt="Target icon"
             // bgColor="bg-emerald-200"
             bgColor="transparent"
@@ -176,7 +176,7 @@ export function HeroSection() {
           </HeroIcon>
 
           <HeroIcon
-            src="/icons/cap.png"
+            src="/assets/home/icons/cap.png"
             alt="Graduation cap icon"
             // bgColor="bg-indigo-100"
             bgColor="transparent"
@@ -189,7 +189,7 @@ export function HeroSection() {
           </HeroIcon>
 
           <HeroIcon
-            src="/icons/money.png"
+            src="/assets/home/icons/money.png"
             alt="Money icon"
             // bgColor="bg-rose-100"
             bgColor="transparent"

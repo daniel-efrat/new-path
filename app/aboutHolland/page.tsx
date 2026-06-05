@@ -233,12 +233,12 @@ export default function AboutHollandPage() {
   >(null);
 
   const types: Array<{ name: keyof TypeDescriptions; image: string }> = [
-    { name: "אומנותי", image: "/RIASEC/A.png" },
-    { name: "חקרני", image: "/RIASEC/I.png" },
-    { name: "ביצועי", image: "/RIASEC/R.png" },
-    { name: "מִנהלי", image: "/RIASEC/C.png" },
-    { name: "יזמי", image: "/RIASEC/E.png" },
-    { name: "חברתי", image: "/RIASEC/S.png" },
+    { name: "אומנותי", image: "/assets/questionnaire/riasec/A.png" },
+    { name: "חקרני", image: "/assets/questionnaire/riasec/I.png" },
+    { name: "ביצועי", image: "/assets/questionnaire/riasec/R.png" },
+    { name: "מִנהלי", image: "/assets/questionnaire/riasec/C.png" },
+    { name: "יזמי", image: "/assets/questionnaire/riasec/E.png" },
+    { name: "חברתי", image: "/assets/questionnaire/riasec/S.png" },
   ];
 
   return (

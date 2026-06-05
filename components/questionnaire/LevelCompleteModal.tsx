@@ -85,7 +85,7 @@ export default function LevelCompleteModal({
                       style={{ animationDelay: `${index * 115}ms` }}
                     >
                       <img
-                        src={`/complete/${layer}.png`}
+                        src={`/assets/questionnaire/complete/${layer}.png`}
                         alt=""
                         aria-hidden="true"
                         className="block h-full w-full object-contain"
@@ -123,7 +123,7 @@ export default function LevelCompleteModal({
                 transition={{ duration: 2.2, repeat: Infinity }}
               />
               <motion.img
-                src="/gilbert.png"
+                src="/assets/questionnaire/gilbert.png"
                 alt="גילברט פיינשטיין"
                 className="absolute bottom-0 left-1/2 h-[108%] max-h-[330px] -translate-x-1/2 object-contain drop-shadow-2xl"
                 draggable={false}

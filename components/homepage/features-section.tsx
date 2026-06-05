@@ -44,25 +44,25 @@ function FeatureCard({ feature, index }: { feature: any; index: number }) {
 export function FeaturesSection() {
   const features = [
     {
-      icon: "/icons/checkmark.png",
+      icon: "/assets/home/icons/checkmark.png",
       title: "הערכה מקיפה",
       description: "13 שלבים חכמים שחושפים את הפוטנציאל שלך",
       color: "text-emerald-600",
     },
     {
-      icon: "/icons/group.png",
+      icon: "/assets/home/icons/group.png",
       title: "מותאם לישראלים",
       description: "פותח במיוחד עבור צעירים בישראל",
       color: "text-indigo-600",
     },
     {
-      icon: "/icons/growth.png",
+      icon: "/assets/home/icons/growth.png",
       title: "נתונים עדכניים",
       description: "מידע רלוונטי על שוק העבודה הישראלי",
       color: "text-rose-600",
     },
     {
-      icon: "/icons/medal.png",
+      icon: "/assets/home/icons/medal.png",
       title: "מכללות מובילות",
       description: "שותפות עם המוסדות הטובים ביותר בארץ",
       color: "text-amber-600",

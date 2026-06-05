@@ -172,7 +172,7 @@ export default function GilbertPopup({
                     transition={{ duration: 2.4, repeat: Infinity }}
                   />
                   <motion.img
-                    src="/gilbert.png"
+                    src="/assets/questionnaire/gilbert.png"
                     alt="גילברט פיינשטיין"
                     className="absolute bottom-0 left-1/2 h-[112%] max-h-[430px] -translate-x-1/2 object-contain drop-shadow-2xl"
                     draggable={false}

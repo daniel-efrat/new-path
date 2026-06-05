@@ -128,7 +128,7 @@ const gilbertBreakReminderCopy: GilbertPopupCopy = {
   message:
     "עבדתם יפה ובריכוז. עכשיו כדאי לקחת הפסקה קצרה: לקום, לשתות מים, למתוח כתפיים, ולחזור עם עיניים קצת יותר טריות. השאלון יחכה כאן בסבלנות.",
   cta: "לקחתי רגע, חוזרים",
-  videoSrc: "/break.mp4",
+  videoSrc: "/assets/media/break.mp4",
   videoLabel: "גילברט ממליץ לקחת הפסקה קצרה",
 };
 

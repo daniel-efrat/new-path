@@ -112,7 +112,7 @@ export default function Header() {
           aria-label={user ? "דרך חדשה - מעבר לדשבורד" : "דרך חדשה - דף הבית"}
         >
           <Image
-            src="/logo-inline-white.svg"
+            src="/assets/brand/logo-inline-white.svg"
             alt=""
             width={200}
             height={40}
