@@ -4,6 +4,8 @@
 
 BEGIN;
 
+CREATE SCHEMA IF NOT EXISTS app_private;
+
 -- ---------------------------------------------------------------------------
 -- Core catalog
 -- ---------------------------------------------------------------------------
@@ -155,6 +157,20 @@ CREATE TABLE IF NOT EXISTS public.contact_messages (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS public.fit_check_sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  staff_user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL DEFAULT 'בדיקה חדשה',
+  scope_mode TEXT NOT NULL DEFAULT 'all' CHECK (scope_mode IN ('all', 'manual')),
+  selected_user_ids UUID[] NOT NULL DEFAULT ARRAY[]::UUID[],
+  selected_users_snapshot JSONB NOT NULL DEFAULT '[]'::jsonb,
+  messages JSONB NOT NULL DEFAULT '[]'::jsonb,
+  provider TEXT,
+  model TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- ---------------------------------------------------------------------------
 -- Indexes
 -- ---------------------------------------------------------------------------
@@ -175,6 +191,7 @@ CREATE INDEX IF NOT EXISTS idx_diagnostic_reports_submission_id ON public.diagno
 CREATE INDEX IF NOT EXISTS idx_diagnostic_reports_guidance_report_id ON public.diagnostic_reports(guidance_report_id);
 CREATE INDEX IF NOT EXISTS idx_diagnostic_reports_input_hash ON public.diagnostic_reports(input_hash);
 CREATE INDEX IF NOT EXISTS idx_contact_messages_created_at ON public.contact_messages(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_fit_check_sessions_staff_updated_at ON public.fit_check_sessions(staff_user_id, updated_at DESC);
 
 -- ---------------------------------------------------------------------------
 -- updated_at triggers
@@ -208,6 +225,33 @@ CREATE TRIGGER trg_prevent_client_profile_permission_changes
   BEFORE INSERT OR UPDATE OF permissions ON public.profiles
   FOR EACH ROW EXECUTE FUNCTION public.prevent_client_profile_permission_changes();
 
+CREATE OR REPLACE FUNCTION app_private.handle_new_auth_user_profile()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, full_name, permissions)
+  VALUES (
+    NEW.id,
+    COALESCE(
+      NEW.raw_user_meta_data ->> 'full_name',
+      NEW.raw_user_meta_data ->> 'name'
+    ),
+    'User'
+  )
+  ON CONFLICT (id) DO NOTHING;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
+
+REVOKE ALL ON FUNCTION app_private.handle_new_auth_user_profile() FROM PUBLIC;
+REVOKE ALL ON FUNCTION app_private.handle_new_auth_user_profile() FROM anon;
+REVOKE ALL ON FUNCTION app_private.handle_new_auth_user_profile() FROM authenticated;
+
+DROP TRIGGER IF EXISTS on_auth_user_created_create_profile ON auth.users;
+CREATE TRIGGER on_auth_user_created_create_profile
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION app_private.handle_new_auth_user_profile();
+
 DROP TRIGGER IF EXISTS trg_submissions_set_updated_at ON public.questionnaire_submissions;
 CREATE TRIGGER trg_submissions_set_updated_at
   BEFORE UPDATE ON public.questionnaire_submissions
@@ -228,6 +272,11 @@ CREATE TRIGGER trg_diagnostic_reports_set_updated_at
   BEFORE UPDATE ON public.diagnostic_reports
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
+DROP TRIGGER IF EXISTS trg_fit_check_sessions_set_updated_at ON public.fit_check_sessions;
+CREATE TRIGGER trg_fit_check_sessions_set_updated_at
+  BEFORE UPDATE ON public.fit_check_sessions
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
 -- ---------------------------------------------------------------------------
 -- Row Level Security
 -- ---------------------------------------------------------------------------
@@ -245,6 +294,7 @@ ALTER TABLE public.user_designation_choices ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.guidance_reports ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.diagnostic_reports ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.fit_check_sessions ENABLE ROW LEVEL SECURITY;
 
 -- profiles
 DROP POLICY IF EXISTS "Profiles are viewable by owner" ON public.profiles;
@@ -253,6 +303,18 @@ DROP POLICY IF EXISTS "Users can insert own profile" ON public.profiles;
 CREATE POLICY "Users can insert own profile" ON public.profiles FOR INSERT WITH CHECK ((SELECT auth.uid()) = id);
 DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING ((SELECT auth.uid()) = id);
+
+INSERT INTO public.profiles (id, full_name, permissions)
+SELECT
+  users.id,
+  COALESCE(
+    users.raw_user_meta_data ->> 'full_name',
+    users.raw_user_meta_data ->> 'name'
+  ) AS full_name,
+  'User' AS permissions
+FROM auth.users AS users
+LEFT JOIN public.profiles AS profiles ON profiles.id = users.id
+WHERE profiles.id IS NULL;
 
 -- public read for catalog
 DROP POLICY IF EXISTS "Questionnaires are viewable by everyone" ON public.questionnaires;
@@ -334,6 +396,14 @@ CREATE POLICY "Diagnostic reports update own" ON public.diagnostic_reports FOR U
 DROP POLICY IF EXISTS "Contact messages are service-role only" ON public.contact_messages;
 CREATE POLICY "Contact messages are service-role only"
   ON public.contact_messages
+  FOR ALL
+  USING (false)
+  WITH CHECK (false);
+
+-- fit check sessions are written/read by server service role only
+DROP POLICY IF EXISTS "Fit check sessions are service-role only" ON public.fit_check_sessions;
+CREATE POLICY "Fit check sessions are service-role only"
+  ON public.fit_check_sessions
   FOR ALL
   USING (false)
   WITH CHECK (false);

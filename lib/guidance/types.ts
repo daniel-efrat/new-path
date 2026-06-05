@@ -45,9 +45,12 @@ export interface GuidanceApiResponse {
   provider: "gemini" | "openrouter";
   model: string;
   cached: boolean;
+  staffSubject?: {
+    id: string;
+    displayName: string;
+  };
 }
 
 export interface GuidanceApiError {
   error: string;
 }
-

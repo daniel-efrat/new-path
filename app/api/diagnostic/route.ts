@@ -8,6 +8,7 @@ import {
   hashDiagnosticInput,
   loadDiagnosticInput,
 } from "@/lib/diagnostic/server";
+import { AdminAuthError, requireStaffContext } from "@/lib/admin";
 import type {
   DiagnosticApiError,
   DiagnosticApiResponse,
@@ -26,6 +27,79 @@ interface DiagnosticReportRow {
 export async function GET(
   request: NextRequest
 ): Promise<NextResponse<DiagnosticApiResponse | DiagnosticApiError>> {
+  const staffUserId = request.nextUrl.searchParams.get("staffUserId");
+  const reportId = request.nextUrl.searchParams.get("reportId");
+
+  if (staffUserId && reportId) {
+    try {
+      const { serviceSupabase } = await requireStaffContext();
+      const [reportResult, profileResult, authUserResult] = await Promise.all([
+        serviceSupabase
+          .from("diagnostic_reports")
+          .select("id, report_json, provider, model, input_hash")
+          .eq("id", reportId)
+          .eq("user_id", staffUserId)
+          .eq("status", "completed")
+          .not("report_json", "is", null)
+          .maybeSingle(),
+        serviceSupabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", staffUserId)
+          .maybeSingle(),
+        serviceSupabase.auth.admin.getUserById(staffUserId),
+      ]);
+      const { data: saved, error: savedError } = reportResult;
+
+      if (savedError) {
+        throw new Error(
+          `Could not load saved diagnostic report: ${savedError.message}`
+        );
+      }
+      if (profileResult.error) {
+        throw new Error(`Could not load profile: ${profileResult.error.message}`);
+      }
+      if (authUserResult.error) {
+        throw new Error(`Could not load auth user: ${authUserResult.error.message}`);
+      }
+
+      if (!saved?.report_json) {
+        return NextResponse.json(
+          { error: "No saved diagnostic report was found." },
+          { status: 404 }
+        );
+      }
+
+      const displayName =
+        profileResult.data?.full_name ||
+        authUserResult.data.user?.email ||
+        staffUserId;
+
+      return NextResponse.json({
+        ...toResponse(saved as DiagnosticReportRow, true),
+        staffSubject: { id: staffUserId, displayName },
+      });
+    } catch (error) {
+      if (error instanceof AdminAuthError) {
+        return NextResponse.json(
+          { error: error.message },
+          { status: error.status }
+        );
+      }
+
+      console.error("Diagnostic staff API error:", error);
+      return NextResponse.json(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : "Could not load saved diagnostic report.",
+        },
+        { status: 500 }
+      );
+    }
+  }
+
   const supabase = createAuthenticatedClient(request);
 
   try {

@@ -36,6 +36,7 @@ export default function QuestionnaireGuidancePage() {
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const isDev = process.env.NODE_ENV === "development";
   const showLoadingState = isLoading || isLoadingPreview;
+  const staffSubject = data?.staffSubject ?? null;
 
   const loadReport = useCallback(async () => {
     setIsLoading(true);
@@ -54,9 +55,21 @@ export default function QuestionnaireGuidancePage() {
       const savedOnly =
         typeof window !== "undefined" &&
         new URLSearchParams(window.location.search).get("saved") === "1";
+      const searchParams =
+        typeof window !== "undefined"
+          ? new URLSearchParams(window.location.search)
+          : new URLSearchParams();
+      const staffUserId = searchParams.get("staffUserId");
+      const reportId = searchParams.get("reportId");
+      const isStaffReportView = Boolean(staffUserId && reportId);
+      const requestUrl = isStaffReportView
+        ? `/api/guidance?staffUserId=${encodeURIComponent(
+            staffUserId as string
+          )}&reportId=${encodeURIComponent(reportId as string)}`
+        : "/api/guidance";
 
-      const response = await fetch("/api/guidance", {
-        method: savedOnly ? "GET" : "POST",
+      const response = await fetch(requestUrl, {
+        method: savedOnly || isStaffReportView ? "GET" : "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
@@ -228,6 +241,11 @@ export default function QuestionnaireGuidancePage() {
                 {data?.report.disclaimer ||
                   "זוהי תמונת כיוון קצרה לפני שלב ב׳, בלי ציוני התאמה סופיים."}
               </p>
+              {staffSubject ? (
+                <p className="mt-2 text-base font-semibold text-white">
+                  שם המאובחנ/ת: {staffSubject.displayName}
+                </p>
+              ) : null}
             </div>
           </div>
 
@@ -261,14 +279,20 @@ export default function QuestionnaireGuidancePage() {
               <Button
                 variant="outline"
                 className="border-slate-500 bg-white text-slate-900 shadow-sm hover:bg-slate-50"
-                onClick={() => router.push("/dashboard")}
+                onClick={() =>
+                  router.push(
+                    staffSubject ? `/admin/users/${staffSubject.id}` : "/dashboard"
+                  )
+                }
               >
-                חזרה ללוח הבקרה
+                {staffSubject ? "חזרה לפרטי המאובחנ/ת" : "חזרה ללוח הבקרה"}
               </Button>
-              <Button onClick={continueToQuestionnaire2}>
-                המשך לשלב ב׳
-                <ArrowLeft className="size-4" />
-              </Button>
+              {!staffSubject ? (
+                <Button onClick={continueToQuestionnaire2}>
+                  המשך לשלב ב׳
+                  <ArrowLeft className="size-4" />
+                </Button>
+              ) : null}
             </div>
             {pdfError ? (
               <p className="text-sm leading-6 text-red-100">{pdfError}</p>

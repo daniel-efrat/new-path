@@ -22,7 +22,38 @@ export async function middleware(req: NextRequest) {
       }
     );
 
-    await supabase.auth.getSession();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    const isStaffRoute =
+      req.nextUrl.pathname.startsWith('/admin') ||
+      req.nextUrl.pathname.startsWith('/fit-check');
+
+    if (isStaffRoute) {
+      if (!user) {
+        const redirectUrl = req.nextUrl.clone();
+        redirectUrl.pathname = '/signin';
+        redirectUrl.searchParams.set('from', req.nextUrl.pathname);
+        return NextResponse.redirect(redirectUrl);
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('permissions')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (
+        profile?.permissions !== 'Admin' &&
+        profile?.permissions !== 'Advisor'
+      ) {
+        const redirectUrl = req.nextUrl.clone();
+        redirectUrl.pathname = '/dashboard';
+        redirectUrl.search = '';
+        return NextResponse.redirect(redirectUrl);
+      }
+    }
   } catch (error) {
     console.error('Middleware error:', error);
   }

@@ -8,6 +8,7 @@ import {
   hashGuidanceInput,
   loadGuidanceInput,
 } from "@/lib/guidance/server";
+import { AdminAuthError, requireStaffContext } from "@/lib/admin";
 import type {
   GuidanceApiError,
   GuidanceApiResponse,
@@ -25,6 +26,77 @@ interface GuidanceReportRow {
 export async function GET(
   request: NextRequest
 ): Promise<NextResponse<GuidanceApiResponse | GuidanceApiError>> {
+  const staffUserId = request.nextUrl.searchParams.get("staffUserId");
+  const reportId = request.nextUrl.searchParams.get("reportId");
+
+  if (staffUserId && reportId) {
+    try {
+      const { serviceSupabase } = await requireStaffContext();
+      const [reportResult, profileResult, authUserResult] = await Promise.all([
+        serviceSupabase
+          .from("guidance_reports")
+          .select("id, report_json, provider, model, input_hash")
+          .eq("id", reportId)
+          .eq("user_id", staffUserId)
+          .eq("status", "completed")
+          .not("report_json", "is", null)
+          .maybeSingle(),
+        serviceSupabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", staffUserId)
+          .maybeSingle(),
+        serviceSupabase.auth.admin.getUserById(staffUserId),
+      ]);
+      const { data: saved, error: savedError } = reportResult;
+
+      if (savedError) {
+        throw new Error(`Could not load saved guidance: ${savedError.message}`);
+      }
+      if (profileResult.error) {
+        throw new Error(`Could not load profile: ${profileResult.error.message}`);
+      }
+      if (authUserResult.error) {
+        throw new Error(`Could not load auth user: ${authUserResult.error.message}`);
+      }
+
+      if (!saved?.report_json) {
+        return NextResponse.json(
+          { error: "No saved guidance report was found." },
+          { status: 404 }
+        );
+      }
+
+      const displayName =
+        profileResult.data?.full_name ||
+        authUserResult.data.user?.email ||
+        staffUserId;
+
+      return NextResponse.json({
+        ...toResponse(saved as GuidanceReportRow, true),
+        staffSubject: { id: staffUserId, displayName },
+      });
+    } catch (error) {
+      if (error instanceof AdminAuthError) {
+        return NextResponse.json(
+          { error: error.message },
+          { status: error.status }
+        );
+      }
+
+      console.error("Guidance staff API error:", error);
+      return NextResponse.json(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : "Could not load saved guidance report.",
+        },
+        { status: 500 }
+      );
+    }
+  }
+
   const supabase = createAuthenticatedClient(request);
 
   try {

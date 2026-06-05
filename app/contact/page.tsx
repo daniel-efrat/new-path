@@ -35,7 +35,19 @@ const contactMethods = [
   },
 ];
 
-export default function ContactPage() {
+type ContactPageProps = {
+  searchParams?: Promise<{
+    subject?: string | string[];
+  }>;
+};
+
+export default async function ContactPage({ searchParams }: ContactPageProps) {
+  const params = searchParams ? await searchParams : {};
+  const rawSubject = Array.isArray(params?.subject)
+    ? params.subject[0]
+    : params?.subject;
+  const initialSubject = rawSubject?.trim().slice(0, 120) ?? "";
+
   return (
     <div dir="rtl" className="relative min-h-screen px-4 pb-20 pt-10">
       <div className="relative z-10 mx-auto max-w-5xl">
@@ -86,7 +98,7 @@ export default function ContactPage() {
               </div>
             </div>
 
-            <ContactForm />
+            <ContactForm initialSubject={initialSubject} />
           </div>
         </section>
       </div>

@@ -4,8 +4,8 @@ import {
   ArrowLeft,
   Eye,
   Keyboard,
-  Mail,
   MessageCircle,
+  Send,
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
@@ -48,14 +48,6 @@ const sections = [
     ],
   },
   {
-    title: "אזורים שעדיין בבדיקה",
-    items: [
-      "חלק מהמסכים שמחייבים התחברות, כולל שאלונים, דוחות ותוצאות, עדיין עוברים בדיקות נגישות נוספות.",
-      "ייתכן שחלקים הנמצאים בפיתוח או מסכים עם נתונים אישיים עדיין אינם נגישים באופן מלא.",
-      "אנו ממשיכים לבדוק הודעות שגיאה, מצבי טעינה, חלונות קופצים ותצוגות דוח מורכבות.",
-    ],
-  },
-  {
     title: "איך כדאי לדווח על בעיית נגישות?",
     items: [
       "כתובת העמוד שבו הופיעה הבעיה.",
@@ -87,7 +79,7 @@ export default function AccessibilityPage() {
               הצהרת נגישות
             </h1>
             <p className="mt-5 text-lg leading-8 text-white/82">
-              דרך חדשה פועלת להנגשת השירותים הדיגיטליים שלה לכלל המשתמשים,
+              דרך חדשה פועלת להנגשת השירותים הדיגיטליים שלה לכלל המאובחנים,
               לרבות אנשים עם מוגבלות. מטרתנו היא שהאתר יהיה נוח לשימוש, ברור,
               ותואם ככל האפשר לדרישות תקן ישראלי 5568 ולהנחיות WCAG 2.x ברמה
               AA.
@@ -158,22 +150,19 @@ export default function AccessibilityPage() {
                 פנייה בנושא נגישות
               </h2>
               <p className="mt-4 leading-8 text-white/78">
-                בשלב זה פרטי רכז/ת הנגישות ופרטי קשר ייעודיים יושלמו על ידי
-                בעל האתר. עד להשלמתם, אפשר לפנות דרך ערוץ התמיכה הרשמי של דרך
-                חדשה ולציין שהפנייה עוסקת בנושא נגישות.
+                אפשר לפנות דרך טופס צור קשר של דרך חדשה. הטופס ייפתח עם נושא
+                נגישות מוכן מראש כדי שנוכל לזהות את הפנייה ולטפל בה בהתאם.
               </p>
-              <div className="mt-5 inline-flex items-center gap-2 rounded-lg border border-white/18 bg-white/8 px-4 py-3 text-sm text-white/78">
-                <Mail className="h-4 w-4" aria-hidden="true" />
-                פרטי קשר ייעודיים: להשלמה
-              </div>
+              <Link
+                href="/contact?subject=%D7%A0%D7%92%D7%99%D7%A9%D7%95%D7%AA"
+                className="mt-5 inline-flex items-center gap-2 rounded-lg border border-white/24 bg-white px-4 py-3 text-sm font-semibold text-slate-950 shadow-sm transition hover:bg-white/90"
+              >
+                מעבר לטופס צור קשר
+                <Send className="h-4 w-4 scale-x-[-1]" aria-hidden="true" />
+              </Link>
             </div>
           </div>
         </section>
-
-        <p className="relative z-10 mt-8 text-sm leading-6 text-white/60">
-          הצהרה זו אינה מהווה ייעוץ משפטי. יש לאשר את הנוסח הסופי מול גורם
-          משפטי או יועץ נגישות מוסמך.
-        </p>
       </div>
     </div>
   );

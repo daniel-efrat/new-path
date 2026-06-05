@@ -6,7 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export default function ContactForm() {
+type ContactFormProps = {
+  initialSubject?: string;
+};
+
+export default function ContactForm({ initialSubject = "" }: ContactFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<{
     type: "success" | "error";
@@ -29,6 +33,7 @@ export default function ContactForm() {
           name: formData.get("name"),
           email: formData.get("email"),
           phone: formData.get("phone"),
+          subject: formData.get("subject"),
           message: formData.get("message"),
         }),
       });
@@ -104,6 +109,19 @@ export default function ContactForm() {
           />
         </div>
         <div className="grid gap-2">
+          <Label htmlFor="contact-subject" className="text-white">
+            נושא
+          </Label>
+          <Input
+            id="contact-subject"
+            name="subject"
+            type="text"
+            placeholder="נושא הפנייה"
+            defaultValue={initialSubject}
+            required
+          />
+        </div>
+        <div className="grid gap-2">
           <Label htmlFor="contact-message" className="text-white">
             הודעה
           </Label>
@@ -133,11 +151,8 @@ export default function ContactForm() {
 
       <Button type="submit" className="mt-6 w-full gap-2" disabled={isSubmitting}>
         {isSubmitting ? "שולח..." : "שליחה"}
-        <Send className="h-4 w-4" aria-hidden="true" />
+        <Send className="h-4 w-4 scale-x-[-1]" aria-hidden="true" />
       </Button>
-      <p className="mt-3 text-center text-xs leading-5 text-white/58">
-        הפנייה תישמר במערכת ותישלח כהודעת אימייל.
-      </p>
     </form>
   );
 }

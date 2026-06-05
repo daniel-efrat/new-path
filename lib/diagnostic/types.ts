@@ -104,6 +104,10 @@ export interface DiagnosticApiResponse {
   model: string;
   cached: boolean;
   tokenUsage?: DiagnosticTokenUsage | null;
+  staffSubject?: {
+    id: string;
+    displayName: string;
+  };
 }
 
 export interface DiagnosticApiError {

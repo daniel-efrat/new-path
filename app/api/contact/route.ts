@@ -8,6 +8,7 @@ interface ContactRequestBody {
   name?: unknown;
   email?: unknown;
   phone?: unknown;
+  subject?: unknown;
   message?: unknown;
 }
 
@@ -17,11 +18,12 @@ export async function POST(request: NextRequest) {
     const name = sanitizeField(body.name);
     const email = sanitizeField(body.email);
     const phone = sanitizeField(body.phone);
+    const subject = sanitizeField(body.subject).slice(0, 120);
     const message = sanitizeField(body.message);
 
-    if (!name || !email || !message) {
+    if (!name || !email || !subject || !message) {
       return NextResponse.json(
-        { error: "יש למלא שם, אימייל והודעה" },
+        { error: "יש למלא שם, אימייל, נושא והודעה" },
         { status: 400 }
       );
     }
@@ -33,6 +35,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const savedMessage = ["נושא:", subject, "", "הודעה:", message].join("\n");
     const supabase = createServiceClient();
     const { data: inserted, error: insertError } = await supabase
       .from("contact_messages")
@@ -40,7 +43,7 @@ export async function POST(request: NextRequest) {
         name,
         email,
         phone: phone || null,
-        message,
+        message: savedMessage,
         status: "new",
       })
       .select("id")
@@ -53,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      await sendContactEmail({ name, email, phone, message });
+      await sendContactEmail({ name, email, phone, subject, message });
       await supabase
         .from("contact_messages")
         .update({ status: "emailed", email_error: null })
@@ -107,6 +110,7 @@ async function sendContactEmail(input: {
   name: string;
   email: string;
   phone: string;
+  subject: string;
   message: string;
 }) {
   const apiKey = process.env.RESEND_API_KEY;
@@ -126,13 +130,14 @@ async function sendContactEmail(input: {
       from,
       to: process.env.CONTACT_EMAIL_TO || DEFAULT_CONTACT_RECIPIENT,
       reply_to: input.email,
-      subject: `פנייה חדשה מאתר דרך חדשה - ${input.name}`,
+      subject: `פנייה חדשה מאתר דרך חדשה: ${input.subject} - ${input.name}`,
       text: [
         "פנייה חדשה מטופס צור קשר",
         "",
         `שם: ${input.name}`,
         `אימייל: ${input.email}`,
         `טלפון: ${input.phone || "לא נמסר"}`,
+        `נושא: ${input.subject}`,
         "",
         "הודעה:",
         input.message,

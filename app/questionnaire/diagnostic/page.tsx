@@ -180,6 +180,7 @@ export default function QuestionnaireDiagnosticPage() {
   const hasPdfResultSheets = resultSheets.length > 0;
   const isDev = process.env.NODE_ENV === "development";
   const showLoadingState = isLoading || isLoadingPreview;
+  const staffSubject = data?.staffSubject ?? null;
 
   const loadReport = useCallback(async () => {
     setIsLoading(true);
@@ -203,9 +204,21 @@ export default function QuestionnaireDiagnosticPage() {
       const savedOnly =
         typeof window !== "undefined" &&
         new URLSearchParams(window.location.search).get("saved") === "1";
+      const searchParams =
+        typeof window !== "undefined"
+          ? new URLSearchParams(window.location.search)
+          : new URLSearchParams();
+      const staffUserId = searchParams.get("staffUserId");
+      const reportId = searchParams.get("reportId");
+      const isStaffReportView = Boolean(staffUserId && reportId);
+      const requestUrl = isStaffReportView
+        ? `/api/diagnostic?staffUserId=${encodeURIComponent(
+            staffUserId as string
+          )}&reportId=${encodeURIComponent(reportId as string)}`
+        : "/api/diagnostic";
 
-      const response = await fetch("/api/diagnostic", {
-        method: savedOnly ? "GET" : "POST",
+      const response = await fetch(requestUrl, {
+        method: savedOnly || isStaffReportView ? "GET" : "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
@@ -429,6 +442,14 @@ export default function QuestionnaireDiagnosticPage() {
                 {data?.report.disclaimer ||
                   "ניתוח משולב של שלב א׳, מבחני היכולת, האישיות וערכי הליבה."}
               </motion.p>
+              {staffSubject ? (
+                <motion.p
+                  variants={softItemVariants}
+                  className="mt-2 text-lg font-semibold text-white drop-shadow-[0_1px_6px_rgba(3,7,18,0.35)]"
+                >
+                  שם המאובחנ/ת: {staffSubject.displayName}
+                </motion.p>
+              ) : null}
             </motion.div>
           </motion.div>
 
@@ -474,9 +495,13 @@ export default function QuestionnaireDiagnosticPage() {
                 <Button
                 variant="outline"
                 className="border-slate-500 bg-white text-slate-900 shadow-sm hover:bg-slate-50"
-                onClick={() => router.push("/dashboard")}
+                onClick={() =>
+                  router.push(
+                    staffSubject ? `/admin/users/${staffSubject.id}` : "/dashboard"
+                  )
+                }
               >
-                חזרה ללוח הבקרה
+                {staffSubject ? "חזרה לפרטי המאובחנ/ת" : "חזרה ללוח הבקרה"}
               </Button>
               </motion.div>
             </motion.div>
@@ -746,22 +771,7 @@ function DiagnosticReportView({ data }: { data: DiagnosticApiResponse }) {
         </Card>
       </Reveal>
 
-      <motion.div
-        variants={softItemVariants}
-        className="flex justify-center"
-        aria-hidden="true"
-      >
-        <div className="inline-flex flex-col items-center gap-1 rounded-full border border-white/30 bg-white/15 px-6 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-950/20 backdrop-blur">
-          <motion.span
-            animate={{ y: [0, 6, 0] }}
-            transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-            className="flex size-7 items-center justify-center rounded-full bg-white/20"
-          >
-            <ChevronDown className="size-5" />
-          </motion.span>
-          <span>גללו למטה</span>
-        </div>
-      </motion.div>
+      <ScrollHint />
 
       <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
         <AbilityScoresPanel
@@ -876,6 +886,67 @@ function DiagnosticReportView({ data }: { data: DiagnosticApiResponse }) {
         </Card>
       </Reveal>
     </StaggerGroup>
+  );
+}
+
+function ScrollHint() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [opacity, setOpacity] = useState(1);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element || typeof window === "undefined") return;
+
+    let frameId = 0;
+
+    const updateOpacity = () => {
+      frameId = 0;
+      const rect = element.getBoundingClientRect();
+      const fadeEnd = window.innerHeight * 0.5;
+      const fadeStart = window.innerHeight * 0.68;
+      const nextOpacity = Math.max(
+        0,
+        Math.min(1, (rect.top - fadeEnd) / (fadeStart - fadeEnd))
+      );
+
+      setOpacity(nextOpacity);
+    };
+
+    const requestUpdate = () => {
+      if (frameId) return;
+      frameId = window.requestAnimationFrame(updateOpacity);
+    };
+
+    updateOpacity();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+
+    return () => {
+      if (frameId) window.cancelAnimationFrame(frameId);
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
+    };
+  }, []);
+
+  return (
+    <motion.div
+      ref={ref}
+      variants={softItemVariants}
+      className="flex justify-center"
+      style={{ opacity }}
+      aria-hidden="true"
+    >
+      <div className="inline-flex flex-col items-center gap-1 text-sm font-semibold text-white drop-shadow-[0_2px_8px_rgba(15,23,42,0.55)]">
+        <span>גללו למטה</span>
+        <motion.span
+          animate={{ y: [0, 6, 0] }}
+          transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+          className="flex size-7 items-center justify-center"
+        >
+          <ChevronDown className="size-6" />
+        </motion.span>
+      </div>
+    </motion.div>
   );
 }
 
@@ -1028,14 +1099,14 @@ function PersonalityProfilePanel({
           <div className="border-b border-slate-200 p-4 lg:h-full lg:border-b-0">
             <BubbleTraitCloud
               traits={traitCloudData}
-              ariaLabel={`${title}: ענן תכונות לפי ציוני המשתמש`}
+              ariaLabel={`${title}: ענן תכונות לפי ציוני המאובחן`}
               className="h-72 rounded-none border-0 bg-transparent p-0 shadow-none lg:h-full"
             />
           </div>
           <div className="p-4 lg:h-full">
             <TraitScoreBars
               traits={traitCloudData}
-              ariaLabel={`${title}: תרשים עמודות אופקי לפי ציוני המשתמש`}
+              ariaLabel={`${title}: תרשים עמודות אופקי לפי ציוני המאובחן`}
               className="flex h-full flex-col justify-center rounded-none border-0 bg-transparent p-0 shadow-none"
             />
           </div>

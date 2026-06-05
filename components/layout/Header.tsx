@@ -12,11 +12,14 @@ import {
   LogIn,
   LogOut,
   Mail,
+  ShieldCheck,
+  Sparkles,
   UserRound,
 } from "lucide-react";
 
 export default function Header() {
   const [user, setUser] = useState<Session["user"] | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const router = useRouter();
@@ -41,6 +44,7 @@ export default function Header() {
         } = await supabase.auth.getSession();
         if (error) throw error;
         setUser(session?.user ?? null);
+        await loadAdminStatus(session?.user?.id);
       } catch (error) {
         console.error("Error getting session:", error);
       } finally {
@@ -57,6 +61,7 @@ export default function Header() {
     } = supabase.auth.onAuthStateChange(
       (event: string, session: Session | null) => {
         setUser(session?.user ?? null);
+        loadAdminStatus(session?.user?.id);
       }
     );
 
@@ -69,11 +74,29 @@ export default function Header() {
   const handleSignOut = async () => {
     try {
       setIsProfileOpen(false);
+      setIsAdmin(false);
       await supabase.auth.signOut();
       router.push("/");
     } catch (error) {
       console.error("Error signing out:", error);
     }
+  };
+
+  const loadAdminStatus = async (userId?: string) => {
+    if (!userId) {
+      setIsAdmin(false);
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("permissions")
+      .eq("id", userId)
+      .maybeSingle();
+
+    setIsAdmin(
+      !error && (data?.permissions === "Admin" || data?.permissions === "Advisor")
+    );
   };
 
   const handleSignIn = () => {
@@ -147,6 +170,30 @@ export default function Header() {
                     <FileText className="size-4" />
                     <span>פרופיל ותוצאות</span>
                   </Link>
+
+                  {isAdmin ? (
+                    <>
+                      <Link
+                        href="/fit-check"
+                        role="menuitem"
+                        className="flex items-center gap-3 px-4 py-3 text-sm transition hover:bg-white/10"
+                        onClick={() => setIsProfileOpen(false)}
+                      >
+                        <Sparkles className="size-4" />
+                        <span>בדיקת התאמה</span>
+                      </Link>
+
+                      <Link
+                        href="/admin"
+                        role="menuitem"
+                        className="flex items-center gap-3 px-4 py-3 text-sm transition hover:bg-white/10"
+                        onClick={() => setIsProfileOpen(false)}
+                      >
+                        <ShieldCheck className="size-4" />
+                        <span>ניהול מאובחנים</span>
+                      </Link>
+                    </>
+                  ) : null}
 
                   <button
                     type="button"
