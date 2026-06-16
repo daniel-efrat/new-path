@@ -112,7 +112,7 @@ export default function Step7({
     };
 
     loadStepAnswers();
-  }, []);
+  }, [resultsMode]);
 
   // Timer effect - auto advance when timer reaches 0
   useEffect(() => {

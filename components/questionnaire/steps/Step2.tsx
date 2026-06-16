@@ -115,7 +115,7 @@ export default function Step2({
     };
 
     loadStepAnswers();
-  }, []);
+  }, [resultsMode]);
 
   useEffect(() => {
     if (showResult || pauseQuestionTimer) return;

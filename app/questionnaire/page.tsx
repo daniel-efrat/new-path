@@ -299,7 +299,7 @@ export default function QuestionnairePage() {
   }, []);
 
   useEffect(() => {
-    if (!storeReady || showHollandResults || levelComplete) return;
+    if (!storeReady || resultsMode || showHollandResults || levelComplete) return;
 
     const introCopy = gilbertStepIntros[currentStep];
     if (!introCopy) return;
@@ -311,12 +311,19 @@ export default function QuestionnairePage() {
     currentStep,
     introPhase,
     levelComplete,
+    resultsMode,
     showHollandResults,
     storeReady,
   ]);
 
   useEffect(() => {
-    if (!storeReady || showHollandResults || levelComplete || gilbertPopup) {
+    if (
+      !storeReady ||
+      resultsMode ||
+      showHollandResults ||
+      levelComplete ||
+      gilbertPopup
+    ) {
       return;
     }
 
@@ -343,14 +350,16 @@ export default function QuestionnairePage() {
     gilbertPopup,
     introPhase,
     levelComplete,
+    resultsMode,
     showHollandResults,
     storeReady,
   ]);
 
   const openBreakReminder = useCallback(() => {
+    if (resultsMode) return;
     setPendingBreakReminder(false);
     setGilbertPopup(gilbertBreakReminderCopy);
-  }, []);
+  }, [resultsMode]);
 
   const waitForBreakReminderIfDue = useCallback(() => {
     if (!pendingBreakReminder || gilbertPopup) {
@@ -366,6 +375,7 @@ export default function QuestionnairePage() {
   const shouldRunBreakReminderTimer =
     storeReady &&
     pageVisible &&
+    !resultsMode &&
     userRecentlyActive &&
     !pendingBreakReminder &&
     !showHollandResults &&
@@ -415,6 +425,7 @@ export default function QuestionnairePage() {
     !showHollandResults &&
     !levelComplete &&
     Boolean(gilbertStepIntros[currentStep]) &&
+    !resultsMode &&
     introPhase !== "dismissed";
 
   if (!storeReady) {

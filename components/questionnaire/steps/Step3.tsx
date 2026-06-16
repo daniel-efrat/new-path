@@ -85,7 +85,7 @@ export default function Step3({
       }
     };
     loadAnswers();
-  }, []);
+  }, [resultsMode]);
 
   useEffect(() => {
     if (isFinished || pauseQuestionTimer) return;

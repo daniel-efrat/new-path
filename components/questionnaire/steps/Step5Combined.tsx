@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import Step5 from "@/components/questionnaire/steps/Step5";
 import Step6 from "@/components/questionnaire/steps/Step6";
@@ -22,7 +23,10 @@ export default function Step5Combined({
   waitForBreakReminderIfDue,
   pauseQuestionTimer = false,
 }: Step5CombinedProps) {
-  const [part, setPart] = useState<"logic" | "math">("logic");
+  const searchParams = useSearchParams();
+  const initialPart =
+    resultsMode && searchParams.get("part") === "math" ? "math" : "logic";
+  const [part, setPart] = useState<"logic" | "math">(initialPart);
 
   if (part === "logic") {
     return (

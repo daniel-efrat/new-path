@@ -130,7 +130,7 @@ export default function Step8({
     };
 
     loadStepAnswers();
-  }, []);
+  }, [resultsMode]);
 
   useEffect(() => {
     if (showResult || pauseQuestionTimer) return;

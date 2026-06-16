@@ -96,7 +96,7 @@ export default function Step6({
       }
     };
     loadStepAnswers();
-  }, []);
+  }, [resultsMode]);
 
   useEffect(() => {
     if (showResult || pauseQuestionTimer) return;

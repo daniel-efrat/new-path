@@ -15,6 +15,7 @@ import {
   BarChart3,
   BriefcaseBusiness,
   Brain,
+  ArrowLeft,
   ChevronDown,
   FileDown,
   GraduationCap,
@@ -54,16 +55,16 @@ import supabase from "@/lib/supabase";
 import { fetchStepAnswers } from "@/lib/utils/answerFetcher";
 import { cn } from "@/lib/utils";
 
-const ABILITY_STEP_BY_LABEL: Record<string, number> = {
-  "שפה עברית": 5,
-  "שפה אנגלית": 6,
-  "חשיבה לוגית": 7,
-  "חשיבה כמותית": 8,
-  "חשיבה חזותית": 9,
-  "ידע בסיסי במחשב": 10,
-  "קשב": 11,
-  "סינון מידע": 11,
-  "זיכרון עבודה": 11,
+const ABILITY_RESULT_HREF_BY_LABEL: Record<string, string> = {
+  "שפה עברית": "/questionnaire?step=2&results=1",
+  "שפה אנגלית": "/questionnaire?step=3&results=1",
+  "חשיבה לוגית": "/questionnaire?step=5&results=1",
+  "חשיבה כמותית": "/questionnaire?step=5&results=1&part=math",
+  "חשיבה חזותית": "/questionnaire?step=6&results=1",
+  "ידע בסיסי במחשב": "/questionnaire?step=7&results=1",
+  "קשב": "/questionnaire?step=8&results=1",
+  "סינון מידע": "/questionnaire?step=8&results=1",
+  "זיכרון עבודה": "/questionnaire?step=8&results=1",
 };
 
 const PDF_EXPORT_ELEMENT_ID = "diagnostic-pdf-export";
@@ -779,8 +780,7 @@ function DiagnosticReportView({ data }: { data: DiagnosticApiResponse }) {
           title="ציוני יכולת"
           scores={report.abilityScores}
           getResultHref={(score) => {
-            const step = ABILITY_STEP_BY_LABEL[score.label];
-            return step ? `/questionnaire?step=${step}&results=1` : null;
+            return ABILITY_RESULT_HREF_BY_LABEL[score.label] || null;
           }}
         />
         <PersonalityProfilePanel
@@ -1037,9 +1037,20 @@ function AnimatedAbilityScoreItem({
           transition={{ duration: 0.82, ease: [0.22, 1, 0.36, 1] }}
         />
       </div>
-      <motion.p variants={softItemVariants} className="text-xs text-slate-700">
-        {score.answered}/{score.total} תשובות
-      </motion.p>
+      <motion.div
+        variants={softItemVariants}
+        className="flex items-center justify-between gap-2 text-xs text-slate-700"
+      >
+        <span>
+          {score.answered}/{score.total} תשובות
+        </span>
+        {href ? (
+          <span className="inline-flex items-center gap-1 rounded-sm border border-teal-200 bg-teal-50/70 px-1.5 py-0.5 text-[11px] font-bold leading-4 text-teal-800">
+            תוצאות
+            <ArrowLeft className="size-3" aria-hidden="true" />
+          </span>
+        ) : null}
+      </motion.div>
     </>
   );
 
