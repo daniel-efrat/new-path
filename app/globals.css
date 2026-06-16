@@ -288,30 +288,41 @@ textarea:focus-visible,
 
 .dashboard-glass-card {
   border-radius: 1.25rem;
+  transition:
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 640ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.dashboard-glass-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    linear-gradient(
+      120deg,
+      rgba(49, 103, 188, 0.28),
+      rgba(255, 255, 255, 0.08) 36%,
+      rgba(18, 53, 120, 0.18) 70%
+    )
+    100% 50% / 180% 180%;
+  transition:
+    opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-position 900ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .dashboard-glass-card:hover {
   transform: translateY(-1px);
-  background:
-    linear-gradient(
-        120deg,
-        rgba(23, 65, 142, 0.7),
-        rgba(8, 33, 91, 0.64) 50%,
-        rgba(18, 53, 120, 0.63)
-      )
-      padding-box,
-    linear-gradient(
-        137deg,
-        rgba(255, 255, 255, 0.73),
-        rgba(233, 241, 251, 0.45) 34%,
-        rgba(201, 214, 233, 0.23) 65%,
-        rgba(255, 255, 255, 0.53)
-      )
-      border-box;
   box-shadow:
     0 25px 52px rgba(4, 22, 67, 0.2),
     0 7px 18px rgba(4, 22, 67, 0.12),
     inset 0 1px 0 rgba(255, 255, 255, 0.34);
+}
+
+.dashboard-glass-card:hover::after {
+  opacity: 1;
+  background-position: 0% 50%;
 }
 
 .dashboard-glass-card--active {
