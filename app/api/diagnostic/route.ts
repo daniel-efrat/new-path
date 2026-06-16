@@ -182,11 +182,7 @@ export async function POST(
       );
     }
 
-    if (
-      cached?.report_json &&
-      cached.provider === "openai" &&
-      cached.model === (process.env.OPENAI_MODEL || "gpt-5.4-mini")
-    ) {
+    if (cached?.report_json) {
       return NextResponse.json(toResponse(cached as DiagnosticReportRow, true));
     }
 
