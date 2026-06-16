@@ -419,7 +419,7 @@ export default function QuestionnaireDiagnosticPage() {
   ]);
 
   return (
-    <div className="min-h-screen px-4 py-8 text-slate-950 sm:px-6" dir="rtl">
+    <div className="min-h-screen px-4 pb-36 pt-8 text-slate-950 sm:px-6 md:pb-40" dir="rtl">
       <main className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-6">
         <motion.header
           variants={staggerContainerVariants}
