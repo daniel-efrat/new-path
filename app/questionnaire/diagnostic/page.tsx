@@ -1694,7 +1694,7 @@ function InsightCloud({
             key={item}
             variants={softItemVariants}
             className={cn(
-              "rounded-full border px-3 py-2 text-lg font-semibold leading-8 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md",
+              "rounded-lg border px-3 py-2 text-lg font-semibold leading-8 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:rounded-3xl",
               muted
                 ? "border-slate-500 bg-slate-50 text-slate-800"
                 : "border-teal-100 bg-gradient-to-l from-white to-teal-50 text-teal-700",
