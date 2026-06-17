@@ -113,9 +113,13 @@ export default function SitemapPage() {
                     <li key={link.href}>
                       <Link
                         href={link.href}
-                        className="inline-flex rounded-md px-1 py-1 text-white/78 transition hover:text-white"
+                        className="group inline-flex w-full items-center justify-between gap-3 rounded-md border border-white/10 bg-white/6 px-3 py-2 text-white/86 transition hover:border-white/24 hover:bg-white/12 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
                       >
-                        {link.label}
+                        <span>{link.label}</span>
+                        <ArrowLeft
+                          className="size-4 opacity-65 transition group-hover:-translate-x-0.5 group-hover:opacity-100"
+                          aria-hidden="true"
+                        />
                       </Link>
                     </li>
                   ))}

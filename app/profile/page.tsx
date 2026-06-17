@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { motion, type Variants } from "framer-motion";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -18,6 +19,29 @@ import type { GuidanceReport } from "@/lib/guidance/types";
 import supabase from "@/lib/supabase";
 
 type ReportKind = "guidance" | "diagnostic";
+
+const pageVariants: Variants = {
+  hidden: { opacity: 0, y: 18, filter: "blur(6px)" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: {
+      duration: 0.45,
+      ease: [0.22, 1, 0.36, 1],
+      staggerChildren: 0.08,
+    },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+  },
+};
 
 interface StoredReportRow<TReport> {
   id: string;
@@ -97,8 +121,16 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen px-4 py-8 sm:px-6" dir="rtl">
-      <main className="relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-6">
-        <header className="flex flex-col gap-4 rounded-lg border border-white/20 bg-white/10 p-5 text-white shadow-xl backdrop-blur-md sm:flex-row sm:items-center sm:justify-between">
+      <motion.main
+        className="relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-6"
+        variants={pageVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.header
+          className="flex flex-col gap-4 rounded-lg border border-white/20 bg-white/10 p-5 text-white shadow-xl backdrop-blur-md sm:flex-row sm:items-center sm:justify-between"
+          variants={itemVariants}
+        >
           <div className="flex items-center gap-4">
             <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-white text-primary">
               <UserRound className="size-6" />
@@ -119,49 +151,66 @@ export default function ProfilePage() {
           >
             חזרה ללוח הבקרה
           </Button>
-        </header>
+        </motion.header>
 
         {isLoading ? <LoadingState /> : null}
         {!isLoading && error ? (
-          <Card className="border-red-200/40 bg-red-950/25 text-white shadow-xl backdrop-blur-md">
-            <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm leading-6 text-white/80">{error}</p>
-              <Button onClick={loadProfile}>נסה שוב</Button>
-            </CardContent>
-          </Card>
+          <motion.div
+            variants={itemVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <Card className="border-red-200/40 bg-red-950/25 text-white shadow-xl backdrop-blur-md">
+              <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm leading-6 text-white/80">{error}</p>
+                <Button onClick={loadProfile}>נסה שוב</Button>
+              </CardContent>
+            </Card>
+          </motion.div>
         ) : null}
 
         {!isLoading && !error ? (
-          <section className="grid gap-4 md:grid-cols-2">
-            <ReportCard
-              kind="guidance"
-              title="מפת כיוון ראשונית"
-              description="תוצאות שלב א׳, תחומי עניין, סדרי עדיפויות וכיוונים ראשוניים."
-              report={guidance}
-              href="/questionnaire/guidance"
-            />
-            <ReportCard
-              kind="diagnostic"
-              title="דו״ח אבחוני תעסוקתי"
-              description="הדוח המלא לאחר שלב ב׳, כולל ציוני יכולת, פרופיל אישיות ומקצועות מתאימים."
-              report={diagnostic}
-              href="/questionnaire/diagnostic"
-            />
-          </section>
+          <motion.section
+            className="grid gap-4 md:grid-cols-2"
+            variants={pageVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <motion.div variants={itemVariants}>
+              <ReportCard
+                kind="guidance"
+                title="מפת כיוון ראשונית"
+                description="תוצאות שלב א׳, תחומי עניין, סדרי עדיפויות וכיוונים ראשוניים."
+                report={guidance}
+                href="/questionnaire/guidance"
+              />
+            </motion.div>
+            <motion.div variants={itemVariants}>
+              <ReportCard
+                kind="diagnostic"
+                title="דו״ח אבחוני תעסוקתי"
+                description="הדוח המלא לאחר שלב ב׳, כולל ציוני יכולת, פרופיל אישיות ומקצועות מתאימים."
+                report={diagnostic}
+                href="/questionnaire/diagnostic"
+              />
+            </motion.div>
+          </motion.section>
         ) : null}
-      </main>
+      </motion.main>
     </div>
   );
 }
 
 function LoadingState() {
   return (
-    <Card className="border-white/20 bg-white/10 text-white shadow-xl backdrop-blur-md">
-      <CardContent className="flex min-h-[240px] flex-col items-center justify-center gap-4 p-8 text-center">
-        <Loader2 className="size-9 animate-spin text-emerald-100" />
-        <p className="text-sm text-white/75">טוען את הפרופיל והתוצאות שלך...</p>
-      </CardContent>
-    </Card>
+    <motion.div variants={itemVariants}>
+      <Card className="border-white/20 bg-white/10 text-white shadow-xl backdrop-blur-md">
+        <CardContent className="flex min-h-[240px] flex-col items-center justify-center gap-4 p-8 text-center">
+          <Loader2 className="size-9 animate-spin text-emerald-100" />
+          <p className="text-sm text-white/75">טוען את הפרופיל והתוצאות שלך...</p>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }
 

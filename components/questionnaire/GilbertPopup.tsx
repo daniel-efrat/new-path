@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,8 @@ export interface GilbertPopupCopy {
   title: string;
   message: string;
   cta?: string;
+  secondaryCta?: string;
+  secondaryHref?: string;
   videoSrc?: string;
   videoLabel?: string;
 }
@@ -28,6 +31,8 @@ export default function GilbertPopup({
   title,
   message,
   cta = "הבנתי, ממשיכים",
+  secondaryCta,
+  secondaryHref,
   videoSrc,
   videoLabel = "סרטון המלצה להפסקה קצרה",
   onClose,
@@ -143,7 +148,12 @@ export default function GilbertPopup({
                 )}
               </p>
 
-              <div className="mt-6 flex justify-start">
+              <div className="mt-6 flex flex-wrap justify-start gap-3">
+                {secondaryCta && secondaryHref ? (
+                  <Button asChild type="button" size="lg" variant="outline">
+                    <Link href={secondaryHref}>{secondaryCta}</Link>
+                  </Button>
+                ) : null}
                 <Button type="button" size="lg" onClick={onClose} autoFocus>
                   {cta}
                 </Button>

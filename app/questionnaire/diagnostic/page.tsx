@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type Ref,
@@ -723,6 +724,12 @@ function DiagnosticReportView({ data }: { data: DiagnosticApiResponse }) {
   const [showAllOccupations, setShowAllOccupations] = useState(false);
   const firstRevealedOccupationRef = useRef<HTMLDivElement | null>(null);
   const shouldScrollToRevealedOccupationsRef = useRef(false);
+  const occupationRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const pendingOccupationExpansionRef = useRef<{
+    id: string;
+    previousHeight: number;
+    shouldAdjustScroll: boolean;
+  } | null>(null);
   const visibleOccupations = showAllOccupations
     ? report.topOccupations
     : report.topOccupations.slice(0, 4);
@@ -741,6 +748,65 @@ function DiagnosticReportView({ data }: { data: DiagnosticApiResponse }) {
       });
     });
   }, [showAllOccupations]);
+
+  useLayoutEffect(() => {
+    const pendingExpansion = pendingOccupationExpansionRef.current;
+    if (!pendingExpansion?.shouldAdjustScroll) return;
+
+    pendingOccupationExpansionRef.current = null;
+
+    let timeoutId = 0;
+    timeoutId = window.setTimeout(() => {
+      const expandedOccupation = occupationRefs.current[pendingExpansion.id];
+      if (!expandedOccupation) return;
+
+      const expandedHeight = expandedOccupation.getBoundingClientRect().height;
+      const heightDelta = Math.max(
+        0,
+        expandedHeight - pendingExpansion.previousHeight
+      );
+
+      if (heightDelta <= 1) return;
+
+      window.scrollBy({
+        top: -heightDelta,
+        left: 0,
+        behavior: "instant",
+      });
+    }, 320);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [openOccupationId]);
+
+  const toggleOccupation = useCallback((occupationId: string) => {
+    const selectedOccupation = occupationRefs.current[occupationId];
+
+    pendingOccupationExpansionRef.current = {
+      id: occupationId,
+      previousHeight:
+        selectedOccupation?.getBoundingClientRect().height ?? 0,
+      shouldAdjustScroll:
+        openOccupationId !== null && openOccupationId !== occupationId,
+    };
+
+    setOpenOccupationId((current) =>
+      current === occupationId ? null : occupationId
+    );
+  }, [openOccupationId]);
+
+  const setOccupationContainerRef = useCallback(
+    (occupationId: string, isFirstRevealed: boolean) =>
+      (node: HTMLDivElement | null) => {
+        occupationRefs.current[occupationId] = node;
+
+        if (isFirstRevealed) {
+          firstRevealedOccupationRef.current = node;
+        }
+      },
+    []
+  );
 
   return (
     <StaggerGroup className="grid gap-6">
@@ -827,14 +893,11 @@ function DiagnosticReportView({ data }: { data: DiagnosticApiResponse }) {
               key={occupation.id}
               occupation={occupation}
               isOpen={openOccupationId === occupation.id}
-              containerRef={
-                index === 4 ? firstRevealedOccupationRef : undefined
-              }
-              onToggle={() =>
-                setOpenOccupationId((current) =>
-                  current === occupation.id ? null : occupation.id
-                )
-              }
+              containerRef={setOccupationContainerRef(
+                occupation.id,
+                index === 4
+              )}
+              onToggle={() => toggleOccupation(occupation.id)}
             />
           ))}
           </AnimatePresence>

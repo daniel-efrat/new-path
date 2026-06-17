@@ -52,6 +52,8 @@ const gilbertStepIntros: Record<number, GilbertPopupCopy> = {
     title: "רגע לפני הולנד",
     message:
       "השאלון הזה מחפש נטיות, לא תוויות. אם משהו מרגיש בערך נכון, זה כבר מידע טוב. מדע מדויק עם מקום לאינטואיציה, כמו שאני אוהב.",
+    secondaryCta: "מידע על שאלון הולנד",
+    secondaryHref: "/aboutHolland",
   },
   11: {
     title: "נטיות לב כלליות",
@@ -479,6 +481,8 @@ export default function QuestionnairePage() {
         title={gilbertPopup?.title ?? ""}
         message={gilbertPopup?.message ?? ""}
         cta={gilbertPopup?.cta}
+        secondaryCta={gilbertPopup?.secondaryCta}
+        secondaryHref={gilbertPopup?.secondaryHref}
         eyebrow={gilbertPopup?.eyebrow}
         videoSrc={gilbertPopup?.videoSrc}
         videoLabel={gilbertPopup?.videoLabel}
