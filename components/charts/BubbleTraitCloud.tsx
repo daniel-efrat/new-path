@@ -217,13 +217,17 @@ export function BubbleTraitCloud({
                   <text
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    direction="rtl"
-                    unicodeBidi="plaintext"
                     className="pointer-events-none select-none fill-slate-800 font-bold"
                     style={{ fontSize }}
                   >
                     {lines.map((line, lineIndex) => (
-                      <tspan key={line} x={0} y={startY + lineIndex * lineHeight}>
+                      <tspan
+                        key={line}
+                        x={0}
+                        y={startY + lineIndex * lineHeight}
+                        direction="rtl"
+                        unicodeBidi="bidi-override"
+                      >
                         {line}
                       </tspan>
                     ))}
@@ -231,6 +235,8 @@ export function BubbleTraitCloud({
                       <tspan
                         x={0}
                         y={startY + lines.length * lineHeight}
+                        direction="ltr"
+                        unicodeBidi="bidi-override"
                         className="fill-slate-600 font-semibold"
                         style={{ fontSize: scoreFontSize }}
                       >
