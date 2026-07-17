@@ -10,7 +10,7 @@ export const diagnosticNarrativeJsonSchema = {
     summary: {
       type: "string",
       description:
-        "A concise Hebrew synthesis of questionnaire 1 and questionnaire 2, 4-6 short lines.",
+        "A personal, elaborate Hebrew synthesis of questionnaire 1 and questionnaire 2, 2-3 short paragraphs. Prioritize the user's stated preferences, values, career anchors, and chosen domains over Holland results.",
     },
     profileInsights: {
       type: "object",
@@ -20,17 +20,26 @@ export const diagnosticNarrativeJsonSchema = {
           type: "array",
           minItems: 2,
           maxItems: 6,
-          items: { type: "string" },
+          items: {
+            type: "string",
+            description:
+              "A rich, personal sentence that explains how this strength may show up in learning, work, decisions, or collaboration.",
+          },
         },
         developmentAreas: {
           type: "array",
           minItems: 1,
           maxItems: 4,
-          items: { type: "string" },
+          items: {
+            type: "string",
+            description:
+              "A practical, non-judgmental sentence that explains what to watch, test, or support before choosing a path.",
+          },
         },
         workStyle: {
           type: "string",
-          description: "One Hebrew paragraph describing the user's likely work style.",
+          description:
+            "A longer, warm Hebrew paragraph describing the user's likely work style, learning rhythm, motivation, decision-making, overload patterns, and supports that could help them succeed.",
         },
       },
       required: ["strengths", "developmentAreas", "workStyle"],
@@ -50,19 +59,28 @@ export const diagnosticNarrativeJsonSchema = {
           },
           shortWhy: {
             type: "string",
-            description: "One short Hebrew sentence explaining the match.",
+            description:
+              "One warm Hebrew sentence explaining the match, led by the user's preferences and values before test labels.",
           },
           fitReasons: {
             type: "array",
             minItems: 2,
             maxItems: 4,
-            items: { type: "string" },
+            items: {
+              type: "string",
+              description:
+                "A specific explanation that connects stated preferences, core values, career anchors, abilities, and personality to this occupation.",
+            },
           },
           possibleTensions: {
             type: "array",
             minItems: 1,
             maxItems: 3,
-            items: { type: "string" },
+            items: {
+              type: "string",
+              description:
+                "A careful, practical point to verify before choosing this route; not a disqualifying statement.",
+            },
           },
         },
         required: [

@@ -37,6 +37,9 @@ import type { GuidanceReport } from "@/lib/guidance/types";
 const CORE_VALUES_ANSWER_ID = "9d79036e-bf0c-4d65-b06f-f5f4b5f01302";
 const FINAL_RECOMMENDATION =
   "לסיום, מומלץ לפנות ליועצי הקריירה של \"דרך חדשה\" כדי לעבור יחד על התוצאות, או להמשיך להתייעץ באופן עצמאי עם ה-AI הפרטי שלך.";
+const DEFAULT_OPENAI_MODEL = "gpt-5.5";
+const DEFAULT_OPENAI_FALLBACK_MODEL = "gpt-5.4-mini";
+const DIAGNOSTIC_GENERATION_VERSION = "2026-07-17-gpt-55-preference-led-v1";
 
 const ABILITY_LABELS: Record<AbilityKey, string> = {
   hebrew: "שפה עברית",
@@ -169,7 +172,14 @@ export async function loadDiagnosticInput(
 
 export function hashDiagnosticInput(input: DiagnosticInput): string {
   return createHash("sha256")
-    .update(JSON.stringify(sortJson(input)))
+    .update(
+      JSON.stringify(
+        sortJson({
+          generationVersion: DIAGNOSTIC_GENERATION_VERSION,
+          input,
+        })
+      )
+    )
     .digest("hex");
 }
 
@@ -181,28 +191,34 @@ export async function generateDiagnosticReport(
   const candidateIds = input.candidateOccupations.map(
     (occupation) => occupation.id
   );
-  const openAiModel = process.env.OPENAI_MODEL || "gpt-5.4-mini";
 
-  try {
-    const generation = await generateWithOpenAI(
-      systemPrompt,
-      userPrompt,
-      openAiModel,
-      candidateIds
-    );
-    const report = mergeNarrative(baseReport, generation.narrative);
-    return {
-      report: attachTokenUsage(report, generation.tokenUsage),
-      provider: "openai",
-      model: openAiModel,
-      tokenUsage: generation.tokenUsage,
-    };
-  } catch (openAiError) {
-    console.warn("OpenAI diagnostic generation failed; trying OpenRouter.", {
-      message:
-        openAiError instanceof Error ? openAiError.message : String(openAiError),
-    });
+  for (const openAiModel of getOpenAIModelCascade()) {
+    try {
+      const generation = await generateWithOpenAI(
+        systemPrompt,
+        userPrompt,
+        openAiModel,
+        candidateIds
+      );
+      const report = mergeNarrative(baseReport, generation.narrative);
+      return {
+        report: attachTokenUsage(report, generation.tokenUsage),
+        provider: "openai",
+        model: openAiModel,
+        tokenUsage: generation.tokenUsage,
+      };
+    } catch (openAiError) {
+      console.warn("OpenAI diagnostic generation failed.", {
+        model: openAiModel,
+        message:
+          openAiError instanceof Error
+            ? openAiError.message
+            : String(openAiError),
+      });
+    }
   }
+
+  console.warn("All OpenAI diagnostic models failed; trying OpenRouter.");
 
   const openRouterModel =
     process.env.OPENROUTER_MODEL || "deepseek/deepseek-v4-pro";
@@ -258,6 +274,17 @@ export async function generateDiagnosticReport(
     provider: "deterministic",
     model: "deterministic-fallback",
   };
+}
+
+function getOpenAIModelCascade(): string[] {
+  return [
+    process.env.DIAGNOSTIC_OPENAI_MODEL || DEFAULT_OPENAI_MODEL,
+    process.env.DIAGNOSTIC_OPENAI_FALLBACK_MODEL ||
+      process.env.OPENAI_MODEL ||
+      DEFAULT_OPENAI_FALLBACK_MODEL,
+  ].filter((model, index, models): model is string => {
+    return Boolean(model) && models.indexOf(model) === index;
+  });
 }
 
 async function loadLatestGuidanceReport(
@@ -467,7 +494,7 @@ function scoreOccupationFacts({
     .join(" ")
     .toLowerCase();
 
-  return OCCUPATION_FACTS.map((fact) => {
+  const scoredOccupations = OCCUPATION_FACTS.map((fact) => {
     const interests = average(
       fact.riasecCodes.map((code) => riasecScores.get(code) ?? 50)
     );
@@ -485,11 +512,11 @@ function scoreOccupationFacts({
     const domain = scoreDomain(fact, domainRanks);
     const matchPercent = clamp(
       Math.round(
-        interests * 0.25 +
-          abilitiesScore * 0.25 +
-          personalityScore * 0.18 +
-          priorities * 0.17 +
-          domain * 0.15
+        interests * 0.12 +
+          abilitiesScore * 0.22 +
+          personalityScore * 0.16 +
+          priorities * 0.3 +
+          domain * 0.2
       ),
       1,
       98
@@ -529,6 +556,31 @@ function scoreOccupationFacts({
   })
     .sort((a, b) => b.matchPercent - a.matchPercent)
     .slice(0, 8);
+
+  return calibrateDisplayedMatchScores(scoredOccupations);
+}
+
+function calibrateDisplayedMatchScores(
+  occupations: DiagnosticOccupation[]
+): DiagnosticOccupation[] {
+  if (occupations.length === 0) return occupations;
+
+  const topScore = clamp(Math.max(88, occupations[0].matchPercent + 8), 1, 98);
+  let previousScore = topScore + 4;
+
+  return occupations.map((occupation, index) => {
+    const optimisticScore =
+      index === 0
+        ? topScore
+        : clamp(occupation.matchPercent + Math.max(4, 8 - index), 1, 94);
+    const matchPercent = Math.min(optimisticScore, previousScore - 3);
+    previousScore = matchPercent;
+
+    return {
+      ...occupation,
+      matchPercent,
+    };
+  });
 }
 
 function buildDeterministicReport(input: DiagnosticInput): DiagnosticReport {
@@ -591,8 +643,10 @@ function buildDiagnosticPrompt(input: DiagnosticInput, baseReport: DiagnosticRep
     "אתה יועץ תעסוקתי מקצועי וזהיר למערכת אבחון קריירה בעברית.",
     "עליך לכתוב ניתוח אבחוני מפורט אחרי שלב ב׳, על בסיס הנתונים והמקצועות המועמדים בלבד.",
     "אל תמציא מקצועות, אחוזי התאמה, שכר, מוסדות הכשרה או קישורים. כל אלה נקבעים במערכת.",
+    "בעת פרשנות המסלולים, תן עדיפות ברורה להעדפות המוצהרות של המשתמש, הערכים, עוגני הקריירה והתחומים שבחר. השתמש בתוצאות Holland כתמיכה בלבד ולא כגורם המוביל.",
     "כתוב בעברית, בטון ברור, אנושי ולא נחרץ מדי. הימנע מאבחון קליני.",
-    "הפלט צריך להיכתב בטון אמפתי, רגיש, עם ׳נשמה׳",
+    "הפלט צריך להיכתב בטון אמפתי, רגיש, אישי ועם ׳נשמה׳.",
+    "הניתוח של האישיות, הכישורים ודפוסי העבודה חייב להיות עשיר, מפורט ומותאם לאדם: פחות משפטים כלליים, יותר חיבור בין נתונים ספציפיים לבין משמעות תעסוקתית.",
     "הפלט חייב להיות JSON תקין בלבד, בלי Markdown, לפי הסכמה.",
   ].join("\n");
 
@@ -601,8 +655,12 @@ function buildDiagnosticPrompt(input: DiagnosticInput, baseReport: DiagnosticRep
     JSON.stringify(compactInput, null, 2),
     "הפק JSON בעברית בלבד.",
     "occupationNarratives חייב לכלול רק occupationId מתוך רשימת candidateOccupations.",
-    "shortWhy ו-fitReasons צריכים לנמק התאמה באמצעות שילוב שלב א׳, ציוני יכולת, אישיות וערכי ליבה.",
-    "לשקלל קודם כל את התשוקה והערכים (הרוח), ורק אז להצליב אותם עם הכישורים האנליטיים כדי לקבוע את אחוזי ההתאמה (כך שאם למשל נדרשת מתמטיקה גבוהה והציון של המאובחן נמוך, המקצוע ייפסל).",
+    "summary צריך להיות אישי ומפותח: 2-3 פסקאות קצרות שמחברות בין העדפות, ערכים, יכולות, אישיות ודפוסי עבודה.",
+    "profileInsights.strengths ו-profileInsights.developmentAreas צריכים להיות משפטים עשירים ולא כותרות קצרות; כל פריט צריך להסביר איך הנתון עשוי להתבטא בלימודים, עבודה או בחירת מסלול.",
+    "profileInsights.workStyle צריך להיות פסקה ארוכה יחסית, אישית וקונקרטית, שמתארת איך המשתמש כנראה עובד, לומד, מקבל החלטות, מתמודד עם עומס ומה יעזור לו להצליח.",
+    "shortWhy ו-fitReasons צריכים לנמק התאמה באמצעות שילוב של ההעדפות המוצהרות, ערכי הליבה, עוגני הקריירה, תחומי הבחירה, ציוני היכולת והאישיות.",
+    "תן עדיפות להעדפות המשתמש ולמה שמושך אותו בפועל על פני Holland. Holland יכול לאשש כיוון, אך לא להוביל אם הוא מתנגש עם העדפות מפורשות.",
+    "לשקלל קודם כל את התשוקה והערכים (הרוח), ורק אז להצליב אותם עם הכישורים האנליטיים כדי להסביר התאמה ופערים.",
     "possibleTensions צריך להיות זהיר ומעשי: מה לבדוק לפני בחירת מסלול, לא סיבה לפסילה.",
     `nextSteps חייב לכלול כפסקת סיום את ההמלצה הזו בדיוק: ${FINAL_RECOMMENDATION}`,
   ].join("\n\n");
@@ -700,7 +758,7 @@ async function generateWithOpenRouter(
         { role: "user", content: userPrompt },
       ],
       temperature: 0.3,
-      max_tokens: 4096,
+      max_tokens: 8192,
       response_format: {
         type: "json_schema",
         json_schema: {
@@ -763,7 +821,7 @@ async function generateWithOpenAI(
         },
       },
       reasoning: { effort: "low" },
-      max_output_tokens: 6000,
+      max_output_tokens: 9000,
     }),
   });
 
